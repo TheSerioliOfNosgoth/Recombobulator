@@ -1,0 +1,348 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{62330266-80E5-4EDB-B388-5EE2850EB1D9}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>Recombobulator</RootNamespace>
+    <AssemblyName>Recombobulator</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="SR1Structures\Collections\SR1_PointerSeries.cs" />
+    <Compile Include="SR1Structures\Collections\SR1_StructureSeriesBase.cs" />
+    <Compile Include="SR1Structures\Exported\Animation\SAnimSet.cs" />
+    <Compile Include="SR1Structures\Exported\Animation\ThrowItemSet.cs" />
+    <Compile Include="SR1Structures\Exported\Animation\AttackItemSet.cs" />
+    <Compile Include="SR1Structures\Exported\Animation\AttackItemList.cs" />
+    <Compile Include="SR1Structures\Exported\Animation\IdleList.cs" />
+    <Compile Include="SR1Structures\Exported\Animation\IdleSet.cs" />
+    <Compile Include="SR1Structures\Exported\Animation\SAnim.cs" />
+    <Compile Include="SR1Structures\Exported\Animation\VAnim.cs" />
+    <Compile Include="SR1Structures\Exported\Animation\ThrowItem.cs" />
+    <Compile Include="SR1Structures\Exported\Animation\AttackItem.cs" />
+    <Compile Include="SR1Structures\Exported\Animation\Idle.cs" />
+    <Compile Include="SR1Structures\Exported\Animation\G2AnimFxHeader_Type.cs" />
+    <Compile Include="SR1Structures\Exported\Animation\G2AnimFxList.cs" />
+    <Compile Include="SR1Structures\Exported\Animation\G2AnimList.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\KainTuneData.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\HunterTuneData.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\Wallcr.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\WalBosTuneData.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\WalBosBTuneData.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\WalBossAttackDeltas.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\WalBossAttributes.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\SkinBosTuneData.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\AlukaBssTuneData.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\RoninBssTuneData.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\VWraithTuneData.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\MonsterTuneData.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\MonsterStateChoice.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\MonsterState.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\AlukaTuneData.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\RelocateModule.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\RelocateList.cs" />
+    <Compile Include="SR1Structures\Exported\GenericFX\GenericBlastRingParams.cs" />
+    <Compile Include="SR1Structures\Exported\GenericFX\GenericLightningParams.cs" />
+    <Compile Include="SR1Structures\Exported\GenericFX\GenericFlashParams.cs" />
+    <Compile Include="SR1Structures\Exported\GenericFX\GenericGlowParams.cs" />
+    <Compile Include="SR1Structures\Exported\GenericFX\GenericRibbonParams.cs" />
+    <Compile Include="SR1Structures\Exported\GenericFX\GenericParticleParams.cs" />
+    <Compile Include="SR1Structures\Exported\GenericFX\GenericFXObject.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\MonsterShatter.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\MonsterAllegiances.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\MonsterAttackList.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\MonsterSenses.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\MonsterAttackAttributes.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\MonsterIdle.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\MonsterBehavior.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\MonsterAnim.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\MonsterMissile.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\MonsterCombatAttributes.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\MonsterSubAttributes.cs" />
+    <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObProjectileData.cs" />
+    <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObLight.cs" />
+    <Compile Include="SR1Structures\Exported\PhysicalObject\LightTableEntry.cs" />
+    <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObSplinter.cs" />
+    <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObWeaponAttributes.cs" />
+    <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObInteractProperties.cs" />
+    <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObProjectileProperties.cs" />
+    <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObDraftProperties.cs" />
+    <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObSwitchProperties.cs" />
+    <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObCollectibleProperties.cs" />
+    <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObAnimatedProperties.cs" />
+    <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObWeaponProperties.cs" />
+    <Compile Include="SR1Structures\Exported\RazielData.cs" />
+    <Compile Include="SR1Structures\Exported\ReaverTuneData.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\MonsterAttributes.cs" />
+    <Compile Include="SR1Structures\Exported\Geometry\HBox.cs" />
+    <Compile Include="SR1Structures\Exported\Geometry\HFace.cs" />
+    <Compile Include="SR1Structures\Exported\Geometry\HInfo.cs" />
+    <Compile Include="SR1Structures\Exported\Geometry\HSphere.cs" />
+    <Compile Include="SR1Structures\Exported\Geometry\SVectorNoPad.cs" />
+    <Compile Include="SR1Structures\Exported\Model\MFace.cs" />
+    <Compile Include="SR1Structures\Exported\Model\Segment.cs" />
+    <Compile Include="SR1Structures\Exported\GlyphTuneData.cs" />
+    <Compile Include="SR1Structures\Exported\LitShaftProperties.cs" />
+    <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObProperties.cs" />
+    <Compile Include="SR1Structures\Exported\Textures\AniTexInfo.cs" />
+    <Compile Include="SR1Structures\Exported\Textures\AniTex.cs" />
+    <Compile Include="SR1Structures\Exported\ObjectEffect.cs" />
+    <Compile Include="SR1Structures\Exported\Animation\G2AnimKeylist_Type.cs" />
+    <Compile Include="SR1Structures\Exported\Model\Model.cs" />
+    <Compile Include="SR1Structures\Exported\Object.cs" />
+    <Compile Include="SR1Structures\Exported\Textures\TextureMT3.cs" />
+    <Compile Include="SR1Structures\Exported\Model\MVertex.cs" />
+    <Compile Include="UpgradeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UpgradeForm.Designer.cs">
+      <DependentUpon>UpgradeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SR1Structures\SR1_PrimativeBase.cs" />
+    <Compile Include="SR1Structures\SR1_Primative.cs" />
+    <Compile Include="SR1Structures\Collections\SR1_String.cs" />
+    <Compile Include="SR1Structures\Collections\SR1_StructureArray.cs" />
+    <Compile Include="SR1Structures\Collections\SR1_StructureArrayBase.cs" />
+    <Compile Include="SR1Structures\Collections\SR1_StructureList.cs" />
+    <Compile Include="SR1Structures\Exported\Event\EventVMOObject.cs" />
+    <Compile Include="SR1Structures\Exported\Geometry\G2Quat_Type.cs" />
+    <Compile Include="SR1Structures\Exported\Geometry\MiniMatrix.cs" />
+    <Compile Include="SR1Structures\Exported\ObjectSound\ObjectDummySound.cs" />
+    <Compile Include="SR1Structures\Exported\ObjectSound\ObjectPeriodicSound.cs" />
+    <Compile Include="SR1Structures\Exported\ObjectSound\ObjectEventSound.cs" />
+    <Compile Include="SR1Structures\Exported\ObjectSound\ObjectOneShotSound.cs" />
+    <Compile Include="SR1Structures\Exported\ObjectSound\ObjectSound.cs" />
+    <Compile Include="SR1Structures\Exported\UnknownPCList.cs" />
+    <Compile Include="SR1Structures\Exported\SFXFileDataList.cs" />
+    <Compile Include="SR1Structures\Exported\SFXFileData.cs" />
+    <Compile Include="SR1Structures\Exported\Spline\MultiSpline.cs" />
+    <Compile Include="SR1Structures\Exported\Spline\RSpline.cs" />
+    <Compile Include="SR1Structures\Exported\Spline\Spline.cs" />
+    <Compile Include="SR1Structures\Exported\Spline\SplineDef.cs" />
+    <Compile Include="SR1Structures\Exported\Spline\SplineKey.cs" />
+    <Compile Include="SR1Structures\Exported\Spline\SplineRotKey.cs" />
+    <Compile Include="SR1Structures\Exported\Geometry\VecL.cs" />
+    <Compile Include="SR1Structures\Exported\Geometry\VecS.cs" />
+    <Compile Include="SR1Structures\Exported\VMObject\VMVertex.cs" />
+    <Compile Include="SR1Structures\Exported\VMObject\VMOffsetTable.cs" />
+    <Compile Include="SR1Structures\Exported\VMObject\VMObjectList.cs" />
+    <Compile Include="SR1Structures\Pointers\SR1_PointerBase.cs" />
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\Signal.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalLightGroup.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalCameraAdjust.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalCameraKey.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalCameraTimer.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalCameraSmooth.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalCameraValue.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalCameraLock.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalCameraUnlock.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalCameraSave.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalCameraRestore.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalEnd.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalCameraMode.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalStopPlayerControl.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalStartPlayerControl.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalResetSlideAngle.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalFogNear.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalFogFar.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalCameraShake.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalCallSignal.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalStreamLevel.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalCameraSpline.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalScreenWipe.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalBlendStart.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalScreenWipeColor.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalSetSlideAngle.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalCameraTilt.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalCameraDistance.cs" />
+    <Compile Include="SR1Structures\InGame\BGObject.cs" />
+    <Compile Include="SR1Structures\Exported\Geometry\BoundingBox.cs" />
+    <Compile Include="SR1Structures\Exported\Terrain\BSPLeaf.cs" />
+    <Compile Include="SR1Structures\Exported\Terrain\BSPNode.cs" />
+    <Compile Include="SR1Structures\Exported\Terrain\BSPTree.cs" />
+    <Compile Include="SR1Structures\Exported\CameraKey.cs" />
+    <Compile Include="SR1Structures\Exported\Event\Event.cs" />
+    <Compile Include="SR1Structures\Exported\Event\EventBasicObject.cs" />
+    <Compile Include="SR1Structures\Exported\Event\EventInstanceObject.cs" />
+    <Compile Include="SR1Structures\Exported\Event\EventEventObject.cs" />
+    <Compile Include="SR1Structures\Exported\Event\EventTGroupObject.cs" />
+    <Compile Include="SR1Structures\Exported\Event\EventWildCardObject.cs" />
+    <Compile Include="SR1Structures\Exported\INICommand.cs" />
+    <Compile Include="SR1Structures\Exported\VMObject\VMColorVertex.cs" />
+    <Compile Include="SR1Structures\Exported\VMObject\VMMoveVertex.cs" />
+    <Compile Include="SR1Structures\Exported\ObjectNameList.cs" />
+    <Compile Include="SR1Structures\Exported\CVector.cs" />
+    <Compile Include="SR1Structures\Exported\Textures\DrMoveAniTex.cs" />
+    <Compile Include="SR1Structures\Exported\Textures\DrMoveAniTexDestInfo.cs" />
+    <Compile Include="SR1Structures\Exported\Textures\DrMoveAniTexSrcInfo.cs" />
+    <Compile Include="SR1Structures\Exported\Event\EventPointers.cs" />
+    <Compile Include="SR1Structures\Exported\Geometry\Face.cs" />
+    <Compile Include="SR1Structures\InGame\HotSpot.cs" />
+    <Compile Include="SR1Structures\InGame\Instance.cs" />
+    <Compile Include="SR1Structures\Exported\Intro.cs" />
+    <Compile Include="SR1Structures\Exported\Level.cs" />
+    <Compile Include="SR1Structures\Exported\LightGroup.cs" />
+    <Compile Include="SR1Structures\Exported\LightList.cs" />
+    <Compile Include="SR1Structures\Exported\Geometry\Matrix.cs" />
+    <Compile Include="SR1Structures\Exported\MorphColor.cs" />
+    <Compile Include="SR1Structures\Exported\MorphVertex.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\MultiSignal.cs" />
+    <Compile Include="SR1Structures\Exported\Geometry\Normal.cs" />
+    <Compile Include="SR1Structures\Exported\PlanMkr.cs" />
+    <Compile Include="SR1Structures\Exported\Geometry\Position.cs" />
+    <Compile Include="SR1Structures\Exported\Geometry\Rotation.cs" />
+    <Compile Include="SR1Structures\Exported\ScriptPCode.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalData.cs" />
+    <Compile Include="SR1Structures\Exported\SoundInstance.cs" />
+    <Compile Include="SR1Structures\Exported\Geometry\Sphere_noSq.cs" />
+    <Compile Include="SR1Structures\Exported\VMObject\VMColorObject.cs" />
+    <Compile Include="SR1Structures\Exported\VMObject\VMColorOffset.cs" />
+    <Compile Include="SR1Structures\Exported\VMObject\VMColorOffsetTable.cs" />
+    <Compile Include="SR1Structures\Exported\VMObject\VMInterpolated.cs" />
+    <Compile Include="SR1Structures\Exported\VMObject\VMMoveOffset.cs" />
+    <Compile Include="SR1Structures\Exported\VMObject\VMMoveOffsetTable.cs" />
+    <Compile Include="SR1Structures\Exported\VMObject\VMMoveObject.cs" />
+    <Compile Include="SR1Structures\InGame\StreamUnit.cs" />
+    <Compile Include="SR1Structures\Exported\StreamUnitPortal.cs" />
+    <Compile Include="SR1Structures\Exported\StreamUnitPortalList.cs" />
+    <Compile Include="SR1Structures\Exported\Geometry\SVector.cs" />
+    <Compile Include="SR1Structures\Exported\Geometry\Vertex.cs" />
+    <Compile Include="SR1Structures\Collections\SR1_PointerArray.cs" />
+    <Compile Include="SR1Structures\Pointers\SR1_PointerArrayPointer.cs" />
+    <Compile Include="SR1Structures\Pointers\SR1_PrimativePointer.cs" />
+    <Compile Include="SR1Structures\Pointers\SR1_Pointer.cs" />
+    <Compile Include="SR1Structures\InGame\PointLight.cs" />
+    <Compile Include="SR1Structures\Exported\SFXMkr.cs" />
+    <Compile Include="SR1Structures\InGame\SpotLight.cs" />
+    <Compile Include="SR1Structures\Exported\Terrain\Terrain.cs" />
+    <Compile Include="SR1_File.cs" />
+    <Compile Include="SR1Structures\Exported\TClassAttr.cs" />
+    <Compile Include="SR1Structures\Exported\Textures\TextureFT3.cs" />
+    <Compile Include="SR1Structures\Exported\Terrain\TFace.cs" />
+    <Compile Include="SR1Structures\Exported\Terrain\TVertex.cs" />
+    <Compile Include="SR1Structures\Exported\Geometry\VGroup.cs" />
+    <Compile Include="SR1Structures\Exported\VMObject\VMObject.cs" />
+    <Compile Include="SR1Structures\Exported\VramSize.cs" />
+    <Compile Include="SR1Structures\Collections\SR1_PrimativeArray.cs" />
+    <Compile Include="SR1Structures\SR1_Structure.cs" />
+    <Compile Include="SR1Structures\Collections\SR1_StructureSeries.cs" />
+    <Compile Include="SR1_Writer.cs" />
+    <Compile Include="SR1_Reader.cs" />
+    <Compile Include="TreeList\TreeListColumn.cs" />
+    <Compile Include="TreeList\TreeListColumn.Design.cs" />
+    <Compile Include="TreeList\TreeListNode.cs" />
+    <Compile Include="TreeList\TreeListOptions.cs" />
+    <Compile Include="TreeList\TreeListPainter.cs" />
+    <Compile Include="TreeList\TreeListUtil.cs" />
+    <Compile Include="TreeList\TreeListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="TreeList\TreeViewTracing.cs" />
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="UpgradeForm.resx">
+      <DependentUpon>UpgradeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.7.2 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

@@ -1,0 +1,32 @@
+﻿using System.Collections.Generic;
+using System.IO;
+using Recombobulator.SR1Structures;
+
+namespace Recombobulator
+{
+    class SR1_Reader : BinaryReader
+    {
+        public SR1_File File = null;
+        public Object Object = null;
+        public SortedList<uint, SR1_PointerBase> AnimFXDictionary { get; } = new SortedList<uint, SR1_PointerBase>();
+        public SortedList<uint, SR1_PointerBase> AttackAnimDictionary { get; } = new SortedList<uint, SR1_PointerBase>();
+        public SortedList<uint, SR1_PointerBase> AttackAnimSetDictionary { get; } = new SortedList<uint, SR1_PointerBase>();
+        public SortedList<uint, SR1_PointerBase> IdleAnimDictionary { get; } = new SortedList<uint, SR1_PointerBase>();
+        public SortedList<uint, SR1_PointerBase> IdleAnimSetDictionary { get; } = new SortedList<uint, SR1_PointerBase>();
+        public SortedList<uint, SR1_PointerBase> SAnimDictionary { get; } = new SortedList<uint, SR1_PointerBase>();
+        public SortedList<uint, SR1_PointerBase> ThrowAnimDictionary { get; } = new SortedList<uint, SR1_PointerBase>();
+        public SortedDictionary<uint, SR1_Pointer<SFXFileData>> SFXDictionary { get; } = new SortedDictionary<uint, SR1_Pointer<SFXFileData>>();
+        public SR1_Pointer<PlanMkr> PlanMarkerList = null;
+
+        public SR1_Reader(SR1_File file, Stream input)
+            : base(input, System.Text.Encoding.UTF8)
+        {
+            File = file;
+        }
+
+        public void LogError(string error)
+        {
+            File._ImportErrors.WriteLine(error);
+        }
+    }
+}

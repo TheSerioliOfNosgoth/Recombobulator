@@ -1,0 +1,9 @@
+([a-zA-Z0-9_]+)\.Read\(reader, this\)
+$1.Read(reader, this, "$1")
+
+([a-zA-Z0-9_]+)\.Read\(reader, this, "([a-zA-Z0-9_]+)"\)
+$1.Write(writer)
+
+        public override void WriteMembers(SR1_Writer writer)
+        {
+	}
