@@ -49,5 +49,31 @@ namespace Recombobulator.SR1Structures
             pad.Write(writer);
             listStart.Write(writer);
         }
+
+        public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion)
+        {
+            base.MigrateVersion(file, targetVersion);
+
+            if (file._Version == SR1_File.Version.Retail && targetVersion == SR1_File.Version.Retail_PC)
+            {
+                for (int i = 0; i < _List.Count;)
+                {
+                    string objectName = _List[i].ToString();
+                    if (objectName == "Shadow" ||
+                        objectName == "Shadow2" ||
+                        objectName == "Shadow3")
+                    {
+                        MembersRead.Remove(_List[i]);
+                        _List.Remove(_List[i]);
+                    }
+                    else
+                    {
+                        i++;
+                    }
+                }
+
+                file._MigrationStructures.Add(Start, this);
+            }
+        }
     }
 }
