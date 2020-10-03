@@ -54,7 +54,8 @@ namespace Recombobulator.SR1Structures
         {
             base.MigrateVersion(file, targetVersion);
 
-            if (file._Version == SR1_File.Version.Retail && targetVersion == SR1_File.Version.Retail_PC)
+            if ((file._Version == SR1_File.Version.Retail || file._Version == SR1_File.Version.Beta) &&
+                targetVersion == SR1_File.Version.Retail_PC)
             {
                 for (int i = 0; i < _List.Count;)
                 {

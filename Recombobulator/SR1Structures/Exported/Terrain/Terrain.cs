@@ -20,9 +20,12 @@ namespace Recombobulator.SR1Structures
         SR1_Pointer<Normal> normalList = new SR1_Pointer<Normal>();
         SR1_Pointer<DrMoveAniTex> aniList = new SR1_Pointer<DrMoveAniTex>();
         SR1_Primative<int> pad = new SR1_Primative<int>();
+        SR1_Pointer<BSPNode> sbspRoot = new SR1_Pointer<BSPNode>();
         SR1_Pointer<StreamUnitPortalList> StreamUnits = new SR1_Pointer<StreamUnitPortalList>(); // void in sym, StreamUnitPortalList created for this tool.
         SR1_Pointer<TextureFT3> StartTextureList = new SR1_Pointer<TextureFT3>();
         SR1_Pointer<TextureFT3> EndTextureList = new SR1_Pointer<TextureFT3>();
+        SR1_Pointer<SBSPLeaf> sbspStartLeaves = new SR1_Pointer<SBSPLeaf>();
+        SR1_Pointer<SBSPLeaf> sbspEndLeaves = new SR1_Pointer<SBSPLeaf>();
         SR1_Pointer<MorphVertex> MorphDiffList = new SR1_Pointer<MorphVertex>();
         SR1_Pointer<MorphColor> MorphColorList = new SR1_Pointer<MorphColor>();
         SR1_Primative<int> numBSPTrees = new SR1_Primative<int>();
@@ -45,10 +48,13 @@ namespace Recombobulator.SR1Structures
             faceList.Read(reader, this, "faceList");
             normalList.Read(reader, this, "normalList");
             aniList.Read(reader, this, "aniList");
-            pad.Read(reader, this, "pad");
+            sbspRoot.Read(reader, this, "sbspRoot", SR1_File.Version.First, SR1_File.Version.Retail);
+            pad.Read(reader, this, "pad", SR1_File.Version.Retail, SR1_File.Version.Next);
             StreamUnits.Read(reader, this, "StreamUnits");
             StartTextureList.Read(reader, this, "StartTextureList");
             EndTextureList.Read(reader, this, "EndTextureList");
+            sbspStartLeaves.Read(reader, this, "sbspStartLeaves", SR1_File.Version.First, SR1_File.Version.Retail);
+            sbspEndLeaves.Read(reader, this, "sbspEndLeaves", SR1_File.Version.First, SR1_File.Version.Retail);
             MorphDiffList.Read(reader, this, "MorphDiffList");
             MorphColorList.Read(reader, this, "MorphColorList");
             numBSPTrees.Read(reader, this, "numBSPTrees");
@@ -74,8 +80,32 @@ namespace Recombobulator.SR1Structures
             }
 
             new DrMoveAniTex().ReadFromPointer(reader, aniList);
+
+            if (reader.File._Version <= SR1_File.Version.Beta)
+            {
+                new SR1_StructureSeries<BSPNode>((int)(sbspStartLeaves.Offset - sbspRoot.Offset)).ReadFromPointer(reader, sbspRoot);
+            }
+
             new StreamUnitPortalList().ReadFromPointer(reader, StreamUnits);
             new SR1_StructureSeries<TextureFT3>((int)(EndTextureList.Offset - StartTextureList.Offset)).ReadFromPointer(reader, StartTextureList);
+
+            if (reader.File._Version <= SR1_File.Version.Beta)
+            {
+                new SR1_StructureSeries<SBSPLeaf>((int)(sbspEndLeaves.Offset - sbspStartLeaves.Offset)).ReadFromPointer(reader, sbspStartLeaves);
+
+                if (reader.IntroListDictionary.Count > 0)
+                {
+                    SR1_StructureList<SR1_PointerArray<Intro>> introListSet = new SR1_StructureList<SR1_PointerArray<Intro>>();
+
+                    foreach (KeyValuePair<uint, SR1_PointerArray <Intro>> introList in reader.IntroListDictionary)
+                    {
+                        introListSet.Add(introList.Value);
+                    }
+
+                    introListSet.ReadFromPointer(reader, sbspEndLeaves);
+                }
+            }
+
             new SR1_StructureSeries<MorphVertex>((int)(MorphColorList.Offset - MorphDiffList.Offset)).ReadFromPointer(reader, MorphDiffList);
             new SR1_StructureArray<MorphColor>(numVertices.Value).SetPadding(4).ReadFromPointer(reader, MorphColorList);
             new SR1_StructureArray<BSPTree>(numBSPTrees.Value).ReadFromPointer(reader, BSPTreeArray);
@@ -100,10 +130,13 @@ namespace Recombobulator.SR1Structures
             faceList.Write(writer);
             normalList.Write(writer);
             aniList.Write(writer);
-            pad.Write(writer);
+            sbspRoot.Write(writer, SR1_File.Version.First, SR1_File.Version.Retail);
+            pad.Write(writer, SR1_File.Version.Retail, SR1_File.Version.Next);
             StreamUnits.Write(writer);
             StartTextureList.Write(writer);
             EndTextureList.Write(writer);
+            sbspStartLeaves.Write(writer, SR1_File.Version.First, SR1_File.Version.Retail);
+            sbspEndLeaves.Write(writer, SR1_File.Version.First, SR1_File.Version.Retail);
             MorphDiffList.Write(writer);
             MorphColorList.Write(writer);
             numBSPTrees.Write(writer);
@@ -116,6 +149,36 @@ namespace Recombobulator.SR1Structures
         public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion)
         {
             base.MigrateVersion(file, targetVersion);
+
+            if (file._Version == SR1_File.Version.Beta && targetVersion == SR1_File.Version.Retail_PC)
+            {
+                MembersRead.Insert(MembersRead.IndexOf(sbspRoot), pad);
+                MembersRead.Remove(sbspRoot);
+                MembersRead.Remove(sbspStartLeaves);
+                MembersRead.Remove(sbspEndLeaves);
+                MembersRead.Insert(MembersRead.Count, unknownPCList);
+
+                SR1_Structure lastStructure = file._Structures.Values[file._Structures.Count - 1];
+                uint position = lastStructure.End;
+
+                unknownPCList.Offset = position;
+                UnknownPCList newUnknownPCList = new UnknownPCList();
+                file._Structures.Add(position, newUnknownPCList);
+                file._MigrationStructures.Add(position, newUnknownPCList);
+
+                if (sbspRoot.Offset != 0)
+                {
+                    file._Structures.Remove(sbspRoot.Offset);
+                    sbspRoot.Offset = 0;
+                }
+
+                if (sbspStartLeaves.Offset != 0)
+                {
+                    file._Structures.Remove(sbspStartLeaves.Offset);
+                    sbspStartLeaves.Offset = 0;
+                    sbspEndLeaves.Offset = 0;
+                }
+            }
 
             if (file._Version == SR1_File.Version.Retail && targetVersion == SR1_File.Version.Retail_PC)
             {

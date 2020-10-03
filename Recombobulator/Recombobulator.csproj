@@ -141,6 +141,7 @@
     <Compile Include="SR1Structures\Exported\GlyphTuneData.cs" />
     <Compile Include="SR1Structures\Exported\LitShaftProperties.cs" />
     <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObProperties.cs" />
+    <Compile Include="SR1Structures\Exported\Terrain\SBSPLeaf.cs" />
     <Compile Include="SR1Structures\Exported\Textures\AniTexInfo.cs" />
     <Compile Include="SR1Structures\Exported\Textures\AniTex.cs" />
     <Compile Include="SR1Structures\Exported\ObjectEffect.cs" />
@@ -149,6 +150,7 @@
     <Compile Include="SR1Structures\Exported\Object.cs" />
     <Compile Include="SR1Structures\Exported\Textures\TextureMT3.cs" />
     <Compile Include="SR1Structures\Exported\Model\MVertex.cs" />
+    <Compile Include="SR1Structures\InGame\CDLight.cs" />
     <Compile Include="UpgradeForm.cs">
       <SubType>Form</SubType>
     </Compile>

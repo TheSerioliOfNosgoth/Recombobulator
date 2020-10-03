@@ -78,12 +78,35 @@ namespace Recombobulator
 
             if (isLevel)
             {
-                streamReader.BaseStream.Position = 0x9C;
-                if (streamReader.ReadUInt64() == 0xFFFFFFFFFFFFFFFF)
+                bool validVersion = false;
+
+                if (!validVersion)
                 {
-                    _Version = Version.Retail_PC;
+                    streamReader.BaseStream.Position = 0x9C;
+                    if (streamReader.ReadUInt64() == 0xFFFFFFFFFFFFFFFF)
+                    {
+                        _Version = Version.Retail_PC;
+                        validVersion = true;
+                    }
                 }
-                else
+
+                if (!validVersion)
+                {
+                    streamReader.BaseStream.Position = 0xF0;
+                    UInt32 version = streamReader.ReadUInt32();
+                    if (version == RETAIL_VERSION)
+                    {
+                        _Version = Version.Retail;
+                        validVersion = true;
+                    }
+                    else if (version == BETA_VERSION)
+                    {
+                        _Version = Version.Beta;
+                        validVersion = true;
+                    }
+                }
+
+                if (!validVersion)
                 {
                     _Version = Version.Retail;
                 }

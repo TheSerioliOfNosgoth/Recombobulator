@@ -322,9 +322,11 @@ namespace Recombobulator.SR1Structures
         {
             base.MigrateVersion(file, targetVersion);
 
-            if (file._Version == SR1_File.Version.Retail &&
+            if ((file._Version == SR1_File.Version.Retail || file._Version == SR1_File.Version.Beta) &&
                 targetVersion == SR1_File.Version.Retail_PC)
             {
+                versionNumber.Value = SR1_File.RETAIL_VERSION;
+
                 fogFar.Value = 20000;
                 fogNear.Value = 19999;
                 spectralFogFar.Value = 20000;

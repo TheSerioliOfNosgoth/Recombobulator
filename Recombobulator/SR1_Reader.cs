@@ -17,6 +17,7 @@ namespace Recombobulator
         public SortedList<uint, SR1_PointerBase> ThrowAnimDictionary { get; } = new SortedList<uint, SR1_PointerBase>();
         public SortedDictionary<uint, SR1_Pointer<SFXFileData>> SFXDictionary { get; } = new SortedDictionary<uint, SR1_Pointer<SFXFileData>>();
         public SR1_Pointer<PlanMkr> PlanMarkerList = null;
+        public SortedList<uint, SR1_PointerArray<Intro>> IntroListDictionary { get; } = new SortedList<uint, SR1_PointerArray<Intro>>();
 
         public SR1_Reader(SR1_File file, Stream input)
             : base(input, System.Text.Encoding.UTF8)
