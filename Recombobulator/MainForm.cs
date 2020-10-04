@@ -84,7 +84,7 @@ namespace Recombobulator
             {
                 try
                 {
-                    _file.Export(upgradeDialog.FileName, SR1_File.Version.Retail_PC, 1287);
+                    _file.Export(upgradeDialog.FileName, SR1_File.Version.Retail_PC, upgradeDialog.StartingTextureIndex);
                 }
                 catch (Exception exception)
                 {
