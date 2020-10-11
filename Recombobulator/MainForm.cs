@@ -31,7 +31,7 @@ namespace Recombobulator
 
                 try
                 {
-                    _file.Import(dialog.FileName);
+                    _file.Import(dialog.FileName, SR1_File.ImportFlags.LogErrors | SR1_File.ImportFlags.LogScripts);
 
                     exportToolStripMenuItem.Enabled = true;
                     exportUpgradedToolStripMenuItem.Enabled = true;
@@ -44,6 +44,7 @@ namespace Recombobulator
                         textureIDs += "Texture-" + textureID.ToString("00000") + "\r\n";
                     }
 
+                    scripts.Text = _file.GetScripts();
                     summary.Text = _file.GetErrors() + textureIDs;
                 }
                 catch (Exception exception)

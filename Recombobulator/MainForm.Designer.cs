@@ -45,6 +45,8 @@
             this.summary = new System.Windows.Forms.TextBox();
             this.displayModeTabs = new System.Windows.Forms.TabControl();
             this.fileDataTab = new System.Windows.Forms.TabPage();
+            this.scriptsTab = new System.Windows.Forms.TabPage();
+            this.scripts = new System.Windows.Forms.TextBox();
             this.testResultsTab = new System.Windows.Forms.TabPage();
             this.testResults = new System.Windows.Forms.TextBox();
             this.exportUpgradedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -56,6 +58,7 @@
             this.splitContainer.SuspendLayout();
             this.displayModeTabs.SuspendLayout();
             this.fileDataTab.SuspendLayout();
+            this.scriptsTab.SuspendLayout();
             this.testResultsTab.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -196,6 +199,7 @@
             // displayModeTabs
             // 
             this.displayModeTabs.Controls.Add(this.fileDataTab);
+            this.displayModeTabs.Controls.Add(this.scriptsTab);
             this.displayModeTabs.Controls.Add(this.testResultsTab);
             this.displayModeTabs.Dock = System.Windows.Forms.DockStyle.Fill;
             this.displayModeTabs.Location = new System.Drawing.Point(0, 24);
@@ -216,6 +220,28 @@
             this.fileDataTab.Text = "File Data";
             this.fileDataTab.UseVisualStyleBackColor = true;
             // 
+            // scriptsTab
+            // 
+            this.scriptsTab.Controls.Add(this.scripts);
+            this.scriptsTab.Location = new System.Drawing.Point(4, 22);
+            this.scriptsTab.Margin = new System.Windows.Forms.Padding(0);
+            this.scriptsTab.Name = "scriptsTab";
+            this.scriptsTab.Size = new System.Drawing.Size(792, 400);
+            this.scriptsTab.TabIndex = 1;
+            this.scriptsTab.Text = "Scripts";
+            this.scriptsTab.UseVisualStyleBackColor = true;
+            // 
+            // scripts
+            // 
+            this.scripts.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.scripts.Location = new System.Drawing.Point(0, 0);
+            this.scripts.Multiline = true;
+            this.scripts.Name = "scripts";
+            this.scripts.ReadOnly = true;
+            this.scripts.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.scripts.Size = new System.Drawing.Size(792, 400);
+            this.scripts.TabIndex = 0;
+            // 
             // testResultsTab
             // 
             this.testResultsTab.Controls.Add(this.testResults);
@@ -223,7 +249,7 @@
             this.testResultsTab.Margin = new System.Windows.Forms.Padding(0);
             this.testResultsTab.Name = "testResultsTab";
             this.testResultsTab.Size = new System.Drawing.Size(792, 400);
-            this.testResultsTab.TabIndex = 1;
+            this.testResultsTab.TabIndex = 2;
             this.testResultsTab.Text = "Test Results";
             this.testResultsTab.UseVisualStyleBackColor = true;
             // 
@@ -258,6 +284,8 @@
             this.splitContainer.ResumeLayout(false);
             this.displayModeTabs.ResumeLayout(false);
             this.fileDataTab.ResumeLayout(false);
+            this.scriptsTab.ResumeLayout(false);
+            this.scriptsTab.PerformLayout();
             this.testResultsTab.ResumeLayout(false);
             this.testResultsTab.PerformLayout();
             this.ResumeLayout(false);
@@ -278,6 +306,8 @@
         private System.Windows.Forms.TextBox summary;
         private System.Windows.Forms.TabControl displayModeTabs;
         private System.Windows.Forms.TabPage fileDataTab;
+        private System.Windows.Forms.TabPage scriptsTab;
+        private System.Windows.Forms.TextBox scripts;
         private System.Windows.Forms.TabPage testResultsTab;
         private System.Windows.Forms.TextBox testResults;
         private System.Windows.Forms.ToolStripMenuItem detailedExportToolStripMenuItem;

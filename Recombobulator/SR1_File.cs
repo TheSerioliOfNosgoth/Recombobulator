@@ -30,6 +30,13 @@ namespace Recombobulator
             Next
         }
 
+        public enum ImportFlags : int
+        {
+            None = 0,
+            LogErrors = 1,
+            LogScripts = 2
+        }
+
         public string _FileName { get; private set; } = "";
         public Version _Version { get; private set; } = SR1_File.Version.Retail;
         public readonly SortedList<uint, SR1_Structure> _Structures = new SortedList<uint, SR1_Structure>();
@@ -38,20 +45,26 @@ namespace Recombobulator
         public List<SR1_PointerBase> _Pointers = new List<SR1_PointerBase>();
         public readonly List<ushort> _TextureIDs = new List<ushort>();
         public readonly StringWriter _ImportErrors = new StringWriter();
+        public readonly StringWriter _Scripts = new StringWriter();
         public ushort _TextureStartingID { get; private set; } = 0;
+        public ImportFlags _ImportFlags { get; private set; } = ImportFlags.None;
+
 
         public SR1_File()
         {
         }
 
-        public void Import(string fileName)
+        public void Import(string fileName, ImportFlags flags = ImportFlags.None)
         {
+            _ImportFlags = flags;
+
             _Structures.Clear();
             _Primatives.Clear();
             _MigrationStructures.Clear();
             _Pointers.Clear();
             _TextureIDs.Clear();
             _ImportErrors.GetStringBuilder().Clear();
+            _Scripts.GetStringBuilder().Clear();
 
             _FileName = fileName;
 
@@ -374,6 +387,11 @@ namespace Recombobulator
             return nodes;
         }
 
+        public string GetScripts()
+        {
+            return _Scripts.ToString();
+        }
+
         public string GetErrors()
         {
             return _ImportErrors.ToString();
@@ -390,7 +408,7 @@ namespace Recombobulator
                 try
                 {
                     SR1_File file = new SR1_File();
-                    file.Import(fileInfo.FullName);
+                    file.Import(fileInfo.FullName, ImportFlags.LogErrors);
                     if (file.TestExport())
                     {
                         if (listAllFiles)

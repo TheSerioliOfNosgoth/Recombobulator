@@ -89,8 +89,6 @@ namespace Recombobulator.SR1Structures
 
         SR1_PrimativeArray<short> dataBuf = new SR1_PrimativeArray<short>(0);
 
-        string debugString = "";
-
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
             sizeOfPcodeStream.Read(reader, this, "sizeOfPcodeStream");
@@ -102,11 +100,13 @@ namespace Recombobulator.SR1Structures
                 dataBuf = new SR1_PrimativeArray<short>(sizeOfPcodeStream.Value);
                 dataBuf.SetPadding(4).Read(reader, this, "dataBuf");
 
-                bool debugScripting = false;
-                if (debugScripting)
+                if ((reader.File._ImportFlags & SR1_File.ImportFlags.LogScripts) != 0)
                 {
+                    reader.LogScript("// Scipt: 0x" + data.Offset.ToString("X8") + "\r\n");
+
                     try
                     {
+                        string script = "";
 
                         short[] opCodes = new short[dataBuf.List.Count];
                         int c = 0;
@@ -121,31 +121,32 @@ namespace Recombobulator.SR1Structures
                         {
                             PCode opcode = (PCode)(opCodes[c] - 1);
 
-                            debugString += _PCodes[opCodes[c] - 1].n;
+                            script += _PCodes[opCodes[c] - 1].n;
 
                             if (opcode == PCode.AddObjectToStack ||
                                 opcode == PCode.ModifyObjectToStackWithAttribute ||
                                 opcode == PCode.AddNumberToStack)
                             {
-                                debugString += ("(" + opCodes[c + 1].ToString() + ")");
+                                script += ("(" + opCodes[c + 1].ToString() + ")");
                             }
 
-                            debugString += ";\r\n";
-
-                            if (opcode == PCode.ExecuteCode ||
-                                opcode == PCode.EndOfLine0 ||
-                                opcode == PCode.EndOfLine1 ||
-                                opcode == PCode.EndOfLine2)
-                            {
-                                debugString += "\r\n";
-                            }
+                            script += ";\r\n";
 
                             c += _PCodes[opCodes[c] - 1].l;
+
+                            if (c < opCodes.Length &&
+                                (opcode == PCode.ExecuteCode ||
+                                opcode == PCode.EndOfLine0 || opcode == PCode.EndOfLine1 || opcode == PCode.EndOfLine2))
+                            {
+                                script += "\r\n";
+                            }
                         }
+
+                        reader.LogScript(script);
                     }
                     catch
                     {
-
+                        reader.LogScript("// Error reading script.\r\n");
                     }
                 }
             }

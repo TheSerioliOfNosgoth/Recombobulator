@@ -8,6 +8,7 @@ namespace Recombobulator
     {
         public SR1_File File = null;
         public Object Object = null;
+
         public SortedList<uint, SR1_PointerBase> AnimFXDictionary { get; } = new SortedList<uint, SR1_PointerBase>();
         public SortedList<uint, SR1_PointerBase> AttackAnimDictionary { get; } = new SortedList<uint, SR1_PointerBase>();
         public SortedList<uint, SR1_PointerBase> AttackAnimSetDictionary { get; } = new SortedList<uint, SR1_PointerBase>();
@@ -25,9 +26,20 @@ namespace Recombobulator
             File = file;
         }
 
+        public void LogScript(string script)
+        {
+            if ((File._ImportFlags & SR1_File.ImportFlags.LogScripts) != 0)
+            {
+                File._Scripts.WriteLine(script);
+            }
+        }
+
         public void LogError(string error)
         {
-            File._ImportErrors.WriteLine(error);
+            if ((File._ImportFlags & SR1_File.ImportFlags.LogErrors) != 0)
+            {
+                File._ImportErrors.WriteLine(error);
+            }
         }
     }
 }
