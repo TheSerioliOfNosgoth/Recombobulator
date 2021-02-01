@@ -8,6 +8,7 @@ namespace Recombobulator
     {
         public SR1_File File = null;
         public Object Object = null;
+        public Events Events = null;
 
         public SortedList<uint, SR1_PointerBase> AnimFXDictionary { get; } = new SortedList<uint, SR1_PointerBase>();
         public SortedList<uint, SR1_PointerBase> AttackAnimDictionary { get; } = new SortedList<uint, SR1_PointerBase>();
@@ -19,6 +20,8 @@ namespace Recombobulator
         public SortedDictionary<uint, SR1_Pointer<SFXFileData>> SFXDictionary { get; } = new SortedDictionary<uint, SR1_Pointer<SFXFileData>>();
         public SR1_Pointer<PlanMkr> PlanMarkerList = null;
         public SortedList<uint, SR1_PointerArray<Intro>> IntroListDictionary { get; } = new SortedList<uint, SR1_PointerArray<Intro>>();
+        public SortedList<uint, SR1_PointerBase> EventList { get; } = new SortedList<uint, SR1_PointerBase>();
+        public ScriptParser ScriptParser { get; } = new ScriptParser();
 
         public SR1_Reader(SR1_File file, Stream input)
             : base(input, System.Text.Encoding.UTF8)

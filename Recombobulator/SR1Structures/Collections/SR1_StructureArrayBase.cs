@@ -10,6 +10,7 @@ namespace Recombobulator.SR1Structures
         protected T[] _array = null;
 
         public T this[int i] { get { return _array[i]; } set { _array[i] = value; } }
+        public int Length { get { return _array == null ? 0 : _array.Length; } }
 
         public IReadOnlyCollection<T> List { get { return Array.AsReadOnly(_array); } }
 

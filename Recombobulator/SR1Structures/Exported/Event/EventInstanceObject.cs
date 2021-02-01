@@ -3,15 +3,15 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-    class EventInstanceObject : SR1_Structure
+    class EventInstanceObject : EventBaseObject
     {
-        SR1_Primative<short> id = new SR1_Primative<short>();
-        SR1_Primative<short> flags = new SR1_Primative<short>();
-        SR1_Primative<int> unitID = new SR1_Primative<int>();
-        SR1_Primative<int> introUniqueID = new SR1_Primative<int>();
-        SR1_Pointer<Instance> instance = new SR1_Pointer<Instance>();
+        // Inherited SR1_Primative<short> id = new SR1_Primative<short>();
+        public SR1_Primative<short> flags = new SR1_Primative<short>();
+        public SR1_Primative<int> unitID = new SR1_Primative<int>();
+        public SR1_Primative<int> introUniqueID = new SR1_Primative<int>();
+        public SR1_Pointer<Instance> instance = new SR1_Pointer<Instance>();
         // Sometimes an SFXMarker, but always null in the area files, so probaby doesn't matter.
-        SR1_Pointer<Intro> data = new SR1_Pointer<Intro>();
+        public SR1_Pointer<Intro> data = new SR1_Pointer<Intro>();
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {

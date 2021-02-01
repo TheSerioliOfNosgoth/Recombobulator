@@ -7,6 +7,7 @@ namespace Recombobulator.SR1Structures
     class SR1_StructureList<T> : SR1_Structure where T : SR1_Structure
     {
         private List<SR1_Structure> _List = new List<SR1_Structure>();
+        public int Count { get { return _List.Count; } }
 
         public IReadOnlyCollection<SR1_Structure> List { get { return _List; } }
 

@@ -8,6 +8,7 @@ namespace Recombobulator.SR1Structures
         protected List<T> _List = new List<T>();
 
         public IReadOnlyCollection<T> List { get { return _List; } }
+        public int Count { get { return _List.Count; } }
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
         {

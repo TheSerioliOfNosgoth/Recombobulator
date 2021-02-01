@@ -34,7 +34,8 @@ namespace Recombobulator
         {
             None = 0,
             LogErrors = 1,
-            LogScripts = 2
+            LogScripts = 2,
+            DetectPCRetail = 4,
         }
 
         public string _FileName { get; private set; } = "";
@@ -54,7 +55,7 @@ namespace Recombobulator
         {
         }
 
-        public void Import(string fileName, ImportFlags flags = ImportFlags.None)
+        public void Import(string fileName, ImportFlags flags = ImportFlags.None | ImportFlags.DetectPCRetail)
         {
             _ImportFlags = flags;
 
@@ -93,7 +94,7 @@ namespace Recombobulator
             {
                 bool validVersion = false;
 
-                if (!validVersion)
+                if (!validVersion && ((flags & ImportFlags.DetectPCRetail) != 0))
                 {
                     streamReader.BaseStream.Position = 0x9C;
                     if (streamReader.ReadUInt64() == 0xFFFFFFFFFFFFFFFF)
@@ -135,6 +136,12 @@ namespace Recombobulator
             streamReader.BaseStream.Position = 0;
 
             root.Read(streamReader, null, "");
+
+            if ((flags & ImportFlags.LogScripts) != 0)
+            {
+                streamReader.ScriptParser.ParseAll(streamReader);
+            }
+
             streamReader.Dispose();
 
             stream.Close();

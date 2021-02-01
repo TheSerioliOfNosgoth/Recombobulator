@@ -3,9 +3,9 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-    class EventWildCardObject : SR1_Structure
+    class EventWildCardObject : EventBaseObject
     {
-        SR1_Primative<short> id = new SR1_Primative<short>();
+        // Inherited SR1_Primative<short> id = new SR1_Primative<short>();
         SR1_Primative<short> spad = new SR1_Primative<short>();
         SR1_Primative<int> unitID = new SR1_Primative<int>();
         SR1_Pointer<SR1_String> objectName = new SR1_Pointer<SR1_String>();

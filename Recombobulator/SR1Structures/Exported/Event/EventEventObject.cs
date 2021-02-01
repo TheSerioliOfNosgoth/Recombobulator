@@ -3,9 +3,9 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-    class EventEventObject : SR1_Structure
+    class EventEventObject : EventBaseObject
     {
-        SR1_Primative<short> id = new SR1_Primative<short>();
+        // Inherited SR1_Primative<short> id = new SR1_Primative<short>();
         SR1_Primative<short> eventNumber = new SR1_Primative<short>();
         SR1_Primative<int> unitID = new SR1_Primative<int>();
         SR1_Pointer<Event> _event = new SR1_Pointer<Event>();

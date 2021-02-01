@@ -5,14 +5,14 @@ namespace Recombobulator.SR1Structures
 {
     class EventPointers : SR1_Structure
     {
-        SR1_Primative<int> numPuzzles = new SR1_Primative<int>();
-        SR1_PointerArray<Event> eventInstances = new SR1_PointerArray<Event>(0, true);
+        public SR1_Primative<int> numPuzzles = new SR1_Primative<int>();
+        public SR1_PointerArray<Event> eventInstances = new SR1_PointerArray<Event>(0, false);
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
             numPuzzles.Read(reader, this, "numPuzzles");
 
-            eventInstances = new SR1_PointerArray<Event>(numPuzzles.Value, true);
+            eventInstances = new SR1_PointerArray<Event>(numPuzzles.Value, false);
             eventInstances.Read(reader, this, "eventInstances");
         }
 

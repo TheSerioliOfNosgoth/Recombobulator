@@ -37,7 +37,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -65,6 +66,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ScriptParser.cs" />
     <Compile Include="SR1Structures\Collections\SR1_PointerSeries.cs" />
     <Compile Include="SR1Structures\Collections\SR1_StructureSeriesBase.cs" />
     <Compile Include="SR1Structures\Exported\Animation\SAnimSet.cs" />
@@ -81,6 +83,8 @@
     <Compile Include="SR1Structures\Exported\Animation\G2AnimFxHeader_Type.cs" />
     <Compile Include="SR1Structures\Exported\Animation\G2AnimFxList.cs" />
     <Compile Include="SR1Structures\Exported\Animation\G2AnimList.cs" />
+    <Compile Include="SR1Structures\Exported\Event\EventBaseObject.cs" />
+    <Compile Include="SR1Structures\Exported\Event\Events.cs" />
     <Compile Include="SR1Structures\Exported\Monster\KainTuneData.cs" />
     <Compile Include="SR1Structures\Exported\Monster\HunterTuneData.cs" />
     <Compile Include="SR1Structures\Exported\Monster\Wallcr.cs" />

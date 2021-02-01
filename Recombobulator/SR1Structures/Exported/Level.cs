@@ -204,12 +204,34 @@ namespace Recombobulator.SR1Structures
             new ObjectNameList().ReadFromPointer(reader, objectNameList);
             new SR1_String(12).SetPadding(4).ReadFromPointer(reader, worldName);
             new SR1_StructureSeries<MultiSignal>((int)(SignalListEnd.Offset - SignalListStart.Offset)).ReadFromPointer(reader, SignalListStart);
-            new EventPointers().ReadFromPointer(reader, PuzzleInstances);
             new SR1_StructureArray<PlanMkr>(NumberOfPlanMarkers.Value).SetPadding(4).ReadFromPointer(reader, PlanMarkerList);
             new SR1_StructureArray<SFXMkr>(NumberOfSFXMarkers.Value).ReadFromPointer(reader, SFXMarkerList);
             new SR1_PrimativeArray<char>(4).ReadFromPointer(reader, dynamicMusicName);
             new LightGroup().ReadFromPointer(reader, razielLightGroup);
             new LightGroup().ReadFromPointer(reader, razielSpectralLightGroup);
+
+            if (PuzzleInstances.Offset != 0)
+            {
+                reader.BaseStream.Position = PuzzleInstances.Offset;
+                EventPointers tempEventPointers = new EventPointers();
+                tempEventPointers.ReadTemp(reader);
+                uint firstEvent = uint.MaxValue;
+                foreach (SR1_PointerBase eventInstance in tempEventPointers.eventInstances.List)
+                {
+                    if (eventInstance.Offset != 0 && eventInstance.Offset < firstEvent)
+                    {
+                        firstEvent = eventInstance.Offset;
+                    }
+                }
+
+                if (firstEvent != 0 && firstEvent != uint.MaxValue)
+                {
+                    reader.BaseStream.Position = firstEvent;
+                    Events events = new Events(tempEventPointers.numPuzzles.Value);
+                    events.Read(reader, null, "");
+                    reader.Events = events;
+                }
+            }
 
             if (temp.End != 0)
             {
