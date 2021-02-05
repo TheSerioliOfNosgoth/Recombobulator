@@ -28,14 +28,16 @@
         /// </summary>
         private void InitializeComponent()
         {
-            TreeList.TreeListColumn treeListColumn5 = new TreeList.TreeListColumn("Offset", "Offset");
-            TreeList.TreeListColumn treeListColumn6 = new TreeList.TreeListColumn("Type", "Type");
-            TreeList.TreeListColumn treeListColumn7 = new TreeList.TreeListColumn("Name", "Name");
-            TreeList.TreeListColumn treeListColumn8 = new TreeList.TreeListColumn("Value", "Value");
+            TreeList.TreeListColumn treeListColumn1 = new TreeList.TreeListColumn("Offset", "Offset");
+            TreeList.TreeListColumn treeListColumn2 = new TreeList.TreeListColumn("Type", "Type");
+            TreeList.TreeListColumn treeListColumn3 = new TreeList.TreeListColumn("Name", "Name");
+            TreeList.TreeListColumn treeListColumn4 = new TreeList.TreeListColumn("Value", "Value");
             this._mainMenu = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportUpgradedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.bulkTestingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.detailedExportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.briefExportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -49,7 +51,8 @@
             this.scripts = new System.Windows.Forms.TextBox();
             this.testResultsTab = new System.Windows.Forms.TabPage();
             this.testResults = new System.Windows.Forms.TextBox();
-            this.exportUpgradedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.projectTab = new System.Windows.Forms.TabPage();
             this._mainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.treeListView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
@@ -75,6 +78,8 @@
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.newProjectToolStripMenuItem,
+            this.openProjectToolStripMenuItem,
             this.importToolStripMenuItem,
             this.exportToolStripMenuItem,
             this.exportUpgradedToolStripMenuItem,
@@ -83,6 +88,13 @@
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
+            // 
+            // newProjectToolStripMenuItem
+            // 
+            this.newProjectToolStripMenuItem.Enabled = false;
+            this.newProjectToolStripMenuItem.Name = "newProjectToolStripMenuItem";
+            this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.newProjectToolStripMenuItem.Text = "New Project...";
             // 
             // importToolStripMenuItem
             // 
@@ -93,19 +105,19 @@
             // 
             // exportToolStripMenuItem
             // 
+            this.exportToolStripMenuItem.Enabled = false;
             this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
             this.exportToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exportToolStripMenuItem.Text = "Export";
             this.exportToolStripMenuItem.Click += new System.EventHandler(this.ExportToolStripMenuItem_Click);
-            this.exportToolStripMenuItem.Enabled = false;
             // 
             // exportUpgradedToolStripMenuItem
             // 
+            this.exportUpgradedToolStripMenuItem.Enabled = false;
             this.exportUpgradedToolStripMenuItem.Name = "exportUpgradedToolStripMenuItem";
             this.exportUpgradedToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exportUpgradedToolStripMenuItem.Text = "Export Upgraded";
             this.exportUpgradedToolStripMenuItem.Click += new System.EventHandler(this.ExportUpgradedToolStripMenuItem_Click);
-            this.exportUpgradedToolStripMenuItem.Enabled = false;
             // 
             // bulkTestingToolStripMenuItem
             // 
@@ -119,14 +131,14 @@
             // detailedExportToolStripMenuItem
             // 
             this.detailedExportToolStripMenuItem.Name = "detailedExportToolStripMenuItem";
-            this.detailedExportToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
+            this.detailedExportToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.detailedExportToolStripMenuItem.Text = "Detailed Export";
             this.detailedExportToolStripMenuItem.Click += new System.EventHandler(this.DetailedExportToolStripMenuItem_Click);
             // 
             // briefExportToolStripMenuItem
             // 
             this.briefExportToolStripMenuItem.Name = "briefExportToolStripMenuItem";
-            this.briefExportToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
+            this.briefExportToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.briefExportToolStripMenuItem.Text = "Brief Export";
             this.briefExportToolStripMenuItem.Click += new System.EventHandler(this.BriefExportToolStripMenuItem_Click);
             // 
@@ -139,24 +151,24 @@
             // 
             // treeListView
             // 
-            treeListColumn5.AutoSizeMinSize = 170;
-            treeListColumn5.HeaderFormat.BackColor = System.Drawing.SystemColors.ButtonFace;
-            treeListColumn5.Width = 170;
-            treeListColumn6.AutoSizeMinSize = 80;
-            treeListColumn6.HeaderFormat.BackColor = System.Drawing.SystemColors.ButtonFace;
-            treeListColumn6.Width = 150;
-            treeListColumn7.AutoSizeMinSize = 100;
-            treeListColumn7.HeaderFormat.BackColor = System.Drawing.SystemColors.ButtonFace;
-            treeListColumn7.Width = 200;
-            treeListColumn8.AutoSize = true;
-            treeListColumn8.AutoSizeMinSize = 50;
-            treeListColumn8.HeaderFormat.BackColor = System.Drawing.SystemColors.ButtonFace;
-            treeListColumn8.Width = 50;
+            treeListColumn1.AutoSizeMinSize = 170;
+            treeListColumn1.HeaderFormat.BackColor = System.Drawing.SystemColors.ButtonFace;
+            treeListColumn1.Width = 170;
+            treeListColumn2.AutoSizeMinSize = 80;
+            treeListColumn2.HeaderFormat.BackColor = System.Drawing.SystemColors.ButtonFace;
+            treeListColumn2.Width = 150;
+            treeListColumn3.AutoSizeMinSize = 100;
+            treeListColumn3.HeaderFormat.BackColor = System.Drawing.SystemColors.ButtonFace;
+            treeListColumn3.Width = 200;
+            treeListColumn4.AutoSize = true;
+            treeListColumn4.AutoSizeMinSize = 50;
+            treeListColumn4.HeaderFormat.BackColor = System.Drawing.SystemColors.ButtonFace;
+            treeListColumn4.Width = 50;
             this.treeListView.Columns.AddRange(new TreeList.TreeListColumn[] {
-            treeListColumn5,
-            treeListColumn6,
-            treeListColumn7,
-            treeListColumn8});
+            treeListColumn1,
+            treeListColumn2,
+            treeListColumn3,
+            treeListColumn4});
             this.treeListView.Cursor = System.Windows.Forms.Cursors.Arrow;
             this.treeListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeListView.Images = null;
@@ -198,6 +210,7 @@
             // 
             // displayModeTabs
             // 
+            this.displayModeTabs.Controls.Add(this.projectTab);
             this.displayModeTabs.Controls.Add(this.fileDataTab);
             this.displayModeTabs.Controls.Add(this.scriptsTab);
             this.displayModeTabs.Controls.Add(this.testResultsTab);
@@ -264,6 +277,23 @@
             this.testResults.Size = new System.Drawing.Size(792, 400);
             this.testResults.TabIndex = 0;
             // 
+            // openProjectToolStripMenuItem
+            // 
+            this.openProjectToolStripMenuItem.Enabled = false;
+            this.openProjectToolStripMenuItem.Name = "openProjectToolStripMenuItem";
+            this.openProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openProjectToolStripMenuItem.Text = "Open Project...";
+            // 
+            // projectTab
+            // 
+            this.projectTab.Location = new System.Drawing.Point(4, 22);
+            this.projectTab.Name = "projectTab";
+            this.projectTab.Padding = new System.Windows.Forms.Padding(3);
+            this.projectTab.Size = new System.Drawing.Size(792, 400);
+            this.projectTab.TabIndex = 3;
+            this.projectTab.Text = "Project";
+            this.projectTab.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -313,6 +343,9 @@
         private System.Windows.Forms.ToolStripMenuItem detailedExportToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem briefExportToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exportUpgradedToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem newProjectToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openProjectToolStripMenuItem;
+        private System.Windows.Forms.TabPage projectTab;
     }
 }
 
