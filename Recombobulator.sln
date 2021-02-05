@@ -4,6 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.29230.47
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Recombobulator", "Recombobulator\Recombobulator.csproj", "{62330266-80E5-4EDB-B388-5EE2850EB1D9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5FE9EED2-4BC5-4D5D-83D0-3548C91AE14D} = {5FE9EED2-4BC5-4D5D-83D0-3548C91AE14D}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SR1Repository", "SR1Repository\SR1Repository.csproj", "{5FE9EED2-4BC5-4D5D-83D0-3548C91AE14D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +20,10 @@ Global
 		{62330266-80E5-4EDB-B388-5EE2850EB1D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62330266-80E5-4EDB-B388-5EE2850EB1D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62330266-80E5-4EDB-B388-5EE2850EB1D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FE9EED2-4BC5-4D5D-83D0-3548C91AE14D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FE9EED2-4BC5-4D5D-83D0-3548C91AE14D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FE9EED2-4BC5-4D5D-83D0-3548C91AE14D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FE9EED2-4BC5-4D5D-83D0-3548C91AE14D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
