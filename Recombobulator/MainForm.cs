@@ -21,21 +21,28 @@ namespace Recombobulator
 
         private void OpenFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenFileDialog dialog = new OpenFileDialog();
+            OpenFileDialog dialog = new OpenFileDialog
+            {
+                CheckFileExists = true,
+                CheckPathExists = true,
+                Filter =
+                    "Soul Reaver PCM Files|*.pcm|" +
+                    "All Files (*.*)|*.*",
+                DefaultExt = "pcm",
+                FilterIndex = 1
+            };
+
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                treeListView.BeginUpdate();
-                treeListView.Nodes.Clear();
-                summary.Text = "";
+                pcmFileTreeListView.BeginUpdate();
+                pcmFileTreeListView.Nodes.Clear();
+                pcmFileSummary.Text = "";
 
                 try
                 {
                     _file.Import(dialog.FileName, SR1_File.ImportFlags.LogErrors | SR1_File.ImportFlags.LogScripts);
 
-                    testExportToolStripMenuItem.Enabled = true;
-                    addToProjectToolStripMenuItem.Enabled = true;
-
-                    treeListView.Nodes.AddRange(_file.CreateChunkNodes());
+                    pcmFileTreeListView.Nodes.AddRange(_file.CreateChunkNodes());
 
                     string textureIDs = "\r\n\r\nTexture IDs:\r\n\r\n";
                     foreach (ushort textureID in _file._TextureIDs)
@@ -44,22 +51,21 @@ namespace Recombobulator
                     }
 
                     scripts.Text = _file.GetScripts();
-                    summary.Text = _file.GetErrors() + textureIDs;
+                    pcmFileSummary.Text = _file.GetErrors() + textureIDs;
 
                     _fileLoaded = true;
-                    if (_repository != null && _fileLoaded == true)
-                    {
-                        addToProjectToolStripMenuItem.Enabled = true;
-                    }
+
+                    testExportToolStripMenuItem.Enabled = _fileLoaded;
+                    addToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
                 }
                 catch (Exception exception)
                 {
 
                 }
 
-                treeListView.EndUpdate();
+                pcmFileTreeListView.EndUpdate();
 
-                displayModeTabs.SelectedTab = fileDataTab;
+                displayModeTabs.SelectedTab = pcmFileDataTab;
             }
         }
 
@@ -84,7 +90,7 @@ namespace Recombobulator
         {
             UpgradeForm upgradeDialog = new UpgradeForm();
             string rawFileName = Path.GetFileNameWithoutExtension(_file._FilePath);
-            upgradeDialog.Initialize(_repository, rawFileName); 
+            upgradeDialog.Initialize(_repository, rawFileName);
             upgradeDialog.FilePath = _file._FilePath;
             upgradeDialog.FilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), Path.GetFileName(_file._FilePath));
             if (upgradeDialog.ShowDialog() == DialogResult.OK)
@@ -180,10 +186,21 @@ namespace Recombobulator
 
         private void EndUnpacking()
         {
-            if (_repository != null && _fileLoaded == true)
+            addToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
+            compileProjectToolStripMenuItem.Enabled = (_repository != null);
+
+            if (_repository != null)
             {
-                addToProjectToolStripMenuItem.Enabled = true;
+                foreach (Level level in _repository.Levels.Levels)
+                {
+                    TreeNode node = new TreeNode();
+                    node.Text = level.UnitName;
+                    node.Tag = level;
+                    //treeView1.Nodes.Add(node);
+                }
             }
+
+            //treeView1.Sort();
 
             Enabled = true;
             _progressWindow.Hide();
@@ -278,10 +295,26 @@ namespace Recombobulator
             repository.LoadRepository();
             _repository = repository;
 
-            if (_repository != null && _fileLoaded == true)
+            addToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
+            compileProjectToolStripMenuItem.Enabled = (_repository != null);
+
+            if (_repository != null)
             {
-                addToProjectToolStripMenuItem.Enabled = true;
+                foreach (Level level in _repository.Levels.Levels)
+                {
+                    TreeNode node = new TreeNode();
+                    node.Text = level.UnitName;
+                    node.Tag = level;
+                    //treeView1.Nodes.Add(node);
+                }
             }
+
+            //treeView1.Sort();
+        }
+
+        private void compileProjectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
