@@ -13,7 +13,7 @@ namespace SR1Repository
         [FieldOffset(0)] public uint code;
     }
 
-    class AssetDesc
+    public class AssetDesc
     {
         public string FilePath { get; set; } = "";
         public uint FileHash { get; set; } = 0;

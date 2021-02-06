@@ -91,10 +91,10 @@
             // 
             // newProjectToolStripMenuItem
             // 
-            this.newProjectToolStripMenuItem.Enabled = false;
             this.newProjectToolStripMenuItem.Name = "newProjectToolStripMenuItem";
             this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.newProjectToolStripMenuItem.Text = "New Project...";
+            this.newProjectToolStripMenuItem.Click += new System.EventHandler(this.NewProjectToolStripMenuItem_Click);
             // 
             // importToolStripMenuItem
             // 
@@ -279,10 +279,10 @@
             // 
             // openProjectToolStripMenuItem
             // 
-            this.openProjectToolStripMenuItem.Enabled = false;
             this.openProjectToolStripMenuItem.Name = "openProjectToolStripMenuItem";
             this.openProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openProjectToolStripMenuItem.Text = "Open Project...";
+            this.openProjectToolStripMenuItem.Click += new System.EventHandler(this.OpenProjectToolStripMenuItem_Click);
             // 
             // projectTab
             // 

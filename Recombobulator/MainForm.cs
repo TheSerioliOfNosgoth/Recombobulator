@@ -1,19 +1,16 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Forms;
+using SR1Repository;
 
 namespace Recombobulator
 {
     public partial class MainForm : Form
     {
         SR1_File _file = new SR1_File();
+        Repository _repository = null;
+        ProgressWindow _progressWindow = null;
 
         public MainForm()
         {
@@ -78,7 +75,7 @@ namespace Recombobulator
         private void ExportUpgradedToolStripMenuItem_Click(object sender, EventArgs e)
         {
             UpgradeForm upgradeDialog = new UpgradeForm();
-            upgradeDialog.StartingTextureIndex = 1287;
+            upgradeDialog.SetTextureStartingIndex(1287);
             //upgradeDialog.FileName = _file._FileName;
             upgradeDialog.FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), Path.GetFileName(_file._FileName));
             if (upgradeDialog.ShowDialog() == DialogResult.OK)
@@ -153,6 +150,120 @@ namespace Recombobulator
         private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void ShowProgressWindow()
+        {
+            if (_progressWindow != null)
+            {
+                _progressWindow.Dispose();
+            }
+            _progressWindow = new ProgressWindow();
+            _progressWindow.Title = "Loading";
+            _progressWindow.SetMessage("");
+            //_progressWindow.Icon = this.Icon;
+            _progressWindow.Owner = this;
+            _progressWindow.TopLevel = true;
+            _progressWindow.ShowInTaskbar = false;
+            this.Enabled = false;
+            _progressWindow.Show();
+        }
+
+        private void HideProgressWindow()
+        {
+            Enabled = true;
+            _progressWindow.Hide();
+            _progressWindow.Dispose();
+        }
+
+        private void NewProjectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog folderDialog = new FolderBrowserDialog();
+            folderDialog.ShowNewFolderButton = false;
+
+            string recentFolder = Properties.Settings.Default.RecentFolder;
+            if (recentFolder != null && System.IO.Directory.Exists(recentFolder))
+            {
+                folderDialog.SelectedPath = recentFolder;
+            }
+
+            DialogResult dialogResult = folderDialog.ShowDialog();
+            if (dialogResult != DialogResult.OK)
+            {
+                return;
+            }
+
+            Properties.Settings.Default.RecentFolder = folderDialog.SelectedPath;
+            Properties.Settings.Default.Save();
+
+            Repository repository = new Repository(folderDialog.SelectedPath);
+
+            Invoke(new MethodInvoker(ShowProgressWindow));
+
+            Thread loadingThread = new Thread((() =>
+            {
+                repository.UnpackRepository();
+
+                _repository = repository;
+                Invoke(new MethodInvoker(HideProgressWindow));
+            }));
+
+            loadingThread.Name = "LoadingThread";
+            loadingThread.SetApartmentState(ApartmentState.STA);
+            loadingThread.Start();
+            //loadingThread.Join();
+
+            Thread progressThread = new Thread((() =>
+            {
+                do
+                {
+                    // Do I really want to be locking the whole thing?
+                    lock (repository)
+                    {
+                        _progressWindow.SetTitle("Unpacking");
+                        _progressWindow.SetMessage(repository.RecentMessage);
+                        if (repository.FilesToRead > 0)
+                        {
+                            _progressWindow.SetProgress((100 * repository.FilesRead) / repository.FilesToRead);
+                        }
+                        else
+                        {
+                            _progressWindow.SetProgress(0);
+                        }
+                    }
+                    Thread.Sleep(20);
+                }
+                while (loadingThread.IsAlive);
+            }));
+
+            progressThread.Name = "ProgressThread";
+            progressThread.SetApartmentState(ApartmentState.STA);
+            progressThread.Start();
+        }
+
+        private void OpenProjectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog folderDialog = new FolderBrowserDialog();
+            folderDialog.ShowNewFolderButton = false;
+
+            string recentFolder = Properties.Settings.Default.RecentFolder;
+            if (recentFolder != null && System.IO.Directory.Exists(recentFolder))
+            {
+                folderDialog.SelectedPath = recentFolder;
+            }
+
+            DialogResult dialogResult = folderDialog.ShowDialog();
+            if (dialogResult != DialogResult.OK)
+            {
+                return;
+            }
+
+            Properties.Settings.Default.RecentFolder = folderDialog.SelectedPath;
+            Properties.Settings.Default.Save();
+
+            Repository repository = new Repository(folderDialog.SelectedPath);
+            repository.LoadRepository();
+            _repository = repository;
         }
     }
 }

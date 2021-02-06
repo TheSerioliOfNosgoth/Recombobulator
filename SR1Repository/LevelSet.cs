@@ -6,12 +6,15 @@ using System.Threading.Tasks;
 
 namespace SR1Repository
 {
-    class LevelSet
+    public class LevelSet
     {
         readonly List<Level> _levelList = new List<Level>();
         public int MaxID { get; set; }
         public int Count { get { return _levelList.Count; } }
-        public Level[] Levels { get { return _levelList.ToArray(); } }
+        public Level[] Levels {
+            get { return _levelList.ToArray(); }
+            set { _levelList.Clear(); _levelList.AddRange(value); }
+        }
 
         public void Add(Level level)
         {

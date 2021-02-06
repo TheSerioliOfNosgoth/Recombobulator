@@ -66,6 +66,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ProgressWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ProgressWindow.Designer.cs">
+      <DependentUpon>ProgressWindow.cs</DependentUpon>
+    </Compile>
     <Compile Include="ScriptParser.cs" />
     <Compile Include="SR1Structures\Collections\SR1_PointerSeries.cs" />
     <Compile Include="SR1Structures\Collections\SR1_StructureSeriesBase.cs" />

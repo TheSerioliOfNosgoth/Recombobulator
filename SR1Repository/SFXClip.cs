@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SR1Repository
 {
-    class SFXClip
+    public class SFXClip
     {
         public string SFXName { get; set; } = "";
         public int SFXID { get; set; } = 0;

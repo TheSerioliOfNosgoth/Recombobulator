@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SR1Repository
 {
-    class TexDescSet
+    public class TexDescSet
     {
         readonly List<TexDesc> _TexDescList = new List<TexDesc>();
         public int Count { get { return _TexDescList.Count; } }

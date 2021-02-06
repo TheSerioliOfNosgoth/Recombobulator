@@ -61,5 +61,19 @@ namespace Recombobulator
                 fileNameTextBox.Text = dialog.FileName;
             }
         }
+
+        public void SetTextureStartingIndex(ushort index)
+        {
+            textureStartTextBox.Value = index;
+
+            textureTextBox0.Text = (index + 0).ToString();
+            textureTextBox1.Text = (index + 1).ToString();
+            textureTextBox2.Text = (index + 2).ToString();
+            textureTextBox3.Text = (index + 3).ToString();
+            textureTextBox4.Text = (index + 4).ToString();
+            textureTextBox5.Text = (index + 5).ToString();
+            textureTextBox6.Text = (index + 6).ToString();
+            textureTextBox7.Text = (index + 7).ToString();
+        }
     }
 }

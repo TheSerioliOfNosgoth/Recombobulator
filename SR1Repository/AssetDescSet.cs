@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SR1Repository
 {
-    class AssetDescSet
+    public class AssetDescSet
     {
         readonly List<AssetDesc> _AssetDescList = new List<AssetDesc>();
         public int Count { get { return _AssetDescList.Count; } }

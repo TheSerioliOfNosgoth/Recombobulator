@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SR1Repository
 {
-    class TexDesc
+    public class TexDesc
     {
         public string FilePath { get; set; } = "";
         public int TextureIndex { get; set; } = 0;

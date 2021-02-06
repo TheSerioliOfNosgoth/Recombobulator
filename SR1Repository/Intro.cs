@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SR1Repository
 {
-    class Intro
+    public class Intro
     {
         public class Vector
         {

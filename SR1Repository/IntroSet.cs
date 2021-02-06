@@ -6,12 +6,15 @@ using System.Threading.Tasks;
 
 namespace SR1Repository
 {
-    class IntroSet
+    public class IntroSet
     {
         readonly List<Intro> _introList = new List<Intro>();
         public int MaxID { get; set; }
         public int Count { get { return _introList.Count; } }
-        public Intro[] Intros { get { return _introList.ToArray(); } }
+        public Intro[] Intros {
+            get { return _introList.ToArray(); }
+            set { _introList.Clear(); _introList.AddRange(value); }
+        }
 
         public void Add(Intro intro)
         {

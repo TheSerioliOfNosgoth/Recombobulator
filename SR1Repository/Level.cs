@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SR1Repository
 {
-    class Level
+    public class Level
     {
         public string UnitName { get; set; } = "";
         public int StreamUnitID { get; set; } = 0;

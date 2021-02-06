@@ -7,12 +7,15 @@ using System.Threading.Tasks;
 
 namespace SR1Repository
 {
-    class SFXClipSet
+    public class SFXClipSet
     {
         readonly SortedList<int, SFXClip> _SFXClipList = new SortedList<int, SFXClip>();
         public int MaxID { get; set; }
         public int Count { get { return _SFXClipList.Count; } }
-        public SFXClip[] SFXs { get { return _SFXClipList.Values.ToArray(); } }
+        public SFXClip[] SFXs {
+            get { return _SFXClipList.Values.ToArray(); }
+            //set { _SFXClipList.Clear(); _SFXClipList.AddRange(value); }
+        }
 
         public void Add(SFXClip clip)
         {
