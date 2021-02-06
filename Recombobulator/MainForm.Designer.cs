@@ -51,16 +51,14 @@
             this.projectTab = new System.Windows.Forms.TabPage();
             this.projectSplitContainer = new System.Windows.Forms.SplitContainer();
             this.projectTreeView = new System.Windows.Forms.TreeView();
+            this.projectTextBox = new System.Windows.Forms.TextBox();
             this.pcmFileDataTab = new System.Windows.Forms.TabPage();
             this.scriptsTab = new System.Windows.Forms.TabPage();
             this.scripts = new System.Windows.Forms.TextBox();
             this.testResultsTab = new System.Windows.Forms.TabPage();
             this.testResults = new System.Windows.Forms.TextBox();
-            this.projectTextBox = new System.Windows.Forms.TextBox();
             this._mainMenu.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pcmFileTreeListView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcmFileSplitContainer)).BeginInit();
-            this.pcmFileSplitContainer.Panel1.SuspendLayout();
             this.pcmFileSplitContainer.Panel2.SuspendLayout();
             this.pcmFileSplitContainer.SuspendLayout();
             this.displayModeTabs.SuspendLayout();
@@ -262,7 +260,7 @@
             // 
             this.projectSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.projectSplitContainer.Location = new System.Drawing.Point(3, 3);
-            this.projectSplitContainer.Name = "splitContainer1";
+            this.projectSplitContainer.Name = "projectSplitContainer";
             // 
             // projectSplitContainer.Panel1
             // 
@@ -279,9 +277,20 @@
             // 
             this.projectTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.projectTreeView.Location = new System.Drawing.Point(0, 0);
-            this.projectTreeView.Name = "treeView1";
+            this.projectTreeView.Name = "projectTreeView";
             this.projectTreeView.Size = new System.Drawing.Size(262, 394);
             this.projectTreeView.TabIndex = 0;
+            this.projectTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.projectTreeView_AfterSelect);
+            // 
+            // projectTextBox
+            // 
+            this.projectTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.projectTextBox.Enabled = false;
+            this.projectTextBox.Location = new System.Drawing.Point(0, 0);
+            this.projectTextBox.Multiline = true;
+            this.projectTextBox.Name = "projectTextBox";
+            this.projectTextBox.Size = new System.Drawing.Size(520, 394);
+            this.projectTextBox.TabIndex = 0;
             // 
             // pcmFileDataTab
             // 
@@ -338,16 +347,6 @@
             this.testResults.Size = new System.Drawing.Size(792, 400);
             this.testResults.TabIndex = 0;
             // 
-            // textBox1
-            // 
-            this.projectTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.projectTextBox.Enabled = false;
-            this.projectTextBox.Location = new System.Drawing.Point(0, 0);
-            this.projectTextBox.Multiline = true;
-            this.projectTextBox.Name = "textBox1";
-            this.projectTextBox.Size = new System.Drawing.Size(520, 394);
-            this.projectTextBox.TabIndex = 0;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -360,8 +359,6 @@
             this.Text = "Recombobulator";
             this._mainMenu.ResumeLayout(false);
             this._mainMenu.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pcmFileTreeListView)).EndInit();
-            this.pcmFileSplitContainer.Panel1.ResumeLayout(false);
             this.pcmFileSplitContainer.Panel2.ResumeLayout(false);
             this.pcmFileSplitContainer.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pcmFileSplitContainer)).EndInit();

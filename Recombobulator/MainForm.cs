@@ -198,9 +198,10 @@ namespace Recombobulator
                     node.Tag = level;
                     projectTreeView.Nodes.Add(node);
                 }
-            }
 
-            projectTreeView.Sort();
+                projectTreeView.Sort();
+                displayModeTabs.SelectedTab = projectTab;
+            }
 
             Enabled = true;
             _progressWindow.Hide();
@@ -307,14 +308,40 @@ namespace Recombobulator
                     node.Tag = level;
                     projectTreeView.Nodes.Add(node);
                 }
-            }
 
-            projectTreeView.Sort();
+                projectTreeView.Sort();
+                displayModeTabs.SelectedTab = projectTab;
+            }
         }
 
         private void compileProjectToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void projectTreeView_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            if (_repository == null)
+            {
+                return;
+            }
+
+            Level level = (Level)e.Node.Tag;
+            string text = "Unit Name: " + level.UnitName + "\r\n";
+            text += "Unit ID: " + level.StreamUnitID.ToString() + "\r\n";
+            text += "Intros:\r\n";
+
+            foreach (Intro intro in _repository.Intros.Intros)
+            {
+                if (intro.StreamUnitID == level.StreamUnitID)
+                {
+                    text += "\t" + intro.ObjectName + " " + intro.IntroUniqueID;
+                    text += ", position {" + intro.Position.X + ", " + intro.Position.Y + ", " + intro.Position.Z + " }";
+                    text += ", rotation {" + intro.Rotation.X + ", " + intro.Rotation.Y + ", " + intro.Rotation.Z + " }\r\n";
+                }
+            }
+
+            projectTextBox.Text = text;
         }
     }
 }
