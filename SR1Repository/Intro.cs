@@ -11,8 +11,8 @@ namespace SR1Repository
         public class Vector
         {
             public short X { get; set; }
-            public short Z { get; set; }
             public short Y { get; set; }
+            public short Z { get; set; }
         }
 
         public string ObjectName { get; set; } = "";
@@ -20,7 +20,7 @@ namespace SR1Repository
         public int StreamUnitID { get; set; } = 0;
         public int IntroUniqueID { get; set; } = 0;
 
-        public Vector Position { get; private set; } = new Vector();
-        public Vector Rotation { get; private set; } = new Vector();
+        public Vector Position { get; set; } = new Vector();
+        public Vector Rotation { get; set; } = new Vector();
     }
 }

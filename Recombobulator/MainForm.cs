@@ -208,6 +208,30 @@ namespace Recombobulator
             _progressWindow.Dispose();
         }
 
+        private void BeginPacking()
+        {
+            if (_progressWindow != null)
+            {
+                _progressWindow.Dispose();
+            }
+            _progressWindow = new ProgressWindow();
+            _progressWindow.Title = "Packing Repository...";
+            _progressWindow.SetMessage("");
+            //_progressWindow.Icon = this.Icon;
+            _progressWindow.Owner = this;
+            _progressWindow.TopLevel = true;
+            _progressWindow.ShowInTaskbar = false;
+            this.Enabled = false;
+            _progressWindow.Show();
+        }
+
+        private void EndPacking()
+        {
+            Enabled = true;
+            _progressWindow.Hide();
+            _progressWindow.Dispose();
+        }
+
         private void NewProjectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog folderDialog = new FolderBrowserDialog();
@@ -240,7 +264,7 @@ namespace Recombobulator
                 Invoke(new MethodInvoker(EndUnpacking));
             }));
 
-            loadingThread.Name = "LoadingThread";
+            loadingThread.Name = "UnpackingThread";
             loadingThread.SetApartmentState(ApartmentState.STA);
             loadingThread.Start();
             //loadingThread.Join();
@@ -316,7 +340,48 @@ namespace Recombobulator
 
         private void compileProjectToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Repository repository = _repository;
 
+            Invoke(new MethodInvoker(BeginPacking));
+
+            Thread loadingThread = new Thread((() =>
+            {
+                repository.PackRepository();
+
+                _repository = repository;
+                Invoke(new MethodInvoker(EndPacking));
+            }));
+
+            loadingThread.Name = "PackingThread";
+            loadingThread.SetApartmentState(ApartmentState.STA);
+            loadingThread.Start();
+            //loadingThread.Join();
+
+            Thread progressThread = new Thread((() =>
+            {
+                do
+                {
+                    // Do I really want to be locking the whole thing?
+                    lock (repository)
+                    {
+                        _progressWindow.SetMessage(repository.RecentMessage);
+                        if (repository.FilesToRead > 0)
+                        {
+                            _progressWindow.SetProgress((100 * repository.FilesRead) / repository.FilesToRead);
+                        }
+                        else
+                        {
+                            _progressWindow.SetProgress(0);
+                        }
+                    }
+                    Thread.Sleep(20);
+                }
+                while (loadingThread.IsAlive);
+            }));
+
+            progressThread.Name = "ProgressThread";
+            progressThread.SetApartmentState(ApartmentState.STA);
+            progressThread.Start();
         }
 
         private void projectTreeView_AfterSelect(object sender, TreeViewEventArgs e)
@@ -335,9 +400,13 @@ namespace Recombobulator
             {
                 if (intro.StreamUnitID == level.StreamUnitID)
                 {
+                    float rX = (intro.Rotation.X * 360) / 4096f;
+                    float rY = (intro.Rotation.Y * 360) / 4096f;
+                    float rZ = (intro.Rotation.Z * 360) / 4096f;
+
                     text += "\t" + intro.ObjectName + " " + intro.IntroUniqueID;
                     text += ", position {" + intro.Position.X + ", " + intro.Position.Y + ", " + intro.Position.Z + " }";
-                    text += ", rotation {" + intro.Rotation.X + ", " + intro.Rotation.Y + ", " + intro.Rotation.Z + " }\r\n";
+                    text += ", rotation {" + rX + ", " + rY + ", " + rZ + " }\r\n";
                 }
             }
 

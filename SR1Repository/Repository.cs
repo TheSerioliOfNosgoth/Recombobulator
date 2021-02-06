@@ -713,6 +713,9 @@ namespace SR1Repository
 
         public bool PackRepository()
         {
+            FilesToRead = _assets.Count + _textures.Count;
+            FilesRead = 0;
+
             try
             {
                 FileStream outputBigFile = new FileStream(_outputBigFileName, FileMode.Create);
@@ -755,14 +758,16 @@ namespace SR1Repository
 
                 bigFileWriter.Flush();
 
-                foreach (AssetDesc entry in sortedAssets.Values)
+                foreach (AssetDesc asset in sortedAssets.Values)
                 {
-                    string inputFileName = Path.Combine(_projectFolderName, entry.FilePath);
+                    string inputFileName = Path.Combine(_projectFolderName, asset.FilePath);
                     FileStream inputFile = new FileStream(inputFileName, FileMode.Open, FileAccess.Read);
                     CopyTo(outputBigFile, inputFile, (int)inputFile.Length);
                     inputFile.Close();
 
                     Console.WriteLine("Added file: \"" + inputFileName + "\"");
+                    RecentMessage = (string)asset.FilePath.Clone();
+                    FilesRead++;
 
                     while (((uint)bigFileWriter.BaseStream.Position & 0xFFFF800) != (uint)bigFileWriter.BaseStream.Position)
                     {
@@ -779,12 +784,15 @@ namespace SR1Repository
                 texturesWriter.Write((ushort)_textures.Count);
                 texturesWriter.Write(new byte[headerLength - 4]);
                 uint totalTextures = (uint)_textures.Count - 1;
-                for (int t = 0; t <= totalTextures; t++)
+                foreach (TexDesc texture in _textures.Textures)
                 {
-                    string inputFileName = Path.Combine(_projectFolderName, _textures.Textures[t].FilePath);
+                    string inputFileName = Path.Combine(_projectFolderName, texture.FilePath);
                     Bitmap tempBitmap = new Bitmap(inputFileName);
                     WriteTexture(texturesWriter, tempBitmap);
+
                     Console.WriteLine("Added file: \"" + inputFileName + "\"");
+                    RecentMessage = (string)texture.FilePath.Clone();
+                    FilesRead++;
                 }
                 #endregion
 
@@ -797,9 +805,13 @@ namespace SR1Repository
             catch (Exception)
             {
                 Console.WriteLine("Error: Couldn't pack the repository.");
+                FilesToRead = 0;
+                FilesRead = 0;
                 return false;
             }
 
+            FilesToRead = 0;
+            FilesRead = 0;
             return true;
         }
 

@@ -285,10 +285,11 @@
             // projectTextBox
             // 
             this.projectTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.projectTextBox.Enabled = false;
             this.projectTextBox.Location = new System.Drawing.Point(0, 0);
             this.projectTextBox.Multiline = true;
             this.projectTextBox.Name = "projectTextBox";
+            this.projectTextBox.ReadOnly = true;
+            this.projectTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.projectTextBox.Size = new System.Drawing.Size(520, 394);
             this.projectTextBox.TabIndex = 0;
             // 
