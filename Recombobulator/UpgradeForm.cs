@@ -8,26 +8,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using SR1Repository;
 
 namespace Recombobulator
 {
     public partial class UpgradeForm : Form
     {
-        public ushort StartingTextureIndex
-        {
-            get { return (ushort)textureStartTextBox.Value; }
-            set { textureStartTextBox.Value = value; }
-        }
-        public string FileName
+        public string FilePath
         {
             get { return fileNameTextBox.Text; }
             set { fileNameTextBox.Text = value; }
         }
+        public ushort StartingTextureIndex = 0;
+
+        Repository _repository = null;
 
         public UpgradeForm()
         {
             InitializeComponent();
-            textureStartTextBox.Controls[0].Visible = false;
         }
 
         private void TextureStartTextBox_Leave(object sender, EventArgs e)
@@ -40,31 +38,14 @@ namespace Recombobulator
             }
         }
 
-        private void BrowseButton_Click(object sender, EventArgs e)
+        public void Initialize(Repository repository, string fileName)
         {
-            SaveFileDialog dialog = new SaveFileDialog();
+            _repository = repository;
 
-            try
-            {
-                string directory = Path.GetDirectoryName(fileNameTextBox.Text);
-                if (Directory.Exists(directory))
-                {
-                    dialog.InitialDirectory = directory;
-                }
-            }
-            catch
-            {
-            }
+            textureSetCombo.Items.Add(fileName);
+            textureSetCombo.SelectedIndex = 0;
 
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                fileNameTextBox.Text = dialog.FileName;
-            }
-        }
-
-        public void SetTextureStartingIndex(ushort index)
-        {
-            textureStartTextBox.Value = index;
+            ushort index = (ushort)_repository.Textures.Count;
 
             textureTextBox0.Text = (index + 0).ToString();
             textureTextBox1.Text = (index + 1).ToString();
@@ -74,6 +55,8 @@ namespace Recombobulator
             textureTextBox5.Text = (index + 5).ToString();
             textureTextBox6.Text = (index + 6).ToString();
             textureTextBox7.Text = (index + 7).ToString();
+
+            StartingTextureIndex = index;
         }
     }
 }

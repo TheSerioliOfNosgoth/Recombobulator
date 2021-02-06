@@ -30,12 +30,10 @@
         {
             this.continueButton = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
-            this.textureStartLabel = new System.Windows.Forms.Label();
-            this.textureStartTextBox = new System.Windows.Forms.NumericUpDown();
+            this.textureSetLabel = new System.Windows.Forms.Label();
             this.versionLabel = new System.Windows.Forms.Label();
             this.versionComboBox = new System.Windows.Forms.ComboBox();
             this.fileNameTextBox = new System.Windows.Forms.TextBox();
-            this.browseButton = new System.Windows.Forms.Button();
             this.textureLabel0 = new System.Windows.Forms.Label();
             this.textureTextBox0 = new System.Windows.Forms.TextBox();
             this.textureLabel1 = new System.Windows.Forms.Label();
@@ -52,7 +50,7 @@
             this.textureTextBox6 = new System.Windows.Forms.TextBox();
             this.textureLabel7 = new System.Windows.Forms.Label();
             this.textureTextBox7 = new System.Windows.Forms.TextBox();
-            ((System.ComponentModel.ISupportInitialize)(this.textureStartTextBox)).BeginInit();
+            this.textureSetCombo = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // continueButton
@@ -75,32 +73,14 @@
             this.cancelButton.Text = "Cancel";
             this.cancelButton.UseVisualStyleBackColor = true;
             // 
-            // textureStartLabel
+            // textureSetLabel
             // 
-            this.textureStartLabel.AutoSize = true;
-            this.textureStartLabel.Location = new System.Drawing.Point(12, 35);
-            this.textureStartLabel.Name = "textureStartLabel";
-            this.textureStartLabel.Size = new System.Drawing.Size(96, 13);
-            this.textureStartLabel.TabIndex = 2;
-            this.textureStartLabel.Text = "Texture Starting ID";
-            // 
-            // textureStartTextBox
-            // 
-            this.textureStartTextBox.Location = new System.Drawing.Point(151, 33);
-            this.textureStartTextBox.Maximum = new decimal(new int[] {
-            9999,
-            0,
-            0,
-            0});
-            this.textureStartTextBox.Name = "textureStartTextBox";
-            this.textureStartTextBox.Size = new System.Drawing.Size(120, 20);
-            this.textureStartTextBox.TabIndex = 3;
-            this.textureStartTextBox.Value = new decimal(new int[] {
-            9999,
-            0,
-            0,
-            0});
-            this.textureStartTextBox.Leave += new System.EventHandler(this.TextureStartTextBox_Leave);
+            this.textureSetLabel.AutoSize = true;
+            this.textureSetLabel.Location = new System.Drawing.Point(11, 62);
+            this.textureSetLabel.Name = "textureSetLabel";
+            this.textureSetLabel.Size = new System.Drawing.Size(62, 13);
+            this.textureSetLabel.TabIndex = 2;
+            this.textureSetLabel.Text = "Texture Set";
             // 
             // versionLabel
             // 
@@ -123,21 +103,11 @@
             // 
             // fileNameTextBox
             // 
-            this.fileNameTextBox.Location = new System.Drawing.Point(12, 59);
+            this.fileNameTextBox.Location = new System.Drawing.Point(13, 33);
             this.fileNameTextBox.Name = "fileNameTextBox";
             this.fileNameTextBox.ReadOnly = true;
-            this.fileNameTextBox.Size = new System.Drawing.Size(179, 20);
+            this.fileNameTextBox.Size = new System.Drawing.Size(259, 20);
             this.fileNameTextBox.TabIndex = 4;
-            // 
-            // browseButton
-            // 
-            this.browseButton.Location = new System.Drawing.Point(197, 59);
-            this.browseButton.Name = "browseButton";
-            this.browseButton.Size = new System.Drawing.Size(75, 23);
-            this.browseButton.TabIndex = 5;
-            this.browseButton.Text = "Browse...";
-            this.browseButton.UseVisualStyleBackColor = true;
-            this.browseButton.Click += new System.EventHandler(this.BrowseButton_Click);
             // 
             // textureLabel0
             // 
@@ -275,6 +245,15 @@
             this.textureTextBox7.Size = new System.Drawing.Size(178, 20);
             this.textureTextBox7.TabIndex = 23;
             // 
+            // textureSetCombo
+            // 
+            this.textureSetCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.textureSetCombo.FormattingEnabled = true;
+            this.textureSetCombo.Location = new System.Drawing.Point(150, 59);
+            this.textureSetCombo.Name = "textureSetCombo";
+            this.textureSetCombo.Size = new System.Drawing.Size(121, 21);
+            this.textureSetCombo.TabIndex = 24;
+            // 
             // UpgradeForm
             // 
             this.AcceptButton = this.continueButton;
@@ -283,6 +262,7 @@
             this.CancelButton = this.cancelButton;
             this.ClientSize = new System.Drawing.Size(284, 361);
             this.ControlBox = false;
+            this.Controls.Add(this.textureSetCombo);
             this.Controls.Add(this.textureLabel7);
             this.Controls.Add(this.textureTextBox7);
             this.Controls.Add(this.textureLabel6);
@@ -299,12 +279,10 @@
             this.Controls.Add(this.textureTextBox1);
             this.Controls.Add(this.textureLabel0);
             this.Controls.Add(this.textureTextBox0);
-            this.Controls.Add(this.browseButton);
             this.Controls.Add(this.fileNameTextBox);
             this.Controls.Add(this.versionComboBox);
             this.Controls.Add(this.versionLabel);
-            this.Controls.Add(this.textureStartTextBox);
-            this.Controls.Add(this.textureStartLabel);
+            this.Controls.Add(this.textureSetLabel);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.continueButton);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -312,8 +290,7 @@
             this.MinimizeBox = false;
             this.Name = "UpgradeForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Upgrade To Version";
-            ((System.ComponentModel.ISupportInitialize)(this.textureStartTextBox)).EndInit();
+            this.Text = "Add To Project...";
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -323,12 +300,10 @@
 
         private System.Windows.Forms.Button continueButton;
         private System.Windows.Forms.Button cancelButton;
-        private System.Windows.Forms.Label textureStartLabel;
-        private System.Windows.Forms.NumericUpDown textureStartTextBox;
+        private System.Windows.Forms.Label textureSetLabel;
         private System.Windows.Forms.Label versionLabel;
         private System.Windows.Forms.ComboBox versionComboBox;
         private System.Windows.Forms.TextBox fileNameTextBox;
-        private System.Windows.Forms.Button browseButton;
         private System.Windows.Forms.TextBox textureTextBox0;
         private System.Windows.Forms.Label textureLabel0;
         private System.Windows.Forms.Label textureLabel1;
@@ -345,5 +320,6 @@
         private System.Windows.Forms.TextBox textureTextBox6;
         private System.Windows.Forms.Label textureLabel7;
         private System.Windows.Forms.TextBox textureTextBox7;
+        private System.Windows.Forms.ComboBox textureSetCombo;
     }
 }

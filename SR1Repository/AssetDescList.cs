@@ -7,29 +7,29 @@ using System.Threading.Tasks;
 
 namespace SR1Repository
 {
-    public class AssetDescSet
+    public class AssetDescList
     {
-        readonly List<AssetDesc> _AssetDescList = new List<AssetDesc>();
-        public int Count { get { return _AssetDescList.Count; } }
+        readonly List<AssetDesc> _assetDescList = new List<AssetDesc>();
+        public int Count { get { return _assetDescList.Count; } }
         public AssetDesc[] Assets
         { 
-            get { return _AssetDescList.ToArray(); }
-            set { _AssetDescList.Clear(); _AssetDescList.AddRange(value); }
+            get { return _assetDescList.ToArray(); }
+            set { _assetDescList.Clear(); _assetDescList.AddRange(value); }
         }
 
         public void Add(AssetDesc asset)
         {
-            _AssetDescList.Add(asset);
+            _assetDescList.Add(asset);
         }
 
         public void Clear()
         {
-            _AssetDescList.Clear();
+            _assetDescList.Clear();
         }
 
         public List<AssetDesc> FindAll(Predicate<AssetDesc> match)
         {
-            return _AssetDescList.FindAll(match);
+            return _assetDescList.FindAll(match);
         }
     }
 }

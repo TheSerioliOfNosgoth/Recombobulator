@@ -7,29 +7,29 @@ using System.Threading.Tasks;
 
 namespace SR1Repository
 {
-    public class TexDescSet
+    public class TexDescList
     {
-        readonly List<TexDesc> _TexDescList = new List<TexDesc>();
-        public int Count { get { return _TexDescList.Count; } }
+        readonly List<TexDesc> _texDescList = new List<TexDesc>();
+        public int Count { get { return _texDescList.Count; } }
         public TexDesc[] Textures
         { 
-            get { return _TexDescList.ToArray(); }
-            set { _TexDescList.Clear(); _TexDescList.AddRange(value); }
+            get { return _texDescList.ToArray(); }
+            set { _texDescList.Clear(); _texDescList.AddRange(value); }
         }
 
         public void Add(TexDesc texture)
         {
-            _TexDescList.Add(texture);
+            _texDescList.Add(texture);
         }
 
         public void Clear()
         {
-            _TexDescList.Clear();
+            _texDescList.Clear();
         }
 
         public List<TexDesc> FindAll(Predicate<TexDesc> match)
         {
-            return _TexDescList.FindAll(match);
+            return _texDescList.FindAll(match);
         }
     }
 }

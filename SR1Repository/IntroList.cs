@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SR1Repository
 {
-    public class IntroSet
+    public class IntroList
     {
         readonly List<Intro> _introList = new List<Intro>();
         public int MaxID { get; set; }

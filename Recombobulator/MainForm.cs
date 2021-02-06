@@ -9,6 +9,8 @@ namespace Recombobulator
     public partial class MainForm : Form
     {
         SR1_File _file = new SR1_File();
+        bool _fileLoaded = false;
+
         Repository _repository = null;
         ProgressWindow _progressWindow = null;
 
@@ -17,7 +19,7 @@ namespace Recombobulator
             InitializeComponent();
         }
 
-        private void ImportToolStripMenuItem_Click(object sender, EventArgs e)
+        private void OpenFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
             if (dialog.ShowDialog() == DialogResult.OK)
@@ -30,8 +32,8 @@ namespace Recombobulator
                 {
                     _file.Import(dialog.FileName, SR1_File.ImportFlags.LogErrors | SR1_File.ImportFlags.LogScripts);
 
-                    exportToolStripMenuItem.Enabled = true;
-                    exportUpgradedToolStripMenuItem.Enabled = true;
+                    testExportToolStripMenuItem.Enabled = true;
+                    addToProjectToolStripMenuItem.Enabled = true;
 
                     treeListView.Nodes.AddRange(_file.CreateChunkNodes());
 
@@ -43,6 +45,12 @@ namespace Recombobulator
 
                     scripts.Text = _file.GetScripts();
                     summary.Text = _file.GetErrors() + textureIDs;
+
+                    _fileLoaded = true;
+                    if (_repository != null && _fileLoaded == true)
+                    {
+                        addToProjectToolStripMenuItem.Enabled = true;
+                    }
                 }
                 catch (Exception exception)
                 {
@@ -55,14 +63,14 @@ namespace Recombobulator
             }
         }
 
-        private void ExportToolStripMenuItem_Click(object sender, EventArgs e)
+        private void TestExportToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SaveFileDialog dialog = new SaveFileDialog();
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
-                    dialog.FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), Path.GetFileName(_file._FileName));
+                    dialog.FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), Path.GetFileName(_file._FilePath));
                     _file.Export(dialog.FileName);
                 }
                 catch (Exception exception)
@@ -72,17 +80,18 @@ namespace Recombobulator
             }
         }
 
-        private void ExportUpgradedToolStripMenuItem_Click(object sender, EventArgs e)
+        private void AddToProjectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             UpgradeForm upgradeDialog = new UpgradeForm();
-            upgradeDialog.SetTextureStartingIndex(1287);
-            //upgradeDialog.FileName = _file._FileName;
-            upgradeDialog.FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), Path.GetFileName(_file._FileName));
+            string rawFileName = Path.GetFileNameWithoutExtension(_file._FilePath);
+            upgradeDialog.Initialize(_repository, rawFileName); 
+            upgradeDialog.FilePath = _file._FilePath;
+            upgradeDialog.FilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), Path.GetFileName(_file._FilePath));
             if (upgradeDialog.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
-                    _file.Export(upgradeDialog.FileName, SR1_File.Version.Retail_PC, upgradeDialog.StartingTextureIndex);
+                    _file.Export(upgradeDialog.FilePath, SR1_File.Version.Retail_PC, upgradeDialog.StartingTextureIndex);
                 }
                 catch (Exception exception)
                 {
@@ -152,14 +161,14 @@ namespace Recombobulator
             Close();
         }
 
-        private void ShowProgressWindow()
+        private void BeginUnpacking()
         {
             if (_progressWindow != null)
             {
                 _progressWindow.Dispose();
             }
             _progressWindow = new ProgressWindow();
-            _progressWindow.Title = "Loading";
+            _progressWindow.Title = "Unpacking Repository...";
             _progressWindow.SetMessage("");
             //_progressWindow.Icon = this.Icon;
             _progressWindow.Owner = this;
@@ -169,8 +178,13 @@ namespace Recombobulator
             _progressWindow.Show();
         }
 
-        private void HideProgressWindow()
+        private void EndUnpacking()
         {
+            if (_repository != null && _fileLoaded == true)
+            {
+                addToProjectToolStripMenuItem.Enabled = true;
+            }
+
             Enabled = true;
             _progressWindow.Hide();
             _progressWindow.Dispose();
@@ -198,14 +212,14 @@ namespace Recombobulator
 
             Repository repository = new Repository(folderDialog.SelectedPath);
 
-            Invoke(new MethodInvoker(ShowProgressWindow));
+            Invoke(new MethodInvoker(BeginUnpacking));
 
             Thread loadingThread = new Thread((() =>
             {
                 repository.UnpackRepository();
 
                 _repository = repository;
-                Invoke(new MethodInvoker(HideProgressWindow));
+                Invoke(new MethodInvoker(EndUnpacking));
             }));
 
             loadingThread.Name = "LoadingThread";
@@ -220,7 +234,6 @@ namespace Recombobulator
                     // Do I really want to be locking the whole thing?
                     lock (repository)
                     {
-                        _progressWindow.SetTitle("Unpacking");
                         _progressWindow.SetMessage(repository.RecentMessage);
                         if (repository.FilesToRead > 0)
                         {
@@ -264,6 +277,11 @@ namespace Recombobulator
             Repository repository = new Repository(folderDialog.SelectedPath);
             repository.LoadRepository();
             _repository = repository;
+
+            if (_repository != null && _fileLoaded == true)
+            {
+                addToProjectToolStripMenuItem.Enabled = true;
+            }
         }
     }
 }

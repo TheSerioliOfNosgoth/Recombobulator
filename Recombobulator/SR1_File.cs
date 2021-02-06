@@ -38,7 +38,7 @@ namespace Recombobulator
             DetectPCRetail = 4,
         }
 
-        public string _FileName { get; private set; } = "";
+        public string _FilePath { get; private set; } = "";
         public Version _Version { get; private set; } = SR1_File.Version.Retail;
         public readonly SortedList<uint, SR1_Structure> _Structures = new SortedList<uint, SR1_Structure>();
         public readonly SortedDictionary<uint, SR1_PrimativeBase> _Primatives = new SortedDictionary<uint, SR1_PrimativeBase>();
@@ -67,7 +67,7 @@ namespace Recombobulator
             _ImportErrors.GetStringBuilder().Clear();
             _Scripts.GetStringBuilder().Clear();
 
-            _FileName = fileName;
+            _FilePath = fileName;
 
             MemoryStream stream = new MemoryStream();
 
@@ -336,10 +336,10 @@ namespace Recombobulator
 
             stream.WriteTo(file);
 
-            if (File.Exists(_FileName))
+            if (File.Exists(_FilePath))
             {
                 file.Position = 0;
-                FileStream compareFile = new FileStream(_FileName, FileMode.Open, FileAccess.Read);
+                FileStream compareFile = new FileStream(_FilePath, FileMode.Open, FileAccess.Read);
                 if (file.Length != compareFile.Length)
                 {
                     result = false;

@@ -71,17 +71,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssetDesc.cs" />
-    <Compile Include="AssetDescSet.cs" />
+    <Compile Include="AssetDescList.cs" />
     <Compile Include="Intro.cs" />
-    <Compile Include="IntroSet.cs" />
+    <Compile Include="IntroList.cs" />
+    <Compile Include="TexSetList.cs" />
+    <Compile Include="TexSet.cs" />
     <Compile Include="Level.cs" />
-    <Compile Include="LevelSet.cs" />
+    <Compile Include="LevelList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository.cs" />
     <Compile Include="SFXClip.cs" />
-    <Compile Include="SFXClipSet.cs" />
+    <Compile Include="SFXClipList.cs" />
     <Compile Include="TexDesc.cs" />
-    <Compile Include="TexDescSet.cs" />
+    <Compile Include="TexDescList.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Hashes-SR1.txt">

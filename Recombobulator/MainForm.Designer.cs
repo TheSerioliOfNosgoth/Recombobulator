@@ -35,9 +35,9 @@
             this._mainMenu = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exportUpgradedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.testExportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.addToProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.bulkTestingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.detailedExportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.briefExportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -80,9 +80,9 @@
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newProjectToolStripMenuItem,
             this.openProjectToolStripMenuItem,
-            this.importToolStripMenuItem,
-            this.exportToolStripMenuItem,
-            this.exportUpgradedToolStripMenuItem,
+            this.openFileToolStripMenuItem,
+            this.testExportToolStripMenuItem,
+            this.addToProjectToolStripMenuItem,
             this.bulkTestingToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
@@ -96,28 +96,28 @@
             this.newProjectToolStripMenuItem.Text = "New Project...";
             this.newProjectToolStripMenuItem.Click += new System.EventHandler(this.NewProjectToolStripMenuItem_Click);
             // 
-            // importToolStripMenuItem
+            // openFileToolStripMenuItem
             // 
-            this.importToolStripMenuItem.Name = "importToolStripMenuItem";
-            this.importToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.importToolStripMenuItem.Text = "Import";
-            this.importToolStripMenuItem.Click += new System.EventHandler(this.ImportToolStripMenuItem_Click);
+            this.openFileToolStripMenuItem.Name = "openFileToolStripMenuItem";
+            this.openFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openFileToolStripMenuItem.Text = "Open File...";
+            this.openFileToolStripMenuItem.Click += new System.EventHandler(this.OpenFileToolStripMenuItem_Click);
             // 
-            // exportToolStripMenuItem
+            // testExportToolStripMenuItem
             // 
-            this.exportToolStripMenuItem.Enabled = false;
-            this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
-            this.exportToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.exportToolStripMenuItem.Text = "Export";
-            this.exportToolStripMenuItem.Click += new System.EventHandler(this.ExportToolStripMenuItem_Click);
+            this.testExportToolStripMenuItem.Enabled = false;
+            this.testExportToolStripMenuItem.Name = "testExportToolStripMenuItem";
+            this.testExportToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.testExportToolStripMenuItem.Text = "Test Export";
+            this.testExportToolStripMenuItem.Click += new System.EventHandler(this.TestExportToolStripMenuItem_Click);
             // 
-            // exportUpgradedToolStripMenuItem
+            // addToProjectToolStripMenuItem
             // 
-            this.exportUpgradedToolStripMenuItem.Enabled = false;
-            this.exportUpgradedToolStripMenuItem.Name = "exportUpgradedToolStripMenuItem";
-            this.exportUpgradedToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.exportUpgradedToolStripMenuItem.Text = "Export Upgraded";
-            this.exportUpgradedToolStripMenuItem.Click += new System.EventHandler(this.ExportUpgradedToolStripMenuItem_Click);
+            this.addToProjectToolStripMenuItem.Enabled = false;
+            this.addToProjectToolStripMenuItem.Name = "addToProjectToolStripMenuItem";
+            this.addToProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.addToProjectToolStripMenuItem.Text = "Add To Project...";
+            this.addToProjectToolStripMenuItem.Click += new System.EventHandler(this.AddToProjectToolStripMenuItem_Click);
             // 
             // bulkTestingToolStripMenuItem
             // 
@@ -327,8 +327,8 @@
 
         private System.Windows.Forms.MenuStrip _mainMenu;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem testExportToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem bulkTestingToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private TreeList.TreeListView treeListView;
@@ -342,7 +342,7 @@
         private System.Windows.Forms.TextBox testResults;
         private System.Windows.Forms.ToolStripMenuItem detailedExportToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem briefExportToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem exportUpgradedToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem addToProjectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem newProjectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openProjectToolStripMenuItem;
         private System.Windows.Forms.TabPage projectTab;

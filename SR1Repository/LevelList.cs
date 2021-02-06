@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SR1Repository
 {
-    public class LevelSet
+    public class LevelList
     {
         readonly List<Level> _levelList = new List<Level>();
         public int MaxID { get; set; }
