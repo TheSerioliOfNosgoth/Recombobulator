@@ -37,8 +37,9 @@
             this.newProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.testExportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addToProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.compileProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.testExportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.bulkTestingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.detailedExportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.briefExportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -48,12 +49,14 @@
             this.pcmFileSummary = new System.Windows.Forms.TextBox();
             this.displayModeTabs = new System.Windows.Forms.TabControl();
             this.projectTab = new System.Windows.Forms.TabPage();
+            this.projectSplitContainer = new System.Windows.Forms.SplitContainer();
+            this.projectTreeView = new System.Windows.Forms.TreeView();
             this.pcmFileDataTab = new System.Windows.Forms.TabPage();
             this.scriptsTab = new System.Windows.Forms.TabPage();
             this.scripts = new System.Windows.Forms.TextBox();
             this.testResultsTab = new System.Windows.Forms.TabPage();
             this.testResults = new System.Windows.Forms.TextBox();
-            this.compileProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.projectTextBox = new System.Windows.Forms.TextBox();
             this._mainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pcmFileTreeListView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcmFileSplitContainer)).BeginInit();
@@ -61,6 +64,11 @@
             this.pcmFileSplitContainer.Panel2.SuspendLayout();
             this.pcmFileSplitContainer.SuspendLayout();
             this.displayModeTabs.SuspendLayout();
+            this.projectTab.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.projectSplitContainer)).BeginInit();
+            this.projectSplitContainer.Panel1.SuspendLayout();
+            this.projectSplitContainer.Panel2.SuspendLayout();
+            this.projectSplitContainer.SuspendLayout();
             this.pcmFileDataTab.SuspendLayout();
             this.scriptsTab.SuspendLayout();
             this.testResultsTab.SuspendLayout();
@@ -94,39 +102,47 @@
             // newProjectToolStripMenuItem
             // 
             this.newProjectToolStripMenuItem.Name = "newProjectToolStripMenuItem";
-            this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
             this.newProjectToolStripMenuItem.Text = "New Project...";
             this.newProjectToolStripMenuItem.Click += new System.EventHandler(this.NewProjectToolStripMenuItem_Click);
             // 
             // openProjectToolStripMenuItem
             // 
             this.openProjectToolStripMenuItem.Name = "openProjectToolStripMenuItem";
-            this.openProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openProjectToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
             this.openProjectToolStripMenuItem.Text = "Open Project...";
             this.openProjectToolStripMenuItem.Click += new System.EventHandler(this.OpenProjectToolStripMenuItem_Click);
             // 
             // openFileToolStripMenuItem
             // 
             this.openFileToolStripMenuItem.Name = "openFileToolStripMenuItem";
-            this.openFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openFileToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
             this.openFileToolStripMenuItem.Text = "Open File...";
             this.openFileToolStripMenuItem.Click += new System.EventHandler(this.OpenFileToolStripMenuItem_Click);
-            // 
-            // testExportToolStripMenuItem
-            // 
-            this.testExportToolStripMenuItem.Enabled = false;
-            this.testExportToolStripMenuItem.Name = "testExportToolStripMenuItem";
-            this.testExportToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.testExportToolStripMenuItem.Text = "Test Export";
-            this.testExportToolStripMenuItem.Click += new System.EventHandler(this.TestExportToolStripMenuItem_Click);
             // 
             // addToProjectToolStripMenuItem
             // 
             this.addToProjectToolStripMenuItem.Enabled = false;
             this.addToProjectToolStripMenuItem.Name = "addToProjectToolStripMenuItem";
-            this.addToProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.addToProjectToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
             this.addToProjectToolStripMenuItem.Text = "Add To Project...";
             this.addToProjectToolStripMenuItem.Click += new System.EventHandler(this.AddToProjectToolStripMenuItem_Click);
+            // 
+            // compileProjectToolStripMenuItem
+            // 
+            this.compileProjectToolStripMenuItem.Enabled = false;
+            this.compileProjectToolStripMenuItem.Name = "compileProjectToolStripMenuItem";
+            this.compileProjectToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
+            this.compileProjectToolStripMenuItem.Text = "Compile Project...";
+            this.compileProjectToolStripMenuItem.Click += new System.EventHandler(this.compileProjectToolStripMenuItem_Click);
+            // 
+            // testExportToolStripMenuItem
+            // 
+            this.testExportToolStripMenuItem.Enabled = false;
+            this.testExportToolStripMenuItem.Name = "testExportToolStripMenuItem";
+            this.testExportToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
+            this.testExportToolStripMenuItem.Text = "Test Export";
+            this.testExportToolStripMenuItem.Click += new System.EventHandler(this.TestExportToolStripMenuItem_Click);
             // 
             // bulkTestingToolStripMenuItem
             // 
@@ -134,7 +150,7 @@
             this.detailedExportToolStripMenuItem,
             this.briefExportToolStripMenuItem});
             this.bulkTestingToolStripMenuItem.Name = "bulkTestingToolStripMenuItem";
-            this.bulkTestingToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.bulkTestingToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
             this.bulkTestingToolStripMenuItem.Text = "Bulk Testing";
             // 
             // detailedExportToolStripMenuItem
@@ -154,11 +170,11 @@
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItem_Click);
             // 
-            // treeListView
+            // pcmFileTreeListView
             // 
             treeListColumn1.AutoSizeMinSize = 170;
             treeListColumn1.HeaderFormat.BackColor = System.Drawing.SystemColors.ButtonFace;
@@ -182,36 +198,36 @@
             this.pcmFileTreeListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pcmFileTreeListView.Images = null;
             this.pcmFileTreeListView.Location = new System.Drawing.Point(0, 0);
-            this.pcmFileTreeListView.Name = "treeListView";
+            this.pcmFileTreeListView.Name = "pcmFileTreeListView";
             this.pcmFileTreeListView.Size = new System.Drawing.Size(792, 356);
             this.pcmFileTreeListView.TabIndex = 1;
             this.pcmFileTreeListView.Text = "treeListView";
             // 
-            // splitContainer
+            // pcmFileSplitContainer
             // 
             this.pcmFileSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pcmFileSplitContainer.Location = new System.Drawing.Point(0, 0);
             this.pcmFileSplitContainer.Margin = new System.Windows.Forms.Padding(0);
-            this.pcmFileSplitContainer.Name = "splitContainer";
+            this.pcmFileSplitContainer.Name = "pcmFileSplitContainer";
             this.pcmFileSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
-            // splitContainer.Panel1
+            // pcmFileSplitContainer.Panel1
             // 
             this.pcmFileSplitContainer.Panel1.Controls.Add(this.pcmFileTreeListView);
             // 
-            // splitContainer.Panel2
+            // pcmFileSplitContainer.Panel2
             // 
             this.pcmFileSplitContainer.Panel2.Controls.Add(this.pcmFileSummary);
             this.pcmFileSplitContainer.Size = new System.Drawing.Size(792, 400);
             this.pcmFileSplitContainer.SplitterDistance = 356;
             this.pcmFileSplitContainer.TabIndex = 2;
             // 
-            // summary
+            // pcmFileSummary
             // 
             this.pcmFileSummary.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pcmFileSummary.Location = new System.Drawing.Point(0, 0);
             this.pcmFileSummary.Multiline = true;
-            this.pcmFileSummary.Name = "summary";
+            this.pcmFileSummary.Name = "pcmFileSummary";
             this.pcmFileSummary.ReadOnly = true;
             this.pcmFileSummary.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.pcmFileSummary.Size = new System.Drawing.Size(792, 40);
@@ -233,6 +249,7 @@
             // 
             // projectTab
             // 
+            this.projectTab.Controls.Add(this.projectSplitContainer);
             this.projectTab.Location = new System.Drawing.Point(4, 22);
             this.projectTab.Name = "projectTab";
             this.projectTab.Padding = new System.Windows.Forms.Padding(3);
@@ -241,12 +258,37 @@
             this.projectTab.Text = "Project";
             this.projectTab.UseVisualStyleBackColor = true;
             // 
-            // fileDataTab
+            // projectSplitContainer
+            // 
+            this.projectSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.projectSplitContainer.Location = new System.Drawing.Point(3, 3);
+            this.projectSplitContainer.Name = "splitContainer1";
+            // 
+            // projectSplitContainer.Panel1
+            // 
+            this.projectSplitContainer.Panel1.Controls.Add(this.projectTreeView);
+            // 
+            // projectSplitContainer.Panel2
+            // 
+            this.projectSplitContainer.Panel2.Controls.Add(this.projectTextBox);
+            this.projectSplitContainer.Size = new System.Drawing.Size(786, 394);
+            this.projectSplitContainer.SplitterDistance = 262;
+            this.projectSplitContainer.TabIndex = 0;
+            // 
+            // projectTreeView
+            // 
+            this.projectTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.projectTreeView.Location = new System.Drawing.Point(0, 0);
+            this.projectTreeView.Name = "treeView1";
+            this.projectTreeView.Size = new System.Drawing.Size(262, 394);
+            this.projectTreeView.TabIndex = 0;
+            // 
+            // pcmFileDataTab
             // 
             this.pcmFileDataTab.Controls.Add(this.pcmFileSplitContainer);
             this.pcmFileDataTab.Location = new System.Drawing.Point(4, 22);
             this.pcmFileDataTab.Margin = new System.Windows.Forms.Padding(0);
-            this.pcmFileDataTab.Name = "fileDataTab";
+            this.pcmFileDataTab.Name = "pcmFileDataTab";
             this.pcmFileDataTab.Size = new System.Drawing.Size(792, 400);
             this.pcmFileDataTab.TabIndex = 0;
             this.pcmFileDataTab.Text = "File Data";
@@ -296,13 +338,15 @@
             this.testResults.Size = new System.Drawing.Size(792, 400);
             this.testResults.TabIndex = 0;
             // 
-            // compileProjectToolStripMenuItem
+            // textBox1
             // 
-            this.compileProjectToolStripMenuItem.Enabled = false;
-            this.compileProjectToolStripMenuItem.Name = "compileProjectToolStripMenuItem";
-            this.compileProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.compileProjectToolStripMenuItem.Text = "Compile Project...";
-            this.compileProjectToolStripMenuItem.Click += new System.EventHandler(this.compileProjectToolStripMenuItem_Click);
+            this.projectTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.projectTextBox.Enabled = false;
+            this.projectTextBox.Location = new System.Drawing.Point(0, 0);
+            this.projectTextBox.Multiline = true;
+            this.projectTextBox.Name = "textBox1";
+            this.projectTextBox.Size = new System.Drawing.Size(520, 394);
+            this.projectTextBox.TabIndex = 0;
             // 
             // MainForm
             // 
@@ -323,6 +367,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.pcmFileSplitContainer)).EndInit();
             this.pcmFileSplitContainer.ResumeLayout(false);
             this.displayModeTabs.ResumeLayout(false);
+            this.projectTab.ResumeLayout(false);
+            this.projectSplitContainer.Panel1.ResumeLayout(false);
+            this.projectSplitContainer.Panel2.ResumeLayout(false);
+            this.projectSplitContainer.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.projectSplitContainer)).EndInit();
+            this.projectSplitContainer.ResumeLayout(false);
             this.pcmFileDataTab.ResumeLayout(false);
             this.scriptsTab.ResumeLayout(false);
             this.scriptsTab.PerformLayout();
@@ -357,6 +407,9 @@
         private System.Windows.Forms.ToolStripMenuItem openProjectToolStripMenuItem;
         private System.Windows.Forms.TabPage projectTab;
         private System.Windows.Forms.ToolStripMenuItem compileProjectToolStripMenuItem;
+        private System.Windows.Forms.SplitContainer projectSplitContainer;
+        private System.Windows.Forms.TreeView projectTreeView;
+        private System.Windows.Forms.TextBox projectTextBox;
     }
 }
 

@@ -196,11 +196,11 @@ namespace Recombobulator
                     TreeNode node = new TreeNode();
                     node.Text = level.UnitName;
                     node.Tag = level;
-                    //treeView1.Nodes.Add(node);
+                    projectTreeView.Nodes.Add(node);
                 }
             }
 
-            //treeView1.Sort();
+            projectTreeView.Sort();
 
             Enabled = true;
             _progressWindow.Hide();
@@ -305,11 +305,11 @@ namespace Recombobulator
                     TreeNode node = new TreeNode();
                     node.Text = level.UnitName;
                     node.Tag = level;
-                    //treeView1.Nodes.Add(node);
+                    projectTreeView.Nodes.Add(node);
                 }
             }
 
-            //treeView1.Sort();
+            projectTreeView.Sort();
         }
 
         private void compileProjectToolStripMenuItem_Click(object sender, EventArgs e)
