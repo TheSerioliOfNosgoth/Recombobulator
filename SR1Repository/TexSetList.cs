@@ -8,13 +8,9 @@ namespace SR1Repository
 {
     public class TexSetList
     {
-        readonly List<TexSet> _texSetList = new List<TexSet>();
-        public int MaxID { get; set; }
+        List<TexSet> _texSetList = new List<TexSet>();
         public int Count { get { return _texSetList.Count; } }
-        public TexSet[] TexSets {
-            get { return _texSetList.ToArray(); }
-            set { _texSetList.Clear(); _texSetList.AddRange(value); }
-        }
+        public List<TexSet> TexSets { get { return _texSetList; } set { _texSetList = value; } }
 
         public void Add(TexSet texSet)
         {

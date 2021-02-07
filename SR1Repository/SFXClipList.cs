@@ -9,13 +9,10 @@ namespace SR1Repository
 {
     public class SFXClipList
     {
-        readonly List<SFXClip> _sfxClipList = new List<SFXClip>();
+        List<SFXClip> _sfxClipList = new List<SFXClip>();
         public int MaxID { get; set; }
         public int Count { get { return _sfxClipList.Count; } }
-        public SFXClip[] SFXs {
-            get { return _sfxClipList.ToArray(); }
-            set { _sfxClipList.Clear(); _sfxClipList.AddRange(value); }
-        }
+        public List<SFXClip> SFXs { get { return _sfxClipList; } set { _sfxClipList = value; } }
 
         public void Add(SFXClip clip)
         {

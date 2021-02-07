@@ -8,8 +8,10 @@ namespace SR1Repository
 {
     public class TexSet
     {
-        public string UnitName { get; set; } = "";
+        public int Index { get; set; } = 0;
 
-        public ushort[] TextureIDs { get; private set; } = new ushort[8];
+        public string Name { get; set; } = "";
+
+        public ushort[] TextureIDs { get; set; } = new ushort[8];
     }
 }

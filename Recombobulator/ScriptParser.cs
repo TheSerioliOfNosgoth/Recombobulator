@@ -165,6 +165,11 @@ namespace Recombobulator
 
         public void ParseAll(SR1_Reader reader)
         {
+            if (reader.Events == null)
+            {
+                return;
+            }
+
             unsafe
             {
                 foreach (Event scriptEvent in reader.Events.events.List)

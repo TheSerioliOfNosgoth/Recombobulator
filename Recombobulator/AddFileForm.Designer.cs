@@ -1,6 +1,6 @@
 ﻿namespace Recombobulator
 {
-    partial class UpgradeForm
+    partial class AddFileForm
     {
         /// <summary>
         /// Required designer variable.
@@ -33,7 +33,7 @@
             this.textureSetLabel = new System.Windows.Forms.Label();
             this.versionLabel = new System.Windows.Forms.Label();
             this.versionComboBox = new System.Windows.Forms.ComboBox();
-            this.fileNameTextBox = new System.Windows.Forms.TextBox();
+            this.pathTextBox = new System.Windows.Forms.TextBox();
             this.textureLabel0 = new System.Windows.Forms.Label();
             this.textureTextBox0 = new System.Windows.Forms.TextBox();
             this.textureLabel1 = new System.Windows.Forms.Label();
@@ -103,11 +103,11 @@
             // 
             // fileNameTextBox
             // 
-            this.fileNameTextBox.Location = new System.Drawing.Point(13, 33);
-            this.fileNameTextBox.Name = "fileNameTextBox";
-            this.fileNameTextBox.ReadOnly = true;
-            this.fileNameTextBox.Size = new System.Drawing.Size(259, 20);
-            this.fileNameTextBox.TabIndex = 4;
+            this.pathTextBox.Location = new System.Drawing.Point(13, 33);
+            this.pathTextBox.Name = "fileNameTextBox";
+            this.pathTextBox.ReadOnly = true;
+            this.pathTextBox.Size = new System.Drawing.Size(259, 20);
+            this.pathTextBox.TabIndex = 4;
             // 
             // textureLabel0
             // 
@@ -253,8 +253,9 @@
             this.textureSetCombo.Name = "textureSetCombo";
             this.textureSetCombo.Size = new System.Drawing.Size(121, 21);
             this.textureSetCombo.TabIndex = 24;
+            this.textureSetCombo.SelectedIndexChanged += new System.EventHandler(this.textureSetCombo_SelectedIndexChanged);
             // 
-            // UpgradeForm
+            // AddFileForm
             // 
             this.AcceptButton = this.continueButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -279,7 +280,7 @@
             this.Controls.Add(this.textureTextBox1);
             this.Controls.Add(this.textureLabel0);
             this.Controls.Add(this.textureTextBox0);
-            this.Controls.Add(this.fileNameTextBox);
+            this.Controls.Add(this.pathTextBox);
             this.Controls.Add(this.versionComboBox);
             this.Controls.Add(this.versionLabel);
             this.Controls.Add(this.textureSetLabel);
@@ -288,7 +289,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "UpgradeForm";
+            this.Name = "AddFileForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Add To Project...";
             this.ResumeLayout(false);
@@ -303,7 +304,7 @@
         private System.Windows.Forms.Label textureSetLabel;
         private System.Windows.Forms.Label versionLabel;
         private System.Windows.Forms.ComboBox versionComboBox;
-        private System.Windows.Forms.TextBox fileNameTextBox;
+        private System.Windows.Forms.TextBox pathTextBox;
         private System.Windows.Forms.TextBox textureTextBox0;
         private System.Windows.Forms.Label textureLabel0;
         private System.Windows.Forms.Label textureLabel1;

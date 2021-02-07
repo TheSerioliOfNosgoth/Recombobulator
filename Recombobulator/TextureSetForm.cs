@@ -12,7 +12,7 @@ using SR1Repository;
 
 namespace Recombobulator
 {
-    public partial class UpgradeForm : Form
+    public partial class TextureSetForm : Form
     {
         public string FilePath
         {
@@ -23,7 +23,7 @@ namespace Recombobulator
 
         Repository _repository = null;
 
-        public UpgradeForm()
+        public TextureSetForm()
         {
             InitializeComponent();
         }

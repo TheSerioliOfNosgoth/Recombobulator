@@ -10,5 +10,7 @@ namespace SR1Repository
     {
         public string FilePath { get; set; } = "";
         public int TextureIndex { get; set; } = 0;
+
+        public bool IsNew { get; set; } = false;
     }
 }

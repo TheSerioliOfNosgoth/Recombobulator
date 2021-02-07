@@ -8,13 +8,10 @@ namespace SR1Repository
 {
     public class IntroList
     {
-        readonly List<Intro> _introList = new List<Intro>();
-        public int MaxID { get; set; }
+        List<Intro> _introList = new List<Intro>();
+        public int NextAvailableID { get; set; }
         public int Count { get { return _introList.Count; } }
-        public Intro[] Intros {
-            get { return _introList.ToArray(); }
-            set { _introList.Clear(); _introList.AddRange(value); }
-        }
+        public List<Intro> Intros { get { return _introList; } set { _introList = value; } }
 
         public void Add(Intro intro)
         {

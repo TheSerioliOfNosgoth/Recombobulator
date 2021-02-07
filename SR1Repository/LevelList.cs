@@ -8,13 +8,10 @@ namespace SR1Repository
 {
     public class LevelList
     {
-        readonly List<Level> _levelList = new List<Level>();
-        public int MaxID { get; set; }
+        List<Level> _levelList = new List<Level>();
+        public int NextAvailableID { get; set; }
         public int Count { get { return _levelList.Count; } }
-        public Level[] Levels {
-            get { return _levelList.ToArray(); }
-            set { _levelList.Clear(); _levelList.AddRange(value); }
-        }
+        public List<Level> Levels { get { return _levelList; } set { _levelList = value; } }
 
         public void Add(Level level)
         {

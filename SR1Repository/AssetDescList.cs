@@ -9,13 +9,9 @@ namespace SR1Repository
 {
     public class AssetDescList
     {
-        readonly List<AssetDesc> _assetDescList = new List<AssetDesc>();
+        List<AssetDesc> _assetDescList = new List<AssetDesc>();
         public int Count { get { return _assetDescList.Count; } }
-        public AssetDesc[] Assets
-        { 
-            get { return _assetDescList.ToArray(); }
-            set { _assetDescList.Clear(); _assetDescList.AddRange(value); }
-        }
+        public List<AssetDesc> Assets { get { return _assetDescList; } set { _assetDescList = value; } }
 
         public void Add(AssetDesc asset)
         {

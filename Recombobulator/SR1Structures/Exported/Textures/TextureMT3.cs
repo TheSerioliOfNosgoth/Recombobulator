@@ -86,7 +86,7 @@ namespace Recombobulator.SR1Structures
             if ((file._Version == SR1_File.Version.Retail || file._Version == SR1_File.Version.Beta) &&
                 targetVersion == SR1_File.Version.Retail_PC)
             {
-                int textureID = file._TextureStartingID + (tpage.Value & 0x00000007);
+                int textureID = file._TextureStartingID[tpage.Value & 0x00000007];
                 tpage.Value = (ushort)textureID;
                 pad.Value = 264;
             }

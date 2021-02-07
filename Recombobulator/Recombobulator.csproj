@@ -50,6 +50,9 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>MindSymbol.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -161,11 +164,17 @@
     <Compile Include="SR1Structures\Exported\Textures\TextureMT3.cs" />
     <Compile Include="SR1Structures\Exported\Model\MVertex.cs" />
     <Compile Include="SR1Structures\InGame\CDLight.cs" />
-    <Compile Include="UpgradeForm.cs">
+    <Compile Include="TextureSetForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UpgradeForm.Designer.cs">
-      <DependentUpon>UpgradeForm.cs</DependentUpon>
+    <Compile Include="TextureSetForm.Designer.cs">
+      <DependentUpon>TextureSetForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddFileForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddFileForm.Designer.cs">
+      <DependentUpon>AddFileForm.cs</DependentUpon>
     </Compile>
     <Compile Include="SR1Structures\SR1_PrimativeBase.cs" />
     <Compile Include="SR1Structures\SR1_Primative.cs" />
@@ -327,8 +336,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="UpgradeForm.resx">
-      <DependentUpon>UpgradeForm.cs</DependentUpon>
+    <EmbeddedResource Include="TextureSetForm.resx">
+      <DependentUpon>TextureSetForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddFileForm.resx">
+      <DependentUpon>AddFileForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -360,6 +372,9 @@
       <Project>{5fe9eed2-4bc5-4d5d-83d0-3548c91ae14d}</Project>
       <Name>SR1Repository</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="MindSymbol.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

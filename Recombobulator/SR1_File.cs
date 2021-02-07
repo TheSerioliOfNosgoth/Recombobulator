@@ -40,6 +40,7 @@ namespace Recombobulator
 
         public string _FilePath { get; private set; } = "";
         public Version _Version { get; private set; } = SR1_File.Version.Retail;
+        public bool _IsLevel { get; private set; }
         public readonly SortedList<uint, SR1_Structure> _Structures = new SortedList<uint, SR1_Structure>();
         public readonly SortedDictionary<uint, SR1_PrimativeBase> _Primatives = new SortedDictionary<uint, SR1_PrimativeBase>();
         public readonly SortedDictionary<uint, SR1_Structure> _MigrationStructures = new SortedDictionary<uint, SR1_Structure>();
@@ -47,7 +48,7 @@ namespace Recombobulator
         public readonly List<ushort> _TextureIDs = new List<ushort>();
         public readonly StringWriter _ImportErrors = new StringWriter();
         public readonly StringWriter _Scripts = new StringWriter();
-        public ushort _TextureStartingID { get; private set; } = 0;
+        public ushort[] _TextureStartingID { get; private set; } = null;
         public ImportFlags _ImportFlags { get; private set; } = ImportFlags.None;
 
 
@@ -76,7 +77,7 @@ namespace Recombobulator
             BinaryWriter streamWriter = new BinaryWriter(stream, System.Text.Encoding.UTF8, true);
 
             uint dataStart = ((fileReader.ReadUInt32() >> 9) << 11) + 0x00000800;
-            bool isLevel = fileReader.ReadUInt32() == 0;
+            _IsLevel = fileReader.ReadUInt32() == 0;
 
             fileReader.BaseStream.Position = dataStart;
             streamWriter.BaseStream.Position = 0;
@@ -90,7 +91,7 @@ namespace Recombobulator
             SR1_Structure root;
             SR1_Reader streamReader = new SR1_Reader(this, stream);
 
-            if (isLevel)
+            if (_IsLevel)
             {
                 bool validVersion = false;
 
@@ -137,7 +138,7 @@ namespace Recombobulator
 
             root.Read(streamReader, null, "");
 
-            if ((flags & ImportFlags.LogScripts) != 0)
+            if (_IsLevel && (flags & ImportFlags.LogScripts) != 0)
             {
                 streamReader.ScriptParser.ParseAll(streamReader);
             }
@@ -147,13 +148,15 @@ namespace Recombobulator
             stream.Close();
         }
 
-        public void Export(string fileName)
+        public uint Export(string fileName)
         {
-            Export(fileName, _Version, 0);
+            return Export(fileName, _Version, null);
         }
 
-        public void Export(string fileName, Version targetVersion, ushort textureStartingID)
+        public uint Export(string fileName, Version targetVersion, ushort[] textureStartingID)
         {
+            uint fileLength = 0;
+
             _TextureStartingID = textureStartingID;
 
             MemoryStream stream = new MemoryStream();
@@ -242,10 +245,14 @@ namespace Recombobulator
 
             stream.WriteTo(file);
 
+            fileLength = (uint)file.Length;
+
             file.Flush();
             file.Dispose();
 
             stream.Close();
+
+            return fileLength;
         }
 
         public bool TestExport()

@@ -9,17 +9,18 @@ namespace SR1Repository
 {
     public class TexDescList
     {
-        readonly List<TexDesc> _texDescList = new List<TexDesc>();
+        List<TexDesc> _texDescList = new List<TexDesc>();
         public int Count { get { return _texDescList.Count; } }
-        public TexDesc[] Textures
-        { 
-            get { return _texDescList.ToArray(); }
-            set { _texDescList.Clear(); _texDescList.AddRange(value); }
-        }
+        public List<TexDesc> Textures { get { return _texDescList; } set { _texDescList = value; } }
 
         public void Add(TexDesc texture)
         {
             _texDescList.Add(texture);
+        }
+
+        public void Add(IEnumerable<TexDesc> textures)
+        {
+            _texDescList.AddRange(textures);
         }
 
         public void Clear()

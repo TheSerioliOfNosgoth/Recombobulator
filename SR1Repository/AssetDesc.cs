@@ -24,5 +24,7 @@ namespace SR1Repository
         public uint FileOffset = 0;
 
         public BigfileCode Code;
+
+        public bool IsNew { get; set; } = false;
     }
 }

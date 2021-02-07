@@ -88,16 +88,90 @@ namespace Recombobulator
 
         private void AddToProjectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            UpgradeForm upgradeDialog = new UpgradeForm();
-            string rawFileName = Path.GetFileNameWithoutExtension(_file._FilePath);
-            upgradeDialog.Initialize(_repository, rawFileName);
-            upgradeDialog.FilePath = _file._FilePath;
-            upgradeDialog.FilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), Path.GetFileName(_file._FilePath));
-            if (upgradeDialog.ShowDialog() == DialogResult.OK)
+            string fileName = Path.GetFileNameWithoutExtension(_file._FilePath);
+
+            AddFileForm addFileDialog = new AddFileForm();
+            addFileDialog.Initialize(_repository, fileName, _file._IsLevel);
+            if (addFileDialog.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
-                    _file.Export(upgradeDialog.FilePath, SR1_File.Version.Retail_PC, upgradeDialog.StartingTextureIndex);
+                    #region Textures
+                    bool isNewTextureSet = false;
+                    TexSet textureSet = _repository.TextureSets.TexSets.Find(x => x.Index == addFileDialog.TextureSet);
+                    TexDesc[] textures = new TexDesc[8];
+                    if (textureSet == null)
+                    {
+                        isNewTextureSet = true;
+
+                        textureSet = new TexSet();
+                        textureSet.Name = fileName;
+                        textureSet.Index = _repository.TextureSets.Count;
+
+                        // For the moment, a new texture set contains all new textures.
+                        ushort textureIndex = (ushort)_repository.Textures.Count;
+                        for (int t = 0; t < textures.Length; t++)
+                        {
+                            textureSet.TextureIDs[t] = textureIndex;
+
+                            textures[t] = new TexDesc();
+                            textures[t].TextureIndex = textureIndex;
+                            textures[t].FilePath = _repository.MakeTextureFilePath(textureIndex);
+                            textures[t].IsNew = true;
+
+                            textureIndex++;
+                        }
+                    }
+
+                    if (isNewTextureSet)
+                    {
+                        _repository.Textures.Add(textures);
+                        _repository.TextureSets.Add(textureSet);
+                    }
+                    #endregion
+
+                    uint fileLength = _file.Export(addFileDialog.FullPath, SR1_File.Version.Retail_PC, textureSet.TextureIDs);
+
+                    if (_file._IsLevel && _repository.Levels.Levels.Find(x => x.UnitName == fileName) == null)
+                    {
+                        Level level = new Level();
+                        level.UnitName = fileName;
+                        level.StreamUnitID = addFileDialog.FileID;
+                        level.IsNew = true;
+                        level.TextureSet = textureSet.Name;
+
+                        _repository.Levels.Add(level);
+                        _repository.Levels.NextAvailableID++;
+
+                        TreeNode node = new TreeNode();
+                        node.Text = level.UnitName;
+                        node.Tag = level;
+                        projectTreeView.Nodes.Add(node);
+                        projectTreeView.Sort();
+                    }
+
+                    string relativePath = addFileDialog.RelativePath;
+                    string extension = Path.GetExtension(relativePath);
+                    int endOfName = relativePath.Length - extension.Length;
+                    uint fileHash = Repository.GetSR1HashName(relativePath);
+                    if (_repository.Assets.Assets.Find(x => x.FileHash == fileHash) == null)
+                    {
+                        AssetDesc asset = new AssetDesc();
+
+                        asset.FilePath = relativePath;
+                        asset.FileHash = fileHash;
+                        asset.FileLength = fileLength;
+                        asset.Code.code0 = char.ToUpperInvariant(relativePath[endOfName - 4]);
+                        asset.Code.code1 = char.ToUpperInvariant(relativePath[endOfName - 3]);
+                        asset.Code.code2 = char.ToUpperInvariant(relativePath[endOfName - 2]);
+                        asset.Code.code3 = char.ToUpperInvariant(relativePath[endOfName - 1]);
+                        asset.FileIndex = _repository.Assets.Count;
+                        asset.IsNew = true;
+
+                        _repository.Assets.Add(asset);
+                    }
+
+                    _repository.SaveRepository();
                 }
                 catch (Exception exception)
                 {
@@ -105,7 +179,7 @@ namespace Recombobulator
                 }
             }
 
-            upgradeDialog.Dispose();
+            addFileDialog.Dispose();
         }
 
         private void DetailedExportToolStripMenuItem_Click(object sender, EventArgs e)
@@ -394,6 +468,10 @@ namespace Recombobulator
             Level level = (Level)e.Node.Tag;
             string text = "Unit Name: " + level.UnitName + "\r\n";
             text += "Unit ID: " + level.StreamUnitID.ToString() + "\r\n";
+            if (level.TextureSet != null && level.TextureSet != "")
+            {
+                text += "Texture Set (imported): " + level.TextureSet + "\r\n";
+            }
             text += "Intros:\r\n";
 
             foreach (Intro intro in _repository.Intros.Intros)

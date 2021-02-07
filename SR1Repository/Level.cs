@@ -10,5 +10,7 @@ namespace SR1Repository
     {
         public string UnitName { get; set; } = "";
         public int StreamUnitID { get; set; } = 0;
+        public bool IsNew { get; set; } = false;
+        public string TextureSet { get; set; } = "";
     }
 }
