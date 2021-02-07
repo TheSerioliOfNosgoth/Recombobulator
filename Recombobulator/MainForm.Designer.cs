@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             TreeList.TreeListColumn treeListColumn1 = new TreeList.TreeListColumn("Offset", "Offset");
             TreeList.TreeListColumn treeListColumn2 = new TreeList.TreeListColumn("Type", "Type");
             TreeList.TreeListColumn treeListColumn3 = new TreeList.TreeListColumn("Name", "Name");
@@ -355,6 +356,7 @@
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.displayModeTabs);
             this.Controls.Add(this._mainMenu);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this._mainMenu;
             this.Name = "MainForm";
             this.Text = "Recombobulator";
