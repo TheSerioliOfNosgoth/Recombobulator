@@ -28,11 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             TreeList.TreeListColumn treeListColumn1 = new TreeList.TreeListColumn("Offset", "Offset");
             TreeList.TreeListColumn treeListColumn2 = new TreeList.TreeListColumn("Type", "Type");
             TreeList.TreeListColumn treeListColumn3 = new TreeList.TreeListColumn("Name", "Name");
             TreeList.TreeListColumn treeListColumn4 = new TreeList.TreeListColumn("Value", "Value");
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this._mainMenu = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -59,7 +59,9 @@
             this.testResultsTab = new System.Windows.Forms.TabPage();
             this.testResults = new System.Windows.Forms.TextBox();
             this._mainMenu.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pcmFileTreeListView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcmFileSplitContainer)).BeginInit();
+            this.pcmFileSplitContainer.Panel1.SuspendLayout();
             this.pcmFileSplitContainer.Panel2.SuspendLayout();
             this.pcmFileSplitContainer.SuspendLayout();
             this.displayModeTabs.SuspendLayout();
@@ -362,6 +364,8 @@
             this.Text = "Recombobulator";
             this._mainMenu.ResumeLayout(false);
             this._mainMenu.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pcmFileTreeListView)).EndInit();
+            this.pcmFileSplitContainer.Panel1.ResumeLayout(false);
             this.pcmFileSplitContainer.Panel2.ResumeLayout(false);
             this.pcmFileSplitContainer.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pcmFileSplitContainer)).EndInit();
