@@ -132,22 +132,53 @@ namespace Recombobulator
 
                     uint fileLength = _file.Export(addFileDialog.FullPath, SR1_File.Version.Retail_PC, textureSet.TextureIDs);
 
-                    if (_file._IsLevel && _repository.Levels.Levels.Find(x => x.UnitName == fileName) == null)
+                    if (_file._IsLevel)
                     {
-                        Level level = new Level();
-                        level.UnitName = fileName;
-                        level.StreamUnitID = addFileDialog.FileID;
-                        level.IsNew = true;
-                        level.TextureSet = textureSet.Name;
+                        if (_repository.Levels.Levels.Find(x => x.UnitName == fileName) == null)
+                        {
+                            Level level = new Level();
+                            level.UnitName = fileName;
+                            level.StreamUnitID = addFileDialog.FileID;
+                            level.IsNew = true;
+                            level.TextureSet = textureSet.Name;
 
-                        _repository.Levels.Add(level);
-                        _repository.Levels.NextAvailableID++;
+                            _repository.Levels.Add(level);
+                            _repository.Levels.NextAvailableID++;
 
-                        TreeNode node = new TreeNode();
-                        node.Text = level.UnitName;
-                        node.Tag = level;
-                        projectTreeView.Nodes.Add(node);
-                        projectTreeView.Sort();
+                            TreeNode node = new TreeNode();
+                            node.Text = level.UnitName;
+                            node.Tag = level;
+
+                            TreeNode[] nodes = projectTreeView.Nodes.Find("Levels", false);
+                            if (nodes.Length > 0 && nodes[0] != null)
+                            {
+                                nodes[0].Nodes.Add(node);
+                                projectTreeView.Sort();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (_repository.Objects.Objects.Find(x => x.ObjectName == fileName) == null)
+                        {
+                            SR1Repository.Object obj = new SR1Repository.Object();
+                            obj.ObjectName = fileName;
+                            obj.IsNew = true;
+                            obj.TextureSet = textureSet.Name;
+
+                            _repository.Objects.Add(obj);
+
+                            TreeNode node = new TreeNode();
+                            node.Text = obj.ObjectName;
+                            node.Tag = obj;
+
+                            TreeNode[] nodes = projectTreeView.Nodes.Find("Objects", false);
+                            if (nodes.Length > 0 && nodes[0] != null)
+                            {
+                                nodes[0].Nodes.Add(node);
+                                projectTreeView.Sort();
+                            }
+                        }
                     }
 
                     string relativePath = addFileDialog.RelativePath;
@@ -265,12 +296,22 @@ namespace Recombobulator
 
             if (_repository != null)
             {
+                TreeNode levelsNode = projectTreeView.Nodes.Add("Levels", "Levels");
                 foreach (Level level in _repository.Levels.Levels)
                 {
                     TreeNode node = new TreeNode();
                     node.Text = level.UnitName;
                     node.Tag = level;
-                    projectTreeView.Nodes.Add(node);
+                    levelsNode.Nodes.Add(node);
+                }
+
+                TreeNode objectsNode = projectTreeView.Nodes.Add("Objects", "Objects");
+                foreach (SR1Repository.Object obj in _repository.Objects.Objects)
+                {
+                    TreeNode node = new TreeNode();
+                    node.Text = obj.ObjectName;
+                    node.Tag = obj;
+                    objectsNode.Nodes.Add(node);
                 }
 
                 projectTreeView.Sort();
@@ -399,12 +440,22 @@ namespace Recombobulator
 
             if (_repository != null)
             {
+                TreeNode levelsNode = projectTreeView.Nodes.Add("Levels", "Levels");
                 foreach (Level level in _repository.Levels.Levels)
                 {
                     TreeNode node = new TreeNode();
                     node.Text = level.UnitName;
                     node.Tag = level;
-                    projectTreeView.Nodes.Add(node);
+                    levelsNode.Nodes.Add(node);
+                }
+
+                TreeNode objectsNode = projectTreeView.Nodes.Add("Objects", "Objects");
+                foreach (SR1Repository.Object obj in _repository.Objects.Objects)
+                {
+                    TreeNode node = new TreeNode();
+                    node.Text = obj.ObjectName;
+                    node.Tag = obj;
+                    objectsNode.Nodes.Add(node);
                 }
 
                 projectTreeView.Sort();
@@ -465,30 +516,51 @@ namespace Recombobulator
                 return;
             }
 
-            Level level = (Level)e.Node.Tag;
-            string text = "Unit Name: " + level.UnitName + "\r\n";
-            text += "Unit ID: " + level.StreamUnitID.ToString() + "\r\n";
-            if (level.TextureSet != null && level.TextureSet != "")
+            if (e.Node.Parent == null)
             {
-                text += "Texture Set (imported): " + level.TextureSet + "\r\n";
+                projectTextBox.Text = "";
             }
-            text += "Intros:\r\n";
-
-            foreach (Intro intro in _repository.Intros.Intros)
+            else if (e.Node.Parent.Text == "Levels")
             {
-                if (intro.StreamUnitID == level.StreamUnitID)
+                Level level = (Level)e.Node.Tag;
+                string text = "Unit Name: " + level.UnitName + "\r\n";
+                text += "Unit ID: " + level.StreamUnitID.ToString() + "\r\n";
+                if (level.TextureSet != null && level.TextureSet != "")
                 {
-                    float rX = (intro.Rotation.X * 360) / 4096f;
-                    float rY = (intro.Rotation.Y * 360) / 4096f;
-                    float rZ = (intro.Rotation.Z * 360) / 4096f;
-
-                    text += "\t" + intro.ObjectName + " " + intro.IntroUniqueID;
-                    text += ", position {" + intro.Position.X + ", " + intro.Position.Y + ", " + intro.Position.Z + " }";
-                    text += ", rotation {" + rX + ", " + rY + ", " + rZ + " }\r\n";
+                    text += "Texture Set (imported): " + level.TextureSet + "\r\n";
                 }
-            }
+                text += "Intros:\r\n";
 
-            projectTextBox.Text = text;
+                foreach (Intro intro in _repository.Intros.Intros)
+                {
+                    if (intro.StreamUnitID == level.StreamUnitID)
+                    {
+                        float rX = (intro.Rotation.X * 360) / 4096f;
+                        float rY = (intro.Rotation.Y * 360) / 4096f;
+                        float rZ = (intro.Rotation.Z * 360) / 4096f;
+
+                        text += "\t" + intro.ObjectName + " " + intro.IntroUniqueID;
+                        text += ", position {" + intro.Position.X + ", " + intro.Position.Y + ", " + intro.Position.Z + " }";
+                        text += ", rotation {" + rX + ", " + rY + ", " + rZ + " }\r\n";
+                    }
+                }
+
+                projectTextBox.Text = text;
+            }
+            else if (e.Node.Parent.Text == "Objects")
+            {
+                SR1Repository.Object obj = (SR1Repository.Object)e.Node.Tag;
+                string text = "Object Name: " + obj.ObjectName + "\r\n";
+                text += "Models: " + obj.NumModels + "\r\n";
+                text += "Animations: " + obj.NumAnimations +"\r\n";
+                text += "Sections (Bones): " + obj.NumSections + "\r\n";
+                if (obj.TextureSet != null && obj.TextureSet != "")
+                {
+                    text += "Texture Set (imported): " + obj.TextureSet + "\r\n";
+                }
+
+                projectTextBox.Text = text;
+            }
         }
     }
 }

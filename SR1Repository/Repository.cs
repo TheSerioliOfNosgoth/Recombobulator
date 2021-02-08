@@ -27,6 +27,7 @@ namespace SR1Repository
         string _assetsFileName;
         string _levelsFileName;
         string _introsFileName;
+        string _objectsFileName;
         string _clipsFileName;
         string _allClipsFileName;
         string _texturesFileName;
@@ -35,16 +36,18 @@ namespace SR1Repository
         string _outputBigFileName;
         string _outputTexturesFileName;
 
-        AssetDescList _assets = null;
-        LevelList _levels = null;
-        IntroList _intros = null;
-        SFXClipList _sfxClips = null;
-        TexDescList _textures = null;
-        TexSetList _textureSets = null;
+        AssetDescList _assets;
+        LevelList _levels;
+        IntroList _intros;
+        ObjectList _objects;
+        SFXClipList _sfxClips;
+        TexDescList _textures;
+        TexSetList _textureSets;
 
         public AssetDescList Assets { get { return _assets; } }
         public LevelList Levels { get { return _levels; } }
         public IntroList Intros { get { return _intros; } }
+        public ObjectList Objects { get { return _objects; } }
         public SFXClipList SFXClips { get { return _sfxClips; } }
         public TexDescList Textures { get { return _textures; } }
         public TexSetList TextureSets { get { return _textureSets; } }
@@ -67,6 +70,7 @@ namespace SR1Repository
             _assetsFileName = Path.Combine(projectFolderName, "assets.json");
             _levelsFileName = Path.Combine(projectFolderName, "levels.json");
             _introsFileName = Path.Combine(projectFolderName, "intros.json");
+            _objectsFileName = Path.Combine(projectFolderName, "objects.json");
             _clipsFileName = Path.Combine(projectFolderName, "clips.json");
             _allClipsFileName = Path.Combine(projectFolderName, "allSFX.pmf");
             _texturesFileName = Path.Combine(projectFolderName, "textures.json");
@@ -74,6 +78,8 @@ namespace SR1Repository
 
             _outputBigFileName = Path.Combine(_outputFolderName, "bigfile.dat");
             _outputTexturesFileName = Path.Combine(_outputFolderName, "textures.big");
+
+            ClearReposititory();
         }
 
         void CreateDirectories()
@@ -243,7 +249,7 @@ namespace SR1Repository
                     // There may be more than one file with the same hash ID in the source bigfile.
                     // Update the sizes for all of them.
                     List<AssetDesc> existingEntries = assets.FindAll(x => x.FileHash == hashID);
-                    if (existingEntries != null)
+                    if (existingEntries != null && existingEntries.Count > 0)
                     {
                         foreach (AssetDesc existingEntry in existingEntries)
                         {
@@ -297,8 +303,8 @@ namespace SR1Repository
                         string[] tokens = regex.Split(fileInfo.Name);
                         if (tokens.Length == 4 && Int32.TryParse(tokens[1], out int index))
                         {
-                            List<TexDesc> existingEntries = textures.FindAll(x => x.TextureIndex == index);
-                            if (existingEntries == null)
+                            TexDesc existingTexture = textures.Find(x => x.TextureIndex == index);
+                            if (existingTexture == null)
                             {
                                 TexDesc newEntry = new TexDesc();
                                 newEntry.FilePath = relativePath;
@@ -322,12 +328,7 @@ namespace SR1Repository
 
         public bool LoadRepository()
         {
-            _assets = null;
-            _levels = null;
-            _intros = null;
-            _sfxClips = null;
-            _textures = null;
-            _textureSets = null;
+            ClearReposititory();
 
             if (!Directory.Exists(_dataFolderName))
             {
@@ -383,6 +384,12 @@ namespace SR1Repository
                 return false;
             }
 
+            if (!File.Exists(_objectsFileName))
+            {
+                Console.WriteLine("Error: Cannot find object file \"" + _objectsFileName + "\".");
+                return false;
+            }
+
             if (!File.Exists(_clipsFileName))
             {
                 Console.WriteLine("Error: Cannot find clips file \"" + _clipsFileName + "\".");
@@ -412,6 +419,9 @@ namespace SR1Repository
                 string introsFileData = File.ReadAllText(_introsFileName, Encoding.ASCII);
                 _intros = (IntroList)JsonSerializer.Deserialize(introsFileData, typeof(IntroList));
 
+                string objectsFileData = File.ReadAllText(_objectsFileName, Encoding.ASCII);
+                _objects = (ObjectList)JsonSerializer.Deserialize(objectsFileData, typeof(ObjectList));
+
                 string clipsFileData = File.ReadAllText(_clipsFileName, Encoding.ASCII);
                 _sfxClips = (SFXClipList)JsonSerializer.Deserialize(clipsFileData, typeof(SFXClipList));
 
@@ -423,13 +433,7 @@ namespace SR1Repository
             }
             catch (Exception)
             {
-                _assets = null;
-                _levels = null;
-                _intros = null;
-                _sfxClips = null;
-                _textures = null;
-                _textureSets = null;
-
+                ClearReposititory();
                 Console.WriteLine("Error: Could not load the repository at \"" + _projectFolderName + "\".");
             }
 
@@ -438,6 +442,31 @@ namespace SR1Repository
 
         public bool SaveRepository()
         {
+
+            if (!Directory.Exists(_dataFolderName))
+            {
+                Console.WriteLine("Error: Cannot find data folder \"" + _dataFolderName + "\".");
+                return false;
+            }
+
+            if (!Directory.Exists(_textureFolderName))
+            {
+                Console.WriteLine("Error: Cannot find texture folder \"" + _dataFolderName + "\".");
+                return false;
+            }
+
+            if (!Directory.Exists(_sfxFolderName))
+            {
+                Console.WriteLine("Error: Cannot find sfx folder \"" + _sfxFolderName + "\".");
+                return false;
+            }
+
+            if (!Directory.Exists(_outputFolderName))
+            {
+                Console.WriteLine("Error: Cannot find output folder \"" + _outputFolderName + "\".");
+                return false;
+            }
+
             try
             {
                 string assetsFileData = JsonSerializer.Serialize(_assets, new JsonSerializerOptions { WriteIndented = true });
@@ -451,6 +480,9 @@ namespace SR1Repository
 
                 string clipsFileData = JsonSerializer.Serialize(_sfxClips, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(_clipsFileName, clipsFileData, Encoding.ASCII);
+
+                string objectsFileData = JsonSerializer.Serialize(_objects, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(_objectsFileName, objectsFileData, Encoding.ASCII);
 
                 string texturesFileData = JsonSerializer.Serialize(_textures, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(_texturesFileName, texturesFileData, Encoding.ASCII);
@@ -467,14 +499,20 @@ namespace SR1Repository
             return true;
         }
 
-        public bool UnpackRepository()
+        void ClearReposititory()
         {
             _assets = null;
             _levels = null;
             _intros = null;
+            _objects = null;
             _sfxClips = null;
             _textures = null;
             _textureSets = null;
+        }
+
+        public bool UnpackRepository()
+        {
+            ClearReposititory();
 
             FilesToRead = 0;
             FilesRead = 0;
@@ -496,6 +534,7 @@ namespace SR1Repository
                 AssetDescList assets = new AssetDescList();
                 LevelList levels = new LevelList();
                 IntroList intros = new IntroList();
+                ObjectList objects = new ObjectList();
                 SFXClipList sfxClips = new SFXClipList();
                 TexDescList textures = new TexDescList();
                 TexSetList textureSets = new TexSetList();
@@ -538,16 +577,18 @@ namespace SR1Repository
                         BinaryReader reader = new BinaryReader(outputFile, System.Text.Encoding.ASCII);
                         reader.BaseStream.Position = 0;
 
-                        UInt32 dataStart = ((reader.ReadUInt32() >> 9) << 11) + 0x00000800;
+                        uint dataStart = ((reader.ReadUInt32() >> 9) << 11) + 0x00000800;
 
-                        bool isUnit = (reader.ReadUInt32() == 0x00000000);
-                        if (isUnit)
+                        bool isLevel = (reader.ReadUInt32() == 0x00000000);
+                        if (isLevel)
                         {
                             Level level = new Level();
 
                             reader.BaseStream.Position = dataStart + 0x98;
                             reader.BaseStream.Position = dataStart + reader.ReadUInt32();
                             level.UnitName = CleanName(new string(reader.ReadChars(8)));
+                            reader.BaseStream.Position = dataStart + 0xF8;
+                            level.StreamUnitID = reader.ReadInt32();
 
                             #region Events
                             /*reader.BaseStream.Position = dataStart + 0xDC;
@@ -581,9 +622,6 @@ namespace SR1Repository
                                 reader.BaseStream.Position = nextEventPointer;
                             }*/
                             #endregion
-
-                            reader.BaseStream.Position = dataStart + 0xF8;
-                            level.StreamUnitID = reader.ReadInt32();
 
                             if (level.StreamUnitID > maxLevelID)
                             {
@@ -621,6 +659,32 @@ namespace SR1Repository
                                 intros.Add(intro);
                             }
                             #endregion
+                        }
+                        else
+                        {
+                            Object obj = new Object();
+
+                            reader.BaseStream.Position = dataStart + 0x00000024;
+                            reader.BaseStream.Position = dataStart + reader.ReadUInt32();
+                            obj.ObjectName = CleanName(new string(reader.ReadChars(8)));
+
+                            reader.BaseStream.Position = dataStart + 0x00000008;
+                            obj.NumModels = reader.ReadInt16();
+                            obj.NumAnimations = reader.ReadInt16();
+
+                            reader.BaseStream.Position = dataStart + 0x00000030;
+                            short sectionA = reader.ReadInt16();
+                            short sectionB = reader.ReadInt16();
+                            short sectionC = reader.ReadInt16();
+
+                            obj.NumSections += (sectionA > 0 ? sectionA : 0);
+                            obj.NumSections += (sectionB > 0 ? sectionB : 0);
+                            obj.NumSections += (sectionC > 0 ? sectionC : 0);
+
+                            if (objects.Find(x => x.ObjectName == obj.ObjectName) == null)
+                            {
+                                objects.Add(obj);
+                            }
                         }
                     }
                     else if (ext == ".pmf")
@@ -724,45 +788,26 @@ namespace SR1Repository
                 allClipsFile.Write(BitConverter.GetBytes(0x00000000), 0, 4);
                 allClipsFile.Close();
 
-                string assetsFileData = JsonSerializer.Serialize(assets, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(_assetsFileName, assetsFileData, Encoding.ASCII);
-
-                string levelsFileData = JsonSerializer.Serialize(levels, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(_levelsFileName, levelsFileData, Encoding.ASCII);
-
-                string introsFileData = JsonSerializer.Serialize(intros, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(_introsFileName, introsFileData, Encoding.ASCII);
-
-                string clipsFileData = JsonSerializer.Serialize(sfxClips, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(_clipsFileName, clipsFileData, Encoding.ASCII);
-
-                string texturesFileData = JsonSerializer.Serialize(textures, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(_texturesFileName, texturesFileData, Encoding.ASCII);
-
-                string textureSetsFileData = JsonSerializer.Serialize(textureSets, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(_textureSetsFileName, textureSetsFileData, Encoding.ASCII);
-
                 _assets = assets;
                 _levels = levels;
                 _intros = intros;
+                _objects = objects;
                 _sfxClips = sfxClips;
                 _textures = textures;
                 _textureSets = textureSets;
+
+                SaveRepository();
 
                 Console.WriteLine("Extracted " + assets.Count.ToString() + " files from \"" + _sourceBigfileName + "\".");
                 Console.WriteLine("Extracted " + textures.Count.ToString() + " files from \"" + _sourceTexturesFileName + "\".");
                 Console.WriteLine("Discovered " + levels.Count + " unique levels.");
                 Console.WriteLine("Discovered " + intros.Count + " unique intros.");
                 Console.WriteLine("Discovered " + sfxClips.Count + " unique sfxClips.");
+                Console.WriteLine("Discovered " + objects.Count + " unique objects.");
             }
             catch (Exception)
             {
-                _assets = null;
-                _levels = null;
-                _intros = null;
-                _sfxClips = null;
-                _textures = null;
-                _textureSets = null;
+                ClearReposititory();
 
                 Console.WriteLine("Error: Couldn't unpack the repository.");
                 FilesToRead = 0;
@@ -1027,7 +1072,8 @@ namespace SR1Repository
                 name = name.Substring(0, index);
             }
 
-            return name.Trim();
+            name = name.Trim();
+            return name.TrimEnd(new char[] { '_' });
         }
 
         public static uint GetSR1HashName(string fileName)

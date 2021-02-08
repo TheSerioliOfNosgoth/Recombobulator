@@ -74,6 +74,8 @@
     <Compile Include="AssetDescList.cs" />
     <Compile Include="Intro.cs" />
     <Compile Include="IntroList.cs" />
+    <Compile Include="ObjectList.cs" />
+    <Compile Include="Object.cs" />
     <Compile Include="TexSetList.cs" />
     <Compile Include="TexSet.cs" />
     <Compile Include="Level.cs" />

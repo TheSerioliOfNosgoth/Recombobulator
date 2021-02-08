@@ -23,6 +23,11 @@ namespace SR1Repository
             _assetDescList.Clear();
         }
 
+        public AssetDesc Find(Predicate<AssetDesc> match)
+        {
+            return _assetDescList.Find(match);
+        }
+
         public List<AssetDesc> FindAll(Predicate<AssetDesc> match)
         {
             return _assetDescList.FindAll(match);

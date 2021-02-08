@@ -28,9 +28,9 @@ namespace SR1Repository
             _texDescList.Clear();
         }
 
-        public List<TexDesc> FindAll(Predicate<TexDesc> match)
+        public TexDesc Find(Predicate<TexDesc> match)
         {
-            return _texDescList.FindAll(match);
+            return _texDescList.Find(match);
         }
     }
 }
