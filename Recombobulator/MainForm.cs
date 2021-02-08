@@ -1,8 +1,13 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using SR1Repository;
+using SRFile = CDC.Objects.SRFile;
+using SR1File = CDC.Objects.SR1File;
+using SRModel = CDC.Objects.Models.SRModel;
+using SR1PSTextureFile = BenLincoln.TheLostWorlds.CDTextures.SoulReaverPlaystationTextureFile;
 
 namespace Recombobulator
 {
@@ -116,7 +121,7 @@ namespace Recombobulator
 
                             textures[t] = new TexDesc();
                             textures[t].TextureIndex = textureIndex;
-                            textures[t].FilePath = _repository.MakeTextureFilePath(textureIndex);
+                            textures[t].FilePath = _repository.MakeTextureFilePath(textures[t].TextureIndex);
                             textures[t].IsNew = true;
 
                             textureIndex++;
@@ -127,6 +132,71 @@ namespace Recombobulator
                     {
                         _repository.Textures.Add(textures);
                         _repository.TextureSets.Add(textureSet);
+
+                        CDC.Objects.ExportOptions options = new CDC.Objects.ExportOptions();
+                        SRFile srFile = new SR1File(_file._FilePath, options);
+                        string textureFileName = Path.ChangeExtension(_file._FilePath, "crm");
+                        try
+                        {
+                            SR1PSTextureFile textureFile = new SR1PSTextureFile(textureFileName);
+
+                            uint polygonCountAllModels = 0;
+                            foreach (SRModel srModel in srFile.Models)
+                            {
+                                polygonCountAllModels += srModel.PolygonCount;
+                            }
+
+                            SR1PSTextureFile.SoulReaverPlaystationPolygonTextureData[] polygons =
+                                new SR1PSTextureFile.SoulReaverPlaystationPolygonTextureData[polygonCountAllModels];
+
+                            int polygonNum = 0;
+                            foreach (SRModel srModel in srFile.Models)
+                            {
+                                foreach (CDC.Polygon polygon in srModel.Polygons)
+                                {
+                                    polygons[polygonNum].paletteColumn = polygon.paletteColumn;
+                                    polygons[polygonNum].paletteRow = polygon.paletteRow;
+                                    polygons[polygonNum].u = new int[3];
+                                    polygons[polygonNum].v = new int[3];
+                                    polygons[polygonNum].materialColour = polygon.colour;
+
+                                    polygons[polygonNum].u[0] = (int)(srModel.Geometry.UVs[polygon.v1.UVID].u * 255);
+                                    polygons[polygonNum].v[0] = (int)(srModel.Geometry.UVs[polygon.v1.UVID].v * 255);
+                                    polygons[polygonNum].u[1] = (int)(srModel.Geometry.UVs[polygon.v2.UVID].u * 255);
+                                    polygons[polygonNum].v[1] = (int)(srModel.Geometry.UVs[polygon.v2.UVID].v * 255);
+                                    polygons[polygonNum].u[2] = (int)(srModel.Geometry.UVs[polygon.v3.UVID].u * 255);
+                                    polygons[polygonNum].v[2] = (int)(srModel.Geometry.UVs[polygon.v3.UVID].v * 255);
+
+                                    polygons[polygonNum].textureID = polygon.material.textureID;
+                                    polygons[polygonNum].CLUT = polygon.material.clutValue;
+
+                                    polygons[polygonNum].textureUsed = polygon.material.textureUsed;
+                                    polygons[polygonNum].visible = polygon.material.visible;
+
+                                    polygonNum++;
+                                }
+                            }
+
+                            textureFile.BuildTexturesFromPolygonData(polygons, false, true, options);
+
+                            for (int t = 0; t < textures.Length; t++)
+                            {
+                                Bitmap bitmap;
+                                if (t >= textureFile.TextureCount)
+                                {
+                                    bitmap = textureFile.GetTextureAsBitmap(0);
+                                }
+                                else
+                                {
+                                    bitmap = textureFile.GetTextureAsBitmap(t);
+                                }
+                                string textureName = _repository.MakeTextureFilePath(textures[t].TextureIndex, true);
+                                bitmap.Save(textureName);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                        }
                     }
                     #endregion
 

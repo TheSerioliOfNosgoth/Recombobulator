@@ -184,6 +184,7 @@ namespace Recombobulator
 
             List<uint> sortedPrimativeKeys = new List<uint>(_Primatives.Keys);
 
+            Directory.CreateDirectory(Path.GetDirectoryName(fileName));
             FileStream file = new FileStream(fileName, FileMode.Create, FileAccess.Write);
             BinaryWriter fileWriter = new BinaryWriter(file, System.Text.Encoding.UTF8);
 

@@ -368,6 +368,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CDC\CDC.csproj">
+      <Project>{d56c2540-e1f6-4e37-bcb0-d4f3afdf5619}</Project>
+      <Name>CDC</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SR1Repository\SR1Repository.csproj">
       <Project>{5fe9eed2-4bc5-4d5d-83d0-3548c91ae14d}</Project>
       <Name>SR1Repository</Name>
