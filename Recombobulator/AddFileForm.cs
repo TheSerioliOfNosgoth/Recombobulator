@@ -1,12 +1,5 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using SR1Repository;
 
@@ -26,9 +19,14 @@ namespace Recombobulator
         public AddFileForm()
         {
             InitializeComponent();
+
+            string a = null;
+            string b = null;
+            System.Reflection.ConstructorInfo cinfo = typeof(TreeList.TreeListColumn).GetConstructor(new Type[] { typeof(string), typeof(string) });
+            object o = new System.ComponentModel.Design.Serialization.InstanceDescriptor(cinfo, new object[] { a, b }, false);
         }
 
-        public void Initialize(Repository repository, string fileName, bool isLevel)
+        public void Initialize(Repository repository, string fileName, bool isLevel, List<string> requiredObjects)
         {
             _repository = repository;
 
@@ -66,6 +64,15 @@ namespace Recombobulator
                 textureSetCombo.Items.Add(fileName);
                 textureSetCombo.SelectedIndex = _repository.TextureSets.Count;
             }
+
+            foreach (string objectName in requiredObjects)
+            {
+                string lowerCase = objectName.ToLower();
+                if (_repository.Objects.Find(x => x.ObjectName == lowerCase) == null)
+                {
+                    requiredObjectList.Items.Add(lowerCase);
+                }
+            }
         }
 
         private void textureSetCombo_SelectedIndexChanged(object sender, EventArgs e)
@@ -74,29 +81,30 @@ namespace Recombobulator
             if (selectedIndex < _repository.TextureSets.Count)
             {
                 TexSet textureSet = _repository.TextureSets.TexSets[selectedIndex];
-                textureTextBox0.Text = (textureSet.TextureIDs[0]).ToString();
-                textureTextBox1.Text = (textureSet.TextureIDs[1]).ToString();
-                textureTextBox2.Text = (textureSet.TextureIDs[2]).ToString();
-                textureTextBox3.Text = (textureSet.TextureIDs[3]).ToString();
-                textureTextBox4.Text = (textureSet.TextureIDs[4]).ToString();
-                textureTextBox5.Text = (textureSet.TextureIDs[5]).ToString();
-                textureTextBox6.Text = (textureSet.TextureIDs[6]).ToString();
-                textureTextBox7.Text = (textureSet.TextureIDs[7]).ToString();
+                textureList.Items.Clear();
+                foreach (ushort textureID in textureSet.TextureIDs)
+                {
+                    textureList.Items.Add(_repository.MakeTextureFilePath(textureID));
+                }
             }
             else
             {
                 ushort textureIndex = (ushort)_repository.Textures.Count;
-                textureTextBox0.Text = textureIndex++.ToString();
-                textureTextBox1.Text = textureIndex++.ToString();
-                textureTextBox2.Text = textureIndex++.ToString();
-                textureTextBox3.Text = textureIndex++.ToString();
-                textureTextBox4.Text = textureIndex++.ToString();
-                textureTextBox5.Text = textureIndex++.ToString();
-                textureTextBox6.Text = textureIndex++.ToString();
-                textureTextBox7.Text = textureIndex++.ToString();
+                for (int t = 0; t < 8; t++)
+                {
+                    textureList.Items.Add(_repository.MakeTextureFilePath(textureIndex + t));
+                }
             }
 
             TextureSet = selectedIndex;
+        }
+
+        private void textureList_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            if (e.IsSelected)
+            {
+                e.Item.Selected = false;
+            }
         }
     }
 }

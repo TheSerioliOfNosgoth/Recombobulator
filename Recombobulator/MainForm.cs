@@ -96,7 +96,7 @@ namespace Recombobulator
             string fileName = Path.GetFileNameWithoutExtension(_file._FilePath);
 
             AddFileForm addFileDialog = new AddFileForm();
-            addFileDialog.Initialize(_repository, fileName, _file._IsLevel);
+            addFileDialog.Initialize(_repository, fileName, _file._IsLevel, _file._RequiredObjects);
             if (addFileDialog.ShowDialog() == DialogResult.OK)
             {
                 try

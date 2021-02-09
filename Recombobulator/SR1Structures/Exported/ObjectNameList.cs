@@ -33,6 +33,19 @@ namespace Recombobulator.SR1Structures
 
             pad.Read(reader, this, "pad");
             listStart.Read(reader, this, "listStart");
+
+            for (int i = 0; i < _List.Count; i++)
+            {
+                string objectName = _List[i].ToString();
+                if (objectName == "Shadow" ||
+                    objectName == "Shadow2" ||
+                    objectName == "Shadow3")
+                {
+                    continue;
+                }
+
+                reader.File._RequiredObjects.Add(_List[i].ToString());
+            }
         }
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
@@ -74,6 +87,11 @@ namespace Recombobulator.SR1Structures
                 }
 
                 file._MigrationStructures.Add(Start, this);
+            }
+
+            for (int i = 0; i < _List.Count; i++)
+            {
+                file._RequiredObjects.Add(_List[i].ToString());
             }
         }
     }
