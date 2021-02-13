@@ -417,14 +417,20 @@ namespace Recombobulator
             return _ImportErrors.ToString();
         }
 
-        public static string[] TestFolder(string folderName, bool listAllFiles)
+        public static string[] TestFolder(string folderName, bool listAllFiles, ref int filesRead, ref int filesToRead, ref string recentMessage)
         {
             DirectoryInfo directoryInfo = new DirectoryInfo(folderName);
             FileInfo[] fileInfos = directoryInfo.GetFiles("*.pcm", SearchOption.AllDirectories);
             List<string> results = new List<string>();
             int numSucceeded = 0;
+
+            System.Threading.Interlocked.Exchange(ref filesRead, 0);
+            System.Threading.Interlocked.Exchange(ref filesToRead, fileInfos.Length);
+
             foreach (FileInfo fileInfo in fileInfos)
             {
+                System.Threading.Interlocked.Exchange(ref recentMessage, (string)fileInfo.Name.Clone());
+
                 try
                 {
                     SR1_File file = new SR1_File();
@@ -447,6 +453,8 @@ namespace Recombobulator
                 {
                     results.Add(fileInfo.Name + "- Error");
                 }
+
+                System.Threading.Interlocked.Increment(ref filesRead);
             }
 
             results.Add("Files Read: " + fileInfos.Length);

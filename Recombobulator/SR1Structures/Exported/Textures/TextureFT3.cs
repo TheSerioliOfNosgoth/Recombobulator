@@ -11,7 +11,7 @@ namespace Recombobulator.SR1Structures
         SR1_Primative<byte> u1 = new SR1_Primative<byte>();
         SR1_Primative<byte> v1 = new SR1_Primative<byte>();
         SR1_Primative<ushort> tpage = new SR1_Primative<ushort>();
-        SR1_Primative<ushort> pad = new SR1_Primative<ushort>();
+        SR1_Primative<ushort> attr2 = new SR1_Primative<ushort>();
         SR1_Primative<byte> u2 = new SR1_Primative<byte>();
         SR1_Primative<byte> v2 = new SR1_Primative<byte>();
         SR1_Primative<ushort> attr = new SR1_Primative<ushort>();
@@ -28,7 +28,7 @@ namespace Recombobulator.SR1Structures
             v1.Read(reader, this, "v1");
 
             tpage.Read(reader, this, "tpage", SR1_File.Version.First, SR1_File.Version.Retail_PC);
-            pad.Read(reader, this, "pad", SR1_File.Version.Retail_PC, SR1_File.Version.Next);
+            attr2.Read(reader, this, "attr2", SR1_File.Version.Retail_PC, SR1_File.Version.Next);
 
             u2.Read(reader, this, "u2");
             v2.Read(reader, this, "v2");
@@ -66,7 +66,7 @@ namespace Recombobulator.SR1Structures
             v1.Write(writer);
 
             tpage.Write(writer, SR1_File.Version.First, SR1_File.Version.Retail_PC);
-            pad.Write(writer, SR1_File.Version.Retail_PC, SR1_File.Version.Next);
+            attr2.Write(writer, SR1_File.Version.Retail_PC, SR1_File.Version.Next);
 
             u2.Write(writer);
             v2.Write(writer);
@@ -82,7 +82,15 @@ namespace Recombobulator.SR1Structures
             {
                 int textureID = file._NewTextureIDs[tpage.Value & 0x00000007];
                 tpage.Value = (ushort)textureID;
-                pad.Value = 264;
+                attr2.Value = 0x0108;
+
+                if ((attr.Value & 0x0040) != 0)
+                {
+                    tpage.Value |= 0x4000;
+                    attr2.Value |= 0x0060;
+                }
+
+                //attr.Value &= ~0x0040;
             }
         }
     }

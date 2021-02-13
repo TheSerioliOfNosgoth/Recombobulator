@@ -30,18 +30,32 @@ namespace Recombobulator
         {
             _repository = repository;
 
+            string textureSetName = fileName;
+
             if (isLevel)
             {
-                pathTextBox.Text = _repository.MakeAreaFilePath(fileName);
-                FullPath = _repository.MakeAreaFilePath(fileName, true);
+                pathTextBox.Text = _repository.MakeLevelFilePath(fileName);
+                FullPath = _repository.MakeLevelFilePath(fileName, true);
 
                 // Could find an unused one or even validate overwrites of existing levels.
                 FileID = _repository.Levels.NextAvailableID;
+
+                Level existingLevel = repository.Levels.Levels.Find(x => x.UnitName == fileName);
+                if (existingLevel != null && existingLevel.TextureSet != "")
+                {
+                    textureSetName = existingLevel.TextureSet;
+                }
             }
             else
             {
                 pathTextBox.Text = _repository.MakeObjectFilePath(fileName);
                 FullPath = _repository.MakeObjectFilePath(fileName, true);
+
+                SR1Repository.Object existingObject = repository.Objects.Objects.Find(x => x.ObjectName == fileName);
+                if (existingObject != null && existingObject.TextureSet != "")
+                {
+                    textureSetName = existingObject.TextureSet;
+                }
             }
 
             TexSet currentTextureSet = null;
@@ -49,7 +63,7 @@ namespace Recombobulator
             {
                 textureSetCombo.Items.Add(textureSet.Name);
 
-                if (textureSet.Name == fileName)
+                if (textureSet.Name == textureSetName)
                 {
                     currentTextureSet = textureSet;
                 }

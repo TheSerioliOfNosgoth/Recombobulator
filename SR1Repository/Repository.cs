@@ -326,6 +326,214 @@ namespace SR1Repository
             return true;
         }
 
+        public AssetDesc AddNewAsset(string filePath)
+        {
+            string fullPath = Path.Combine(_projectFolderName, filePath);
+            if (!File.Exists(fullPath))
+            {
+                return null;
+            }
+
+            string extension = Path.GetExtension(filePath);
+            int endOfName = filePath.Length - extension.Length;
+            uint fileHash = GetSR1HashName(filePath);
+            if (Assets.Assets.Find(x => x.FileHash == fileHash) != null)
+            {
+                return null;
+            }
+
+            AssetDesc asset = new AssetDesc();
+            FileInfo fileInfo = new FileInfo(fullPath);
+
+            asset.FilePath = filePath;
+            asset.FileHash = fileHash;
+            asset.FileLength = (uint)fileInfo.Length;
+            asset.Code.code0 = char.ToUpperInvariant(filePath[endOfName - 4]);
+            asset.Code.code1 = char.ToUpperInvariant(filePath[endOfName - 3]);
+            asset.Code.code2 = char.ToUpperInvariant(filePath[endOfName - 2]);
+            asset.Code.code3 = char.ToUpperInvariant(filePath[endOfName - 1]);
+            asset.FileIndex = Assets.Count;
+            asset.IsNew = true;
+
+            Assets.Add(asset);
+
+            return asset;
+        }
+
+        public Object AddNewObject(string objectName, string textureSet)
+        {
+            string fullPath = MakeObjectFilePath(objectName, true);
+            if (!File.Exists(fullPath))
+            {
+                return null;
+            }
+
+            if (_objects.Objects.Find(x => x.ObjectName == objectName) != null)
+            {
+                return null;
+            }
+
+            Object obj = new Object();
+            obj.TextureSet = textureSet;
+
+            FileStream levelFile = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
+            BinaryReader reader = new BinaryReader(levelFile, System.Text.Encoding.ASCII);
+            uint dataStart = ((reader.ReadUInt32() >> 9) << 11) + 0x00000800;
+            ProcessObject(obj, reader, dataStart);
+            reader.Close();
+            levelFile.Close();
+
+            obj.IsNew = true;
+            return obj;
+        }
+
+        public Level AddNewLevel(string unitName, int streamUnitID, string textureSet)
+        {
+            string fullPath = MakeLevelFilePath(unitName, true);
+            if (!File.Exists(fullPath))
+            {
+                return null;
+            }
+
+            if (_levels.Levels.Find(x => x.UnitName == unitName) != null)
+            {
+                return null;
+            }
+
+            Level level = new Level();
+            level.TextureSet = textureSet;
+
+            FileStream levelFile = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
+            BinaryReader reader = new BinaryReader(levelFile, System.Text.Encoding.ASCII);
+            uint dataStart = ((reader.ReadUInt32() >> 9) << 11) + 0x00000800;
+            ProcessLevel(level, reader, dataStart);
+            reader.Close();
+            levelFile.Close();
+
+            level.IsNew = true;
+            return level;
+        }
+
+        void ProcessObject(Object obj, BinaryReader reader, uint dataStart)
+        {
+            reader.BaseStream.Position = dataStart + 0x00000024;
+            reader.BaseStream.Position = dataStart + reader.ReadUInt32();
+            obj.ObjectName = CleanName(new string(reader.ReadChars(8)));
+
+            reader.BaseStream.Position = dataStart + 0x00000008;
+            obj.NumModels = reader.ReadInt16();
+            obj.NumAnimations = reader.ReadInt16();
+
+            reader.BaseStream.Position = dataStart + 0x00000030;
+            short sectionA = reader.ReadInt16();
+            short sectionB = reader.ReadInt16();
+            short sectionC = reader.ReadInt16();
+
+            obj.NumSections += (sectionA > 0 ? sectionA : 0);
+            obj.NumSections += (sectionB > 0 ? sectionB : 0);
+            obj.NumSections += (sectionC > 0 ? sectionC : 0);
+
+            // There could be duplicate objects when unpacking. Read the data anyway for debugging.
+            if (_objects.Find(x => x.ObjectName == obj.ObjectName) == null)
+            {
+                _objects.Add(obj);
+            }
+        }
+
+        void ProcessLevel(Level level, BinaryReader reader, uint dataStart)
+        {
+            bool addingLevel = true;
+
+            reader.BaseStream.Position = dataStart + 0x98;
+            reader.BaseStream.Position = dataStart + reader.ReadUInt32();
+            level.UnitName = CleanName(new string(reader.ReadChars(8)));
+            reader.BaseStream.Position = dataStart + 0xF8;
+            level.StreamUnitID = reader.ReadInt32();
+
+            // There could be duplicate levels when unpacking. Read the data anyway for debugging.
+            if (_levels.Find(x => x.UnitName == level.UnitName) == null)
+            {
+                if (level.StreamUnitID >= _levels.NextAvailableID)
+                {
+                    _levels.NextAvailableID = level.StreamUnitID + 1;
+                }
+
+                _levels.Add(level);
+            }
+            else
+            {
+                addingLevel = false;
+            }
+
+            #region Instances
+
+            reader.BaseStream.Position = dataStart + 0x78;
+            uint instanceCount = reader.ReadUInt32();
+            uint instanceStart = dataStart + reader.ReadUInt32();
+
+            for (int i = 0; i < instanceCount; i++)
+            {
+                Intro intro = new Intro();
+                reader.BaseStream.Position = instanceStart + 0x4C * i;
+                intro.ObjectName = CleanName(new String(reader.ReadChars(16)));
+                intro.UnitName = level.UnitName;
+                intro.StreamUnitID = level.StreamUnitID;
+                reader.BaseStream.Position += 4;
+                intro.IntroUniqueID = reader.ReadInt32();
+                intro.Rotation.X = reader.ReadInt16();
+                intro.Rotation.Y = reader.ReadInt16();
+                intro.Rotation.Z = reader.ReadInt16();
+                reader.BaseStream.Position += 4;
+                intro.Position.X = reader.ReadInt16();
+                intro.Position.Y = reader.ReadInt16();
+                intro.Position.Z = reader.ReadInt16();
+
+                if (addingLevel)
+                {
+                    if (intro.IntroUniqueID >= Intros.NextAvailableID)
+                    {
+                        Intros.NextAvailableID = intro.IntroUniqueID + 1;
+                    }
+
+                    Intros.Add(intro);
+                }
+            }
+
+            #endregion
+
+            #region Events
+            /*reader.BaseStream.Position = dataStart + 0xDC;
+            uint eventPointersOffset = reader.ReadUInt16();
+            reader.BaseStream.Position = dataStart + eventPointersOffset;
+            int numPuzzles = reader.ReadInt32();
+            for (int p = 0; p < numPuzzles; p++)
+            {
+                uint eventOffset = reader.ReadUInt32();
+                uint nextEventPointer = (uint)reader.BaseStream.Position;
+
+                reader.BaseStream.Position = dataStart + eventOffset;
+                reader.BaseStream.Position += 0x02;
+
+                short numInstances = reader.ReadInt16();
+                reader.BaseStream.Position += 0x0C;
+
+                for (int i = 0; i < 0; i++)
+                {
+                    uint instanceOffset = reader.ReadUInt32();
+                    uint nextInstancePointer = (uint)reader.BaseStream.Position;
+
+                    reader.BaseStream.Position = dataStart + instanceOffset;
+                    short eventType = reader.ReadInt16();
+                    // Do EventInstance stuff here.
+
+                    reader.BaseStream.Position = nextInstancePointer;
+                }
+
+                reader.BaseStream.Position = nextEventPointer;
+            }*/
+            #endregion
+        }
+
         public bool LoadRepository()
         {
             ClearReposititory();
@@ -531,23 +739,23 @@ namespace SR1Repository
 
             try
             {
-                AssetDescList assets = new AssetDescList();
-                LevelList levels = new LevelList();
-                IntroList intros = new IntroList();
-                ObjectList objects = new ObjectList();
-                SFXClipList sfxClips = new SFXClipList();
-                TexDescList textures = new TexDescList();
-                TexSetList textureSets = new TexSetList();
+                _assets = new AssetDescList();
+                _levels = new LevelList();
+                _intros = new IntroList();
+                _objects = new ObjectList();
+                _sfxClips = new SFXClipList();
+                _textures = new TexDescList();
+                _textureSets = new TexSetList();
 
                 FileStream sourceBigFile = new FileStream(_sourceBigfileName, FileMode.Open, FileAccess.Read);
                 FileStream sourceTexturesFile = new FileStream(_sourceTexturesFileName, FileMode.Open, FileAccess.Read);
 
-                if (!InitializeAssets(assets, textures))
+                if (!InitializeAssets(_assets, _textures))
                 {
                     return false;
                 }
 
-                FilesToRead = assets.Count + textures.Count;
+                FilesToRead = _assets.Count + _textures.Count;
 
                 CreateDirectories();
 
@@ -557,9 +765,7 @@ namespace SR1Repository
 
                 #region Bigfile
 
-                int maxLevelID = 0;
-                int maxIntroID = 0;
-                foreach (AssetDesc asset in assets.Assets)
+                foreach (AssetDesc asset in _assets.Assets)
                 {
                     sourceBigFile.Position = asset.FileOffset;
 
@@ -583,108 +789,12 @@ namespace SR1Repository
                         if (isLevel)
                         {
                             Level level = new Level();
-
-                            reader.BaseStream.Position = dataStart + 0x98;
-                            reader.BaseStream.Position = dataStart + reader.ReadUInt32();
-                            level.UnitName = CleanName(new string(reader.ReadChars(8)));
-                            reader.BaseStream.Position = dataStart + 0xF8;
-                            level.StreamUnitID = reader.ReadInt32();
-
-                            #region Events
-                            /*reader.BaseStream.Position = dataStart + 0xDC;
-                            uint eventPointersOffset = reader.ReadUInt16();
-                            reader.BaseStream.Position = dataStart + eventPointersOffset;
-                            int numPuzzles = reader.ReadInt32();
-                            for (int p = 0; p < numPuzzles; p++)
-                            {
-                                uint eventOffset = reader.ReadUInt32();
-                                uint nextEventPointer = (uint)reader.BaseStream.Position;
-
-                                reader.BaseStream.Position = dataStart + eventOffset;
-                                reader.BaseStream.Position += 0x02;
-
-                                short numInstances = reader.ReadInt16();
-                                reader.BaseStream.Position += 0x0C;
-
-                                for (int i = 0; i < 0; i++)
-                                {
-                                    uint instanceOffset = reader.ReadUInt32();
-                                    uint nextInstancePointer = (uint)reader.BaseStream.Position;
-
-                                    reader.BaseStream.Position = dataStart + instanceOffset;
-                                    short eventType = reader.ReadInt16();
-                                    // Do EventInstance stuff here.
-
-                                    reader.BaseStream.Position = nextInstancePointer;
-                                }
-                                
-
-                                reader.BaseStream.Position = nextEventPointer;
-                            }*/
-                            #endregion
-
-                            if (level.StreamUnitID > maxLevelID)
-                            {
-                                maxLevelID = level.StreamUnitID;
-                            }
-
-                            levels.Add(level);
-
-                            #region Instances
-                            reader.BaseStream.Position = dataStart + 0x78;
-                            uint instanceCount = reader.ReadUInt32();
-                            uint instanceStart = dataStart + reader.ReadUInt32();
-                            for (int i = 0; i < instanceCount; i++)
-                            {
-                                Intro intro = new Intro();
-                                reader.BaseStream.Position = instanceStart + 0x4C * i;
-                                intro.ObjectName = CleanName(new String(reader.ReadChars(16)));
-                                intro.UnitName = level.UnitName;
-                                intro.StreamUnitID = level.StreamUnitID;
-                                reader.BaseStream.Position += 4;
-                                intro.IntroUniqueID = reader.ReadInt32();
-                                intro.Rotation.X = reader.ReadInt16();
-                                intro.Rotation.Y = reader.ReadInt16();
-                                intro.Rotation.Z = reader.ReadInt16();
-                                reader.BaseStream.Position += 4;
-                                intro.Position.X = reader.ReadInt16();
-                                intro.Position.Y = reader.ReadInt16();
-                                intro.Position.Z = reader.ReadInt16();
-
-                                if (intro.IntroUniqueID > maxIntroID)
-                                {
-                                    maxIntroID = intro.IntroUniqueID;
-                                }
-
-                                intros.Add(intro);
-                            }
-                            #endregion
+                            ProcessLevel(level, reader, dataStart);
                         }
                         else
                         {
                             Object obj = new Object();
-
-                            reader.BaseStream.Position = dataStart + 0x00000024;
-                            reader.BaseStream.Position = dataStart + reader.ReadUInt32();
-                            obj.ObjectName = CleanName(new string(reader.ReadChars(8)));
-
-                            reader.BaseStream.Position = dataStart + 0x00000008;
-                            obj.NumModels = reader.ReadInt16();
-                            obj.NumAnimations = reader.ReadInt16();
-
-                            reader.BaseStream.Position = dataStart + 0x00000030;
-                            short sectionA = reader.ReadInt16();
-                            short sectionB = reader.ReadInt16();
-                            short sectionC = reader.ReadInt16();
-
-                            obj.NumSections += (sectionA > 0 ? sectionA : 0);
-                            obj.NumSections += (sectionB > 0 ? sectionB : 0);
-                            obj.NumSections += (sectionC > 0 ? sectionC : 0);
-
-                            if (objects.Find(x => x.ObjectName == obj.ObjectName) == null)
-                            {
-                                objects.Add(obj);
-                            }
+                            ProcessObject(obj, reader, dataStart);
                         }
                     }
                     else if (ext == ".pmf")
@@ -744,7 +854,7 @@ namespace SR1Repository
 
                     foreach (SFXClip clip in sortedSFXClips.Values)
                     {
-                        sfxClips.Add(clip);
+                        _sfxClips.Add(clip);
                     }
 
                     #endregion
@@ -756,14 +866,12 @@ namespace SR1Repository
                     FilesRead++;
                 }
 
-                levels.NextAvailableID = maxLevelID + 1;
-                intros.NextAvailableID = maxIntroID + 1;
                 #endregion
 
                 #region Textures
                 BinaryReader texturesReader = new BinaryReader(sourceTexturesFile);
                 texturesReader.BaseStream.Position = headerLength;
-                foreach (TexDesc texture in textures.Textures)
+                foreach (TexDesc texture in _textures.Textures)
                 {
                     string outputFileName = Path.Combine(_projectFolderName, texture.FilePath);
                     Bitmap bitmap = ReadTexture(texturesReader);
@@ -788,22 +896,14 @@ namespace SR1Repository
                 allClipsFile.Write(BitConverter.GetBytes(0x00000000), 0, 4);
                 allClipsFile.Close();
 
-                _assets = assets;
-                _levels = levels;
-                _intros = intros;
-                _objects = objects;
-                _sfxClips = sfxClips;
-                _textures = textures;
-                _textureSets = textureSets;
-
                 SaveRepository();
 
-                Console.WriteLine("Extracted " + assets.Count.ToString() + " files from \"" + _sourceBigfileName + "\".");
-                Console.WriteLine("Extracted " + textures.Count.ToString() + " files from \"" + _sourceTexturesFileName + "\".");
-                Console.WriteLine("Discovered " + levels.Count + " unique levels.");
-                Console.WriteLine("Discovered " + intros.Count + " unique intros.");
-                Console.WriteLine("Discovered " + sfxClips.Count + " unique sfxClips.");
-                Console.WriteLine("Discovered " + objects.Count + " unique objects.");
+                Console.WriteLine("Extracted " + _assets.Count.ToString() + " files from \"" + _sourceBigfileName + "\".");
+                Console.WriteLine("Extracted " + _textures.Count.ToString() + " files from \"" + _sourceTexturesFileName + "\".");
+                Console.WriteLine("Discovered " + _levels.Count + " unique levels.");
+                Console.WriteLine("Discovered " + _intros.Count + " unique intros.");
+                Console.WriteLine("Discovered " + _sfxClips.Count + " unique sfxClips.");
+                Console.WriteLine("Discovered " + _objects.Count + " unique objects.");
             }
             catch (Exception)
             {
@@ -1012,7 +1112,7 @@ namespace SR1Repository
             return filePath;
         }
 
-        public string MakeAreaFilePath(string areaName, bool absolute = false)
+        public string MakeLevelFilePath(string areaName, bool absolute = false)
         {
             string folderName = areaName.TrimEnd("0123456789".ToCharArray());
             string parentFolder = Path.GetFileName(_dataFolderName);

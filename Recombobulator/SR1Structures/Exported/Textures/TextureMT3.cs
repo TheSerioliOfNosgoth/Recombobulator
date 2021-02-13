@@ -34,8 +34,10 @@ namespace Recombobulator.SR1Structures
 
             u2.Read(reader, this, "u2");
             v2.Read(reader, this, "v2");
+
             pad1.Read(reader, this, "pad1");
             sortPush.Read(reader, this, "sortPush");
+
             color.Read(reader, this, "color");
 
             ushort textureID;
@@ -74,8 +76,10 @@ namespace Recombobulator.SR1Structures
 
             u2.Write(writer);
             v2.Write(writer);
+
             pad1.Write(writer);
             sortPush.Write(writer);
+
             color.Write(writer);
         }
 

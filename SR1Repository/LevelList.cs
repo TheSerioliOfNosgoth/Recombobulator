@@ -22,5 +22,10 @@ namespace SR1Repository
         {
             _levelList.Clear();
         }
+
+        public Level Find(Predicate<Level> match)
+        {
+            return _levelList.Find(match);
+        }
     }
 }

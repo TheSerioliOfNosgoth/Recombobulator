@@ -102,37 +102,9 @@ namespace Recombobulator
                 try
                 {
                     #region Textures
-                    bool isNewTextureSet = false;
                     TexSet textureSet = _repository.TextureSets.TexSets.Find(x => x.Index == addFileDialog.TextureSet);
-                    TexDesc[] textures = new TexDesc[8];
                     if (textureSet == null)
                     {
-                        isNewTextureSet = true;
-
-                        textureSet = new TexSet();
-                        textureSet.Name = fileName;
-                        textureSet.Index = _repository.TextureSets.Count;
-
-                        // For the moment, a new texture set contains all new textures.
-                        ushort textureIndex = (ushort)_repository.Textures.Count;
-                        for (int t = 0; t < textures.Length; t++)
-                        {
-                            textureSet.TextureIDs[t] = textureIndex;
-
-                            textures[t] = new TexDesc();
-                            textures[t].TextureIndex = textureIndex;
-                            textures[t].FilePath = _repository.MakeTextureFilePath(textures[t].TextureIndex);
-                            textures[t].IsNew = true;
-
-                            textureIndex++;
-                        }
-                    }
-
-                    if (isNewTextureSet)
-                    {
-                        _repository.Textures.Add(textures);
-                        _repository.TextureSets.Add(textureSet);
-
                         CDC.Objects.ExportOptions options = new CDC.Objects.ExportOptions();
                         SRFile srFile = new SR1File(_file._FilePath, options);
                         string textureFileName = Path.ChangeExtension(_file._FilePath, "crm");
@@ -179,20 +151,41 @@ namespace Recombobulator
 
                             textureFile.BuildTexturesFromPolygonData(polygons, false, true, options);
 
+                            textureSet = new TexSet();
+                            textureSet.Name = fileName;
+                            textureSet.Index = _repository.TextureSets.Count;
+
+                            TexDesc[] textures = new TexDesc[8];
+
+                            ushort textureIndex = (ushort)_repository.Textures.Count;
                             for (int t = 0; t < textures.Length; t++)
                             {
                                 Bitmap bitmap;
                                 if (t >= textureFile.TextureCount)
                                 {
-                                    bitmap = textureFile.GetTextureAsBitmap(0);
+                                    textureSet.TextureIDs[t] = textureIndex;
                                 }
                                 else
                                 {
                                     bitmap = textureFile.GetTextureAsBitmap(t);
+
+                                    int newTextureIndex = textureIndex + t;
+
+                                    string textureName = _repository.MakeTextureFilePath(newTextureIndex, true);
+                                    bitmap.Save(textureName);
+
+                                    textures[t] = new TexDesc();
+                                    textures[t].TextureIndex = textureIndex + t;
+                                    textures[t].FilePath = _repository.MakeTextureFilePath(newTextureIndex);
+                                    textures[t].IsNew = true;
+
+                                    _repository.Textures.Add(textures[t]);
+
+                                    textureSet.TextureIDs[t] = (ushort)newTextureIndex;
                                 }
-                                string textureName = _repository.MakeTextureFilePath(textures[t].TextureIndex, true);
-                                bitmap.Save(textureName);
                             }
+
+                            _repository.TextureSets.Add(textureSet);
                         }
                         catch (Exception)
                         {
@@ -200,78 +193,35 @@ namespace Recombobulator
                     }
                     #endregion
 
-                    uint fileLength = _file.Export(addFileDialog.FullPath, SR1_File.Version.Retail_PC, textureSet.TextureIDs);
+                    _file.Export(addFileDialog.FullPath, SR1_File.Version.Retail_PC, textureSet.TextureIDs);
 
+                    object newObject = null;
+                    string category = null;
                     if (_file._IsLevel)
                     {
-                        if (_repository.Levels.Levels.Find(x => x.UnitName == fileName) == null)
-                        {
-                            Level level = new Level();
-                            level.UnitName = fileName;
-                            level.StreamUnitID = addFileDialog.FileID;
-                            level.IsNew = true;
-                            level.TextureSet = textureSet.Name;
-
-                            _repository.Levels.Add(level);
-                            _repository.Levels.NextAvailableID++;
-
-                            TreeNode node = new TreeNode();
-                            node.Text = level.UnitName;
-                            node.Tag = level;
-
-                            TreeNode[] nodes = projectTreeView.Nodes.Find("Levels", false);
-                            if (nodes.Length > 0 && nodes[0] != null)
-                            {
-                                nodes[0].Nodes.Add(node);
-                                projectTreeView.Sort();
-                            }
-                        }
+                        newObject = _repository.AddNewLevel(fileName, addFileDialog.FileID, textureSet.Name);
+                        category = "Levels";
                     }
                     else
                     {
-                        if (_repository.Objects.Objects.Find(x => x.ObjectName == fileName) == null)
+                        newObject = _repository.AddNewObject(fileName, textureSet.Name);
+                        category = "Objects";
+                    }
+
+                    if (newObject != null && category != null)
+                    {
+                        TreeNode[] nodes = projectTreeView.Nodes.Find(category, false);
+                        if (nodes.Length > 0 && nodes[0] != null)
                         {
-                            SR1Repository.Object obj = new SR1Repository.Object();
-                            obj.ObjectName = fileName;
-                            obj.IsNew = true;
-                            obj.TextureSet = textureSet.Name;
-
-                            _repository.Objects.Add(obj);
-
                             TreeNode node = new TreeNode();
-                            node.Text = obj.ObjectName;
-                            node.Tag = obj;
-
-                            TreeNode[] nodes = projectTreeView.Nodes.Find("Objects", false);
-                            if (nodes.Length > 0 && nodes[0] != null)
-                            {
-                                nodes[0].Nodes.Add(node);
-                                projectTreeView.Sort();
-                            }
+                            node.Text = fileName;
+                            node.Tag = newObject;
+                            nodes[0].Nodes.Add(node);
+                            projectTreeView.Sort();
                         }
                     }
 
-                    string relativePath = addFileDialog.RelativePath;
-                    string extension = Path.GetExtension(relativePath);
-                    int endOfName = relativePath.Length - extension.Length;
-                    uint fileHash = Repository.GetSR1HashName(relativePath);
-                    if (_repository.Assets.Assets.Find(x => x.FileHash == fileHash) == null)
-                    {
-                        AssetDesc asset = new AssetDesc();
-
-                        asset.FilePath = relativePath;
-                        asset.FileHash = fileHash;
-                        asset.FileLength = fileLength;
-                        asset.Code.code0 = char.ToUpperInvariant(relativePath[endOfName - 4]);
-                        asset.Code.code1 = char.ToUpperInvariant(relativePath[endOfName - 3]);
-                        asset.Code.code2 = char.ToUpperInvariant(relativePath[endOfName - 2]);
-                        asset.Code.code3 = char.ToUpperInvariant(relativePath[endOfName - 1]);
-                        asset.FileIndex = _repository.Assets.Count;
-                        asset.IsNew = true;
-
-                        _repository.Assets.Add(asset);
-                    }
-
+                    _repository.AddNewAsset(addFileDialog.RelativePath);
                     _repository.SaveRepository();
                 }
                 catch (Exception exception)
@@ -297,17 +247,11 @@ namespace Recombobulator
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                testResults.Clear();
-                string[] exportTestResults = SR1_File.TestFolder(dialog.SelectedPath, true);
-                foreach (string result in exportTestResults)
-                {
-                    testResults.Text += result + "\r\n";
-                }
-                displayModeTabs.SelectedTab = testResultsTab;
-            }
+                Properties.Settings.Default.RecentFolder = dialog.SelectedPath;
+                Properties.Settings.Default.Save();
 
-            Properties.Settings.Default.RecentFolder = dialog.SelectedPath;
-            Properties.Settings.Default.Save();
+                DoBulkTesting(dialog.SelectedPath, true);
+            }
         }
 
         private void BriefExportToolStripMenuItem_Click(object sender, EventArgs e)
@@ -324,17 +268,11 @@ namespace Recombobulator
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                testResults.Clear();
-                string[] exportTestResults = SR1_File.TestFolder(dialog.SelectedPath, false);
-                foreach (string result in exportTestResults)
-                {
-                    testResults.Text += result + "\r\n";
-                }
-                displayModeTabs.SelectedTab = testResultsTab;
-            }
+                Properties.Settings.Default.RecentFolder = dialog.SelectedPath;
+                Properties.Settings.Default.Save();
 
-            Properties.Settings.Default.RecentFolder = dialog.SelectedPath;
-            Properties.Settings.Default.Save();
+                DoBulkTesting(dialog.SelectedPath, false);
+            }
         }
 
         private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -415,6 +353,89 @@ namespace Recombobulator
             Enabled = true;
             _progressWindow.Hide();
             _progressWindow.Dispose();
+        }
+
+        private void BeginBulkTesting()
+        {
+            if (_progressWindow != null)
+            {
+                _progressWindow.Dispose();
+            }
+            _progressWindow = new ProgressWindow();
+            _progressWindow.Title = "Testing...";
+            _progressWindow.SetMessage("");
+            //_progressWindow.Icon = this.Icon;
+            _progressWindow.Owner = this;
+            _progressWindow.TopLevel = true;
+            _progressWindow.ShowInTaskbar = false;
+            this.Enabled = false;
+            _progressWindow.Show();
+        }
+
+        private delegate void StringParamInvoker(string results);
+
+        private void EndBulkTesting(string results)
+        {
+            testResults.Text = results;
+            displayModeTabs.SelectedTab = testResultsTab;
+
+            Enabled = true;
+            _progressWindow.Hide();
+            _progressWindow.Dispose();
+        }
+
+        private void DoBulkTesting(string folderName, bool listAllFiles)
+        {
+            testResults.Clear();
+
+            Invoke(new MethodInvoker(BeginBulkTesting));
+
+            int filesRead = 0;
+            int filesToRead = 0;
+            string recentMessage = "";
+
+            Thread loadingThread = new Thread((() =>
+            {
+                string testResults = "";
+                string[] exportTestResults = SR1_File.TestFolder(folderName, listAllFiles, ref filesRead, ref filesToRead, ref recentMessage);
+                foreach (string result in exportTestResults)
+                {
+                    testResults += result + "\r\n";
+                }
+
+                Invoke(new StringParamInvoker(EndBulkTesting), testResults);
+            }));
+
+            loadingThread.Name = "BulkTestingThread";
+            loadingThread.SetApartmentState(ApartmentState.STA);
+            loadingThread.Start();
+            //loadingThread.Join();
+
+            Thread progressThread = new Thread((() =>
+            {
+                do
+                {
+                    lock (recentMessage)
+                    {
+                        _progressWindow.SetMessage(recentMessage);
+                    }
+
+                    if (filesToRead > 0)
+                    {
+                        _progressWindow.SetProgress((100 * filesRead) / filesToRead);
+                    }
+                    else
+                    {
+                        _progressWindow.SetProgress(0);
+                    }
+                    Thread.Sleep(20);
+                }
+                while (loadingThread.IsAlive);
+            }));
+
+            progressThread.Name = "ProgressThread";
+            progressThread.SetApartmentState(ApartmentState.STA);
+            progressThread.Start();
         }
 
         private void NewProjectToolStripMenuItem_Click(object sender, EventArgs e)
