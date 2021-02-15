@@ -1,30 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SR1Repository
 {
     public class ObjectList
     {
-        List<Object> _objectList = new List<Object>();
-        public int Count { get { return _objectList.Count; } }
-        public List<Object> Objects { get { return _objectList; } set { _objectList = value; } }
+        List<Object> _list = new List<Object>();
+        public Object this[int index]
+        {
+            get { return _list[index]; }
+        }
+        public int Count { get { return _list.Count; } }
+        public List<Object> Objects { get { return _list; } set { _list = value; } }
 
         public void Add(Object obj)
         {
-            _objectList.Add(obj);
+            _list.Add(obj);
         }
 
         public void Clear()
         {
-            _objectList.Clear();
+            _list.Clear();
         }
 
         public Object Find(Predicate<Object> match)
         {
-            return _objectList.Find(match);
+            return _list.Find(match);
+        }
+
+        public List<Object> FindAll(Predicate<Object> match)
+        {
+            return _list.FindAll(match);
         }
     }
 }

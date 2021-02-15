@@ -44,7 +44,7 @@ namespace Recombobulator.SR1Structures
                     continue;
                 }
 
-                reader.File._RequiredObjects.Add(_List[i].ToString());
+                reader.File._ObjectNames.Add(_List[i].ToString());
             }
         }
 
@@ -91,7 +91,7 @@ namespace Recombobulator.SR1Structures
 
             for (int i = 0; i < _List.Count; i++)
             {
-                file._RequiredObjects.Add(_List[i].ToString());
+                file._ObjectNames.Add(_List[i].ToString());
             }
         }
     }

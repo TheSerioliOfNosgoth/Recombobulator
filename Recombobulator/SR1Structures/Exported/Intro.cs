@@ -42,6 +42,12 @@ namespace Recombobulator.SR1Structures
             meshColor.Read(reader, this, "meshColor");
             spectralPosition.Read(reader, this, "spectralPosition");
             spad.Read(reader, this, "spad");
+
+            int uniqueID = UniqueID.Value;
+            if (!reader.File._IntroIDs.Contains(uniqueID))
+            {
+                reader.File._IntroIDs.Add(uniqueID);
+            }
         }
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)

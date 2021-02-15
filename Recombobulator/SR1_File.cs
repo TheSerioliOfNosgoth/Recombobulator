@@ -46,10 +46,12 @@ namespace Recombobulator
         public readonly SortedDictionary<uint, SR1_Structure> _MigrationStructures = new SortedDictionary<uint, SR1_Structure>();
         public List<SR1_PointerBase> _Pointers = new List<SR1_PointerBase>();
         public readonly List<ushort> _TextureIDs = new List<ushort>();
-        public readonly List<string> _RequiredObjects = new List<string>();
+        public readonly List<int> _IntroIDs = new List<int>();
+        public readonly List<string> _ObjectNames = new List<string>();
         public readonly StringWriter _ImportErrors = new StringWriter();
         public readonly StringWriter _Scripts = new StringWriter();
         public ushort[] _NewTextureIDs { get; private set; } = null;
+        public int[] _NewIntroIDs { get; private set; } = null;
         public ImportFlags _ImportFlags { get; private set; } = ImportFlags.None;
 
 
@@ -66,7 +68,8 @@ namespace Recombobulator
             _MigrationStructures.Clear();
             _Pointers.Clear();
             _TextureIDs.Clear();
-            _RequiredObjects.Clear();
+            _IntroIDs.Clear();
+            _ObjectNames.Clear();
 
             _ImportErrors.GetStringBuilder().Clear();
             _Scripts.GetStringBuilder().Clear();
@@ -153,14 +156,15 @@ namespace Recombobulator
 
         public uint Export(string fileName)
         {
-            return Export(fileName, _Version, null);
+            return Export(fileName, _Version, null, null);
         }
 
-        public uint Export(string fileName, Version targetVersion, ushort[] textureStartingID)
+        public uint Export(string fileName, Version targetVersion, ushort[] newTextureIDs, int[] newIntroIDs)
         {
             uint fileLength = 0;
 
-            _NewTextureIDs = textureStartingID;
+            _NewTextureIDs = newTextureIDs;
+            _NewIntroIDs = newIntroIDs;
 
             MemoryStream stream = new MemoryStream();
 
@@ -170,7 +174,8 @@ namespace Recombobulator
             _MigrationStructures.Clear();
             _Pointers.Clear();
             _TextureIDs.Clear();
-            _RequiredObjects.Clear();
+            _IntroIDs.Clear();
+            _ObjectNames.Clear();
 
             SR1_Structure[] structures = new SR1_Structure[_Structures.Values.Count];
             _Structures.Values.CopyTo(structures, 0);
@@ -257,6 +262,9 @@ namespace Recombobulator
 
             stream.Close();
 
+            _NewTextureIDs = null;
+            _NewIntroIDs = null;
+
             return fileLength;
         }
 
@@ -272,7 +280,8 @@ namespace Recombobulator
             _MigrationStructures.Clear();
             _Pointers.Clear();
             _TextureIDs.Clear();
-            _RequiredObjects.Clear();
+            _IntroIDs.Clear();
+            _ObjectNames.Clear();
 
             SR1_Structure[] structures = new SR1_Structure[_Structures.Values.Count];
             _Structures.Values.CopyTo(structures, 0);

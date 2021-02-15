@@ -49,14 +49,34 @@ namespace Recombobulator
 
                     pcmFileTreeListView.Nodes.AddRange(_file.CreateChunkNodes());
 
-                    string textureIDs = "\r\n\r\nTexture IDs:\r\n\r\n";
+                    string textureIDs = "Textures:\r\n\r\n";
                     foreach (ushort textureID in _file._TextureIDs)
                     {
-                        textureIDs += "Texture-" + textureID.ToString("00000") + "\r\n";
+                        textureIDs += "texture-" + textureID.ToString("00000") + "\r\n";
+                    }
+                    textureIDs += "\r\n";
+
+                    string objectNames = "";
+                    if (_file._IsLevel)
+                    {
+                        objectNames = "Objects:\r\n\r\n";
+                        foreach (string objectName in _file._ObjectNames)
+                        {
+                            objectNames += objectName + "\r\n";
+                        }
+                        objectNames += "\r\n";
                     }
 
+                    string errors = "";
+                    if (_file.GetErrors() != null)
+                    {
+                        errors = _file.GetErrors() + "\r\n\r\n";
+                    }
+
+                    string heading = "File: " + _file._FilePath + "\r\n\r\n";
+
+                    pcmFileSummary.Text = heading + _file.GetErrors() + textureIDs + objectNames;
                     scripts.Text = _file.GetScripts();
-                    pcmFileSummary.Text = _file.GetErrors() + textureIDs;
 
                     _fileLoaded = true;
 
@@ -96,7 +116,7 @@ namespace Recombobulator
             string fileName = Path.GetFileNameWithoutExtension(_file._FilePath);
 
             AddFileForm addFileDialog = new AddFileForm();
-            addFileDialog.Initialize(_repository, fileName, _file._IsLevel, _file._RequiredObjects);
+            addFileDialog.Initialize(_repository, fileName, _file._IsLevel, _file._ObjectNames);
             if (addFileDialog.ShowDialog() == DialogResult.OK)
             {
                 try
@@ -193,7 +213,7 @@ namespace Recombobulator
                     }
                     #endregion
 
-                    _file.Export(addFileDialog.FullPath, SR1_File.Version.Retail_PC, textureSet.TextureIDs);
+                    _file.Export(addFileDialog.FullPath, SR1_File.Version.Retail_PC, textureSet.TextureIDs, null);
 
                     object newObject = null;
                     string category = null;
@@ -523,14 +543,14 @@ namespace Recombobulator
             Properties.Settings.Default.Save();
 
             Repository repository = new Repository(folderDialog.SelectedPath);
-            repository.LoadRepository();
-            _repository = repository;
 
-            addToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
-            compileProjectToolStripMenuItem.Enabled = (_repository != null);
-
-            if (_repository != null)
+            if (repository != null && repository.LoadRepository())
             {
+                _repository = repository;
+
+                addToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
+                compileProjectToolStripMenuItem.Enabled = (_repository != null);
+
                 TreeNode levelsNode = projectTreeView.Nodes.Add("Levels", "Levels");
                 foreach (Level level in _repository.Levels.Levels)
                 {
@@ -551,6 +571,14 @@ namespace Recombobulator
 
                 projectTreeView.Sort();
                 displayModeTabs.SelectedTab = projectTab;
+            }
+            else
+            {
+                MessageBox.Show(
+                    "Unable to load repository at \"" + folderDialog.SelectedPath + "\"", "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
             }
         }
 

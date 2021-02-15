@@ -1,27 +1,37 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SR1Repository
 {
     public class SFXClipList
     {
-        List<SFXClip> _sfxClipList = new List<SFXClip>();
+        List<SFXClip> _list = new List<SFXClip>();
+        public SFXClip this[int index]
+        {
+            get { return _list[index]; }
+        }
         public int MaxID { get; set; }
-        public int Count { get { return _sfxClipList.Count; } }
-        public List<SFXClip> SFXs { get { return _sfxClipList; } set { _sfxClipList = value; } }
+        public int Count { get { return _list.Count; } }
+        public List<SFXClip> SFXs { get { return _list; } set { _list = value; } }
 
         public void Add(SFXClip clip)
         {
-            _sfxClipList.Add(clip);
+            _list.Add(clip);
         }
 
         public void Clear()
         {
-            _sfxClipList.Clear();
+            _list.Clear();
+        }
+
+        public SFXClip Find(Predicate<SFXClip> match)
+        {
+            return _list.Find(match);
+        }
+
+        public List<SFXClip> FindAll(Predicate<SFXClip> match)
+        {
+            return _list.FindAll(match);
         }
     }
 }
