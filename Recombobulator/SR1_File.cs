@@ -51,6 +51,7 @@ namespace Recombobulator
         public readonly StringWriter _ImportErrors = new StringWriter();
         public readonly StringWriter _Scripts = new StringWriter();
         public ushort[] _NewTextureIDs { get; private set; } = null;
+        public int _NewStreamUnitID = 0;
         public int[] _NewIntroIDs { get; private set; } = null;
         public int _NextIntroID = 0;
         public ImportFlags _ImportFlags { get; private set; } = ImportFlags.None;
@@ -157,14 +158,15 @@ namespace Recombobulator
 
         public uint Export(string fileName)
         {
-            return Export(fileName, _Version, null, null);
+            return Export(fileName, _Version, null, 0, null);
         }
 
-        public uint Export(string fileName, Version targetVersion, ushort[] newTextureIDs, int[] newIntroIDs)
+        public uint Export(string fileName, Version targetVersion, ushort[] newTextureIDs, int newStreamUnitID, int[] newIntroIDs)
         {
             uint fileLength = 0;
 
             _NewTextureIDs = newTextureIDs;
+            _NewStreamUnitID = newStreamUnitID;
             _NewIntroIDs = newIntroIDs;
             _NextIntroID = 0;
 
@@ -265,6 +267,7 @@ namespace Recombobulator
             stream.Close();
 
             _NewTextureIDs = null;
+            _NewStreamUnitID = 0;
             _NewIntroIDs = null;
             _NextIntroID = 0;
 

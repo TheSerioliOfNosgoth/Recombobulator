@@ -529,6 +529,33 @@ namespace SR1Repository
             #endregion
         }
 
+        public bool FindAvailableStreamUnitID(ref int streamUnitID)
+        {
+            Comparer<Level> comparer = Comparer<Level>.Create((levelA, levelB) => levelA.StreamUnitID - levelB.StreamUnitID);
+            SortedSet<Level> sortedLevels = new SortedSet<Level>(comparer);
+            sortedLevels.UnionWith(Levels.Levels);
+
+            int levelID = short.MinValue;
+            foreach (Level level in sortedLevels)
+            {
+                if (levelID == 0)
+                {
+                    levelID++;
+                }
+
+                if (levelID < level.StreamUnitID)
+                {
+                    streamUnitID = levelID;
+                    break;
+                }
+
+                // Look one place ahead of the current level's ID for the next one.
+                levelID = level.StreamUnitID + 1;
+            }
+
+            return true;
+        }
+
         public bool FindAvailableIntroIDs(ref int[] introIDs)
         {
             if (introIDs == null)

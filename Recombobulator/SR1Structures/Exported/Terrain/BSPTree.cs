@@ -8,7 +8,7 @@ namespace Recombobulator.SR1Structures
         SR1_Pointer<BSPNode> bspRoot = new SR1_Pointer<BSPNode>();
         SR1_Pointer<BSPLeaf> startLeaves = new SR1_Pointer<BSPLeaf>();
         SR1_Pointer<BSPLeaf> endLeaves = new SR1_Pointer<BSPLeaf>();
-	    Position globalOffset = new Position();
+        Position globalOffset = new Position();
         SR1_Primative<short> flags = new SR1_Primative<short>();
         Position localOffset = new Position();
         SR1_Primative<short> ID = new SR1_Primative<short>();
@@ -52,6 +52,22 @@ namespace Recombobulator.SR1Structures
             ID.Write(writer);
             splineID.Write(writer);
             instanceSpline.Write(writer);
+        }
+
+        public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion)
+        {
+            base.MigrateVersion(file, targetVersion);
+
+            if ((file._Version == SR1_File.Version.Retail || file._Version == SR1_File.Version.Beta) &&
+                targetVersion == SR1_File.Version.Retail_PC)
+            {
+                // Burn in sunlight.
+                // The 0x0040 seems right, but not sure about the 0x0002.
+                if ((flags.Value & 0x0002) != 0)
+                {
+                    flags.Value |= 0x0040;
+                }
+            }
         }
     }
 }

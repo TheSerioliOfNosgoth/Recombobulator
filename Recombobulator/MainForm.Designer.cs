@@ -362,6 +362,7 @@
             this.MainMenuStrip = this._mainMenu;
             this.Name = "MainForm";
             this.Text = "Recombobulator";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this._mainMenu.ResumeLayout(false);
             this._mainMenu.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pcmFileTreeListView)).EndInit();

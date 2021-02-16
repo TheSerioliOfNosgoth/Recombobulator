@@ -344,6 +344,11 @@ namespace Recombobulator.SR1Structures
         {
             base.MigrateVersion(file, targetVersion);
 
+            if (file._Version != targetVersion && file._NewStreamUnitID != 0)
+            {
+                streamUnitID.Value = file._NewStreamUnitID;
+            }
+
             if ((file._Version == SR1_File.Version.Retail || file._Version == SR1_File.Version.Beta) &&
                 targetVersion == SR1_File.Version.Retail_PC)
             {
