@@ -490,11 +490,6 @@ namespace SR1Repository
 
                 if (addingLevel)
                 {
-                    if (intro.IntroUniqueID >= Intros.NextAvailableID)
-                    {
-                        Intros.NextAvailableID = intro.IntroUniqueID + 1;
-                    }
-
                     Intros.Add(intro);
                 }
             }
@@ -532,6 +527,48 @@ namespace SR1Repository
                 reader.BaseStream.Position = nextEventPointer;
             }*/
             #endregion
+        }
+
+        public bool FindAvailableIntroIDs(ref int[] introIDs)
+        {
+            if (introIDs == null)
+            {
+                return false;
+            }
+
+            Comparer<Intro> comparer = Comparer<Intro>.Create((introA, introB) => introA.IntroUniqueID - introB.IntroUniqueID);
+            SortedSet<Intro> sortedIntros = new SortedSet<Intro>(comparer);
+            sortedIntros.UnionWith(Intros.Intros);
+
+            int introID = 1; // Not sure if 0 would be valid. Start from 1 to be safe.
+            int numFound = 0;
+            foreach (Intro intro in sortedIntros)
+            {
+                // Got enough IDs. Exit.
+                if (numFound >= introIDs.Length)
+                {
+                    break;
+                }
+
+                while (introID < intro.IntroUniqueID)
+                {
+                    // Keep getting IDs until the current intro's ID is reached.
+                    introIDs[numFound] = introID;
+                    introID++;
+                    numFound++;
+
+                    // Got enough IDs. Exit.
+                    if (numFound >= introIDs.Length)
+                    {
+                        break;
+                    }
+                }
+
+                // Look one place ahead of the current intro's ID for the next one.
+                introID = intro.IntroUniqueID + 1;
+            }
+
+            return true;
         }
 
         public bool LoadRepository()
@@ -852,11 +889,6 @@ namespace SR1Repository
                         }
                     }
 
-                    foreach (SFXClip clip in sortedSFXClips.Values)
-                    {
-                        _sfxClips.Add(clip);
-                    }
-
                     #endregion
 
                     outputFile.Close();
@@ -864,6 +896,11 @@ namespace SR1Repository
                     Console.WriteLine("Extracted file: \"" + outputFileName + "\"");
                     RecentMessage = (string)asset.FilePath.Clone();
                     FilesRead++;
+                }
+
+                foreach (SFXClip clip in sortedSFXClips.Values)
+                {
+                    _sfxClips.Add(clip);
                 }
 
                 #endregion

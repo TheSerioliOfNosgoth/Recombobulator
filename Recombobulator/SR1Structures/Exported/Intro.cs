@@ -92,6 +92,17 @@ namespace Recombobulator.SR1Structures
             spad.Write(writer);
         }
 
+        public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion)
+        {
+            base.MigrateVersion(file, targetVersion);
+
+            if (file._Version != targetVersion && file._NewIntroIDs != null)
+            {
+                UniqueID.Value = file._NewIntroIDs[file._NextIntroID];
+                file._NextIntroID++;
+            }
+        }
+
         public override string ToString()
         {
             return "{ " + name.ToString().Trim('\0') + " }";

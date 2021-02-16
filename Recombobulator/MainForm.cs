@@ -213,7 +213,11 @@ namespace Recombobulator
                     }
                     #endregion
 
-                    _file.Export(addFileDialog.FullPath, SR1_File.Version.Retail_PC, textureSet.TextureIDs, null);
+                    int numIntros = _file._IntroIDs.Count;
+                    int[] newIntroIDs = new int[numIntros];
+                    _repository.FindAvailableIntroIDs(ref newIntroIDs);
+
+                    _file.Export(addFileDialog.FullPath, SR1_File.Version.Retail_PC, textureSet.TextureIDs, newIntroIDs);
 
                     object newObject = null;
                     string category = null;

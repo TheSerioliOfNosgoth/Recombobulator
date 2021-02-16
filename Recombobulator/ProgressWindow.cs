@@ -29,7 +29,7 @@ namespace Recombobulator
                 }
                 pbProgress.Value = Math.Max(pbProgress.Minimum, Math.Min(pbProgress.Maximum, newProgress));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // do nothing - this is a non-critical operation
             }
@@ -46,7 +46,7 @@ namespace Recombobulator
                 }
                 lblText.Text = newMessage;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // do nothing - this is a non-critical operation
             }
@@ -63,7 +63,7 @@ namespace Recombobulator
                 }
                 this.Text = newMessage;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // do nothing - this is a non-critical operation
             }

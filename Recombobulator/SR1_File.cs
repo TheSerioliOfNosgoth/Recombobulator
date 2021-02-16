@@ -52,6 +52,7 @@ namespace Recombobulator
         public readonly StringWriter _Scripts = new StringWriter();
         public ushort[] _NewTextureIDs { get; private set; } = null;
         public int[] _NewIntroIDs { get; private set; } = null;
+        public int _NextIntroID = 0;
         public ImportFlags _ImportFlags { get; private set; } = ImportFlags.None;
 
 
@@ -165,6 +166,7 @@ namespace Recombobulator
 
             _NewTextureIDs = newTextureIDs;
             _NewIntroIDs = newIntroIDs;
+            _NextIntroID = 0;
 
             MemoryStream stream = new MemoryStream();
 
@@ -264,6 +266,7 @@ namespace Recombobulator
 
             _NewTextureIDs = null;
             _NewIntroIDs = null;
+            _NextIntroID = 0;
 
             return fileLength;
         }
