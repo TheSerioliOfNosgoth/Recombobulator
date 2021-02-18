@@ -154,6 +154,7 @@
     <Compile Include="SR1Structures\Exported\GlyphTuneData.cs" />
     <Compile Include="SR1Structures\Exported\LitShaftProperties.cs" />
     <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObProperties.cs" />
+    <Compile Include="SR1Structures\Exported\INICommandType.cs" />
     <Compile Include="SR1Structures\Exported\Terrain\SBSPLeaf.cs" />
     <Compile Include="SR1Structures\Exported\Textures\AniTexInfo.cs" />
     <Compile Include="SR1Structures\Exported\Textures\AniTex.cs" />
