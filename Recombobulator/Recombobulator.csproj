@@ -92,6 +92,8 @@
     <Compile Include="SR1Structures\Exported\Animation\G2AnimFxHeader_Type.cs" />
     <Compile Include="SR1Structures\Exported\Animation\G2AnimFxList.cs" />
     <Compile Include="SR1Structures\Exported\Animation\G2AnimList.cs" />
+    <Compile Include="SR1Structures\Exported\MCMenuTableT.cs" />
+    <Compile Include="SR1Structures\Exported\CinemaFnTableT.cs" />
     <Compile Include="SR1Structures\Exported\Event\EventBaseObject.cs" />
     <Compile Include="SR1Structures\Exported\Event\Events.cs" />
     <Compile Include="SR1Structures\Exported\Monster\KainTuneData.cs" />
@@ -109,7 +111,7 @@
     <Compile Include="SR1Structures\Exported\Monster\MonsterStateChoice.cs" />
     <Compile Include="SR1Structures\Exported\Monster\MonsterState.cs" />
     <Compile Include="SR1Structures\Exported\Monster\AlukaTuneData.cs" />
-    <Compile Include="SR1Structures\Exported\Monster\RelocateModule.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\MonsterFunctionTable.cs" />
     <Compile Include="SR1Structures\Exported\Monster\RelocateList.cs" />
     <Compile Include="SR1Structures\Exported\GenericFX\GenericBlastRingParams.cs" />
     <Compile Include="SR1Structures\Exported\GenericFX\GenericLightningParams.cs" />

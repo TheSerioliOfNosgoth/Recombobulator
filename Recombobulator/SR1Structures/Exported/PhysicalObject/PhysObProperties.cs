@@ -5,10 +5,10 @@ namespace Recombobulator.SR1Structures
 {
     class PhysObProperties : SR1_Structure
     {
-        SR1_Primative<short> version = new SR1_Primative<short>();
-        SR1_Primative<short> family = new SR1_Primative<short>();
-        SR1_Primative<short> ID = new SR1_Primative<short>();
-        SR1_Primative<short> Type = new SR1_Primative<short>();
+        public readonly SR1_Primative<short> version = new SR1_Primative<short>();
+        public readonly SR1_Primative<short> family = new SR1_Primative<short>();
+        public readonly SR1_Primative<short> ID = new SR1_Primative<short>();
+        public readonly SR1_Primative<short> Type = new SR1_Primative<short>();
 
         public object CreateReplacementObject()
         {
@@ -45,6 +45,8 @@ namespace Recombobulator.SR1Structures
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
+            reader.PhysObProperties = this;
+
             version.Read(reader, this, "version");
             family.Read(reader, this, "family");
             ID.Read(reader, this, "ID");

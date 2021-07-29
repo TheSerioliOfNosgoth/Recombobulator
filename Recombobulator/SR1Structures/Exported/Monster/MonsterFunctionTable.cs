@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-    class RelocateModule : SR1_Structure
+    class MonsterFunctionTable : SR1_Structure
     {
         SR1_Primative<uint> initFunc = new SR1_Primative<uint>();
         SR1_Primative<uint> cleanUpFunc = new SR1_Primative<uint>();

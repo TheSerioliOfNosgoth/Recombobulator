@@ -78,21 +78,8 @@ namespace Recombobulator.SR1Structures
 
             new SR1_PointerArray<Model>(numModels.Value, true).ReadFromPointer(reader, modelList);
 
-            if (numAnims.Value > 0)
-            {
-                SR1_PointerArray<G2AnimKeylist_Type> keyListPointers = new SR1_PointerArray<G2AnimKeylist_Type>(numAnims.Value, false);
-                keyListPointers.ReadFromPointer(reader, animList);
-                SR1_StructureArray<G2AnimKeylist_Type> keyLists = new SR1_StructureArray<G2AnimKeylist_Type>(numAnims.Value);
-                keyLists.ReadFromPointer(reader, keyListPointers[0]);
-                if (reader.AnimFXDictionary.Count > 0)
-                {
-                    SR1_StructureArray<G2AnimFXList> fxLists = new SR1_StructureArray<G2AnimFXList>(reader.AnimFXDictionary.Count);
-                    fxLists.SetPadding(4).ReadFromPointer(reader, reader.AnimFXDictionary.Values[0]);
-                }
-            }
-
-            temp = new SR1_String(12).SetPadding(4).ReadFromPointer(reader, script);
-            scriptName = temp.ToString();
+            reader.ObjectName = (SR1_String)(new SR1_String(12).SetPadding(4).ReadFromPointer(reader, script));
+            scriptName = reader.ObjectName.ToString();
             new SR1_String(12).SetPadding(4).ReadFromPointer(reader, name);
 
             temp = new SR1_StructureArray<ObjectEffect>(numberOfEffects.Value).ReadFromPointer(reader, effectList);
@@ -210,7 +197,31 @@ namespace Recombobulator.SR1Structures
 
             if (relocModule.Offset != 0)
             {
-                new RelocateModule().ReadFromPointer(reader, relocModule);
+                if (scriptName == "cinemax_")
+                {
+                    new CinemaFnTableT().ReadFromPointer(reader, relocModule);
+                }
+                else if (scriptName == "mcardx__")
+                {
+                    new MCardMTableT().ReadFromPointer(reader, relocModule);
+                }
+                else
+                {
+                    new MonsterFunctionTable().ReadFromPointer(reader, relocModule);
+                }
+            }
+
+            if (numAnims.Value > 0)
+            {
+                SR1_PointerArray<G2AnimKeylist_Type> keyListPointers = new SR1_PointerArray<G2AnimKeylist_Type>(numAnims.Value, false);
+                keyListPointers.ReadFromPointer(reader, animList);
+                SR1_StructureArray<G2AnimKeylist_Type> keyLists = new SR1_StructureArray<G2AnimKeylist_Type>(numAnims.Value);
+                keyLists.ReadFromPointer(reader, keyListPointers[0]);
+                if (reader.AnimFXDictionary.Count > 0)
+                {
+                    SR1_StructureArray<G2AnimFXList> fxLists = new SR1_StructureArray<G2AnimFXList>(reader.AnimFXDictionary.Count);
+                    fxLists.SetPadding(4).ReadFromPointer(reader, reader.AnimFXDictionary.Values[0]);
+                }
             }
         }
 

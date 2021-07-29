@@ -5,24 +5,29 @@ namespace Recombobulator.SR1Structures
 {
     class Model : SR1_Structure
     {
-        SR1_Primative<int> numVertices = new SR1_Primative<int>();
-        SR1_Pointer<MVertex> vertexList = new SR1_Pointer<MVertex>();
-        SR1_Primative<int> numNormals = new SR1_Primative<int>();
-        SR1_Pointer<SVectorNoPad> normalList = new SR1_Pointer<SVectorNoPad>();
-        SR1_Primative<int> numFaces = new SR1_Primative<int>();
-        SR1_Pointer<MFace> faceList = new SR1_Pointer<MFace>();
-        SR1_Primative<int> numSegments = new SR1_Primative<int>();
-        SR1_Pointer<Segment> segmentList = new SR1_Pointer<Segment>();
-        SR1_Pointer<AniTex> aniTextures = new SR1_Pointer<AniTex>();
-        SR1_Primative<short> maxRad = new SR1_Primative<short>();
-        SR1_Primative<short> pad = new SR1_Primative<short>();
-        SR1_Primative<int> maxRadSq = new SR1_Primative<int>();
-        SR1_Pointer<MultiSpline> multiSpline = new SR1_Pointer<MultiSpline>();
-        SR1_Pointer<TextureMT3> startTextures = new SR1_Pointer<TextureMT3>();
-        SR1_Pointer<TextureMT3> endTextures = new SR1_Pointer<TextureMT3>();
+        public readonly SR1_Primative<int> numVertices = new SR1_Primative<int>();
+        public readonly SR1_Pointer<MVertex> vertexList = new SR1_Pointer<MVertex>();
+        public readonly SR1_Primative<int> numNormals = new SR1_Primative<int>();
+        public readonly SR1_Pointer<SVectorNoPad> normalList = new SR1_Pointer<SVectorNoPad>();
+        public readonly SR1_Primative<int> numFaces = new SR1_Primative<int>();
+        public readonly SR1_Pointer<MFace> faceList = new SR1_Pointer<MFace>();
+        public readonly SR1_Primative<int> numSegments = new SR1_Primative<int>();
+        public readonly SR1_Pointer<Segment> segmentList = new SR1_Pointer<Segment>();
+        public readonly SR1_Pointer<AniTex> aniTextures = new SR1_Pointer<AniTex>();
+        public readonly SR1_Primative<short> maxRad = new SR1_Primative<short>();
+        public readonly SR1_Primative<short> pad = new SR1_Primative<short>();
+        public readonly SR1_Primative<int> maxRadSq = new SR1_Primative<int>();
+        public readonly SR1_Pointer<MultiSpline> multiSpline = new SR1_Pointer<MultiSpline>();
+        public readonly SR1_Pointer<TextureMT3> startTextures = new SR1_Pointer<TextureMT3>();
+        public readonly SR1_Pointer<TextureMT3> endTextures = new SR1_Pointer<TextureMT3>();
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
+            if (reader.Model == null)
+            {
+                reader.Model = this;
+            }
+
             numVertices.Read(reader, this, "numVertices");
             vertexList.Read(reader, this, "vertexList");
             numNormals.Read(reader, this, "numNormals");

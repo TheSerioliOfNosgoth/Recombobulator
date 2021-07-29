@@ -8,7 +8,11 @@ namespace Recombobulator
     {
         public SR1_File File = null;
         public Object Object = null;
+        public SR1_String ObjectName = null;
         public Events Events = null;
+        public Model Model = null;
+        public PhysObProperties PhysObProperties = null;
+        public MonsterSubAttributes MonsterSubAttributes = null;
 
         public SortedList<uint, SR1_PointerBase> AnimFXDictionary { get; } = new SortedList<uint, SR1_PointerBase>();
         public SortedList<uint, SR1_PointerBase> AttackAnimDictionary { get; } = new SortedList<uint, SR1_PointerBase>();
