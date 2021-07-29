@@ -78,6 +78,9 @@
     <Compile Include="ScriptParser.cs" />
     <Compile Include="SR1Structures\Collections\SR1_PointerSeries.cs" />
     <Compile Include="SR1Structures\Collections\SR1_StructureSeriesBase.cs" />
+    <Compile Include="SR1Structures\Exported\GenericFX\BubbleParams.cs" />
+    <Compile Include="SR1Structures\Exported\GenericFX\GenericBubbleParams.cs" />
+    <Compile Include="SR1Structures\Exported\WaterFXProperties.cs" />
     <Compile Include="SR1Structures\Exported\Animation\SAnimSet.cs" />
     <Compile Include="SR1Structures\Exported\Animation\ThrowItemSet.cs" />
     <Compile Include="SR1Structures\Exported\Animation\AttackItemSet.cs" />

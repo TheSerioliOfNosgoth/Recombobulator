@@ -73,30 +73,28 @@ namespace Recombobulator.SR1Structures
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
         {
-            SR1_Structure temp;
-            string scriptName;
+            SR1_Structure nameStruct = new SR1_String(12).SetPadding(4).ReadFromPointer(reader, name);
+            SR1_Structure scriptStruct = new SR1_String(12).SetPadding(4).ReadFromPointer(reader, script);
+            SR1_Structure modelListStruct = new SR1_PointerArray<Model>(numModels.Value, true).ReadFromPointer(reader, modelList);
+            SR1_Structure animListStruct = new SR1_PointerArray<G2AnimKeylist_Type>(numAnims.Value, false).ReadFromPointer(reader, animList);
+            SR1_Structure effectListStruct = new SR1_StructureArray<ObjectEffect>(numberOfEffects.Value).ReadFromPointer(reader, effectList);
+            SR1_Structure soundDataStruct = new SFXFileData().ReadFromPointer(reader, soundData);
 
-            new SR1_PointerArray<Model>(numModels.Value, true).ReadFromPointer(reader, modelList);
+            reader.ObjectName = (SR1_String)(scriptStruct);
+            string scriptName = reader.ObjectName.ToString();
 
-            reader.ObjectName = (SR1_String)(new SR1_String(12).SetPadding(4).ReadFromPointer(reader, script));
-            scriptName = reader.ObjectName.ToString();
-            new SR1_String(12).SetPadding(4).ReadFromPointer(reader, name);
+            SR1_Structure relocListStruct = new RelocateList().ReadFromPointer(reader, relocList);
+            SR1_Structure relocModuleStruct =
+                (scriptName == "cinemax_") ? new CinemaFnTableT().ReadFromPointer(reader, relocModule) :
+                (scriptName == "mcardx__") ? new MCardMTableT().ReadFromPointer(reader, relocModule) :
+                new MonsterFunctionTable().ReadFromPointer(reader, relocModule);
 
-            temp = new SR1_StructureArray<ObjectEffect>(numberOfEffects.Value).ReadFromPointer(reader, effectList);
-
-            // 8 mystery bytes after effectList. THIS APPEARS TO BE A PHYSOBLIGHT. REMOVE THIS?
-            //if (temp.End != 0x00000000 && !reader.File._Structures.ContainsKey(temp.End))
-            //{
-            //    reader.BaseStream.Position = temp.End;
-            //    new SR1_PrimativeArray<byte>(8).Read(reader, null, "");
-            //}
-
+            PhysObProperties tempPOP = new PhysObProperties();
             if ((oflags2.Value & 0x00040000) != 0)
             {
                 // new PhysObProperties().ReadFromPointer(reader, data);
 
                 reader.BaseStream.Position = (long)data.Offset;
-                PhysObProperties tempPOP = new PhysObProperties();
                 tempPOP.ReadTemp(reader);
                 reader.BaseStream.Position = (long)data.Offset;
                 ((SR1_Structure)tempPOP.CreateReplacementObject()).ReadFromPointer(reader, data);
@@ -168,7 +166,6 @@ namespace Recombobulator.SR1Structures
                 // new PhysObProperties().ReadFromPointer(reader, data);
 
                 reader.BaseStream.Position = (long)data.Offset;
-                PhysObProperties tempPOP = new PhysObProperties();
                 tempPOP.ReadTemp(reader);
                 reader.BaseStream.Position = (long)data.Offset;
                 ((SR1_Structure)tempPOP.CreateReplacementObject()).ReadFromPointer(reader, data);
@@ -187,40 +184,36 @@ namespace Recombobulator.SR1Structures
             {
                 new LitShaftProperties().ReadFromPointer(reader, data);
             }
-
-            new SFXFileData().ReadFromPointer(reader, soundData);
-
-            if (relocList.Offset != 0)
+            else if (scriptName == "waterfx_")
             {
-                new RelocateList().ReadFromPointer(reader, relocList);
-            }
-
-            if (relocModule.Offset != 0)
-            {
-                if (scriptName == "cinemax_")
-                {
-                    new CinemaFnTableT().ReadFromPointer(reader, relocModule);
-                }
-                else if (scriptName == "mcardx__")
-                {
-                    new MCardMTableT().ReadFromPointer(reader, relocModule);
-                }
-                else
-                {
-                    new MonsterFunctionTable().ReadFromPointer(reader, relocModule);
-                }
+                new WaterFXProperties().ReadFromPointer(reader, data);
             }
 
             if (numAnims.Value > 0)
             {
-                SR1_PointerArray<G2AnimKeylist_Type> keyListPointers = new SR1_PointerArray<G2AnimKeylist_Type>(numAnims.Value, false);
-                keyListPointers.ReadFromPointer(reader, animList);
                 SR1_StructureArray<G2AnimKeylist_Type> keyLists = new SR1_StructureArray<G2AnimKeylist_Type>(numAnims.Value);
-                keyLists.ReadFromPointer(reader, keyListPointers[0]);
+                keyLists.ReadFromPointer(reader, ((SR1_PointerArray<G2AnimKeylist_Type>)animListStruct)[0]);
                 if (reader.AnimFXDictionary.Count > 0)
                 {
                     SR1_StructureArray<G2AnimFXList> fxLists = new SR1_StructureArray<G2AnimFXList>(reader.AnimFXDictionary.Count);
                     fxLists.SetPadding(4).ReadFromPointer(reader, reader.AnimFXDictionary.Values[0]);
+                }
+            }
+
+            uint padAdress = End;
+            if (nameStruct.End > padAdress) padAdress = nameStruct.End;
+            if (scriptStruct.End > padAdress) padAdress = scriptStruct.End;
+            if (modelListStruct.End > padAdress) padAdress = modelListStruct.End;
+            if (animListStruct.End > padAdress) padAdress = animListStruct.End;
+            if (effectListStruct.End > padAdress) padAdress = effectListStruct.End;
+
+            // 8 mystery bytes after effectList. THIS APPEARS TO BE A PHYSOBLIGHT. REMOVE THIS?
+            if (!reader.File._Structures.ContainsKey(padAdress))
+            {
+                if (tempPOP.family.Value == 3 || tempPOP.family.Value == 6)
+                {
+                    reader.BaseStream.Position = padAdress;
+                    new SR1_PrimativeArray<byte>(8).Read(reader, null, "");
                 }
             }
         }
