@@ -18,10 +18,15 @@ namespace Recombobulator.SR1Structures
 
         protected override void Register(SR1_Writer writer)
         {
-            if (_array != null)
+            writer.File._LastPrimative = this;
+
+            // Might be safer to add primatives during import rather than export.
+            if (Start == End || writer.File._Primatives.ContainsKey(Start))
             {
-                writer.File._Primatives.Add(this.Start, this);
+                return;
             }
+
+            writer.File._Primatives.Add(this.Start, this);
         }
 
         public SR1_PrimativeArray(params int[] dimensions)

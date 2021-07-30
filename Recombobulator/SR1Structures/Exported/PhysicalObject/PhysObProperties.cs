@@ -30,7 +30,7 @@ namespace Recombobulator.SR1Structures
                 case 3:
                     return new PhysObInteractProperties();
                 case 4:
-                    return new PhysObDraftProperties();
+                    return new UpdraftProperties();
                 case 5:
                     return new PhysObCollectibleProperties();
                 case 6:

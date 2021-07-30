@@ -12,6 +12,40 @@ namespace Recombobulator.SR1Structures
             public int bitCount;
         }
 
+        struct SectionData
+        {
+            public int numSections;
+            public int numSegments;
+            public int sectionA;
+            public int sectionB;
+            public int sectionC;
+        }
+
+        class Channel
+        {
+            public SR1_PrimativePointer<byte> chanData = new SR1_PrimativePointer<byte>();
+            public SR1_PrimativeArray<byte> chanDataBuf = new SR1_PrimativeArray<byte>();
+            int section;
+
+            public Channel(int section)
+            {
+                this.section = section;
+            }
+
+            public uint ReadChanData(SR1_Reader reader, SR1_Structure parent)
+            {
+                chanData.Read(reader, parent, "chanData" + section);
+                return chanData.End;
+            }
+
+            public void ReadChanDataBuf(SR1_Reader reader, SR1_Structure parent, int keyCount, int firstSeg, int lastSeg, int numSegments, long segKeyList)
+            {
+                int chanLength = FooBar(reader, segKeyList, (int)chanData.Offset, keyCount, firstSeg, lastSeg, numSegments);
+                chanDataBuf = new SR1_PrimativeArray<byte>(chanLength);
+                chanDataBuf.Read(reader, parent, "chanData" + section + "Buf");
+            }
+        }
+
         public readonly SR1_Primative<byte> sectionCount = new SR1_Primative<byte>();
         public readonly SR1_Primative<byte> s0TailTime = new SR1_Primative<byte>();
         public readonly SR1_Primative<byte> s1TailTime = new SR1_Primative<byte>();
@@ -24,19 +58,14 @@ namespace Recombobulator.SR1Structures
         public readonly SR1_Primative<ushort> pad10 = new SR1_Primative<ushort>();
         public readonly SR1_Primative<short> pad11 = new SR1_Primative<short>();
         public readonly SR1_Pointer<G2AnimFxHeader_Type> fxList = new SR1_Pointer<G2AnimFxHeader_Type>();
-        public readonly SR1_PrimativePointer<byte> chanData0 = new SR1_PrimativePointer<byte>();
-        public readonly SR1_PrimativePointer<byte> chanData1 = new SR1_PrimativePointer<byte>();
-        public readonly SR1_PrimativePointer<byte> chanData2 = new SR1_PrimativePointer<byte>();
+
+        SectionData sectionData = new SectionData();
+        Channel[] channels = { new Channel(0), new Channel(1), new Channel(2) };
 
         SR1_PrimativeArray<byte> chanDataflags = new SR1_PrimativeArray<byte>();
-        SR1_PrimativeArray<byte> chanData0Buf = new SR1_PrimativeArray<byte>();
-        SR1_PrimativeArray<byte> chanData1Buf = new SR1_PrimativeArray<byte>();
-        SR1_PrimativeArray<byte> chanData2Buf = new SR1_PrimativeArray<byte>();
         SR1_PrimativeArray<byte> pad = new SR1_PrimativeArray<byte>(0);
 
         SR1_String objectName = new SR1_String(12);
-
-        int realSectionCount = 0;
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
@@ -53,6 +82,8 @@ namespace Recombobulator.SR1Structures
             }
             else
             {
+                ReadSectionData(reader);
+
                 timePerKey.Read(reader, this, "timePerKey");
                 pad00.Read(reader, this, "pad00");
                 pad01.Read(reader, this, "pad01");
@@ -61,184 +92,20 @@ namespace Recombobulator.SR1Structures
                 fxList.Read(reader, this, "fxList");
 
                 uint mod;
-
-                // Generic and Physical get it the numSections from the Model.
-                // Monster gets the numSections from the MonsterSubAttributes if present, otherwise it gets it from the Model.
-                // Raziel has the numSections hardcoded, but they're the same as the highest of sectionA, sectionB, and sectionC + 1.
-                // For kain and vlgra, try getting it from the MonsterSubAttributes.
-                int sectionA = 0;
-                int sectionB = 0;
-                int sectionC = 0;
-                int numSegments = 0;
                 long segKeyList = 0;
 
-                string scriptName = reader.ObjectName.ToString();
-
-                if (reader.Model == null)
-                {
-                    sectionA = reader.Object.sectionA.Value;
-                    sectionB = reader.Object.sectionB.Value;
-                    sectionC = reader.Object.sectionC.Value;
-                    numSegments = sectionC + 1;
-                    realSectionCount = 3;
-                }
-                else if ((reader.Object.oflags2.Value & 0x00040000) != 0)
-                {
-                    // InitPhysicalObject
-                    //if ((reader.PhysObProperties.Type.Value & 0x00008000) != 0)
-                    {
-                        realSectionCount = sectionCount.Value;
-
-                        //if (numSections == 1)
-                        //{
-                            sectionA = reader.Model.numSegments.Value - 1;
-                            sectionB = 0;
-                            sectionC = 0;
-                            numSegments = sectionA + 1;
-                        //}
-
-                        // Better to check for Raziel anims in PhysobAttributes/InteractibleAttributes than looking for three.
-                        if (realSectionCount == 3)
-                        {
-                            sectionA = reader.Object.sectionA.Value;
-                            sectionB = reader.Object.sectionB.Value;
-                            sectionC = reader.Object.sectionC.Value;
-                            numSegments = sectionC + 1;
-                        }
-                    }
-                }
-                else if ((reader.Object.oflags2.Value & 0x00080000) != 0)
-                {
-                    // MON_AnimInit
-                    // instance->extraData is a MonsterVars.
-                    // MonsterVars->subAttr (MonsterVars + 0x168) is a MonsterSubAttributes.
-                    // MonsterSubAttributes->numSections is the number of sections.
-                    // MonsterSubAttributes->sectionEnd are sectionA, sectionB, and sectionC.
-                    realSectionCount = reader.MonsterSubAttributes.numSections.Value;
-
-                    if (realSectionCount > 0)
-                    {
-                        if (reader.MonsterSubAttributes.sectionEnd[0] != 0)
-                        {
-                            sectionA = reader.MonsterSubAttributes.sectionEnd[0];
-                        }
-                        else
-                        {
-                            sectionA = reader.Model.numSegments.Value - 1;
-                        }
-
-                        numSegments = sectionA + 1;
-                    }
-
-                    if (realSectionCount > 1)
-                    {
-                        if (reader.MonsterSubAttributes.sectionEnd[1] != 0)
-                        {
-                            sectionB = reader.MonsterSubAttributes.sectionEnd[1];
-                        }
-                        else
-                        {
-                            sectionB = reader.Model.numSegments.Value - 1;
-                        }
-
-                        numSegments = sectionB + 1;
-                    }
-
-                    if (realSectionCount > 2)
-                    {
-                        if (reader.MonsterSubAttributes.sectionEnd[2] != 0)
-                        {
-                            sectionC = reader.MonsterSubAttributes.sectionEnd[2];
-                        }
-                        else
-                        {
-                            sectionC = reader.Model.numSegments.Value - 1;
-                        }
-
-                        numSegments = sectionC + 1;
-                    }
-                }
-                else if (scriptName == "raziel__" || scriptName == "firhost_" ||
-                    scriptName == "hostfor_" || scriptName == "glfhost_" ||
-                    scriptName == "undhost_" || scriptName == "tranhst_" ||
-                    scriptName == "pilxhst_" || scriptName == "pilhost_" ||
-                    scriptName == "cathost_" || scriptName == "tmbhost_" ||
-                    scriptName == "boshost_" || scriptName == "ronhost_")
-                {
-                    realSectionCount = sectionCount.Value;
-                    sectionA = reader.Object.sectionA.Value;
-                    sectionB = reader.Object.sectionB.Value;
-                    sectionC = reader.Object.sectionC.Value;
-
-                    if (realSectionCount > 0) numSegments = sectionA + 1;
-                    if (realSectionCount > 1) numSegments = sectionB + 1;
-                    if (realSectionCount > 2) numSegments = sectionC + 1;
-                }
-                else if (scriptName == "sknhost_" || scriptName == "pilhostk")
-                {
-                    realSectionCount = sectionCount.Value;
-                    sectionA = 49;
-                    sectionB = -1;
-                    sectionC = -1;
-                    numSegments = sectionA + 1;
-                }
-                else if (scriptName == "walhostb")
-                {
-                    realSectionCount = 1; // sectionCount.Value;
-                    sectionA = 40; // or 41
-                    sectionB = -1;
-                    sectionC = -1;
-                    numSegments = sectionA + 1;
-                }
-                else
-                {
-                    // GenericInit
-                    if ((reader.Object.oflags2.Value & 0x40000000) == 0)
-                    {
-                        realSectionCount = 1;
-                        sectionA = reader.Model.numSegments.Value - 1;
-                        sectionB = 0;
-                        sectionC = 0;
-
-                        numSegments = sectionA + 1;
-                    }
-                }
-
-                if (realSectionCount > 0)
-                {
-                    chanData0.Read(reader, this, "chanData0");
-                    segKeyList = chanData0.End;
-                }
-
-                if (realSectionCount > 1)
-                {
-                    chanData1.Read(reader, this, "chanData1");
-                    segKeyList = chanData1.End;
-                }
-
-                if (realSectionCount > 2)
-                {
-                    chanData2.Read(reader, this, "chanData2");
-                    segKeyList = chanData2.End;
-                }
+                if (sectionData.numSections > 0) segKeyList = channels[0].ReadChanData(reader, this);
+                if (sectionData.numSections > 1) segKeyList = channels[1].ReadChanData(reader, this);
+                if (sectionData.numSections > 2) segKeyList = channels[2].ReadChanData(reader, this);
 
                 int flagBitOffset = 8;
-                int segIndex = ((numSegments * 3) + 7) & unchecked((int)0xfffffff8);
+                int segIndex = ((sectionData.numSegments * 3) + 7) & unchecked((int)0xfffffff8);
                 byte wombatFlags = reader.ReadByte();
                 reader.BaseStream.Position--;
 
-                if ((wombatFlags & 0x01) != 0)
-                {
-                    flagBitOffset += segIndex;
-                }
-                if ((wombatFlags & 0x02) != 0)
-                {
-                    flagBitOffset += segIndex;
-                }
-                if ((wombatFlags & 0x04) != 0)
-                {
-                    flagBitOffset += segIndex;
-                }
+                if ((wombatFlags & 0x01) != 0) flagBitOffset += segIndex;
+                if ((wombatFlags & 0x02) != 0) flagBitOffset += segIndex;
+                if ((wombatFlags & 0x04) != 0) flagBitOffset += segIndex;
 
                 int nextOffset = 0;
                 mod = (uint)flagBitOffset % 16; // Need 16 bits to pad the buffer to 2 bytes.
@@ -251,25 +118,19 @@ namespace Recombobulator.SR1Structures
                 chanDataflags = new SR1_PrimativeArray<byte>(nextOffset);
                 chanDataflags.Read(reader, this, "chanDataFlags");
 
-                if (realSectionCount > 0 && chanData0.Offset != 0 && sectionA >= 0)
+                if (sectionData.numSections > 0)
                 {
-                    int chanLength = FooBar(reader, segKeyList, (int)chanData0.Offset, keyCount.Value, 0, sectionA, numSegments);
-                    chanData0Buf = new SR1_PrimativeArray<byte>(chanLength);
-                    chanData0Buf.Read(reader, this, "chanData0Buf");
+                    channels[0].ReadChanDataBuf(reader, this, keyCount.Value, 0, sectionData.sectionA, sectionData.numSegments, segKeyList);
                 }
 
-                if (realSectionCount > 1 && chanData1.Offset != 0 && sectionB >= 0)
+                if (sectionData.numSections > 1)
                 {
-                    int chanLength = FooBar(reader, segKeyList, (int)chanData1.Offset, keyCount.Value, sectionA + 1, sectionB, numSegments);
-                    chanData1Buf = new SR1_PrimativeArray<byte>(chanLength);
-                    chanData1Buf.Read(reader, this, "chanData1Buf");
+                    channels[1].ReadChanDataBuf(reader, this, keyCount.Value, sectionData.sectionA + 1, sectionData.sectionB, sectionData.numSegments, segKeyList);
                 }
 
-                if (realSectionCount > 2 && chanData2.Offset != 0 & sectionC >= 0)
+                if (sectionData.numSections > 2)
                 {
-                    int chanLength = FooBar(reader, segKeyList, (int)chanData2.Offset, keyCount.Value, sectionB + 1, sectionC, numSegments);
-                    chanData2Buf = new SR1_PrimativeArray<byte>(chanLength);
-                    chanData2Buf.Read(reader, this, "chanData2Buf");
+                    channels[2].ReadChanDataBuf(reader, this, keyCount.Value, sectionData.sectionB + 1, sectionData.sectionC, sectionData.numSegments, segKeyList);
                 }
 
                 mod = (uint)(reader.BaseStream.Position) % 4;
@@ -315,37 +176,15 @@ namespace Recombobulator.SR1Structures
                 pad11.Write(writer);
                 fxList.Write(writer);
 
-                if (realSectionCount > 0)
-                {
-                    chanData0.Write(writer);
-                }
-
-                if (realSectionCount > 1)
-                {
-                    chanData1.Write(writer);
-                }
-
-                if (realSectionCount > 2)
-                {
-                    chanData2.Write(writer);
-                }
+                if (sectionData.numSections > 0) channels[0].chanData.Write(writer);
+                if (sectionData.numSections > 1) channels[1].chanData.Write(writer);
+                if (sectionData.numSections > 2) channels[2].chanData.Write(writer);
 
                 chanDataflags.Write(writer);
 
-                if (realSectionCount > 0 && chanData0.Offset != 0)
-                {
-                    chanData0Buf.Write(writer);
-                }
-
-                if (realSectionCount > 1 && chanData1.Offset != 0)
-                {
-                    chanData1Buf.Write(writer);
-                }
-
-                if (realSectionCount > 2 && chanData2.Offset != 0)
-                {
-                    chanData2Buf.Write(writer);
-                }
+                if (sectionData.numSections > 0) channels[0].chanDataBuf.Write(writer);
+                if (sectionData.numSections > 1) channels[1].chanDataBuf.Write(writer);
+                if (sectionData.numSections > 2) channels[2].chanDataBuf.Write(writer);
 
                 pad.Write(writer);
             }
@@ -492,6 +331,147 @@ namespace Recombobulator.SR1Structures
             reader.BaseStream.Position = oldPos;
 
             return flags;
+        }
+
+        void ReadSectionData(SR1_Reader reader)
+        {
+            // Generic and Physical get it the numSections from the Model.
+            // Monster gets the numSections from the MonsterSubAttributes if present, otherwise it gets it from the Model.
+            // Raziel has the numSections hardcoded, but they're the same as the highest of sectionA, sectionB, and sectionC + 1.
+            // For kain and vlgra, try getting it from the MonsterSubAttributes.
+
+            string scriptName = reader.ObjectName.ToString();
+
+            // Kain has one weird animation that doesn't match the rest. Checking for the three seems hacky though.
+            if (reader.Model == null || sectionCount.Value == 3)
+            {
+                sectionData.sectionA = reader.Object.sectionA.Value;
+                sectionData.sectionB = reader.Object.sectionB.Value;
+                sectionData.sectionC = reader.Object.sectionC.Value;
+                sectionData.numSegments = sectionData.sectionC + 1;
+                sectionData.numSections = 3;
+            }
+            else if ((reader.Object.oflags2.Value & 0x00040000) != 0)
+            {
+                // InitPhysicalObject
+                //if ((reader.PhysObProperties.Type.Value & 0x00008000) != 0)
+                {
+                    sectionData.numSections = sectionCount.Value;
+
+                    //if (numSections == 1)
+                    //{
+                    sectionData.sectionA = reader.Model.numSegments.Value - 1;
+                    sectionData.sectionB = 0;
+                    sectionData.sectionC = 0;
+                    sectionData.numSegments = sectionData.sectionA + 1;
+                    //}
+
+                    // Better to check for Raziel anims in PhysobAttributes/InteractibleAttributes than looking for three.
+                    if (sectionData.numSections == 3)
+                    {
+                        sectionData.sectionA = reader.Object.sectionA.Value;
+                        sectionData.sectionB = reader.Object.sectionB.Value;
+                        sectionData.sectionC = reader.Object.sectionC.Value;
+                        sectionData.numSegments = sectionData.sectionC + 1;
+                    }
+                }
+            }
+            else if ((reader.Object.oflags2.Value & 0x00080000) != 0)
+            {
+                // MON_AnimInit
+                // instance->extraData is a MonsterVars.
+                // MonsterVars->subAttr (MonsterVars + 0x168) is a MonsterSubAttributes.
+                // MonsterSubAttributes->numSections is the number of sections.
+                // MonsterSubAttributes->sectionEnd are sectionA, sectionB, and sectionC.
+                sectionData.numSections = reader.MonsterSubAttributes.numSections.Value;
+
+                if (sectionData.numSections > 0)
+                {
+                    if (reader.MonsterSubAttributes.sectionEnd[0] != 0)
+                    {
+                        sectionData.sectionA = reader.MonsterSubAttributes.sectionEnd[0];
+                    }
+                    else
+                    {
+                        sectionData.sectionA = reader.Model.numSegments.Value - 1;
+                    }
+
+                    sectionData.numSegments = sectionData.sectionA + 1;
+                }
+
+                if (sectionData.numSections > 1)
+                {
+                    if (reader.MonsterSubAttributes.sectionEnd[1] != 0)
+                    {
+                        sectionData.sectionB = reader.MonsterSubAttributes.sectionEnd[1];
+                    }
+                    else
+                    {
+                        sectionData.sectionB = reader.Model.numSegments.Value - 1;
+                    }
+
+                    sectionData.numSegments = sectionData.sectionB + 1;
+                }
+
+                if (sectionData.numSections > 2)
+                {
+                    if (reader.MonsterSubAttributes.sectionEnd[2] != 0)
+                    {
+                        sectionData.sectionC = reader.MonsterSubAttributes.sectionEnd[2];
+                    }
+                    else
+                    {
+                        sectionData.sectionC = reader.Model.numSegments.Value - 1;
+                    }
+
+                    sectionData.numSegments = sectionData.sectionC + 1;
+                }
+            }
+            else if (scriptName == "raziel__" || scriptName == "firhost_" ||
+                scriptName == "hostfor_" || scriptName == "glfhost_" ||
+                scriptName == "undhost_" || scriptName == "tranhst_" ||
+                scriptName == "pilxhst_" || scriptName == "pilhost_" ||
+                scriptName == "cathost_" || scriptName == "tmbhost_" ||
+                scriptName == "boshost_" || scriptName == "ronhost_")
+            {
+                sectionData.numSections = sectionCount.Value;
+                sectionData.sectionA = reader.Object.sectionA.Value;
+                sectionData.sectionB = reader.Object.sectionB.Value;
+                sectionData.sectionC = reader.Object.sectionC.Value;
+
+                if (sectionData.numSections > 0) sectionData.numSegments = sectionData.sectionA + 1;
+                if (sectionData.numSections > 1) sectionData.numSegments = sectionData.sectionB + 1;
+                if (sectionData.numSections > 2) sectionData.numSegments = sectionData.sectionC + 1;
+            }
+            else if (scriptName == "sknhost_" || scriptName == "pilhostk")
+            {
+                sectionData.numSections = sectionCount.Value;
+                sectionData.sectionA = 49;
+                sectionData.sectionB = -1;
+                sectionData.sectionC = -1;
+                sectionData.numSegments = sectionData.sectionA + 1;
+            }
+            else if (scriptName == "walhostb")
+            {
+                sectionData.numSections = 1; // sectionCount.Value;
+                sectionData.sectionA = 40; // or 41
+                sectionData.sectionB = -1;
+                sectionData.sectionC = -1;
+                sectionData.numSegments = sectionData.sectionA + 1;
+            }
+            else
+            {
+                // GenericInit
+                if ((reader.Object.oflags2.Value & 0x40000000) == 0)
+                {
+                    sectionData.numSections = 1;
+                    sectionData.sectionA = reader.Model.numSegments.Value - 1;
+                    sectionData.sectionB = 0;
+                    sectionData.sectionC = 0;
+
+                    sectionData.numSegments = sectionData.sectionA + 1;
+                }
+            }
         }
     }
 }

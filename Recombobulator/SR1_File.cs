@@ -50,6 +50,7 @@ namespace Recombobulator
         public readonly List<string> _ObjectNames = new List<string>();
         public readonly StringWriter _ImportErrors = new StringWriter();
         public readonly StringWriter _Scripts = new StringWriter();
+        public SR1_PrimativeBase _LastPrimative = null;
         public ushort[] _NewTextureIDs { get; private set; } = null;
         public int _NewStreamUnitID = 0;
         public int[] _NewIntroIDs { get; private set; } = null;
@@ -72,6 +73,8 @@ namespace Recombobulator
             _TextureIDs.Clear();
             _IntroIDs.Clear();
             _ObjectNames.Clear();
+
+            _LastPrimative = null;
 
             _ImportErrors.GetStringBuilder().Clear();
             _Scripts.GetStringBuilder().Clear();
@@ -181,6 +184,8 @@ namespace Recombobulator
             _IntroIDs.Clear();
             _ObjectNames.Clear();
 
+            _LastPrimative = null;
+
             SR1_Structure[] structures = new SR1_Structure[_Structures.Values.Count];
             _Structures.Values.CopyTo(structures, 0);
             foreach (SR1_Structure structure in structures)
@@ -234,23 +239,32 @@ namespace Recombobulator
                     continue;
                 }
 
-                int index = sortedPrimativeKeys.BinarySearch(pointer.Offset);
-                if (index < 0)
+                if (pointer.Offset == _LastPrimative.Start)
                 {
-                    index = (~index - 1);
-                }
-
-                if (index >= 0)
-                {
-                    uint newOffset = 0;
-                    SR1_PrimativeBase primative = _Primatives[sortedPrimativeKeys[index]];
-                    if (pointer.Offset >= primative.Start && pointer.Offset < primative.End)
-                    {
-                        newOffset = primative.NewStart + (pointer.Offset - primative.Start);
-                    }
-
+                    uint newOffset = _LastPrimative.NewStart + (pointer.Offset - _LastPrimative.Start);
                     streamWriter.BaseStream.Position = pointer.NewStart;
                     streamWriter.Write(newOffset);
+                }
+                else
+                {
+                    int index = sortedPrimativeKeys.BinarySearch(pointer.Offset);
+                    if (index < 0)
+                    {
+                        index = (~index - 1);
+                    }
+
+                    if (index >= 0)
+                    {
+                        uint newOffset = 0;
+                        SR1_PrimativeBase primative = _Primatives[sortedPrimativeKeys[index]];
+                        if (pointer.Offset >= primative.Start && pointer.Offset < primative.End)
+                        {
+                            newOffset = primative.NewStart + (pointer.Offset - primative.Start);
+                        }
+
+                        streamWriter.BaseStream.Position = pointer.NewStart;
+                        streamWriter.Write(newOffset);
+                    }
                 }
 
                 //streamWriter.BaseStream.Position = pointer.Start;
@@ -288,6 +302,8 @@ namespace Recombobulator
             _TextureIDs.Clear();
             _IntroIDs.Clear();
             _ObjectNames.Clear();
+
+            _LastPrimative = null;
 
             SR1_Structure[] structures = new SR1_Structure[_Structures.Values.Count];
             _Structures.Values.CopyTo(structures, 0);
@@ -339,23 +355,32 @@ namespace Recombobulator
                     continue;
                 }
 
-                int index = sortedPrimativeKeys.BinarySearch(pointer.Offset);
-                if (index < 0)
+                if (pointer.Offset == _LastPrimative.Start)
                 {
-                    index = (~index - 1);
-                }
-
-                if (index >= 0)
-                {
-                    uint newOffset = 0;
-                    SR1_PrimativeBase primative = _Primatives[sortedPrimativeKeys[index]];
-                    if (pointer.Offset >= primative.Start && pointer.Offset < primative.End)
-                    {
-                        newOffset = primative.NewStart + (pointer.Offset - primative.Start);
-                    }
-
+                    uint newOffset = _LastPrimative.NewStart + (pointer.Offset - _LastPrimative.Start);
                     streamWriter.BaseStream.Position = pointer.NewStart;
                     streamWriter.Write(newOffset);
+                }
+                else
+                {
+                    int index = sortedPrimativeKeys.BinarySearch(pointer.Offset);
+                    if (index < 0)
+                    {
+                        index = (~index - 1);
+                    }
+
+                    if (index >= 0)
+                    {
+                        uint newOffset = 0;
+                        SR1_PrimativeBase primative = _Primatives[sortedPrimativeKeys[index]];
+                        if (pointer.Offset >= primative.Start && pointer.Offset < primative.End)
+                        {
+                            newOffset = primative.NewStart + (pointer.Offset - primative.Start);
+                        }
+
+                        streamWriter.BaseStream.Position = pointer.NewStart;
+                        streamWriter.Write(newOffset);
+                    }
                 }
 
                 //streamWriter.BaseStream.Position = pointer.Start;

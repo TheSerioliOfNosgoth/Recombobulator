@@ -10,6 +10,8 @@ namespace Recombobulator.SR1Structures
 
         protected override void Register(SR1_Writer writer)
         {
+            writer.File._LastPrimative = this;
+
             // Might be safer to add primatives during import rather than export.
             if (Start == End || writer.File._Primatives.ContainsKey(Start))
             {

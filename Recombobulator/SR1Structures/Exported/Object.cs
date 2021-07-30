@@ -75,10 +75,10 @@ namespace Recombobulator.SR1Structures
         {
             SR1_Structure nameStruct = new SR1_String(12).SetPadding(4).ReadFromPointer(reader, name);
             SR1_Structure scriptStruct = new SR1_String(12).SetPadding(4).ReadFromPointer(reader, script);
-            SR1_Structure modelListStruct = new SR1_PointerArray<Model>(numModels.Value, true).ReadFromPointer(reader, modelList);
+            SR1_Structure modelListStruct = new SR1_PointerArray<Model>(System.Math.Max(1, (int)numModels.Value), true).ReadFromPointer(reader, modelList);
             SR1_Structure animListStruct = new SR1_PointerArray<G2AnimKeylist_Type>(numAnims.Value, false).ReadFromPointer(reader, animList);
             SR1_Structure effectListStruct = new SR1_StructureArray<ObjectEffect>(numberOfEffects.Value).ReadFromPointer(reader, effectList);
-            SR1_Structure soundDataStruct = new SFXFileData().ReadFromPointer(reader, soundData);
+            SR1_Structure soundDataStruct = new SFXFileData().SetPadding(4).ReadFromPointer(reader, soundData);
 
             reader.ObjectName = (SR1_String)(scriptStruct);
             string scriptName = reader.ObjectName.ToString();
@@ -210,7 +210,8 @@ namespace Recombobulator.SR1Structures
             // 8 mystery bytes after effectList. THIS APPEARS TO BE A PHYSOBLIGHT. REMOVE THIS?
             if (!reader.File._Structures.ContainsKey(padAdress))
             {
-                if (tempPOP.family.Value == 3 || tempPOP.family.Value == 6)
+                if (tempPOP.family.Value == 0 || tempPOP.family.Value == 3 ||
+                    tempPOP.family.Value == 5 || tempPOP.family.Value == 6)
                 {
                     reader.BaseStream.Position = padAdress;
                     new SR1_PrimativeArray<byte>(8).Read(reader, null, "");
