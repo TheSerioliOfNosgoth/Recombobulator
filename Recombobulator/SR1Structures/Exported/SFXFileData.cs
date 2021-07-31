@@ -14,7 +14,19 @@ namespace Recombobulator.SR1Structures
             type.Read(reader, this, "type");
             numSounds.Read(reader, this, "numSounds");
 
-            sounds = new SR1_StructureArray<ObjectSound>(numSounds.Value);
+            // A sound was ommitted from flameh in one version of the game, but the array length is still 2.
+            // Hack to make it export correctly.
+            if (reader.Object != null &&
+                reader.ObjectName.ToString() == "flameh__" &&
+                reader.Model.Start == Start + 0x18)
+            {
+                sounds = new SR1_StructureArray<ObjectSound>(1);
+            }
+            else
+            {
+                sounds = new SR1_StructureArray<ObjectSound>(numSounds.Value);
+            }
+
             sounds.Read(reader, this, "entries");
         }
 

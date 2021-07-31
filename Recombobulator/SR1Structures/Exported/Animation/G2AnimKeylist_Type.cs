@@ -443,7 +443,7 @@ namespace Recombobulator.SR1Structures
                 if (sectionData.numSections > 1) sectionData.numSegments = sectionData.sectionB + 1;
                 if (sectionData.numSections > 2) sectionData.numSegments = sectionData.sectionC + 1;
             }
-            else if (scriptName == "sknhost_" || scriptName == "pilhostk")
+            else if (scriptName == "sknhost_" || scriptName == "pilhostk" || scriptName == "cronhstk")
             {
                 sectionData.numSections = sectionCount.Value;
                 sectionData.sectionA = 49;
