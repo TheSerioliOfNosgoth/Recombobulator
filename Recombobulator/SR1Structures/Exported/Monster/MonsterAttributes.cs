@@ -45,7 +45,7 @@ namespace Recombobulator.SR1Structures
         public readonly SR1_Pointer<MonsterAnim> animList = new SR1_Pointer<MonsterAnim>();
         public readonly SR1_Pointer<MonsterIdle> idleList = new SR1_Pointer<MonsterIdle>();
         public readonly SR1_Pointer<MonsterBehavior> behaviorList = new SR1_Pointer<MonsterBehavior>();
-        public readonly SR1_Pointer<MonsterShatter> shatterList = new SR1_Pointer<MonsterShatter>();
+        public readonly SR1_Pointer<FXSplinter> shatterList = new SR1_Pointer<FXSplinter>();
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
@@ -140,7 +140,7 @@ namespace Recombobulator.SR1Structures
             int realNumBehaviors = (numBehaviors.Value > 0) ? (numBehaviors.Value - 1) : 0;
             new SR1_StructureArray<MonsterBehavior>(realNumBehaviors).ReadFromPointer(reader, behaviorList);
 
-            new SR1_StructureArray<MonsterShatter>(numShatters.Value).ReadFromPointer(reader, shatterList);
+            new SR1_StructureArray<FXSplinter>(numShatters.Value).ReadFromPointer(reader, shatterList);
         }
 
         public override void WriteMembers(SR1_Writer writer)

@@ -188,6 +188,10 @@ namespace Recombobulator.SR1Structures
             {
                 new WaterFXProperties().ReadFromPointer(reader, data);
             }
+            else if ((oflags2.Value & 0x00040000) == 0)
+            {
+                new GenericTune().ReadFromPointer(reader, data);
+            }
 
             if (numAnims.Value > 0)
             {
@@ -208,9 +212,10 @@ namespace Recombobulator.SR1Structures
             if (effectListStruct.End > padAdress) padAdress = effectListStruct.End;
 
             // 8 mystery bytes after effectList. THIS APPEARS TO BE A PHYSOBLIGHT. REMOVE THIS?
-            if (!reader.File._Structures.ContainsKey(padAdress))
+            if (tempPOP.Start != 0 && !reader.File._Structures.ContainsKey(padAdress))
             {
-                if (tempPOP.family.Value == 0 || tempPOP.family.Value == 3 ||
+                if (tempPOP.family.Value == 0 || tempPOP.family.Value == 1 ||
+                    tempPOP.family.Value == 2 || tempPOP.family.Value == 3 ||
                     tempPOP.family.Value == 5 || tempPOP.family.Value == 6)
                 {
                     reader.BaseStream.Position = padAdress;

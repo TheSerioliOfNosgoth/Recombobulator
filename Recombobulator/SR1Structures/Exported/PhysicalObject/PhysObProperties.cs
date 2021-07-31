@@ -24,7 +24,7 @@ namespace Recombobulator.SR1Structures
                 case 0:
                     return new PhysObWeaponProperties();
                 case 1:
-                    return new PhysObProperties();
+                    return new PhysObGenericProperties();
                 case 2:
                     return new PhysObSwitchProperties();
                 case 3:

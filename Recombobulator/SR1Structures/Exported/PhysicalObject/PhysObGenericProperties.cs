@@ -3,13 +3,15 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-    class MonsterShatter : SR1_Structure
+    class PhysObGenericProperties : SR1_Structure
     {
-        SR1_PrimativeArray<sbyte> unknown = new SR1_PrimativeArray<sbyte>(20);
+        PhysObProperties Properties = new PhysObProperties();
+        SR1_Primative<uint> pad = new SR1_Primative<uint>();
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
-            unknown.Read(reader, this, "unknown");
+            Properties.Read(reader, this, "Properties");
+            pad.Read(reader, this, "pad");
         }
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
@@ -18,7 +20,8 @@ namespace Recombobulator.SR1Structures
 
         public override void WriteMembers(SR1_Writer writer)
         {
-            unknown.Write(writer);
+            Properties.Write(writer);
+            pad.Write(writer);
         }
     }
 }

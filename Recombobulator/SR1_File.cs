@@ -239,9 +239,9 @@ namespace Recombobulator
                     continue;
                 }
 
-                if (pointer.Offset == _LastPrimative.Start)
+                if (pointer.Offset == _LastPrimative.End)
                 {
-                    uint newOffset = _LastPrimative.NewStart + (pointer.Offset - _LastPrimative.Start);
+                    uint newOffset = _LastPrimative.NewEnd + (pointer.Offset - _LastPrimative.End);
                     streamWriter.BaseStream.Position = pointer.NewStart;
                     streamWriter.Write(newOffset);
                 }
@@ -355,9 +355,9 @@ namespace Recombobulator
                     continue;
                 }
 
-                if (pointer.Offset == _LastPrimative.Start)
+                if (pointer.Offset == _LastPrimative.End)
                 {
-                    uint newOffset = _LastPrimative.NewStart + (pointer.Offset - _LastPrimative.Start);
+                    uint newOffset = _LastPrimative.NewEnd + (pointer.Offset - _LastPrimative.End);
                     streamWriter.BaseStream.Position = pointer.NewStart;
                     streamWriter.Write(newOffset);
                 }
