@@ -138,6 +138,11 @@ namespace Recombobulator.SR1Structures
             new SR1_StructureArray<MonsterIdle>(numIdles.Value).ReadFromPointer(reader, idleList);
 
             int realNumBehaviors = (numBehaviors.Value > 0) ? (numBehaviors.Value - 1) : 0;
+            if (reader.ObjectName.ToString() == "wrshp___" &&
+                (magicnum.Value == 0xACE00064 || magicnum.Value == 0xACE00065))
+            {
+                realNumBehaviors -= 1;
+            }
             new SR1_StructureArray<MonsterBehavior>(realNumBehaviors).ReadFromPointer(reader, behaviorList);
 
             new SR1_StructureArray<FXSplinter>(numShatters.Value).ReadFromPointer(reader, shatterList);

@@ -41,6 +41,11 @@ namespace Recombobulator
         public string _FilePath { get; private set; } = "";
         public Version _Version { get; private set; } = SR1_File.Version.Retail;
         public bool _IsLevel { get; private set; }
+        public bool _IsCollectible;
+        public int _NumAnims;
+        public int _NumSegments;
+        public byte _CollectAnim;
+        public byte _IdleAnim;
         public readonly SortedList<uint, SR1_Structure> _Structures = new SortedList<uint, SR1_Structure>();
         public readonly SortedDictionary<uint, SR1_PrimativeBase> _Primatives = new SortedDictionary<uint, SR1_PrimativeBase>();
         public readonly SortedDictionary<uint, SR1_Structure> _MigrationStructures = new SortedDictionary<uint, SR1_Structure>();
@@ -461,6 +466,7 @@ namespace Recombobulator
         {
             DirectoryInfo directoryInfo = new DirectoryInfo(folderName);
             FileInfo[] fileInfos = directoryInfo.GetFiles("*.pcm", SearchOption.AllDirectories);
+            List<string> collectibles = new List<string>();
             List<string> results = new List<string>();
             int numSucceeded = 0;
 
@@ -488,6 +494,12 @@ namespace Recombobulator
                     {
                         results.Add(fileInfo.Name + "- Fail");
                     }
+
+                    //if (file._IsCollectible)
+                    //{
+                    //    string cleanName = Path.GetFileNameWithoutExtension(fileInfo.Name).PadRight(20);
+                    //    collectibles.Add("\t" + cleanName + "\t{ NumAnims = " + file._NumAnims + ", NumSegments = " + file._NumSegments + ", CollectAnim = " + file._CollectAnim + ", IdleAnim = " + file._IdleAnim + " }");
+                    //}
                 }
                 catch
                 {
@@ -496,6 +508,10 @@ namespace Recombobulator
 
                 System.Threading.Interlocked.Increment(ref filesRead);
             }
+
+            //results.Add("\r\nCollectibles:");
+            //results.AddRange(collectibles);
+            //results.Add("");
 
             results.Add("Files Read: " + fileInfos.Length);
             results.Add("Succeeded: " + numSucceeded);

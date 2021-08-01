@@ -67,6 +67,13 @@ namespace Recombobulator.SR1Structures
 
         SR1_String objectName = new SR1_String(12);
 
+        int padOverrideLength = -1;
+
+        public void OverridePadLength(int length)
+        {
+            padOverrideLength = length;
+        }
+
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
             sectionCount.Read(reader, this, "sectionCount");
@@ -133,11 +140,18 @@ namespace Recombobulator.SR1Structures
                     channels[2].ReadChanDataBuf(reader, this, keyCount.Value, sectionData.sectionB + 1, sectionData.sectionC, sectionData.numSegments, segKeyList);
                 }
 
-                mod = (uint)(reader.BaseStream.Position) % 4;
-                if (mod > 0)
+                if (padOverrideLength >= 0)
                 {
-                    uint padding = 4 - mod;
-                    pad = new SR1_PrimativeArray<byte>((int)padding);
+                    pad = new SR1_PrimativeArray<byte>(padOverrideLength);
+                }
+                else
+                {
+                    mod = (uint)(reader.BaseStream.Position) % 4;
+                    if (mod > 0)
+                    {
+                        uint padding = 4 - mod;
+                        pad = new SR1_PrimativeArray<byte>((int)padding);
+                    }
                 }
                 pad.Read(reader, this, "pad");
 
@@ -343,13 +357,55 @@ namespace Recombobulator.SR1Structures
             string scriptName = reader.ObjectName.ToString();
 
             // Kain has one weird animation that doesn't match the rest. Checking for the three seems hacky though.
-            if (reader.Model == null || sectionCount.Value == 3)
+            if (reader.Model == null || (sectionCount.Value == 3 && scriptName == "kain____"))
             {
                 sectionData.sectionA = reader.Object.sectionA.Value;
                 sectionData.sectionB = reader.Object.sectionB.Value;
                 sectionData.sectionC = reader.Object.sectionC.Value;
                 sectionData.numSegments = sectionData.sectionC + 1;
                 sectionData.numSections = 3;
+            }
+            else if (scriptName == "raziel__" || scriptName == "firhost_" ||
+                scriptName == "hostfor_" || scriptName == "glfhost_" ||
+                scriptName == "undhost_" || scriptName == "tranhst_" ||
+                scriptName == "pilxhst_" || scriptName == "pilhost_" ||
+                scriptName == "cathost_" || scriptName == "tmbhost_" ||
+                scriptName == "boshost_" || scriptName == "ronhost_" ||
+                scriptName == "cronhstr")
+            {
+                sectionData.numSections = sectionCount.Value;
+                sectionData.sectionA = reader.Object.sectionA.Value;
+                sectionData.sectionB = reader.Object.sectionB.Value;
+                sectionData.sectionC = reader.Object.sectionC.Value;
+
+                if (sectionData.numSections > 0) sectionData.numSegments = sectionData.sectionA + 1;
+                if (sectionData.numSections > 1) sectionData.numSegments = sectionData.sectionB + 1;
+                if (sectionData.numSections > 2) sectionData.numSegments = sectionData.sectionC + 1;
+            }
+            else if (scriptName == "sknhost_" || scriptName == "pilhostk" || scriptName == "cronhstk")
+            {
+                sectionData.numSections = sectionCount.Value;
+                sectionData.sectionA = 49;
+                sectionData.sectionB = -1;
+                sectionData.sectionC = -1;
+                sectionData.numSegments = sectionData.sectionA + 1;
+            }
+            else if (scriptName == "walhostb")
+            {
+                sectionData.numSections = 1; // sectionCount.Value;
+                sectionData.sectionA = 40; // or 41
+                sectionData.sectionB = -1;
+                sectionData.sectionC = -1;
+                sectionData.numSegments = sectionData.sectionA + 1;
+            }
+            else if (scriptName == "eaggot__" || scriptName == "eaggots_" ||
+                scriptName == "saggot__" || scriptName == "saggots_")
+            {
+                sectionData.numSections = 1;
+                sectionData.sectionA = 4;
+                sectionData.sectionB = -1;
+                sectionData.sectionC = -1;
+                sectionData.numSegments = sectionData.sectionA + 1;
             }
             else if ((reader.Object.oflags2.Value & 0x00040000) != 0)
             {
@@ -426,38 +482,6 @@ namespace Recombobulator.SR1Structures
 
                     sectionData.numSegments = sectionData.sectionC + 1;
                 }
-            }
-            else if (scriptName == "raziel__" || scriptName == "firhost_" ||
-                scriptName == "hostfor_" || scriptName == "glfhost_" ||
-                scriptName == "undhost_" || scriptName == "tranhst_" ||
-                scriptName == "pilxhst_" || scriptName == "pilhost_" ||
-                scriptName == "cathost_" || scriptName == "tmbhost_" ||
-                scriptName == "boshost_" || scriptName == "ronhost_")
-            {
-                sectionData.numSections = sectionCount.Value;
-                sectionData.sectionA = reader.Object.sectionA.Value;
-                sectionData.sectionB = reader.Object.sectionB.Value;
-                sectionData.sectionC = reader.Object.sectionC.Value;
-
-                if (sectionData.numSections > 0) sectionData.numSegments = sectionData.sectionA + 1;
-                if (sectionData.numSections > 1) sectionData.numSegments = sectionData.sectionB + 1;
-                if (sectionData.numSections > 2) sectionData.numSegments = sectionData.sectionC + 1;
-            }
-            else if (scriptName == "sknhost_" || scriptName == "pilhostk" || scriptName == "cronhstk")
-            {
-                sectionData.numSections = sectionCount.Value;
-                sectionData.sectionA = 49;
-                sectionData.sectionB = -1;
-                sectionData.sectionC = -1;
-                sectionData.numSegments = sectionData.sectionA + 1;
-            }
-            else if (scriptName == "walhostb")
-            {
-                sectionData.numSections = 1; // sectionCount.Value;
-                sectionData.sectionA = 40; // or 41
-                sectionData.sectionB = -1;
-                sectionData.sectionC = -1;
-                sectionData.numSegments = sectionData.sectionA + 1;
             }
             else
             {

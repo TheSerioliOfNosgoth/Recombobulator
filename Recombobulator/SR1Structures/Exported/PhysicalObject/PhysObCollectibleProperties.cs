@@ -5,13 +5,13 @@ namespace Recombobulator.SR1Structures
 {
     class PhysObCollectibleProperties : SR1_Structure
     {
-        PhysObProperties Properties = new PhysObProperties();
-        SR1_Primative<short> collectClass = new SR1_Primative<short>();
-        SR1_Primative<short> collectValue = new SR1_Primative<short>();
-        SR1_Primative<uint> distance = new SR1_Primative<uint>();
-        SR1_Primative<byte> idleAnim = new SR1_Primative<byte>();
-        SR1_Primative<byte> collectAnim = new SR1_Primative<byte>();
-        SR1_Primative<ushort> spatialNode = new SR1_Primative<ushort>();
+        public readonly PhysObProperties Properties = new PhysObProperties();
+        public readonly SR1_Primative<short> collectClass = new SR1_Primative<short>();
+        public readonly SR1_Primative<short> collectValue = new SR1_Primative<short>();
+        public readonly SR1_Primative<uint> distance = new SR1_Primative<uint>();
+        public readonly SR1_Primative<byte> idleAnim = new SR1_Primative<byte>();
+        public readonly SR1_Primative<byte> collectAnim = new SR1_Primative<byte>();
+        public readonly SR1_Primative<ushort> spatialNode = new SR1_Primative<ushort>();
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {

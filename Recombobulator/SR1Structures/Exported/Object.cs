@@ -89,15 +89,18 @@ namespace Recombobulator.SR1Structures
                 (scriptName == "mcardx__") ? new MCardMTableT().ReadFromPointer(reader, relocModule) :
                 new MonsterFunctionTable().ReadFromPointer(reader, relocModule);
 
-            PhysObProperties tempPOP = new PhysObProperties();
+            PhysObProperties physObBase = null;
+            SR1_Structure physOb = null;
+            MonsterAttributes monAttributes = null;
             if ((oflags2.Value & 0x00040000) != 0)
             {
                 // new PhysObProperties().ReadFromPointer(reader, data);
 
                 reader.BaseStream.Position = (long)data.Offset;
-                tempPOP.ReadTemp(reader);
+                physObBase = new PhysObProperties();
+                physObBase.ReadTemp(reader);
                 reader.BaseStream.Position = (long)data.Offset;
-                ((SR1_Structure)tempPOP.CreateReplacementObject()).ReadFromPointer(reader, data);
+                physOb = ((SR1_Structure)physObBase.CreateReplacementObject()).ReadFromPointer(reader, data);
             }
             else if ((oflags2.Value & 0x00080000) != 0)
             {
@@ -105,7 +108,7 @@ namespace Recombobulator.SR1Structures
                 // monsterAttributes->magic number: -0x531fff9b
                 // MONTABLE_SetupTablePointer whatAmI
 
-                MonsterAttributes monAttributes = new MonsterAttributes();
+                monAttributes = new MonsterAttributes();
                 monAttributes.ReadFromPointer(reader, data);
 
                 if (scriptName == "aluka___")
@@ -166,9 +169,10 @@ namespace Recombobulator.SR1Structures
                 // new PhysObProperties().ReadFromPointer(reader, data);
 
                 reader.BaseStream.Position = (long)data.Offset;
-                tempPOP.ReadTemp(reader);
+                physObBase = new PhysObProperties();
+                physObBase.ReadTemp(reader);
                 reader.BaseStream.Position = (long)data.Offset;
-                ((SR1_Structure)tempPOP.CreateReplacementObject()).ReadFromPointer(reader, data);
+                physOb = ((SR1_Structure)physObBase.CreateReplacementObject()).ReadFromPointer(reader, data);
             }
             else if (scriptName == "monster_")
             {
@@ -196,10 +200,28 @@ namespace Recombobulator.SR1Structures
             if (numAnims.Value > 0)
             {
                 SR1_StructureArray<G2AnimKeylist_Type> keyLists = new SR1_StructureArray<G2AnimKeylist_Type>(numAnims.Value);
+                if (reader.ObjectName.ToString() == "wrshp___" &&
+                    (monAttributes.magicnum.Value == 0xACE00064 || monAttributes.magicnum.Value == 0xACE00065))
+                {
+                    ((G2AnimKeylist_Type)keyLists[13]).OverridePadLength(8);
+                }
                 keyLists.ReadFromPointer(reader, ((SR1_PointerArray<G2AnimKeylist_Type>)animListStruct)[0]);
                 if (reader.AnimFXDictionary.Count > 0)
                 {
-                    SR1_StructureArray<G2AnimFXList> fxLists = new SR1_StructureArray<G2AnimFXList>(reader.AnimFXDictionary.Count);
+                    int numEffects = reader.AnimFXDictionary.Count;
+                    if (reader.ObjectName.ToString() == "wrshp___")
+                    {
+                        if (monAttributes.magicnum.Value == 0xACE00065)
+                        {
+                            numEffects = 11;
+                        }
+                        else if (monAttributes.magicnum.Value == 0xACE00064)
+                        {
+                            numEffects = 28;
+                        }
+                    }
+
+                    SR1_StructureArray<G2AnimFXList> fxLists = new SR1_StructureArray<G2AnimFXList>(numEffects);
                     fxLists.SetPadding(4).ReadFromPointer(reader, reader.AnimFXDictionary.Values[0]);
                 }
             }
@@ -212,15 +234,24 @@ namespace Recombobulator.SR1Structures
             if (effectListStruct.End > padAdress) padAdress = effectListStruct.End;
 
             // 8 mystery bytes after effectList. THIS APPEARS TO BE A PHYSOBLIGHT. REMOVE THIS?
-            if (tempPOP.Start != 0 && !reader.File._Structures.ContainsKey(padAdress))
+            if (physObBase != null && !reader.File._Structures.ContainsKey(padAdress))
             {
-                if (tempPOP.family.Value == 0 || tempPOP.family.Value == 1 ||
-                    tempPOP.family.Value == 2 || tempPOP.family.Value == 3 ||
-                    tempPOP.family.Value == 5 || tempPOP.family.Value == 6)
+                if (physObBase.family.Value == 0 || physObBase.family.Value == 1 ||
+                    physObBase.family.Value == 2 || physObBase.family.Value == 3 ||
+                    physObBase.family.Value == 5 || physObBase.family.Value == 6)
                 {
                     reader.BaseStream.Position = padAdress;
                     new SR1_PrimativeArray<byte>(8).Read(reader, null, "");
                 }
+            }
+
+            if (physOb != null && physObBase.family.Value == 5)
+            {
+                reader.File._IsCollectible = true;
+                reader.File._CollectAnim = ((PhysObCollectibleProperties)physOb).collectAnim.Value;
+                reader.File._IdleAnim = ((PhysObCollectibleProperties)physOb).idleAnim.Value;
+                reader.File._NumAnims = numAnims.Value;
+                reader.File._NumSegments = reader.Model.numSegments.Value;
             }
         }
 
