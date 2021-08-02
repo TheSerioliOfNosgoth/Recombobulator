@@ -140,13 +140,45 @@ namespace Recombobulator
                 if (!validVersion)
                 {
                     _Version = Version.Retail;
+                    validVersion = true;
                 }
 
                 root = new SR1Structures.Level();
             }
             else
             {
-                _Version = Version.Retail;
+                bool validVersion = false;
+
+                if (!validVersion)
+                {
+                    streamReader.BaseStream.Position = 0x2C;
+                    UInt32 oflags2 = streamReader.ReadUInt32();
+                    if ((oflags2 & 0x00080000) != 0)
+                    {
+                        streamReader.BaseStream.Position = 0x1C;
+                        UInt32 dataPos = streamReader.ReadUInt32();
+                        if (dataPos != 0)
+                        {
+                            streamReader.BaseStream.Position = dataPos;
+                            UInt32 magicNum = streamReader.ReadUInt32();
+                            if (magicNum == 0xACE00065)
+                            {
+                                _Version = Version.Retail;
+                            }
+                            else if (magicNum == 0xACE00064)
+                            {
+                                _Version = Version.Beta;
+                            }
+                        }
+                    }
+                }
+
+                if (!validVersion)
+                {
+                    _Version = Version.Retail;
+                    validVersion = true;
+                }
+
                 root = new SR1Structures.Object();
             }
 

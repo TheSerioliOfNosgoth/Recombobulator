@@ -16,7 +16,7 @@ namespace Recombobulator.SR1Structures
             LightShaft,
         }
 
-        public readonly SR1_Primative<int> oflags = new SR1_Primative<int>();
+        public readonly SR1_Primative<int> oflags = new SR1_Primative<int>().ShowAsHex(true);
         public readonly SR1_Primative<short> id = new SR1_Primative<short>();
         public readonly SR1_Primative<short> sfxFileHandle = new SR1_Primative<short>();
         public readonly SR1_Primative<short> numModels = new SR1_Primative<short>();
@@ -31,7 +31,7 @@ namespace Recombobulator.SR1Structures
         public readonly SR1_PrimativePointer<char> script = new SR1_PrimativePointer<char>();
         public readonly SR1_PrimativePointer<char> name = new SR1_PrimativePointer<char>();
         public readonly SR1_PrimativePointer<byte> soundData = new SR1_PrimativePointer<byte>();
-        public readonly SR1_Primative<int> oflags2 = new SR1_Primative<int>();
+        public readonly SR1_Primative<int> oflags2 = new SR1_Primative<int>().ShowAsHex(true);
         public readonly SR1_Primative<short> sectionA = new SR1_Primative<short>();
         public readonly SR1_Primative<short> sectionB = new SR1_Primative<short>();
         public readonly SR1_Primative<short> sectionC = new SR1_Primative<short>();
@@ -92,109 +92,102 @@ namespace Recombobulator.SR1Structures
             PhysObProperties physObBase = null;
             SR1_Structure physOb = null;
             MonsterAttributes monAttributes = null;
-            if ((oflags2.Value & 0x00040000) != 0)
+            if (data.Offset != 0)
             {
-                // new PhysObProperties().ReadFromPointer(reader, data);
+                if ((oflags2.Value & 0x00040000) != 0)
+                {
+                    // new PhysObProperties().ReadFromPointer(reader, data);
 
-                reader.BaseStream.Position = (long)data.Offset;
-                physObBase = new PhysObProperties();
-                physObBase.ReadTemp(reader);
-                reader.BaseStream.Position = (long)data.Offset;
-                physOb = ((SR1_Structure)physObBase.CreateReplacementObject()).ReadFromPointer(reader, data);
-            }
-            else if ((oflags2.Value & 0x00080000) != 0)
-            {
-                //_MonsterAttributes
-                // monsterAttributes->magic number: -0x531fff9b
-                // MONTABLE_SetupTablePointer whatAmI
+                    reader.BaseStream.Position = (long)data.Offset;
+                    physObBase = new PhysObProperties();
+                    physObBase.ReadTemp(reader);
+                    reader.BaseStream.Position = (long)data.Offset;
+                    physOb = ((SR1_Structure)physObBase.CreateReplacementObject()).ReadFromPointer(reader, data);
+                }
+                else if ((oflags2.Value & 0x00080000) != 0)
+                {
+                    //_MonsterAttributes
+                    // monsterAttributes->magic number: -0x531fff9b
+                    // MONTABLE_SetupTablePointer whatAmI
 
-                monAttributes = new MonsterAttributes();
-                monAttributes.ReadFromPointer(reader, data);
+                    monAttributes = new MonsterAttributes();
+                    monAttributes.ReadFromPointer(reader, data);
 
-                if (scriptName == "aluka___")
-                {
-                    new AlukaTuneData().ReadFromPointer(reader, monAttributes.tunData);
+                    if (scriptName == "aluka___")
+                    {
+                        new AlukaTuneData().ReadFromPointer(reader, monAttributes.tunData);
+                    }
+                    else if (scriptName == "alukabss")
+                    {
+                        new AlukaBssTuneData().ReadFromPointer(reader, monAttributes.tunData);
+                    }
+                    else if (scriptName == "hunter__")
+                    {
+                        new HunterTuneData().ReadFromPointer(reader, monAttributes.tunData);
+                    }
+                    else if (scriptName == "kain____")
+                    {
+                        new KainTuneData().ReadFromPointer(reader, monAttributes.tunData);
+                    }
+                    else if (scriptName == "roninbss")
+                    {
+                        new RoninBssTuneData().ReadFromPointer(reader, monAttributes.tunData);
+                    }
+                    else if (scriptName == "skinbos_")
+                    {
+                        new SkinBosTuneData().ReadFromPointer(reader, monAttributes.tunData);
+                    }
+                    else if (scriptName == "walboss_")
+                    {
+                        new WalBosTuneData().ReadFromPointer(reader, monAttributes.tunData);
+                    }
+                    else if (scriptName == "walbosb_")
+                    {
+                        new WalBosBTuneData().ReadFromPointer(reader, monAttributes.tunData);
+                    }
+                    else if (scriptName == "wallcr__")
+                    {
+                        new WallcrData().ReadFromPointer(reader, monAttributes.tunData);
+                    }
+                    else if (scriptName == "vwraith_")
+                    {
+                        new VWraithTuneData().ReadFromPointer(reader, monAttributes.tunData);
+                    }
                 }
-                else if (scriptName == "alukabss")
+                else if (scriptName == "raziel__")
                 {
-                    new AlukaBssTuneData().ReadFromPointer(reader, monAttributes.tunData);
+                    new RazielData().ReadFromPointer(reader, data);
                 }
-                else if (scriptName == "hunter__")
+                else if (scriptName == "sreavr__")
                 {
-                    new HunterTuneData().ReadFromPointer(reader, monAttributes.tunData);
+                    new ReaverTuneData().ReadFromPointer(reader, data);
                 }
-                else if (scriptName == "kain____")
+                else if (scriptName == "glphicon")
                 {
-                    new KainTuneData().ReadFromPointer(reader, monAttributes.tunData);
+                    new GlyphTuneData().ReadFromPointer(reader, data);
                 }
-                else if (scriptName == "roninbss")
+                else if (scriptName == "monster_")
                 {
-                    new RoninBssTuneData().ReadFromPointer(reader, monAttributes.tunData);
+                    new MonsterAttributes().ReadFromPointer(reader, data);
                 }
-                else if (scriptName == "skinbos_")
+                else if (scriptName == "particle")
                 {
-                    new SkinBosTuneData().ReadFromPointer(reader, monAttributes.tunData);
+                    // GenericFXObject?
+                    // See FX_RelocateGeneric?
+                    new GenericFXObject().ReadFromPointer(reader, data);
                 }
-                else if (scriptName == "walboss_")
+                else if (scriptName == "litshaft")
                 {
-                    new WalBosTuneData().ReadFromPointer(reader, monAttributes.tunData);
+                    new LitShaftProperties().ReadFromPointer(reader, data);
                 }
-                else if (scriptName == "walbosb_")
+                else if (scriptName == "waterfx_")
                 {
-                    new WalBosBTuneData().ReadFromPointer(reader, monAttributes.tunData);
+                    new WaterFXProperties().ReadFromPointer(reader, data);
                 }
-                else if (scriptName == "wallcr__")
+                else if ((oflags2.Value & 0x00040000) == 0)
                 {
-                    new WallcrData().ReadFromPointer(reader, monAttributes.tunData);
+                    new GenericTune().ReadFromPointer(reader, data);
                 }
-                else if (scriptName == "vwraith_")
-                {
-                    new VWraithTuneData().ReadFromPointer(reader, monAttributes.tunData);
-                }
-            }
-            else if (scriptName == "raziel__")
-            {
-                new RazielData().ReadFromPointer(reader, data);
-            }
-            else if (scriptName == "sreavr__")
-            {
-                new ReaverTuneData().ReadFromPointer(reader, data);
-            }
-            else if (scriptName == "glphicon")
-            {
-                new GlyphTuneData().ReadFromPointer(reader, data);
-            }
-            else if (scriptName == "physical")
-            {
-                // new PhysObProperties().ReadFromPointer(reader, data);
-
-                reader.BaseStream.Position = (long)data.Offset;
-                physObBase = new PhysObProperties();
-                physObBase.ReadTemp(reader);
-                reader.BaseStream.Position = (long)data.Offset;
-                physOb = ((SR1_Structure)physObBase.CreateReplacementObject()).ReadFromPointer(reader, data);
-            }
-            else if (scriptName == "monster_")
-            {
-                new MonsterAttributes().ReadFromPointer(reader, data);
-            }
-            else if (scriptName == "particle")
-            {
-                // GenericFXObject?
-                // See FX_RelocateGeneric?
-                new GenericFXObject().ReadFromPointer(reader, data);
-            }
-            else if (scriptName == "litshaft")
-            {
-                new LitShaftProperties().ReadFromPointer(reader, data);
-            }
-            else if (scriptName == "waterfx_")
-            {
-                new WaterFXProperties().ReadFromPointer(reader, data);
-            }
-            else if ((oflags2.Value & 0x00040000) == 0)
-            {
-                new GenericTune().ReadFromPointer(reader, data);
             }
 
             if (numAnims.Value > 0)

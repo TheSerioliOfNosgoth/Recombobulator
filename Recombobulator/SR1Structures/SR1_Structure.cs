@@ -321,5 +321,52 @@ namespace Recombobulator.SR1Structures
                     throw new Exception("Unhandled primative type.");
             }
         }
+
+        protected int GetPrimativeTypeLength(TypeCode typeCode)
+        {
+            switch (typeCode)
+            {
+                case TypeCode.Boolean:
+                case TypeCode.Char:
+                case TypeCode.SByte:
+                case TypeCode.Byte:
+                    return 1;
+                case TypeCode.Int16:
+                case TypeCode.UInt16:
+                    return 2;
+                case TypeCode.Int32:
+                case TypeCode.UInt32:
+                case TypeCode.Single:
+                    return 4;
+                case TypeCode.Int64:
+                case TypeCode.UInt64:
+                case TypeCode.Double:
+                    return 8;
+                default:
+                    throw new Exception("Unhandled primative type.");
+            }
+        }
+
+        protected string GetPrimativeAsHex<T>(T primative)
+        {
+            try
+            {
+                string hexString = "0x";
+                TypeCode typeCode = Type.GetTypeCode(typeof(T));
+                int typeLength = GetPrimativeTypeLength(typeCode);
+                T[] typeArray = new T[] { primative };
+                byte[] byteArray = new byte[typeLength];
+                Buffer.BlockCopy(typeArray, 0, byteArray, 0, typeLength);
+                while (typeLength-- > 0)
+                {
+                    hexString += byteArray[typeLength].ToString("X2");
+                }
+
+                return hexString;
+            }
+            catch { }
+
+            return "";
+        }
     }
 }

@@ -76,7 +76,7 @@ namespace Recombobulator.SR1Structures
         SR1_Pointer<PlanMkr> PlanMarkerList = new SR1_Pointer<PlanMkr>();
         SR1_Primative<int> NumberOfSFXMarkers = new SR1_Primative<int>();
         SR1_Pointer<SFXMkr> SFXMarkerList = new SR1_Pointer<SFXMkr>();
-        SR1_Primative<uint> versionNumber = new SR1_Primative<uint>();
+        SR1_Primative<uint> versionNumber = new SR1_Primative<uint>().ShowAsHex(true);
         SR1_PrimativePointer<char> dynamicMusicName = new SR1_PrimativePointer<char>();
         SR1_Primative<int> streamUnitID = new SR1_Primative<int>();
         SR1_StructureArray<TClassAttr> tClassAttr = new SR1_StructureArray<TClassAttr>(16);

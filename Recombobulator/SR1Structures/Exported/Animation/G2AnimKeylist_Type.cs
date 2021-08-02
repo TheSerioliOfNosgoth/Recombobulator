@@ -411,6 +411,7 @@ namespace Recombobulator.SR1Structures
             {
                 // InitPhysicalObject
                 //if ((reader.PhysObProperties.Type.Value & 0x00008000) != 0)
+                if (reader.PhysObProperties != null)
                 {
                     sectionData.numSections = sectionCount.Value;
 

@@ -6,10 +6,18 @@ namespace Recombobulator.SR1Structures
 {
     class SR1_Primative<T> : SR1_PrimativeBase // where T : struct
     {
+        protected bool _showAsHex;
+
         public T Value { get; set; }
 
         public SR1_Primative()
         {
+        }
+
+        public SR1_Primative<T> ShowAsHex(bool hex)
+        {
+            _showAsHex = hex;
+            return this;
         }
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
@@ -29,6 +37,11 @@ namespace Recombobulator.SR1Structures
 
         public override string ToString()
         {
+            if (_showAsHex)
+            {
+                return GetPrimativeAsHex(Value);
+            }
+
             return Value.ToString();
         }
 

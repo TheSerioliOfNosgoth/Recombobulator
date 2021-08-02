@@ -8,6 +8,7 @@ namespace Recombobulator.SR1Structures
     {
         protected int[] _dimensions = null;
         protected T[] _array = null;
+        protected bool _showAsHex;
 
         public T this[int i] { get { return _array[i]; } set { _array[i] = value; } }
         public int Length { get { return _array == null ? 0 : _array.Length; } }
@@ -44,6 +45,12 @@ namespace Recombobulator.SR1Structures
             {
                 _array = new T[arrayLength];
             }
+        }
+
+        public SR1_PrimativeArray<T> ShowAsHex(bool hex)
+        {
+            _showAsHex = hex;
+            return this;
         }
 
         public override TreeList.Node CreateNode()
@@ -154,7 +161,14 @@ namespace Recombobulator.SR1Structures
                     string result = "{ ";
                     foreach (object o in _array)
                     {
-                        result += o.ToString();
+                        if (_showAsHex)
+                        {
+                            result += GetPrimativeAsHex(o);
+                        }
+                        else
+                        {
+                            result += o.ToString();
+                        }
                         result += ", ";
                     }
                     result = result.Trim(',', ' ');
