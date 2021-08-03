@@ -3,9 +3,8 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-    class PhysObProjectileProperties : SR1_Structure
+    class PhysObProjectileProperties : PhysObPropertiesBase
     {
-        PhysObProperties Properties = new PhysObProperties();
         SR1_Primative<int> totalProjectiles = new SR1_Primative<int>();
         SR1_Pointer<PhysObProjectileData> data = new SR1_Pointer<PhysObProjectileData>();
 

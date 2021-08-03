@@ -11,7 +11,7 @@ namespace Recombobulator
         public SR1_String ObjectName = null;
         public Events Events = null;
         public Model Model = null;
-        public PhysObProperties PhysObProperties = null;
+        public PhysObPropertiesBase PhysObProperties = null;
         public MonsterSubAttributes MonsterSubAttributes = null;
 
         public SortedList<uint, SR1_PointerBase> AnimFXDictionary { get; } = new SortedList<uint, SR1_PointerBase>();

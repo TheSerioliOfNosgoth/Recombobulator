@@ -3,9 +3,8 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-    class PhysObCollectibleProperties : SR1_Structure
+    class PhysObCollectibleProperties : PhysObPropertiesBase
     {
-        public readonly PhysObProperties Properties = new PhysObProperties();
         public readonly SR1_Primative<short> collectClass = new SR1_Primative<short>();
         public readonly SR1_Primative<short> collectValue = new SR1_Primative<short>();
         public readonly SR1_Primative<uint> distance = new SR1_Primative<uint>();

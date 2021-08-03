@@ -90,11 +90,13 @@ namespace Recombobulator.SR1Structures
                 new MonsterFunctionTable().ReadFromPointer(reader, relocModule);
 
             PhysObProperties physObBase = null;
-            SR1_Structure physOb = null;
+            PhysObPropertiesBase physOb = null;
             MonsterAttributes monAttributes = null;
             if (data.Offset != 0)
             {
-                if ((oflags2.Value & 0x00040000) != 0)
+                if ((oflags2.Value & 0x00040000) != 0 ||
+                    scriptName == "catdora_" ||
+                    scriptName == "walbosc_")
                 {
                     // new PhysObProperties().ReadFromPointer(reader, data);
 
@@ -102,7 +104,9 @@ namespace Recombobulator.SR1Structures
                     physObBase = new PhysObProperties();
                     physObBase.ReadTemp(reader);
                     reader.BaseStream.Position = (long)data.Offset;
-                    physOb = ((SR1_Structure)physObBase.CreateReplacementObject()).ReadFromPointer(reader, data);
+                    physOb = (PhysObPropertiesBase)physObBase.CreateReplacementObject();
+                    physOb.ReadFromPointer(reader, data);
+                    reader.PhysObProperties = physOb;
                 }
                 else if ((oflags2.Value & 0x00080000) != 0)
                 {

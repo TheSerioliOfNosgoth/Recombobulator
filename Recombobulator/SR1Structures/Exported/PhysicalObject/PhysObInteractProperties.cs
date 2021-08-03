@@ -3,9 +3,8 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-    class PhysObInteractProperties : SR1_Structure
+    class PhysObInteractProperties : PhysObPropertiesBase
     {
-        PhysObProperties Properties = new PhysObProperties();
         SR1_Primative<ushort> conditions = new SR1_Primative<ushort>();
         SR1_Primative<ushort> auxConditions = new SR1_Primative<ushort>();
         SR1_Primative<ushort> action = new SR1_Primative<ushort>();

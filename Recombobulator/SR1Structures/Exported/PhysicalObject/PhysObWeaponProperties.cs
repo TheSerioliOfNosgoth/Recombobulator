@@ -3,9 +3,8 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-    class PhysObWeaponProperties : SR1_Structure
+    class PhysObWeaponProperties : PhysObPropertiesBase
     {
-        PhysObProperties Properties = new PhysObProperties();
         PhysObWeaponAttributes WeaponAttributes = new PhysObWeaponAttributes();
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)

@@ -5,8 +5,8 @@ namespace Recombobulator.SR1Structures
 {
     class GenericTune : SR1_Structure
     {
-        SR1_Primative<uint> flags = new SR1_Primative<uint>();
-        SR1_Pointer<FXSplinter> shatterData = new SR1_Pointer<FXSplinter>();
+        public readonly SR1_Primative<uint> flags = new SR1_Primative<uint>().ShowAsHex(true);
+        public readonly SR1_Pointer<FXSplinter> shatterData = new SR1_Pointer<FXSplinter>();
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {

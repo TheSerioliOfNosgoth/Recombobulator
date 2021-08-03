@@ -357,7 +357,10 @@ namespace Recombobulator.SR1Structures
             string scriptName = reader.ObjectName.ToString();
 
             // Kain has one weird animation that doesn't match the rest. Checking for the three seems hacky though.
-            if (reader.Model == null || (sectionCount.Value == 3 && scriptName == "kain____"))
+            if (reader.Model == null || 
+                (sectionCount.Value == 3 && scriptName == "kain____") ||
+                (sectionCount.Value == 3 && scriptName == "moebius_") ||
+                (sectionCount.Value == 3 && scriptName == "bellchn_"))
             {
                 sectionData.sectionA = reader.Object.sectionA.Value;
                 sectionData.sectionB = reader.Object.sectionB.Value;
@@ -392,7 +395,7 @@ namespace Recombobulator.SR1Structures
             }
             else if (scriptName == "walhostb")
             {
-                sectionData.numSections = 1; // sectionCount.Value;
+                sectionData.numSections = 1;
                 sectionData.sectionA = 40; // or 41
                 sectionData.sectionB = -1;
                 sectionData.sectionC = -1;
@@ -403,6 +406,14 @@ namespace Recombobulator.SR1Structures
             {
                 sectionData.numSections = 1;
                 sectionData.sectionA = 4;
+                sectionData.sectionB = -1;
+                sectionData.sectionC = -1;
+                sectionData.numSegments = sectionData.sectionA + 1;
+            }
+            else if (scriptName == "pshblkz_")
+            {
+                sectionData.numSections = 1;
+                sectionData.sectionA = 1;
                 sectionData.sectionB = -1;
                 sectionData.sectionC = -1;
                 sectionData.numSegments = sectionData.sectionA + 1;

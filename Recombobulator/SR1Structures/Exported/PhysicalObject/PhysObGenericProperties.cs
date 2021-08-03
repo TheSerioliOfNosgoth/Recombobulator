@@ -3,9 +3,8 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-    class PhysObGenericProperties : SR1_Structure
+    class PhysObGenericProperties : PhysObPropertiesBase
     {
-        PhysObProperties Properties = new PhysObProperties();
         SR1_Primative<uint> pad = new SR1_Primative<uint>();
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)

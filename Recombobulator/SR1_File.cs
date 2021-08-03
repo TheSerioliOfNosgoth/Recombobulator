@@ -498,6 +498,8 @@ namespace Recombobulator
         {
             DirectoryInfo directoryInfo = new DirectoryInfo(folderName);
             FileInfo[] fileInfos = directoryInfo.GetFiles("*.pcm", SearchOption.AllDirectories);
+            List<string> physObs = new List<string>();
+            List<string> genericTunes = new List<string>();
             List<string> collectibles = new List<string>();
             List<string> results = new List<string>();
             int numSucceeded = 0;
@@ -527,6 +529,26 @@ namespace Recombobulator
                         results.Add(fileInfo.Name + "- Fail");
                     }
 
+                    if (!file._IsLevel)
+                    {
+                        string cleanName = Path.GetFileNameWithoutExtension(fileInfo.Name).PadRight(20);
+                        if (!cleanName.Contains("duplicate"))
+                        {
+                            SR1Structures.Object obj = (SR1Structures.Object)file._Structures[0];
+                            SR1_Structure data = file._Structures[obj.data.Offset];
+                            if (data is PhysObPropertiesBase)
+                            {
+                                PhysObPropertiesBase physOb = (PhysObPropertiesBase)data;
+                                physObs.Add("\t" + cleanName + "\t{ oflags = " + obj.oflags.ToString() + ", oflags2 = " + obj.oflags2.ToString() + ", physOb.Properties.Type = " + physOb.Properties.ID.ToString() + " }");
+                            }
+                            else if (data is GenericTune)
+                            {
+                                GenericTune genericTune = (GenericTune)data;
+                                genericTunes.Add("\t" + cleanName + "\t{ oflags = " + obj.oflags.ToString() + ", oflags2 = " + obj.oflags2.ToString() + ", genericTune.flags = " + genericTune.flags.ToString() + " }");
+                            }
+                        }
+                    }
+
                     //if (file._IsCollectible)
                     //{
                     //    string cleanName = Path.GetFileNameWithoutExtension(fileInfo.Name).PadRight(20);
@@ -540,6 +562,12 @@ namespace Recombobulator
 
                 System.Threading.Interlocked.Increment(ref filesRead);
             }
+
+            results.Add("\r\nPhysObs:");
+            results.AddRange(physObs);
+            results.Add("\r\nGenericTunes:");
+            results.AddRange(genericTunes);
+            results.Add("");
 
             //results.Add("\r\nCollectibles:");
             //results.AddRange(collectibles);
