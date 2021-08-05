@@ -82,6 +82,7 @@
     <Compile Include="SR1Structures\Exported\GenericFX\BubbleParams.cs" />
     <Compile Include="SR1Structures\Exported\GenericFX\GenericBubbleParams.cs" />
     <Compile Include="SR1Structures\Exported\GenericFX\GenericTune.cs" />
+    <Compile Include="SR1Structures\Exported\GlyphColors.cs" />
     <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObGenericProperties.cs" />
     <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObPropertiesBase.cs" />
     <Compile Include="SR1Structures\Exported\UpdraftProperties.cs" />

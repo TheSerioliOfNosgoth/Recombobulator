@@ -9,7 +9,7 @@ namespace Recombobulator.SR1Structures
         SR1_Primative<short> glyph_darkness = new SR1_Primative<short>();
         SR1_PrimativeArray<sbyte> glyph_costs = new SR1_PrimativeArray<sbyte>(8);
         SR1_PrimativeArray<short> glyph_range = new SR1_PrimativeArray<short>(8);
-        SR1_PrimativeArray<int> color_array = new SR1_PrimativeArray<int>(28);
+        SR1_StructureArray<GlyphColors> color_array = new SR1_StructureArray<GlyphColors>(8);
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {

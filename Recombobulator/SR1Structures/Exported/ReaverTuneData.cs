@@ -5,31 +5,31 @@ namespace Recombobulator.SR1Structures
 {
     class ReaverTuneData : SR1_Structure
     {
-        SR1_Primative<uint> spectralGlowColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> materialGlowColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> sunlightGlowColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> waterGlowColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> stoneGlowColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> fireGlowColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> spiritGlowColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> soundGlowColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> spectralInnerColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> materialInnerColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> sunlightInnerColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> waterInnerColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> stoneInnerColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> fireInnerColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> spiritInnerColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> soundInnerColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> spectralInnerGlowColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> materialInnerGlowColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> sunlightInnerGlowColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> waterInnerGlowColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> stoneInnerGlowColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> fireInnerGlowColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> spiritInnerGlowColor = new SR1_Primative<uint>();
-        SR1_Primative<uint> soundInnerGlowColor = new SR1_Primative<uint>();
-        SR1_PrimativeArray<uint> icon_colors = new SR1_PrimativeArray<uint>(24);
+        SR1_Primative<uint> spectralGlowColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> materialGlowColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> sunlightGlowColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> waterGlowColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> stoneGlowColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> fireGlowColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> spiritGlowColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> soundGlowColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> spectralInnerColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> materialInnerColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> sunlightInnerColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> waterInnerColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> stoneInnerColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> fireInnerColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> spiritInnerColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> soundInnerColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> spectralInnerGlowColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> materialInnerGlowColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> sunlightInnerGlowColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> waterInnerGlowColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> stoneInnerGlowColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> fireInnerGlowColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> spiritInnerGlowColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_Primative<uint> soundInnerGlowColor = new SR1_Primative<uint>().ShowAsHex(true);
+        SR1_PrimativeArray<uint> icon_colors = new SR1_PrimativeArray<uint>(24).ShowAsHex(true);
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
@@ -57,7 +57,8 @@ namespace Recombobulator.SR1Structures
             fireInnerGlowColor.Read(reader, this, "fireInnerGlowColor");
             spiritInnerGlowColor.Read(reader, this, "spiritInnerGlowColor");
             soundInnerGlowColor.Read(reader, this, "soundInnerGlowColor");
-            icon_colors.Read(reader, this, "icon_colors");
+            // Icon colors aren't used.
+            // icon_colors.Read(reader, this, "icon_colors");
         }
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
@@ -90,7 +91,8 @@ namespace Recombobulator.SR1Structures
             fireInnerGlowColor.Write(writer);
             spiritInnerGlowColor.Write(writer);
             soundInnerGlowColor.Write(writer);
-            icon_colors.Write(writer);
+            // Icon colors aren't used.
+            // icon_colors.Write(writer);
         }
     }
 }

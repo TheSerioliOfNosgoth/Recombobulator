@@ -163,7 +163,7 @@ namespace Recombobulator.SR1Structures
                     {
                         if (_showAsHex)
                         {
-                            result += GetPrimativeAsHex(o);
+                            result += GetPrimativeAsHex<T>((T)o);
                         }
                         else
                         {
