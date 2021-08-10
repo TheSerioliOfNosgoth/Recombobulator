@@ -197,13 +197,29 @@ namespace Recombobulator.SR1Structures
             if (numAnims.Value > 0)
             {
                 SR1_StructureArray<G2AnimKeylist_Type> keyLists = new SR1_StructureArray<G2AnimKeylist_Type>(numAnims.Value);
-                if (reader.ObjectName.ToString() == "wrshp___" &&
-                    (monAttributes.magicnum.Value == 0xACE00064 || monAttributes.magicnum.Value == 0xACE00065))
+                if (monAttributes != null &&
+                    (monAttributes.magicnum.Value == 0xACE00064 || monAttributes.magicnum.Value == 0xACE00065) &&
+                    scriptName == "wrshp___")
                 {
                     ((G2AnimKeylist_Type)keyLists[13]).OverridePadLength(8);
                 }
                 keyLists.ReadFromPointer(reader, ((SR1_PointerArray<G2AnimKeylist_Type>)animListStruct)[0]);
-                if (reader.AnimFXDictionary.Count > 0)
+
+                if (monAttributes != null &&
+                    monAttributes.magicnum.Value == 0xACE00064 &&
+                    scriptName == "hunter__" ||
+                    scriptName == "vlgra___" || scriptName == "vlgrb___" || scriptName == "vlgrc___")
+                {
+                    reader.BaseStream.Position = keyLists.Start - 1;
+                    while (!reader.File._Structures.ContainsKey((uint)reader.BaseStream.Position))
+                    {
+                        reader.BaseStream.Position--;
+                    }
+                    reader.BaseStream.Position = reader.File._Structures[(uint)reader.BaseStream.Position].End;
+                    int length = scriptName == "hunter__" ? 26 : 15;
+                    new SR1_StructureArray<G2AnimFXList>(length).SetPadding(4).Read(reader, null, "");
+                }
+                else if (reader.AnimFXDictionary.Count > 0)
                 {
                     int numEffects = reader.AnimFXDictionary.Count;
                     if (reader.ObjectName.ToString() == "wrshp___")

@@ -171,10 +171,12 @@ namespace Recombobulator
                             if (magicNum == 0xACE00065)
                             {
                                 _Version = Version.Retail;
+                                validVersion = true;
                             }
                             else if (magicNum == 0xACE00064)
                             {
                                 _Version = Version.Beta;
+                                validVersion = true;
                             }
                         }
                     }

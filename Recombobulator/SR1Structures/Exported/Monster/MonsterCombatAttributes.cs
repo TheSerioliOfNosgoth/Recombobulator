@@ -14,6 +14,8 @@ namespace Recombobulator.SR1Structures
         SR1_Primative<short> surpriseRange = new SR1_Primative<short>();
         SR1_Primative<short> allyRange = new SR1_Primative<short>();
         SR1_Primative<short> enemyAttackRange = new SR1_Primative<short>();
+        SR1_Primative<short> enemyRunAttackRange = new SR1_Primative<short>();
+        SR1_Primative<short> preferredCombatRange = new SR1_Primative<short>();
         SR1_Primative<short> suckPower = new SR1_Primative<short>();
         SR1_Primative<short> suckRange = new SR1_Primative<short>();
         SR1_Primative<short> suckTime = new SR1_Primative<short>();
@@ -35,6 +37,9 @@ namespace Recombobulator.SR1Structures
             surpriseRange.Read(reader, this, "surpriseRange");
             allyRange.Read(reader, this, "allyRange");
             enemyAttackRange.Read(reader, this, "enemyAttackRange");
+            SR1_Structure temp = reader.File._Structures[reader.Object.data.Offset];
+            enemyRunAttackRange.Read(reader, this, "enemyRunAttackRange", SR1_File.Version.Retail, SR1_File.Version.Next);
+            preferredCombatRange.Read(reader, this, "preferredCombatRange", SR1_File.Version.Retail, SR1_File.Version.Next);
             suckPower.Read(reader, this, "suckPower");
             suckRange.Read(reader, this, "suckRange");
             suckTime.Read(reader, this, "suckTime");
@@ -61,6 +66,8 @@ namespace Recombobulator.SR1Structures
             surpriseRange.Write(writer);
             allyRange.Write(writer);
             enemyAttackRange.Write(writer);
+            enemyRunAttackRange.Write(writer, SR1_File.Version.Retail, SR1_File.Version.Next);
+            preferredCombatRange.Write(writer, SR1_File.Version.Retail, SR1_File.Version.Next);
             suckPower.Write(writer);
             suckRange.Write(writer);
             suckTime.Write(writer);
