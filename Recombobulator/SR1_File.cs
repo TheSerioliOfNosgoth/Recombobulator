@@ -38,14 +38,19 @@ namespace Recombobulator
             DetectPCRetail = 4,
         }
 
+        public enum TestFlags : int
+        {
+            None = 0,
+            ListAllFiles = 1,
+            ListObjectTypes = 2,
+            ListRelocModules = 4,
+            IgnoreDuplicates = 8,
+        }
+
         public string _FilePath { get; private set; } = "";
+        public uint _FileLength { get; private set; } = 0;
         public Version _Version { get; private set; } = SR1_File.Version.Retail;
         public bool _IsLevel { get; private set; }
-        public bool _IsCollectible;
-        public int _NumAnims;
-        public int _NumSegments;
-        public byte _CollectAnim;
-        public byte _IdleAnim;
         public readonly SortedList<uint, SR1_Structure> _Structures = new SortedList<uint, SR1_Structure>();
         public readonly SortedDictionary<uint, SR1_PrimativeBase> _Primatives = new SortedDictionary<uint, SR1_PrimativeBase>();
         public readonly SortedDictionary<uint, SR1_Structure> _MigrationStructures = new SortedDictionary<uint, SR1_Structure>();
@@ -93,6 +98,8 @@ namespace Recombobulator
             BinaryWriter streamWriter = new BinaryWriter(stream, System.Text.Encoding.UTF8, true);
 
             uint dataStart = ((fileReader.ReadUInt32() >> 9) << 11) + 0x00000800;
+            _FileLength = (uint)file.Length - dataStart;
+
             _IsLevel = fileReader.ReadUInt32() == 0;
 
             fileReader.BaseStream.Position = dataStart;
@@ -494,13 +501,14 @@ namespace Recombobulator
             return _ImportErrors.ToString();
         }
 
-        public static string[] TestFolder(string folderName, bool listAllFiles, ref int filesRead, ref int filesToRead, ref string recentMessage)
+        public static string[] TestFolder(string folderName, TestFlags flags, ref int filesRead, ref int filesToRead, ref string recentMessage)
         {
             DirectoryInfo directoryInfo = new DirectoryInfo(folderName);
             FileInfo[] fileInfos = directoryInfo.GetFiles("*.pcm", SearchOption.AllDirectories);
             List<string> physObs = new List<string>();
             List<string> genericTunes = new List<string>();
-            List<string> collectibles = new List<string>();
+            List<string> monAttributes = new List<string>();
+            List<string> monFuncTables = new List<string>();
             List<string> results = new List<string>();
             int numSucceeded = 0;
 
@@ -509,30 +517,39 @@ namespace Recombobulator
 
             foreach (FileInfo fileInfo in fileInfos)
             {
+                string cleanName = Path.GetFileNameWithoutExtension(fileInfo.Name).PadRight(20);
+                if ((flags & TestFlags.IgnoreDuplicates) != 0 && cleanName.Contains("duplicate"))
+                {
+                    continue;
+                }
+
                 System.Threading.Interlocked.Exchange(ref recentMessage, (string)fileInfo.Name.Clone());
+
+                string fileDesc = fileInfo.Name.PadRight(20) + "(Size = 0xFFFFFFFF bytes)";
 
                 try
                 {
                     SR1_File file = new SR1_File();
                     file.Import(fileInfo.FullName, ImportFlags.LogErrors);
+                    fileDesc = fileInfo.Name.PadRight(20) + "(Size = 0x" + file._FileLength.ToString("X8") + " bytes)";
+
                     if (file.TestExport())
                     {
-                        if (listAllFiles)
+                        if ((flags & TestFlags.ListAllFiles) != 0)
                         {
-                            results.Add(fileInfo.Name + "- Success");
+                            results.Add(fileDesc + " - Success");
                         }
 
                         numSucceeded++;
                     }
                     else
                     {
-                        results.Add(fileInfo.Name + "- Fail");
+                        results.Add(fileDesc + " - Fail");
                     }
 
                     if (!file._IsLevel)
                     {
-                        string cleanName = Path.GetFileNameWithoutExtension(fileInfo.Name).PadRight(20);
-                        if (!cleanName.Contains("duplicate"))
+                        if ((flags & TestFlags.ListObjectTypes) != 0)
                         {
                             SR1Structures.Object obj = (SR1Structures.Object)file._Structures[0];
                             SR1_Structure data = file._Structures[obj.data.Offset];
@@ -546,36 +563,68 @@ namespace Recombobulator
                                 GenericTune genericTune = (GenericTune)data;
                                 genericTunes.Add("\t" + cleanName + "\t{ oflags = " + obj.oflags.ToString() + ", oflags2 = " + obj.oflags2.ToString() + ", genericTune.flags = " + genericTune.flags.ToString() + " }");
                             }
+                            else if (data is MonsterAttributes)
+                            {
+                                MonsterAttributes monsterAttributes = (MonsterAttributes)data;
+                                monAttributes.Add("\t" + cleanName + "\t{ oflags = " + obj.oflags.ToString() + ", oflags2 = " + obj.oflags2.ToString() + ", monsterAttributes.magicNum = " + monsterAttributes.magicnum.ToString() + " }");
+                            }
+                        }
+
+                        if ((flags & TestFlags.ListRelocModules) != 0)
+                        {
+                            SR1Structures.Object obj = (SR1Structures.Object)file._Structures[0];
+                            if (obj.relocModule.Offset != 0)
+                            {
+                                SR1_Structure relocModule = file._Structures[obj.relocModule.Offset];
+                                if (relocModule is MonsterFunctionTable)
+                                {
+                                    MonsterFunctionTable mft = (MonsterFunctionTable)relocModule;
+                                    string relocStart = "Start = 0x" + mft.stateChoices.Start.ToString("X8");
+                                    string relocEnd = "End = 0x" + mft.stateChoices.End.ToString("X8");
+                                    string relocSize = "Size = 0x" + (mft.stateChoices.End - mft.stateChoices.Start).ToString("X8");
+                                    monFuncTables.Add(
+                                        "\t" + cleanName + "\t{ MonsterFunctionTable (" +
+                                        relocStart + ", " +
+                                        relocEnd + ", " +
+                                        relocSize + ") }");
+                                }
+                            }
                         }
                     }
-
-                    //if (file._IsCollectible)
-                    //{
-                    //    string cleanName = Path.GetFileNameWithoutExtension(fileInfo.Name).PadRight(20);
-                    //    collectibles.Add("\t" + cleanName + "\t{ NumAnims = " + file._NumAnims + ", NumSegments = " + file._NumSegments + ", CollectAnim = " + file._CollectAnim + ", IdleAnim = " + file._IdleAnim + " }");
-                    //}
                 }
                 catch
                 {
-                    results.Add(fileInfo.Name + "- Error");
+                    results.Add(fileDesc + " - Error");
                 }
 
                 System.Threading.Interlocked.Increment(ref filesRead);
             }
 
-            results.Add("\r\nPhysObs:");
-            results.AddRange(physObs);
-            results.Add("\r\nGenericTunes:");
-            results.AddRange(genericTunes);
-            results.Add("");
+            if ((flags & TestFlags.ListObjectTypes) != 0)
+            {
+                results.Add("\r\nPhysObs:");
+                results.AddRange(physObs);
+                results.Add("\r\nGenericTunes:");
+                results.AddRange(genericTunes);
+                results.Add("\r\nMonsterAttibutes:");
+                results.AddRange(monAttributes);
+                results.Add("");
+            }
+
+            if ((flags & TestFlags.ListRelocModules) != 0)
+            {
+                results.Add("\r\nMonsterFunctionTables:");
+                results.AddRange(monFuncTables);
+                results.Add("");
+            }
 
             //results.Add("\r\nCollectibles:");
             //results.AddRange(collectibles);
             //results.Add("");
 
-            results.Add("Files Read: " + fileInfos.Length);
+            results.Add("Files Read: " + filesRead);
             results.Add("Succeeded: " + numSucceeded);
-            results.Add("Failed: " + (fileInfos.Length - numSucceeded));
+            results.Add("Failed: " + (filesRead - numSucceeded));
 
             return results.ToArray();
         }

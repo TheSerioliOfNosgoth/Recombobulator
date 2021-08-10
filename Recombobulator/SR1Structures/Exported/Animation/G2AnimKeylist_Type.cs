@@ -203,6 +203,20 @@ namespace Recombobulator.SR1Structures
                 pad.Write(writer);
             }
         }
+        public override string ToString()
+        {
+            if (sectionCount.Value == 255)
+            {
+                return "{ " + objectName + " }";
+            }
+
+            string description = "{ sectionCount = " + sectionData.numSections;
+            if (sectionData.numSections > 0) description += ", chanData0 = " + channels[0].chanData;
+            if (sectionData.numSections > 1) description += ", chanData1 = " + channels[1].chanData;
+            if (sectionData.numSections > 2) description += ", chanData2 = " + channels[2].chanData;
+            description += ", fxList = " + fxList + " }";
+            return description;
+        }
 
         static int FooBar(SR1_Reader reader, long segKeyList, int chanData, int keyCount, int firstSeg, int lastSeg, int totalSegments)
         {
@@ -357,10 +371,20 @@ namespace Recombobulator.SR1Structures
             string scriptName = reader.ObjectName.ToString();
 
             // Kain has one weird animation that doesn't match the rest. Checking for the three seems hacky though.
-            if (reader.Model == null || 
+            if (scriptName == "paths___")
+            {
+                sectionData.sectionA = 4;// reader.Object.sectionA.Value;
+                sectionData.sectionB = reader.Object.sectionB.Value;
+                sectionData.sectionC = reader.Object.sectionC.Value;
+                sectionData.numSegments = sectionData.sectionA + 1;
+                sectionData.numSections = 1;
+            }
+            else if (//reader.Model == null || 
                 (sectionCount.Value == 3 && scriptName == "kain____") ||
                 (sectionCount.Value == 3 && scriptName == "moebius_") ||
-                (sectionCount.Value == 3 && scriptName == "bellchn_"))
+                (sectionCount.Value == 3 && scriptName == "bellchn_") ||
+                (sectionCount.Value == 3 && scriptName == "vlgr____") ||
+                (sectionCount.Value == 3 && scriptName == "human___"))
             {
                 sectionData.sectionA = reader.Object.sectionA.Value;
                 sectionData.sectionB = reader.Object.sectionB.Value;

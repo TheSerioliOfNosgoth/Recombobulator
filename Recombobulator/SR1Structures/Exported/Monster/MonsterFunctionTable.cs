@@ -5,17 +5,18 @@ namespace Recombobulator.SR1Structures
 {
     class MonsterFunctionTable : SR1_Structure
     {
-        SR1_Primative<uint> initFunc = new SR1_Primative<uint>();
-        SR1_Primative<uint> cleanUpFunc = new SR1_Primative<uint>();
-        SR1_Primative<uint> damageEffectFunc = new SR1_Primative<uint>();
-        SR1_Primative<uint> queryFunc = new SR1_Primative<uint>();
-        SR1_Primative<uint> messageFunc = new SR1_Primative<uint>();
-        SR1_Primative<uint> stateFuncs = new SR1_Primative<uint>();
-        SR1_Primative<uint> versionID = new SR1_Primative<uint>();
-        SR1_Primative<uint> localVersionID = new SR1_Primative<uint>();
+        public readonly SR1_Primative<uint> initFunc = new SR1_Primative<uint>();
+        public readonly SR1_Primative<uint> cleanUpFunc = new SR1_Primative<uint>();
+        public readonly SR1_Primative<uint> damageEffectFunc = new SR1_Primative<uint>();
+        public readonly SR1_Primative<uint> queryFunc = new SR1_Primative<uint>();
+        public readonly SR1_Primative<uint> messageFunc = new SR1_Primative<uint>();
+        public readonly SR1_Primative<uint> stateFuncs = new SR1_Primative<uint>();
+        public readonly SR1_Primative<uint> versionID = new SR1_Primative<uint>().ShowAsHex(true);
+        public readonly SR1_Primative<uint> localVersionID = new SR1_Primative<uint>();
 
-        SR1_PrimativeArray<byte> asmCode = new SR1_PrimativeArray<byte>(0);
-        SR1_StructureArray<MonsterStateChoice> stateChoices = new SR1_StructureArray<MonsterStateChoice>(0);
+        public SR1_PrimativeArray<byte> asmCode = new SR1_PrimativeArray<byte>(0);
+        public SR1_StructureArray<MonsterStateChoice> stateChoices = new SR1_StructureArray<MonsterStateChoice>(0);
+        public SR1_PrimativeArray<byte> pad = new SR1_PrimativeArray<byte>(0);
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
@@ -45,6 +46,14 @@ namespace Recombobulator.SR1Structures
 
             stateChoices = new SR1_StructureArray<MonsterStateChoice>(numChoices);
             stateChoices.Read(reader, this, "stateChoices");
+
+            // Padding is used by the asmCode maybe?
+            if ((reader.ObjectName.ToString() == "alukabss" || reader.ObjectName.ToString() == "roninbss") &&
+                (versionID.Value == 0x800D1EA4 || versionID.Value == 0x800D0C18 || versionID.Value == 0x800D0A9C))
+            {
+                pad = new SR1_PrimativeArray<byte>(8);
+            }
+            pad.Read(reader, this, "pad");
         }
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
@@ -64,6 +73,7 @@ namespace Recombobulator.SR1Structures
 
             asmCode.Write(writer);
             stateChoices.Write(writer);
+            pad.Write(writer);
         }
     }
 }

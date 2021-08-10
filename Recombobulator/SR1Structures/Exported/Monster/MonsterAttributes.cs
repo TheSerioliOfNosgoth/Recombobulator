@@ -5,7 +5,7 @@ namespace Recombobulator.SR1Structures
 {
     class MonsterAttributes : SR1_Structure
     {
-        public readonly SR1_Primative<uint> magicnum = new SR1_Primative<uint>();
+        public readonly SR1_Primative<uint> magicnum = new SR1_Primative<uint>().ShowAsHex(true);
         public readonly SR1_Pointer<MonsterTuneData> tunData = new SR1_Pointer<MonsterTuneData>();
         public readonly SR1_PrimativePointer<sbyte> auxAnimList = new SR1_PrimativePointer<sbyte>();
         public readonly SR1_PrimativePointer<sbyte> ambientAnimList = new SR1_PrimativePointer<sbyte>();
@@ -30,6 +30,9 @@ namespace Recombobulator.SR1Structures
         public readonly SR1_Primative<byte> grabSegment = new SR1_Primative<byte>();
         public readonly SR1_Primative<byte> bloodImpaleFrame = new SR1_Primative<byte>();
         public readonly SR1_Primative<byte> bloodConeFrame = new SR1_Primative<byte>();
+        public readonly SR1_Primative<byte> bruiseRed = new SR1_Primative<byte>();
+        public readonly SR1_Primative<byte> bruiseGreen = new SR1_Primative<byte>();
+        public readonly SR1_Primative<byte> bruiseBlue = new SR1_Primative<byte>();
         public readonly SR1_Primative<sbyte> numSubAttributes = new SR1_Primative<sbyte>();
         public readonly SR1_Primative<sbyte> numCombatAttributes = new SR1_Primative<sbyte>();
         public readonly SR1_Primative<sbyte> numAttackAttributes = new SR1_Primative<sbyte>();
@@ -74,6 +77,12 @@ namespace Recombobulator.SR1Structures
             grabSegment.Read(reader, this, "grabSegment");
             bloodImpaleFrame.Read(reader, this, "bloodImpaleFrame");
             bloodConeFrame.Read(reader, this, "bloodConeFrame");
+            if((magicnum.Value == 0xACE00062))
+            {
+                bruiseRed.Read(reader, this, "bruiseRed");
+                bruiseGreen.Read(reader, this, "bruiseGreen");
+                bruiseBlue.Read(reader, this, "bruiseBlue");
+            }
             numSubAttributes.Read(reader, this, "numSubAttributes");
             numCombatAttributes.Read(reader, this, "numCombatAttributes");
             numAttackAttributes.Read(reader, this, "numAttackAttributes");
@@ -81,7 +90,7 @@ namespace Recombobulator.SR1Structures
             numAnims.Read(reader, this, "numAnims");
             numIdles.Read(reader, this, "numIdles");
             numBehaviors.Read(reader, this, "numBehaviors");
-            numShatters.Read(reader, this, "numShatters");
+            numShatters.SetPadding(4).Read(reader, this, "numShatters");
             subAttributesList.Read(reader, this, "subAttributesList");
             combatAttributesList.Read(reader, this, "combatAttributesList");
             attackAttributesList.Read(reader, this, "attackAttributesList");
@@ -143,6 +152,11 @@ namespace Recombobulator.SR1Structures
             {
                 realNumBehaviors -= 1;
             }
+            else if (reader.ObjectName.ToString() == "soul____" &&
+                (magicnum.Value == 0xACE00064 || magicnum.Value == 0xACE00065))
+            {
+                realNumBehaviors = 1;
+            }
             new SR1_StructureArray<MonsterBehavior>(realNumBehaviors).ReadFromPointer(reader, behaviorList);
 
             new SR1_StructureArray<FXSplinter>(numShatters.Value).ReadFromPointer(reader, shatterList);
@@ -175,6 +189,12 @@ namespace Recombobulator.SR1Structures
             grabSegment.Write(writer);
             bloodImpaleFrame.Write(writer);
             bloodConeFrame.Write(writer);
+            if ((magicnum.Value == 0xACE00062))
+            {
+                bruiseRed.Write(writer);
+                bruiseGreen.Write(writer);
+                bruiseBlue.Write(writer);
+            }
             numSubAttributes.Write(writer);
             numCombatAttributes.Write(writer);
             numAttackAttributes.Write(writer);

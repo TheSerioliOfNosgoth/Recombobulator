@@ -288,6 +288,7 @@
             // projectTextBox
             // 
             this.projectTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.projectTextBox.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.projectTextBox.Location = new System.Drawing.Point(0, 0);
             this.projectTextBox.Multiline = true;
             this.projectTextBox.Name = "projectTextBox";
@@ -321,6 +322,7 @@
             // scripts
             // 
             this.scripts.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.scripts.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.scripts.Location = new System.Drawing.Point(0, 0);
             this.scripts.Multiline = true;
             this.scripts.Name = "scripts";
@@ -343,6 +345,7 @@
             // testResults
             // 
             this.testResults.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.testResults.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.testResults.Location = new System.Drawing.Point(0, 0);
             this.testResults.Multiline = true;
             this.testResults.Name = "testResults";

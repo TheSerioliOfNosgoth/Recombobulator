@@ -277,7 +277,12 @@ namespace Recombobulator
                 Properties.Settings.Default.RecentFolder = dialog.SelectedPath;
                 Properties.Settings.Default.Save();
 
-                DoBulkTesting(dialog.SelectedPath, true);
+                DoBulkTesting(
+                    dialog.SelectedPath,
+                        SR1_File.TestFlags.ListAllFiles |
+                        SR1_File.TestFlags.IgnoreDuplicates | SR1_File.TestFlags.ListObjectTypes/* |
+                        SR1_File.TestFlags.ListRelocModules | SR1_File.TestFlags.ListObjectTypes*/
+                );
             }
         }
 
@@ -298,7 +303,11 @@ namespace Recombobulator
                 Properties.Settings.Default.RecentFolder = dialog.SelectedPath;
                 Properties.Settings.Default.Save();
 
-                DoBulkTesting(dialog.SelectedPath, false);
+                DoBulkTesting(
+                    dialog.SelectedPath,
+                        SR1_File.TestFlags.IgnoreDuplicates | SR1_File.TestFlags.ListObjectTypes/* |
+                        SR1_File.TestFlags.ListRelocModules | SR1_File.TestFlags.ListObjectTypes*/
+                );
             }
         }
 
@@ -411,7 +420,7 @@ namespace Recombobulator
             _progressWindow.Dispose();
         }
 
-        private void DoBulkTesting(string folderName, bool listAllFiles)
+        private void DoBulkTesting(string folderName, SR1_File.TestFlags flags)
         {
             testResults.Clear();
 
@@ -424,7 +433,7 @@ namespace Recombobulator
             Thread loadingThread = new Thread((() =>
             {
                 string testResults = "";
-                string[] exportTestResults = SR1_File.TestFolder(folderName, listAllFiles, ref filesRead, ref filesToRead, ref recentMessage);
+                string[] exportTestResults = SR1_File.TestFolder(folderName, flags, ref filesRead, ref filesToRead, ref recentMessage);
                 foreach (string result in exportTestResults)
                 {
                     testResults += result + "\r\n";

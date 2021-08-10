@@ -241,15 +241,6 @@ namespace Recombobulator.SR1Structures
                     new SR1_PrimativeArray<byte>(8).Read(reader, null, "");
                 }
             }
-
-            if (physOb != null && physObBase.family.Value == 5)
-            {
-                reader.File._IsCollectible = true;
-                reader.File._CollectAnim = ((PhysObCollectibleProperties)physOb).collectAnim.Value;
-                reader.File._IdleAnim = ((PhysObCollectibleProperties)physOb).idleAnim.Value;
-                reader.File._NumAnims = numAnims.Value;
-                reader.File._NumSegments = reader.Model.numSegments.Value;
-            }
         }
 
         public override void WriteMembers(SR1_Writer writer)
