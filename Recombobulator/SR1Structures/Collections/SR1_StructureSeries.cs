@@ -21,6 +21,16 @@ namespace Recombobulator.SR1Structures
             long endPosition = reader.BaseStream.Position + _BufferLength;
             for (int i = 0; reader.BaseStream.Position < endPosition; i++)
             {
+                T tempEntry = new T();
+                long oldPosition = reader.BaseStream.Position;
+                tempEntry.ReadTemp(reader);
+                reader.BaseStream.Position = oldPosition;
+
+                if (tempEntry.End > endPosition)
+                {
+                    break;
+                }
+
                 T newEntry = new T();
                 newEntry.Read(reader, this, "[" + i.ToString() + "]");
                 _List.Add(newEntry);

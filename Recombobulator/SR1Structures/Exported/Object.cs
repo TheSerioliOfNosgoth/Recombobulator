@@ -207,7 +207,7 @@ namespace Recombobulator.SR1Structures
 
                 if (monAttributes != null &&
                     monAttributes.magicnum.Value == 0xACE00064 &&
-                    scriptName == "hunter__" ||
+                    scriptName == "hunter__" || scriptName == "wrshp___" ||
                     scriptName == "vlgra___" || scriptName == "vlgrb___" || scriptName == "vlgrc___")
                 {
                     reader.BaseStream.Position = keyLists.Start - 1;
@@ -216,8 +216,8 @@ namespace Recombobulator.SR1Structures
                         reader.BaseStream.Position--;
                     }
                     reader.BaseStream.Position = reader.File._Structures[(uint)reader.BaseStream.Position].End;
-                    int length = scriptName == "hunter__" ? 26 : 15;
-                    new SR1_StructureArray<G2AnimFXList>(length).SetPadding(4).Read(reader, null, "");
+                    uint length = keyLists.Start - (uint)reader.BaseStream.Position;
+                    new SR1_StructureSeries<G2AnimFXList>((int)length).SetPadding(4).Read(reader, null, "");
                 }
                 else if (reader.AnimFXDictionary.Count > 0)
                 {
@@ -249,13 +249,8 @@ namespace Recombobulator.SR1Structures
             // 8 mystery bytes after effectList. THIS APPEARS TO BE A PHYSOBLIGHT. REMOVE THIS?
             if (physObBase != null && !reader.File._Structures.ContainsKey(padAdress))
             {
-                if (physObBase.family.Value == 0 || physObBase.family.Value == 1 ||
-                    physObBase.family.Value == 2 || physObBase.family.Value == 3 ||
-                    physObBase.family.Value == 5 || physObBase.family.Value == 6)
-                {
-                    reader.BaseStream.Position = padAdress;
-                    new SR1_PrimativeArray<byte>(8).Read(reader, null, "");
-                }
+                reader.BaseStream.Position = padAdress;
+                new SR1_PrimativeArray<byte>(8).Read(reader, null, "");
             }
         }
 

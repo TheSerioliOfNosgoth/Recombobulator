@@ -6,11 +6,20 @@ namespace Recombobulator.SR1Structures
     class WalBosTuneData : MonsterTuneData
     {
         WalBossAttributes attributes = new WalBossAttributes();
-        SR1_PrimativeArray<byte> unknown = new SR1_PrimativeArray<byte>(40);
+        SR1_PrimativeArray<byte> unknown = new SR1_PrimativeArray<byte>(0);
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
             attributes.Read(reader, this, "attributes");
+
+            if (reader.File._Version >= SR1_File.Version.Retail)
+            {
+                unknown = new SR1_PrimativeArray<byte>(40);
+            }
+            else
+            {
+                unknown = new SR1_PrimativeArray<byte>(24);
+            }
             unknown.Read(reader, this, "unknown");
         }
 

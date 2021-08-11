@@ -9,12 +9,12 @@ namespace Recombobulator
 {
     class SR1_File
     {
-        public const UInt32 FIRST_VERSION = 0x00000000;
-        public const UInt32 ALPHA_VERSION_1_X = 0x3c204127;
-        public const UInt32 ALPHA_VERSION_1 = 0x3c204128;
-        public const UInt32 ALPHA_VERSION_2 = 0x3c204129;
-        public const UInt32 ALPHA_VERSION_3 = 0x3c204131;
-        public const UInt32 BETA_VERSION = 0x3c204139;
+        public const UInt32 PROTO_19981025_VERSION = 0x00000000;
+        public const UInt32 ALPHA_19990123_VERSION_1_X = 0x3c204127;
+        public const UInt32 ALPHA_19990123_VERSION_1 = 0x3c204128;
+        public const UInt32 ALPHA_19990204_VERSION_2 = 0x3c204129;
+        public const UInt32 ALPHA_19990216_VERSION_3 = 0x3c204131;
+        public const UInt32 BETA_19990512_VERSION = 0x3c204139;
         public const UInt32 RETAIL_VERSION = 0x3C20413B;
 
         public enum Version
@@ -137,7 +137,7 @@ namespace Recombobulator
                         _Version = Version.Retail;
                         validVersion = true;
                     }
-                    else if (version == BETA_VERSION)
+                    else if (version == BETA_19990512_VERSION)
                     {
                         _Version = Version.Beta;
                         validVersion = true;
