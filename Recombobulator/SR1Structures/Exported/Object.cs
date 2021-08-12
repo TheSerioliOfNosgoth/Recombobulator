@@ -94,7 +94,11 @@ namespace Recombobulator.SR1Structures
             MonsterAttributes monAttributes = null;
             if (data.Offset != 0)
             {
-                if ((oflags2.Value & 0x00040000) != 0 ||
+                if (scriptName == "pshblkb_")
+                {
+                    new SR1_PrimativeArray<byte>(8).ReadFromPointer(reader, data);
+                }
+                else if ((oflags2.Value & 0x00040000) != 0 ||
                     scriptName == "catdora_" ||
                     scriptName == "walbosc_")
                 {
@@ -131,7 +135,9 @@ namespace Recombobulator.SR1Structures
                     }
                     else if (scriptName == "kain____")
                     {
-                        new KainTuneData().ReadFromPointer(reader, monAttributes.tunData);
+                        KainTuneData kainData = new KainTuneData();
+                        kainData.SetPadding(soundData.Offset != 0 ? 0 : 4);
+                        kainData.ReadFromPointer(reader, monAttributes.tunData);
                     }
                     else if (scriptName == "roninbss")
                     {

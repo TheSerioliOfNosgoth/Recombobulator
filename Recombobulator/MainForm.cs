@@ -67,15 +67,19 @@ namespace Recombobulator
                         objectNames += "\r\n";
                     }
 
-                    string errors = "";
-                    if (_file.GetErrors() != null)
+                    string errors = _file.GetErrors();
+                    if (errors == null)
                     {
-                        errors = _file.GetErrors() + "\r\n\r\n";
+                        errors = "";
+                    }
+                    else if (errors != "")
+                    {
+                        errors += "\r\n";
                     }
 
                     string heading = "File: " + _file._FilePath + "\r\n\r\n";
 
-                    pcmFileSummary.Text = heading + _file.GetErrors() + textureIDs + objectNames;
+                    pcmFileSummary.Text = heading + errors + textureIDs + objectNames;
                     scripts.Text = _file.GetScripts();
 
                     _fileLoaded = true;

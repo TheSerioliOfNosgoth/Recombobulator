@@ -127,7 +127,7 @@ namespace Recombobulator.SR1Structures
             }
             catch (Exception exception)
             {
-                reader.LogError(exception.Message);
+                reader.LogError(GetTypeName(true) + " (0x" + Start.ToString("X8") + "):\r\n" + exception.Message);
             }
 
             reader.BaseStream.Position = End;

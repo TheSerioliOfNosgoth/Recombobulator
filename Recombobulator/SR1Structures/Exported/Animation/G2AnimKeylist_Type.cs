@@ -392,13 +392,14 @@ namespace Recombobulator.SR1Structures
                 sectionData.numSegments = sectionData.sectionC + 1;
                 sectionData.numSections = 3;
             }
-            else if (scriptName == "raziel__" || scriptName == "firhost_" ||
-                scriptName == "hostfor_" || scriptName == "glfhost_" ||
-                scriptName == "undhost_" || scriptName == "tranhst_" ||
-                scriptName == "pilxhst_" || scriptName == "pilhost_" ||
-                scriptName == "cathost_" || scriptName == "tmbhost_" ||
-                scriptName == "boshost_" || scriptName == "ronhost_" ||
-                scriptName == "cronhstr")
+            else if (scriptName == "raziel__" || scriptName == "host____" ||
+                scriptName == "firhost_" || scriptName == "hostfor_" ||
+                scriptName == "glfhost_" || scriptName == "undhost_" ||
+                scriptName == "tranhst_" || scriptName == "pilxhst_" ||
+                scriptName == "pilhost_" || scriptName == "cathost_" ||
+                scriptName == "tmbhost_" || scriptName == "boshost_" ||
+                scriptName == "ronhost_" || scriptName == "cronhstr" ||
+                scriptName == "prthstr_")
             {
                 sectionData.numSections = sectionCount.Value;
                 sectionData.sectionA = reader.Object.sectionA.Value;

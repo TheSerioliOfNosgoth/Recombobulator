@@ -6,15 +6,29 @@ namespace Recombobulator.SR1Structures
     class UpdraftProperties : PhysObPropertiesBase
     {
         new public readonly PhysObProperties Properties;
-        SR1_StructureArray<PhysObDraftProperties> physObDraftProperties = new SR1_StructureArray<PhysObDraftProperties>(13);
+        SR1_StructureList<PhysObDraftProperties> physObDraftProperties = new SR1_StructureList<PhysObDraftProperties>();
 
         public UpdraftProperties()
         {
-            Properties = ((PhysObPropertiesBase)physObDraftProperties[0]).Properties;
+            PhysObDraftProperties physObDraftProperties0 = new PhysObDraftProperties();
+            physObDraftProperties.Add(physObDraftProperties0);
+            Properties = physObDraftProperties0.Properties;
         }
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
+            PhysObDraftProperties temp = new PhysObDraftProperties();
+
+            // The first one was already added, and there will be at least that one, so skip to the next.
+            temp.TestRange(reader);
+
+            // Normally 13 in the list.
+            while (temp.TestRange(reader))
+            {
+                physObDraftProperties.Add(new PhysObDraftProperties());
+            }
+
+            reader.BaseStream.Position = Start;
             physObDraftProperties.Read(reader, this, "physObDraftProperties");
         }
 

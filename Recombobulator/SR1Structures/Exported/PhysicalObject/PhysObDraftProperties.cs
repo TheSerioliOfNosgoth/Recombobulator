@@ -34,5 +34,16 @@ namespace Recombobulator.SR1Structures
             maxVelocity.Write(writer);
             height.Write(writer);
         }
+
+        public bool TestRange(SR1_Reader reader)
+        {
+            if ((reader.BaseStream.Position + 20) <= reader.BaseStream.Length)
+            {
+                reader.BaseStream.Position += 20;
+                return true;
+            }
+
+            return false;
+        }
     }
 }
