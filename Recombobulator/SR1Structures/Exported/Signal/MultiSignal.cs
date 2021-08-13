@@ -9,6 +9,7 @@ namespace Recombobulator.SR1Structures
         SR1_Primative<short> signalNum = new SR1_Primative<short>();
         SR1_Primative<short> flags = new SR1_Primative<short>();
         SR1_StructureArray<Signal> signalList = new SR1_StructureArray<Signal>(0);
+        SR1_Primative<int> pad = new SR1_Primative<int>();
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
@@ -19,7 +20,7 @@ namespace Recombobulator.SR1Structures
             signalList = new SR1_StructureArray<Signal>(numSignals.Value);
             signalList.Read(reader, this, "signalList");
 
-            reader.BaseStream.Position += 4;
+            pad.Read(reader, this, "pad");
         }
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
@@ -32,7 +33,7 @@ namespace Recombobulator.SR1Structures
             signalNum.Write(writer);
             flags.Write(writer);
             signalList.Write(writer);
-            writer.Write(0x0000000Fu);
+            pad.Write(writer);
         }
     }
 }
