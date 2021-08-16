@@ -26,10 +26,12 @@ namespace Recombobulator.SR1Structures
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
         {
-            if (numIntros.Value > 0 && introList.Offset != 0 && !reader.IntroListDictionary.ContainsKey(introList.Offset))
-            {
-                reader.IntroListDictionary.Add(introList.Offset, new SR1_PointerArray<Intro>(numIntros.Value, false));
-            }
+            //if (numIntros.Value > 0 && introList.Offset != 0 && !reader.IntroListDictionary.ContainsKey(introList.Offset))
+            //{
+            //    reader.IntroListDictionary.Add(introList.Offset, new SR1_PointerArray<Intro>(numIntros.Value, false));
+            //}
+            new SR1_PointerArray<Intro>(numIntros.Value, false).ReadFromPointer(reader, introList);
+            new SR1_PointerArray<CDLight>(numLights.Value, false).ReadFromPointer(reader, lightList);
         }
 
         public override void WriteMembers(SR1_Writer writer)

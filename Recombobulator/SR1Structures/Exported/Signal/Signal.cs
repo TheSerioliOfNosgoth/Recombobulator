@@ -60,7 +60,7 @@ namespace Recombobulator.SR1Structures
             HandleScreenWipe,           // short type; short time;
             HandleBlendStart = 93,      // long blendStart;
             HandleScreenWipeColor = 98, // unsigned char r; unsigned char g; unsigned char b; unsigned char pad;
-            HandleSetSlideAngle = 106, // long slideAngle;
+            HandleSetSlideAngle = 107,  // long slideAngle;
             HandleResetSlideAngle,      // (nothing)
             HandleSetCameraTilt,        // long cameraTilt;
             HandleSetCameraDistance,    // long cameraDistance;
@@ -73,7 +73,19 @@ namespace Recombobulator.SR1Structures
         {
             id.Read(reader, this, "id");
 
-            if (reader.File._Version >= SR1_File.Version.Retail)
+            bool isPush10 = reader.WorldName.ToString() == "push10";
+            if (isPush10 && reader.File._Version >= SR1_File.Version.Retail)
+            {
+                if (id.Value == 23)
+                {
+                    data = new SignalDepricated(1);
+                }
+                else if (id.Value == 41)
+                {
+                    data = new SignalDepricated(2);
+                }
+            }
+            else if (reader.File._Version >= SR1_File.Version.Retail)
             {
                 switch ((SignalTypeRetail)id.Value)
                 {
@@ -249,7 +261,8 @@ namespace Recombobulator.SR1Structures
                         data = new SignalCameraDistance();
                         break;
                     default:
-                        data = new SignalData();
+                        // The lenghs can be different. Check the length field in signalInfoList entries.
+                        data = new SignalDepricated(GetSizeOfDepricated(reader, id.Value));
                         break;
                 }
             }
@@ -270,6 +283,60 @@ namespace Recombobulator.SR1Structures
         {
             id.Write(writer);
             data.Write(writer);
+        }
+
+        int GetSizeOfDepricated(SR1_Reader reader, int id)
+        {
+            if (reader.File._Version == SR1_File.Version.Beta)
+            {
+                switch (id)
+                {
+                    case 4:
+                    case 10:
+                    case 25:
+                    case 29:
+                    case 30:
+                    case 47:
+                    case 52:
+                    case 53:
+                    case 55:
+                    case 64:
+                    case 65:
+                    case 87:
+                    case 89:
+                    case 90:
+                    case 94:
+                    case 97:
+                    case 101:
+                    case 102:
+                        return 2;
+                    case 79:
+                    case 103:
+                        return 3;
+                    case 23:
+                    case 99:
+                        return 4;
+                    case 34:
+                    case 35:
+                    case 36:
+                    case 37:
+                    case 40:
+                    case 41:
+                    case 59:
+                    case 61:
+                    case 69:
+                    case 70:
+                    case 85:
+                    case 95:
+                    case 96:
+                    case 104:
+                        return 0;
+                    default:
+                        return 1;
+                }
+            }
+
+            return 1;
         }
     }
 }

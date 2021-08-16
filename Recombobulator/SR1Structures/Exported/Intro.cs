@@ -67,6 +67,11 @@ namespace Recombobulator.SR1Structures
 
                 reader.BaseStream.Position = (long)data.Offset;
                 commands.Read(reader, null, "");
+
+                if (reader.WorldName.ToString() == "push10")
+                {
+                    new SR1_Primative<int>().Read(reader, null, "");
+                }
             }
 
             new MultiSpline().ReadFromPointer(reader, multiSpline);
@@ -105,7 +110,7 @@ namespace Recombobulator.SR1Structures
 
         public override string ToString()
         {
-            return "{ " + name.ToString().Trim('\0') + " }";
+            return "{ name = \"" + name.ToString().Trim('\0') + "\", data = " + data.ToString() + " }";
         }
     }
 }

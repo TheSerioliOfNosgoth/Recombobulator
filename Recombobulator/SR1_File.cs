@@ -522,6 +522,7 @@ namespace Recombobulator
                 string cleanName = Path.GetFileNameWithoutExtension(fileInfo.Name).PadRight(20);
                 if ((flags & TestFlags.IgnoreDuplicates) != 0 && cleanName.Contains("duplicate"))
                 {
+                    System.Threading.Interlocked.Increment(ref filesRead);
                     continue;
                 }
 

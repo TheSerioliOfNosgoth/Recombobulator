@@ -9,6 +9,7 @@ namespace Recombobulator
         public SR1_File File = null;
         public Object Object = null;
         public SR1_String ObjectName = null;
+        public SR1_String WorldName = null;
         public Events Events = null;
         public Model Model = null;
         public PhysObPropertiesBase PhysObProperties = null;

@@ -5,19 +5,19 @@ namespace Recombobulator.SR1Structures
 {
     class BSPNode : SR1_Structure
     {
-        Sphere_noSq sphere = new Sphere_noSq();
-        SR1_Primative<short> a = new SR1_Primative<short>();
-        SR1_Primative<short> b = new SR1_Primative<short>();
-        SR1_Primative<short> c = new SR1_Primative<short>();
-        SR1_Primative<short> flags = new SR1_Primative<short>();
-        SR1_Primative<int> d = new SR1_Primative<int>();
-        SR1_Pointer<BSPNode> front = new SR1_Pointer<BSPNode>();
-        SR1_Pointer<BSPNode> back = new SR1_Pointer<BSPNode>();
-        Sphere_noSq spectralSphere = new Sphere_noSq();
-        SR1_Primative<short> front_spectral_error = new SR1_Primative<short>();
-        SR1_Primative<short> back_spectral_error = new SR1_Primative<short>();
-        SR1_Primative<short> front_material_error = new SR1_Primative<short>();
-        SR1_Primative<short> back_material_error = new SR1_Primative<short>();
+        public readonly Sphere_noSq sphere = new Sphere_noSq();
+        public readonly SR1_Primative<short> a = new SR1_Primative<short>();
+        public readonly SR1_Primative<short> b = new SR1_Primative<short>();
+        public readonly SR1_Primative<short> c = new SR1_Primative<short>();
+        public readonly SR1_Primative<short> flags = new SR1_Primative<short>();
+        public readonly SR1_Primative<int> d = new SR1_Primative<int>();
+        public readonly SR1_Pointer<BSPNode> front = new SR1_Pointer<BSPNode>();
+        public readonly SR1_Pointer<BSPNode> back = new SR1_Pointer<BSPNode>();
+        public readonly Sphere_noSq spectralSphere = new Sphere_noSq();
+        public readonly SR1_Primative<short> front_spectral_error = new SR1_Primative<short>();
+        public readonly SR1_Primative<short> back_spectral_error = new SR1_Primative<short>();
+        public readonly SR1_Primative<short> front_material_error = new SR1_Primative<short>();
+        public readonly SR1_Primative<short> back_material_error = new SR1_Primative<short>();
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {

@@ -194,22 +194,35 @@ namespace Recombobulator.SR1Structures
         {
             SR1_Structure temp = null;
 
-            temp = new Terrain().ReadFromPointer(reader, terrain);
+            SR1_Structure terrainStruct = new Terrain().ReadFromPointer(reader, terrain);
             new LightList().ReadFromPointer(reader, lightList);
             new VMObjectList(numVMObjects.Value).ReadFromPointer(reader, vmobjectList);
+            if (reader.File._Version <= SR1_File.Version.Beta)
+            {
+                new SR1_StructureArray<SpotLight>(numSpotLights.Value).ReadFromPointer(reader, spotLightList);
+            }
             new LightList().ReadFromPointer(reader, spectrallightList);
             new SR1_StructureArray<CameraKey>(numCameras.Value).ReadFromPointer(reader, cameraList);
             new SR1_StructureArray<VGroup>(numVGroups.Value).ReadFromPointer(reader, vGroupList);
+            SR1_Structure worldNameStruct = new SR1_String(12).SetPadding(4).ReadFromPointer(reader, worldName);
+            reader.WorldName = (SR1_String)worldNameStruct;
             new SR1_StructureArray<Intro>(numIntros.Value).ReadFromPointer(reader, introList);
-            new ObjectNameList().ReadFromPointer(reader, objectNameList);
-            new SR1_String(12).SetPadding(4).ReadFromPointer(reader, worldName);
+            SR1_Structure objectNameListStruct = new ObjectNameList().ReadFromPointer(reader, objectNameList);
             new SR1_StructureSeries<MultiSignal>((int)(SignalListEnd.Offset - SignalListStart.Offset)).ReadFromPointer(reader, SignalListStart);
             new SR1_StructureArray<PlanMkr>(NumberOfPlanMarkers.Value).SetPadding(4).ReadFromPointer(reader, PlanMarkerList);
             new SR1_StructureArray<SFXMkr>(NumberOfSFXMarkers.Value).ReadFromPointer(reader, SFXMarkerList);
-            new SR1_PrimativeArray<char>(4).ReadFromPointer(reader, dynamicMusicName);
+            if (reader.File._Version >= SR1_File.Version.Retail)
+            {
+                new SR1_String(4).SetPadding(4).ReadFromPointer(reader, dynamicMusicName);
+            }
+            else
+            {
+                new SR1_String(12).SetPadding(4).ReadFromPointer(reader, dynamicMusicName);
+            }
             new LightGroup().ReadFromPointer(reader, razielLightGroup);
             new LightGroup().ReadFromPointer(reader, razielSpectralLightGroup);
 
+            Events events = null;
             if (PuzzleInstances.Offset != 0)
             {
                 reader.BaseStream.Position = PuzzleInstances.Offset;
@@ -227,13 +240,13 @@ namespace Recombobulator.SR1Structures
                 if (firstEvent != 0 && firstEvent != uint.MaxValue)
                 {
                     reader.BaseStream.Position = firstEvent;
-                    Events events = new Events(tempEventPointers.numPuzzles.Value);
+                    events = new Events(tempEventPointers.numPuzzles.Value);
                     events.Read(reader, null, "");
                     reader.Events = events;
                 }
             }
 
-            if (temp.End != 0)
+            if (terrainStruct.End != 0)
             {
                 foreach (SR1_Pointer<SFXFileData> pointer in reader.SFXDictionary.Values)
                 {
@@ -241,10 +254,29 @@ namespace Recombobulator.SR1Structures
                     if (!reader.File._Structures.ContainsKey(sfxFileDataList.End))
                     {
                         reader.BaseStream.Position = sfxFileDataList.End;
-                        new SR1_PrimativeArray<byte>((int)(temp.Start - sfxFileDataList.End)).Read(reader, null, "");
+                        new SR1_PrimativeArray<byte>((int)(terrainStruct.Start - sfxFileDataList.End)).Read(reader, null, "");
                     }
                     break;
                 }
+            }
+
+            // 8 mystery bytes after events.
+            if (events != null && !reader.File._Structures.ContainsKey(events.End))
+            {
+                reader.BaseStream.Position = events.End;
+                new SR1_PrimativeArray<byte>(8).Read(reader, null, "");
+            }
+
+            reader.BaseStream.Position = objectNameListStruct.Start - 1;
+            while (!reader.File._Structures.ContainsKey((uint)reader.BaseStream.Position))
+            {
+                reader.BaseStream.Position--;
+            }
+            if (!reader.File._Structures.ContainsKey(reader.File._Structures[(uint)reader.BaseStream.Position].End))
+            {
+                reader.BaseStream.Position = reader.File._Structures[(uint)reader.BaseStream.Position].End;
+                int length = (int)objectNameListStruct.Start - (int)reader.BaseStream.Position;
+                new SR1_PrimativeArray<byte>(length).Read(reader, null, "");
             }
         }
 

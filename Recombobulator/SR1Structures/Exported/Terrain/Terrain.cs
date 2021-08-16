@@ -83,7 +83,10 @@ namespace Recombobulator.SR1Structures
 
             if (reader.File._Version <= SR1_File.Version.Beta)
             {
-                new SR1_StructureSeries<BSPNode>((int)(sbspStartLeaves.Offset - sbspRoot.Offset)).ReadFromPointer(reader, sbspRoot);
+                if (sbspRoot.Offset != 0 && sbspRoot.Offset < sbspStartLeaves.Offset)
+                {
+                    new SR1_StructureSeries<BSPNode>((int)(sbspStartLeaves.Offset - sbspRoot.Offset)).ReadFromPointer(reader, sbspRoot);
+                }
             }
 
             new StreamUnitPortalList().ReadFromPointer(reader, StreamUnits);

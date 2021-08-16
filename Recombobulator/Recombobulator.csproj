@@ -78,6 +78,8 @@
     <Compile Include="ScriptParser.cs" />
     <Compile Include="SR1Structures\Collections\SR1_PointerSeries.cs" />
     <Compile Include="SR1Structures\Collections\SR1_StructureSeriesBase.cs" />
+    <Compile Include="SR1Structures\Exported\Geometry\Sphere.cs" />
+    <Compile Include="SR1Structures\Exported\NodeType.cs" />
     <Compile Include="SR1Structures\Exported\GenericFX\FXSplinter.cs" />
     <Compile Include="SR1Structures\Exported\GenericFX\BubbleParams.cs" />
     <Compile Include="SR1Structures\Exported\GenericFX\GenericBubbleParams.cs" />
@@ -85,6 +87,7 @@
     <Compile Include="SR1Structures\Exported\GlyphColors.cs" />
     <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObGenericProperties.cs" />
     <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObPropertiesBase.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalDepricated.cs" />
     <Compile Include="SR1Structures\Exported\UpdraftProperties.cs" />
     <Compile Include="SR1Structures\Exported\WaterFXProperties.cs" />
     <Compile Include="SR1Structures\Exported\Animation\SAnimSet.cs" />
@@ -174,7 +177,7 @@
     <Compile Include="SR1Structures\Exported\Object.cs" />
     <Compile Include="SR1Structures\Exported\Textures\TextureMT3.cs" />
     <Compile Include="SR1Structures\Exported\Model\MVertex.cs" />
-    <Compile Include="SR1Structures\InGame\CDLight.cs" />
+    <Compile Include="SR1Structures\Exported\CDLight.cs" />
     <Compile Include="TextureSetForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -310,7 +313,7 @@
     <Compile Include="SR1Structures\Pointers\SR1_Pointer.cs" />
     <Compile Include="SR1Structures\InGame\PointLight.cs" />
     <Compile Include="SR1Structures\Exported\SFXMkr.cs" />
-    <Compile Include="SR1Structures\InGame\SpotLight.cs" />
+    <Compile Include="SR1Structures\Exported\SpotLight.cs" />
     <Compile Include="SR1Structures\Exported\Terrain\Terrain.cs" />
     <Compile Include="SR1_File.cs" />
     <Compile Include="SR1Structures\Exported\TClassAttr.cs" />
