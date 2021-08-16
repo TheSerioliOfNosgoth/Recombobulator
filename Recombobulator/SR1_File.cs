@@ -513,6 +513,7 @@ namespace Recombobulator
             List<string> monFuncTables = new List<string>();
             List<string> results = new List<string>();
             int numSucceeded = 0;
+            int numSkipped = 0;
 
             System.Threading.Interlocked.Exchange(ref filesRead, 0);
             System.Threading.Interlocked.Exchange(ref filesToRead, fileInfos.Length);
@@ -523,6 +524,7 @@ namespace Recombobulator
                 if ((flags & TestFlags.IgnoreDuplicates) != 0 && cleanName.Contains("duplicate"))
                 {
                     System.Threading.Interlocked.Increment(ref filesRead);
+                    numSkipped++;
                     continue;
                 }
 
@@ -625,9 +627,9 @@ namespace Recombobulator
             //results.AddRange(collectibles);
             //results.Add("");
 
-            results.Add("Files Read: " + filesRead);
+            results.Add("Files Read: " + (filesRead - numSkipped));
             results.Add("Succeeded: " + numSucceeded);
-            results.Add("Failed: " + (filesRead - numSucceeded));
+            results.Add("Failed: " + (filesRead - numSkipped - numSucceeded));
 
             return results.ToArray();
         }
