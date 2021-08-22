@@ -203,16 +203,14 @@ namespace Recombobulator.SR1Structures
             if (numAnims.Value > 0)
             {
                 SR1_StructureArray<G2AnimKeylist_Type> keyLists = new SR1_StructureArray<G2AnimKeylist_Type>(numAnims.Value);
-                if (monAttributes != null &&
-                    (monAttributes.magicnum.Value == 0xACE00063 || monAttributes.magicnum.Value == 0xACE00064 || monAttributes.magicnum.Value == 0xACE00065) &&
+                if (reader.File._Version >= SR1_File.Version.Jun01 && reader.File._Version < SR1_File.Version.Next &&
                     scriptName == "wrshp___")
                 {
                     ((G2AnimKeylist_Type)keyLists[13]).OverridePadLength(8);
                 }
                 keyLists.ReadFromPointer(reader, ((SR1_PointerArray<G2AnimKeylist_Type>)animListStruct)[0]);
 
-                if (monAttributes != null &&
-                    (monAttributes.magicnum.Value == 0xACE00063 || monAttributes.magicnum.Value == 0xACE00064) &&
+                if (reader.File._Version >= SR1_File.Version.Jun01 && reader.File._Version < SR1_File.Version.Jul14 &&
                     scriptName == "hunter__" || scriptName == "wrshp___" ||
                     scriptName == "vlgra___" || scriptName == "vlgrb___" || scriptName == "vlgrc___")
                 {
@@ -230,11 +228,11 @@ namespace Recombobulator.SR1Structures
                     int numEffects = reader.AnimFXDictionary.Count;
                     if (reader.ObjectName.ToString() == "wrshp___")
                     {
-                        if (monAttributes.magicnum.Value == 0xACE00065)
+                        if (reader.File._Version >= SR1_File.Version.Jul14)
                         {
                             numEffects = 11;
                         }
-                        else if (monAttributes.magicnum.Value == 0xACE00064)
+                        else if (reader.File._Version >= SR1_File.Version.Jun18)
                         {
                             numEffects = 28;
                         }

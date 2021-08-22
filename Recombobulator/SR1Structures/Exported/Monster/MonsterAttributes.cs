@@ -77,12 +77,9 @@ namespace Recombobulator.SR1Structures
             grabSegment.Read(reader, this, "grabSegment");
             bloodImpaleFrame.Read(reader, this, "bloodImpaleFrame");
             bloodConeFrame.Read(reader, this, "bloodConeFrame");
-            if((magicnum.Value == 0xACE00062))
-            {
-                bruiseRed.Read(reader, this, "bruiseRed");
-                bruiseGreen.Read(reader, this, "bruiseGreen");
-                bruiseBlue.Read(reader, this, "bruiseBlue");
-            }
+            bruiseRed.Read(reader, this, "bruiseRed", SR1_File.Version.First, SR1_File.Version.Jun01);
+            bruiseGreen.Read(reader, this, "bruiseGreen", SR1_File.Version.First, SR1_File.Version.Jun01);
+            bruiseBlue.Read(reader, this, "bruiseBlue", SR1_File.Version.First, SR1_File.Version.Jun01);
             numSubAttributes.Read(reader, this, "numSubAttributes");
             numCombatAttributes.Read(reader, this, "numCombatAttributes");
             numAttackAttributes.Read(reader, this, "numAttackAttributes");
@@ -147,15 +144,16 @@ namespace Recombobulator.SR1Structures
             new SR1_StructureArray<MonsterIdle>(numIdles.Value).ReadFromPointer(reader, idleList);
 
             int realNumBehaviors = (numBehaviors.Value > 0) ? (numBehaviors.Value - 1) : 0;
-            if (reader.ObjectName.ToString() == "wrshp___" &&
-                (magicnum.Value == 0xACE00063 || magicnum.Value == 0xACE00064 || magicnum.Value == 0xACE00065))
+            if (reader.File._Version >= SR1_File.Version.Jun01)
             {
-                realNumBehaviors -= 1;
-            }
-            else if (reader.ObjectName.ToString() == "soul____" &&
-                (magicnum.Value == 0xACE00063 || magicnum.Value == 0xACE00064 || magicnum.Value == 0xACE00065))
-            {
-                realNumBehaviors = 1;
+                if (reader.ObjectName.ToString() == "wrshp___")
+                {
+                    realNumBehaviors -= 1;
+                }
+                else if (reader.ObjectName.ToString() == "soul____")
+                {
+                    realNumBehaviors = 1;
+                }
             }
             new SR1_StructureArray<MonsterBehavior>(realNumBehaviors).ReadFromPointer(reader, behaviorList);
 
@@ -189,12 +187,9 @@ namespace Recombobulator.SR1Structures
             grabSegment.Write(writer);
             bloodImpaleFrame.Write(writer);
             bloodConeFrame.Write(writer);
-            if ((magicnum.Value == 0xACE00062))
-            {
-                bruiseRed.Write(writer);
-                bruiseGreen.Write(writer);
-                bruiseBlue.Write(writer);
-            }
+            bruiseRed.Write(writer, SR1_File.Version.First, SR1_File.Version.Jun01);
+            bruiseGreen.Write(writer, SR1_File.Version.First, SR1_File.Version.Jun01);
+            bruiseBlue.Write(writer, SR1_File.Version.First, SR1_File.Version.Jun01);
             numSubAttributes.Write(writer);
             numCombatAttributes.Write(writer);
             numAttackAttributes.Write(writer);
