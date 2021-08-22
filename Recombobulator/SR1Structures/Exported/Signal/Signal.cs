@@ -48,7 +48,8 @@ namespace Recombobulator.SR1Structures
             HandleCameraUnlock,         // long cameraUnlock;
             HandleCameraSave,           // long cameraSave;
             HandleCameraRestore,        // long cameraRestore;
-            HandleFogNear = 43,         // long fogNear;
+            HandleMirror = 42,          // Mirror *mirror;
+            HandleFogNear,              // long fogNear;
             HandleFogFar,               // long fogFar;
             HandleCameraShake = 48,     // long time; long scale;
             HandleCallSignal = 54,      // void* callSignal; (callSignal is itself a signal?)
@@ -60,7 +61,7 @@ namespace Recombobulator.SR1Structures
             HandleScreenWipe,           // short type; short time;
             HandleBlendStart = 93,      // long blendStart;
             HandleScreenWipeColor = 98, // unsigned char r; unsigned char g; unsigned char b; unsigned char pad;
-            HandleSetSlideAngle = 107,  // long slideAngle;
+            HandleSetSlideAngle = 106,  // long slideAngle;
             HandleResetSlideAngle,      // (nothing)
             HandleSetCameraTilt,        // long cameraTilt;
             HandleSetCameraDistance,    // long cameraDistance;
@@ -73,19 +74,7 @@ namespace Recombobulator.SR1Structures
         {
             id.Read(reader, this, "id");
 
-            bool isPush10 = reader.WorldName.ToString() == "push10";
-            if (isPush10 && reader.File._Version >= SR1_File.Version.Retail)
-            {
-                if (id.Value == 23)
-                {
-                    data = new SignalDepricated(1);
-                }
-                else if (id.Value == 41)
-                {
-                    data = new SignalDepricated(2);
-                }
-            }
-            else if (reader.File._Version >= SR1_File.Version.Retail)
+            if (reader.File._Version >= SR1_File.Version.Retail)
             {
                 switch ((SignalTypeRetail)id.Value)
                 {
@@ -171,7 +160,8 @@ namespace Recombobulator.SR1Structures
                         data = new SignalCameraDistance();
                         break;
                     default:
-                        data = new SignalData();
+                        // The lenghs can be different. Check the length field in signalInfoList entries.
+                        data = new SignalDepricated(GetSizeOfDepricated(reader, id.Value));
                         break;
                 }
             }
@@ -211,6 +201,9 @@ namespace Recombobulator.SR1Structures
                         break;
                     case SignalTypeBeta.HandleCameraRestore:
                         data = new SignalCameraRestore();
+                        break;
+                    case SignalTypeBeta.HandleMirror:
+                        data = new SignalMirror();
                         break;
                     case SignalTypeBeta.HandleFogNear:
                         data = new SignalFogNear();
@@ -287,7 +280,17 @@ namespace Recombobulator.SR1Structures
 
         int GetSizeOfDepricated(SR1_Reader reader, int id)
         {
-            if (reader.File._Version == SR1_File.Version.Beta)
+            if (reader.File._Version >= SR1_File.Version.Retail)
+            {
+                switch (id)
+                {
+                    case 41:
+                        return 2;
+                    default:
+                        return 1;
+                }
+            }
+            else if (reader.File._Version >= SR1_File.Version.Beta)
             {
                 switch (id)
                 {

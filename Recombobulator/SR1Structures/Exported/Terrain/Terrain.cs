@@ -117,6 +117,41 @@ namespace Recombobulator.SR1Structures
             {
                 new UnknownPCList().ReadFromPointer(reader, unknownPCList);
             }
+
+            if (reader.WorldName.ToString() == "cathy28")
+            {
+                reader.BaseStream.Position = BSPTreeArray.Offset - 1;
+                bool found = false;
+                while (true)
+                {
+                    if (reader.File._Structures.ContainsKey((uint)reader.BaseStream.Position))
+                    {
+                        SR1_Structure structure = reader.File._Structures[(uint)reader.BaseStream.Position];
+                        if (structure.GetType() == typeof(SR1_StructureSeries<BSPNode>))
+                        {
+                            found = true;
+                        }
+                        else if (structure.GetType() != typeof(SR1_StructureSeries<BSPLeaf>))
+                        {
+                            break;
+                        }
+
+                        if (found)
+                        {
+                            reader.BaseStream.Position = structure.End;
+                            continue;
+                        }
+                    }
+
+                    if (found)
+                    {
+                        new SR1_StructureArray<BSPLeaf>(1).Read(reader, null, "");
+                        break;
+                    }
+
+                    reader.BaseStream.Position--;
+                }
+            }
         }
 
         public override void WriteMembers(SR1_Writer writer)

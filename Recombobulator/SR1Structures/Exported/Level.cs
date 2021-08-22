@@ -192,7 +192,8 @@ namespace Recombobulator.SR1Structures
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
         {
-            SR1_Structure temp = null;
+            SR1_Structure worldNameStruct = new SR1_String(12).SetPadding(4).ReadFromPointer(reader, worldName);
+            reader.WorldName = (SR1_String)worldNameStruct;
 
             SR1_Structure terrainStruct = new Terrain().ReadFromPointer(reader, terrain);
             new LightList().ReadFromPointer(reader, lightList);
@@ -204,8 +205,6 @@ namespace Recombobulator.SR1Structures
             new LightList().ReadFromPointer(reader, spectrallightList);
             new SR1_StructureArray<CameraKey>(numCameras.Value).ReadFromPointer(reader, cameraList);
             new SR1_StructureArray<VGroup>(numVGroups.Value).ReadFromPointer(reader, vGroupList);
-            SR1_Structure worldNameStruct = new SR1_String(12).SetPadding(4).ReadFromPointer(reader, worldName);
-            reader.WorldName = (SR1_String)worldNameStruct;
             new SR1_StructureArray<Intro>(numIntros.Value).ReadFromPointer(reader, introList);
             SR1_Structure objectNameListStruct = new ObjectNameList().ReadFromPointer(reader, objectNameList);
             new SR1_StructureSeries<MultiSignal>((int)(SignalListEnd.Offset - SignalListStart.Offset)).ReadFromPointer(reader, SignalListStart);
@@ -260,11 +259,11 @@ namespace Recombobulator.SR1Structures
                 }
             }
 
-            // 8 mystery bytes after events.
+            // 8 mystery bytes after events. Mirror?
             if (events != null && !reader.File._Structures.ContainsKey(events.End))
             {
                 reader.BaseStream.Position = events.End;
-                new SR1_PrimativeArray<byte>(8).Read(reader, null, "");
+                new Mirror().Read(reader, null, "");
             }
 
             reader.BaseStream.Position = objectNameListStruct.Start - 1;

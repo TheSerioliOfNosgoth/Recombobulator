@@ -78,6 +78,7 @@
     <Compile Include="ScriptParser.cs" />
     <Compile Include="SR1Structures\Collections\SR1_PointerSeries.cs" />
     <Compile Include="SR1Structures\Collections\SR1_StructureSeriesBase.cs" />
+    <Compile Include="SR1Structures\Exported\Mirror.cs" />
     <Compile Include="SR1Structures\Exported\Geometry\Sphere.cs" />
     <Compile Include="SR1Structures\Exported\NodeType.cs" />
     <Compile Include="SR1Structures\Exported\GenericFX\FXSplinter.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="SR1Structures\Exported\GlyphColors.cs" />
     <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObGenericProperties.cs" />
     <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObPropertiesBase.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalMirror.cs" />
     <Compile Include="SR1Structures\Exported\Signal\SignalDepricated.cs" />
     <Compile Include="SR1Structures\Exported\UpdraftProperties.cs" />
     <Compile Include="SR1Structures\Exported\WaterFXProperties.cs" />
