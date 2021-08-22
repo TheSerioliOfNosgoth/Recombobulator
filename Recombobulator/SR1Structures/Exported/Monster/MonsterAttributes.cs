@@ -148,12 +148,12 @@ namespace Recombobulator.SR1Structures
 
             int realNumBehaviors = (numBehaviors.Value > 0) ? (numBehaviors.Value - 1) : 0;
             if (reader.ObjectName.ToString() == "wrshp___" &&
-                (magicnum.Value == 0xACE00064 || magicnum.Value == 0xACE00065))
+                (magicnum.Value == 0xACE00063 || magicnum.Value == 0xACE00064 || magicnum.Value == 0xACE00065))
             {
                 realNumBehaviors -= 1;
             }
             else if (reader.ObjectName.ToString() == "soul____" &&
-                (magicnum.Value == 0xACE00064 || magicnum.Value == 0xACE00065))
+                (magicnum.Value == 0xACE00063 || magicnum.Value == 0xACE00064 || magicnum.Value == 0xACE00065))
             {
                 realNumBehaviors = 1;
             }

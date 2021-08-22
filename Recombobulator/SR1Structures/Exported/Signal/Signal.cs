@@ -74,7 +74,7 @@ namespace Recombobulator.SR1Structures
         {
             id.Read(reader, this, "id");
 
-            if (reader.File._Version >= SR1_File.Version.Retail)
+            if (reader.File._Version >= SR1_File.Version.Jun01)
             {
                 switch ((SignalTypeRetail)id.Value)
                 {
@@ -165,7 +165,7 @@ namespace Recombobulator.SR1Structures
                         break;
                 }
             }
-            else if (reader.File._Version >= SR1_File.Version.Beta)
+            else if (reader.File._Version >= SR1_File.Version.May12)
             {
                 switch ((SignalTypeBeta)id.Value)
                 {
@@ -280,7 +280,7 @@ namespace Recombobulator.SR1Structures
 
         int GetSizeOfDepricated(SR1_Reader reader, int id)
         {
-            if (reader.File._Version >= SR1_File.Version.Retail)
+            if (reader.File._Version >= SR1_File.Version.Jun01)
             {
                 switch (id)
                 {
@@ -290,7 +290,7 @@ namespace Recombobulator.SR1Structures
                         return 1;
                 }
             }
-            else if (reader.File._Version >= SR1_File.Version.Beta)
+            else if (reader.File._Version >= SR1_File.Version.May12)
             {
                 switch (id)
                 {

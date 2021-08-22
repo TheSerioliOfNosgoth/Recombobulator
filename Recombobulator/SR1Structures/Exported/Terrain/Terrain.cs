@@ -48,13 +48,13 @@ namespace Recombobulator.SR1Structures
             faceList.Read(reader, this, "faceList");
             normalList.Read(reader, this, "normalList");
             aniList.Read(reader, this, "aniList");
-            sbspRoot.Read(reader, this, "sbspRoot", SR1_File.Version.First, SR1_File.Version.Retail);
-            pad.Read(reader, this, "pad", SR1_File.Version.Retail, SR1_File.Version.Next);
+            sbspRoot.Read(reader, this, "sbspRoot", SR1_File.Version.First, SR1_File.Version.Jun01);
+            pad.Read(reader, this, "pad", SR1_File.Version.Jun01, SR1_File.Version.Next);
             StreamUnits.Read(reader, this, "StreamUnits");
             StartTextureList.Read(reader, this, "StartTextureList");
             EndTextureList.Read(reader, this, "EndTextureList");
-            sbspStartLeaves.Read(reader, this, "sbspStartLeaves", SR1_File.Version.First, SR1_File.Version.Retail);
-            sbspEndLeaves.Read(reader, this, "sbspEndLeaves", SR1_File.Version.First, SR1_File.Version.Retail);
+            sbspStartLeaves.Read(reader, this, "sbspStartLeaves", SR1_File.Version.First, SR1_File.Version.Jun01);
+            sbspEndLeaves.Read(reader, this, "sbspEndLeaves", SR1_File.Version.First, SR1_File.Version.Jun01);
             MorphDiffList.Read(reader, this, "MorphDiffList");
             MorphColorList.Read(reader, this, "MorphColorList");
             numBSPTrees.Read(reader, this, "numBSPTrees");
@@ -81,7 +81,7 @@ namespace Recombobulator.SR1Structures
 
             new DrMoveAniTex().ReadFromPointer(reader, aniList);
 
-            if (reader.File._Version <= SR1_File.Version.Beta)
+            if (reader.File._Version <= SR1_File.Version.May12)
             {
                 if (sbspRoot.Offset != 0 && sbspRoot.Offset < sbspStartLeaves.Offset)
                 {
@@ -92,7 +92,7 @@ namespace Recombobulator.SR1Structures
             new StreamUnitPortalList().ReadFromPointer(reader, StreamUnits);
             new SR1_StructureSeries<TextureFT3>((int)(EndTextureList.Offset - StartTextureList.Offset)).ReadFromPointer(reader, StartTextureList);
 
-            if (reader.File._Version <= SR1_File.Version.Beta)
+            if (reader.File._Version <= SR1_File.Version.May12)
             {
                 new SR1_StructureSeries<SBSPLeaf>((int)(sbspEndLeaves.Offset - sbspStartLeaves.Offset)).ReadFromPointer(reader, sbspStartLeaves);
 
@@ -168,13 +168,13 @@ namespace Recombobulator.SR1Structures
             faceList.Write(writer);
             normalList.Write(writer);
             aniList.Write(writer);
-            sbspRoot.Write(writer, SR1_File.Version.First, SR1_File.Version.Retail);
-            pad.Write(writer, SR1_File.Version.Retail, SR1_File.Version.Next);
+            sbspRoot.Write(writer, SR1_File.Version.First, SR1_File.Version.Jun01);
+            pad.Write(writer, SR1_File.Version.Jun01, SR1_File.Version.Next);
             StreamUnits.Write(writer);
             StartTextureList.Write(writer);
             EndTextureList.Write(writer);
-            sbspStartLeaves.Write(writer, SR1_File.Version.First, SR1_File.Version.Retail);
-            sbspEndLeaves.Write(writer, SR1_File.Version.First, SR1_File.Version.Retail);
+            sbspStartLeaves.Write(writer, SR1_File.Version.First, SR1_File.Version.Jun01);
+            sbspEndLeaves.Write(writer, SR1_File.Version.First, SR1_File.Version.Jun01);
             MorphDiffList.Write(writer);
             MorphColorList.Write(writer);
             numBSPTrees.Write(writer);
@@ -188,7 +188,7 @@ namespace Recombobulator.SR1Structures
         {
             base.MigrateVersion(file, targetVersion);
 
-            if (file._Version == SR1_File.Version.Beta && targetVersion == SR1_File.Version.Retail_PC)
+            if (file._Version <= SR1_File.Version.May12 && targetVersion == SR1_File.Version.Retail_PC)
             {
                 MembersRead.Insert(MembersRead.IndexOf(sbspRoot), pad);
                 MembersRead.Remove(sbspRoot);
@@ -218,7 +218,7 @@ namespace Recombobulator.SR1Structures
                 }
             }
 
-            if (file._Version == SR1_File.Version.Retail && targetVersion == SR1_File.Version.Retail_PC)
+            if (file._Version == SR1_File.Version.Jun01 && targetVersion == SR1_File.Version.Retail_PC)
             {
                 MembersRead.Add(unknownPCList);
 

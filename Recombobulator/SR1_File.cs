@@ -24,8 +24,11 @@ namespace Recombobulator
             Alpha_1,
             Alpha_2,
             Alpha_3,
-            Beta,
-            Retail,
+            May12,
+            Jun01,
+            Jun10,
+            Jun18,
+            Jul14,
             Retail_PC, // No unique ID. Detect from TextureFT3.
             Next
         }
@@ -49,7 +52,7 @@ namespace Recombobulator
 
         public string _FilePath { get; private set; } = "";
         public uint _FileLength { get; private set; } = 0;
-        public Version _Version { get; private set; } = SR1_File.Version.Retail;
+        public Version _Version { get; private set; } = SR1_File.Version.Jun01;
         public bool _IsLevel { get; private set; }
         public readonly SortedList<uint, SR1_Structure> _Structures = new SortedList<uint, SR1_Structure>();
         public readonly SortedDictionary<uint, SR1_PrimativeBase> _Primatives = new SortedDictionary<uint, SR1_PrimativeBase>();
@@ -134,19 +137,19 @@ namespace Recombobulator
                     UInt32 version = streamReader.ReadUInt32();
                     if (version == RETAIL_VERSION)
                     {
-                        _Version = Version.Retail;
+                        _Version = Version.Jun01;
                         validVersion = true;
                     }
                     else if (version == BETA_19990512_VERSION)
                     {
-                        _Version = Version.Beta;
+                        _Version = Version.May12;
                         validVersion = true;
                     }
                 }
 
                 if (!validVersion)
                 {
-                    _Version = Version.Retail;
+                    _Version = Version.Jun01;
                     validVersion = true;
                 }
 
@@ -170,12 +173,22 @@ namespace Recombobulator
                             UInt32 magicNum = streamReader.ReadUInt32();
                             if (magicNum == 0xACE00065)
                             {
-                                _Version = Version.Retail;
+                                _Version = Version.Jul14;
                                 validVersion = true;
                             }
                             else if (magicNum == 0xACE00064)
                             {
-                                _Version = Version.Beta;
+                                _Version = Version.Jun10;
+                                validVersion = true;
+                            }
+                            else if (magicNum == 0xACE00063)
+                            {
+                                _Version = Version.Jun01;
+                                validVersion = true;
+                            }
+                            else if (magicNum == 0xACE00062)
+                            {
+                                _Version = Version.May12;
                                 validVersion = true;
                             }
                         }
@@ -184,7 +197,7 @@ namespace Recombobulator
 
                 if (!validVersion)
                 {
-                    _Version = Version.Retail;
+                    _Version = Version.Jun01;
                     validVersion = true;
                 }
 

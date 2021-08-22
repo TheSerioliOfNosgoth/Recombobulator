@@ -12,7 +12,7 @@ namespace Recombobulator.SR1Structures
         {
             attributes.Read(reader, this, "attributes");
 
-            if (reader.File._Version >= SR1_File.Version.Retail)
+            if (reader.File._Version >= SR1_File.Version.Jul14)
             {
                 unknown = new SR1_PrimativeArray<byte>(40);
             }

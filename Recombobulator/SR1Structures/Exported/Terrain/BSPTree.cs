@@ -58,8 +58,7 @@ namespace Recombobulator.SR1Structures
         {
             base.MigrateVersion(file, targetVersion);
 
-            if ((file._Version == SR1_File.Version.Retail || file._Version == SR1_File.Version.Beta) &&
-                targetVersion == SR1_File.Version.Retail_PC)
+            if (file._Version < SR1_File.Version.Retail_PC && targetVersion == SR1_File.Version.Retail_PC)
             {
                 // Burn in sunlight.
                 // The 0x0040 seems right, but not sure about the 0x0002.

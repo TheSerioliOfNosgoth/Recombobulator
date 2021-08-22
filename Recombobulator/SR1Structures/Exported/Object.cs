@@ -204,7 +204,7 @@ namespace Recombobulator.SR1Structures
             {
                 SR1_StructureArray<G2AnimKeylist_Type> keyLists = new SR1_StructureArray<G2AnimKeylist_Type>(numAnims.Value);
                 if (monAttributes != null &&
-                    (monAttributes.magicnum.Value == 0xACE00064 || monAttributes.magicnum.Value == 0xACE00065) &&
+                    (monAttributes.magicnum.Value == 0xACE00063 || monAttributes.magicnum.Value == 0xACE00064 || monAttributes.magicnum.Value == 0xACE00065) &&
                     scriptName == "wrshp___")
                 {
                     ((G2AnimKeylist_Type)keyLists[13]).OverridePadLength(8);
@@ -212,7 +212,7 @@ namespace Recombobulator.SR1Structures
                 keyLists.ReadFromPointer(reader, ((SR1_PointerArray<G2AnimKeylist_Type>)animListStruct)[0]);
 
                 if (monAttributes != null &&
-                    monAttributes.magicnum.Value == 0xACE00064 &&
+                    (monAttributes.magicnum.Value == 0xACE00063 || monAttributes.magicnum.Value == 0xACE00064) &&
                     scriptName == "hunter__" || scriptName == "wrshp___" ||
                     scriptName == "vlgra___" || scriptName == "vlgrb___" || scriptName == "vlgrc___")
                 {

@@ -198,7 +198,7 @@ namespace Recombobulator.SR1Structures
             SR1_Structure terrainStruct = new Terrain().ReadFromPointer(reader, terrain);
             new LightList().ReadFromPointer(reader, lightList);
             new VMObjectList(numVMObjects.Value).ReadFromPointer(reader, vmobjectList);
-            if (reader.File._Version <= SR1_File.Version.Beta)
+            if (reader.File._Version <= SR1_File.Version.May12)
             {
                 new SR1_StructureArray<SpotLight>(numSpotLights.Value).ReadFromPointer(reader, spotLightList);
             }
@@ -210,7 +210,7 @@ namespace Recombobulator.SR1Structures
             new SR1_StructureSeries<MultiSignal>((int)(SignalListEnd.Offset - SignalListStart.Offset)).ReadFromPointer(reader, SignalListStart);
             new SR1_StructureArray<PlanMkr>(NumberOfPlanMarkers.Value).SetPadding(4).ReadFromPointer(reader, PlanMarkerList);
             new SR1_StructureArray<SFXMkr>(NumberOfSFXMarkers.Value).ReadFromPointer(reader, SFXMarkerList);
-            if (reader.File._Version >= SR1_File.Version.Retail)
+            if (reader.File._Version >= SR1_File.Version.Jun01)
             {
                 new SR1_String(4).SetPadding(4).ReadFromPointer(reader, dynamicMusicName);
             }
@@ -380,7 +380,7 @@ namespace Recombobulator.SR1Structures
                 streamUnitID.Value = file._NewStreamUnitID;
             }
 
-            if ((file._Version == SR1_File.Version.Retail || file._Version == SR1_File.Version.Beta) &&
+            if (file._Version >= SR1_File.Version.May12 && file._Version < SR1_File.Version.Retail_PC &&
                 targetVersion == SR1_File.Version.Retail_PC)
             {
                 versionNumber.Value = SR1_File.RETAIL_VERSION;
