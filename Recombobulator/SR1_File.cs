@@ -193,6 +193,32 @@ namespace Recombobulator
                             }
                         }
                     }
+                    else
+                    {
+                        streamReader.BaseStream.Position = 0x4C;
+                        char[] objectName = streamReader.ReadChars(8);
+                        string objectNameStr = new string(objectName);
+                        if (objectNameStr == "particle")
+                        {
+                            streamReader.BaseStream.Position = 0x0424;
+                            if (streamReader.ReadUInt32() == 0x00000440 &&
+                                streamReader.ReadUInt32() == 0x00003000 &&
+                                streamReader.ReadUInt32() == 0x00003150 &&
+                                streamReader.ReadUInt32() == 0x0000355C &&
+                                streamReader.ReadUInt32() == 0x00003B60 &&
+                                streamReader.ReadUInt32() == 0x00003EE8 &&
+                                streamReader.ReadUInt32() == 0x00003EA0)
+                            {
+                                _Version = Version.May12;
+                            }
+                            else
+                            {
+                                _Version = Version.Jun01;
+                            }
+
+                            validVersion = true;
+                        }
+                    }
                 }
 
                 if (!validVersion)
