@@ -9,6 +9,15 @@ namespace Recombobulator.SR1Structures
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
+            if (reader.File._Version >= SR1_File.Version.Jun01)
+            {
+                unknown = new SR1_PrimativeArray<byte>(48);
+            }
+            else
+            {
+                unknown = new SR1_PrimativeArray<byte>(44);
+            }
+
             unknown.Read(reader, this, "unknown");
         }
 

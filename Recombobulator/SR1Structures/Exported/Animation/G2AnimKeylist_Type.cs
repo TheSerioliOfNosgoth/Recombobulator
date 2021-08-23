@@ -399,7 +399,7 @@ namespace Recombobulator.SR1Structures
                 scriptName == "pilhost_" || scriptName == "cathost_" ||
                 scriptName == "tmbhost_" || scriptName == "boshost_" ||
                 scriptName == "ronhost_" || scriptName == "cronhstr" ||
-                scriptName == "prthstr_" ||
+                scriptName == "prthstr_" || scriptName == "pilhosta" ||
                 scriptName == "flamesk_" || scriptName == "flamesl_")
             {
                 sectionData.numSections = sectionCount.Value;

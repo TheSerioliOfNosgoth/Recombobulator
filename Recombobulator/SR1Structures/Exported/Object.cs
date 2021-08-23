@@ -205,7 +205,12 @@ namespace Recombobulator.SR1Structures
             if (numAnims.Value > 0)
             {
                 SR1_StructureArray<G2AnimKeylist_Type> keyLists = new SR1_StructureArray<G2AnimKeylist_Type>(numAnims.Value);
-                if (reader.File._Version >= SR1_File.Version.Jun01 && reader.File._Version < SR1_File.Version.Next &&
+                if (reader.File._Version >= SR1_File.Version.May12 && reader.File._Version < SR1_File.Version.Jun01 &&
+                    scriptName == "wrshp___")
+                {
+                    ((G2AnimKeylist_Type)keyLists[15]).OverridePadLength(8);
+                }
+                else if (reader.File._Version >= SR1_File.Version.Jun01 && reader.File._Version < SR1_File.Version.Next &&
                     scriptName == "wrshp___")
                 {
                     ((G2AnimKeylist_Type)keyLists[13]).OverridePadLength(8);
