@@ -48,10 +48,7 @@ namespace Recombobulator.SR1Structures
             stateChoices.Read(reader, this, "stateChoices");
 
             // Padding is used by the asmCode maybe?
-            if ((reader.ObjectName.ToString() == "alukabss" || reader.ObjectName.ToString() == "roninbss") &&
-                (versionID.Value == 0x800CF650 || versionID.Value == 0x800D1EA4 ||
-                versionID.Value == 0x800D1800 || versionID.Value == 0x800D0C18 ||
-                versionID.Value == 0x800D0A9C || versionID.Value == 0x800D02BC))
+            if (reader.ObjectName.ToString() == "alukabss" || reader.ObjectName.ToString() == "roninbss")
             {
                 pad = new SR1_PrimativeArray<byte>(8);
             }

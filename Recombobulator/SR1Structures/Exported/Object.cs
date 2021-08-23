@@ -94,13 +94,15 @@ namespace Recombobulator.SR1Structures
             MonsterAttributes monAttributes = null;
             if (data.Offset != 0)
             {
-                if (scriptName == "pshblkb_")
+                if (scriptName == "pshblkb_" || scriptName == "urn_____")
                 {
-                    new SR1_PrimativeArray<byte>(8).ReadFromPointer(reader, data);
+                    new PhysObGenericProperties(0).ReadFromPointer(reader, data);
                 }
                 else if ((oflags2.Value & 0x00040000) != 0 ||
                     scriptName == "catdora_" ||
-                    scriptName == "walbosc_")
+                    scriptName == "walbosc_" ||
+                    scriptName == "flamesk_" ||
+                    scriptName == "flamesl_")
                 {
                     // new PhysObProperties().ReadFromPointer(reader, data);
 
@@ -210,7 +212,7 @@ namespace Recombobulator.SR1Structures
                 }
                 keyLists.ReadFromPointer(reader, ((SR1_PointerArray<G2AnimKeylist_Type>)animListStruct)[0]);
 
-                if (reader.File._Version >= SR1_File.Version.Jun01 && reader.File._Version < SR1_File.Version.Jul14 &&
+                if (reader.File._Version >= SR1_File.Version.May12 && reader.File._Version < SR1_File.Version.Jul14 &&
                     scriptName == "hunter__" || scriptName == "wrshp___" ||
                     scriptName == "vlgra___" || scriptName == "vlgrb___" || scriptName == "vlgrc___")
                 {

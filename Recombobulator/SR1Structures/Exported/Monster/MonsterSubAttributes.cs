@@ -50,7 +50,6 @@ namespace Recombobulator.SR1Structures
         public readonly SR1_Primative<short> maxSpikeVertSpeed = new SR1_Primative<short>();
         public readonly SR1_Primative<short> upOnGroundOffset = new SR1_Primative<short>();
         public readonly SR1_Primative<short> downOnGroundOffset = new SR1_Primative<short>();
-        public readonly SR1_Primative<short> pad = new SR1_Primative<short>();
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
@@ -90,9 +89,9 @@ namespace Recombobulator.SR1Structures
             soundVuln.Read(reader, this, "soundVuln");
             weaponVuln.Read(reader, this, "weaponVuln");
             missileVuln.Read(reader, this, "missileVuln");
-            bruiseRed.Read(reader, this, "bruiseRed");
-            bruiseGreen.Read(reader, this, "bruiseGreen");
-            bruiseBlue.Read(reader, this, "bruiseBlue");
+            bruiseRed.Read(reader, this, "bruiseRed", SR1_File.Version.Jun01, SR1_File.Version.Next);
+            bruiseGreen.Read(reader, this, "bruiseGreen", SR1_File.Version.Jun01, SR1_File.Version.Next);
+            bruiseBlue.Read(reader, this, "bruiseBlue", SR1_File.Version.Jun01, SR1_File.Version.Next);
             minSpikeRange.Read(reader, this, "minSpikeRange");
             maxSpikeRange.Read(reader, this, "maxSpikeRange");
             maxSpikeAngle.Read(reader, this, "maxSpikeAngle");
@@ -101,7 +100,6 @@ namespace Recombobulator.SR1Structures
             maxSpikeVertSpeed.Read(reader, this, "maxSpikeVertSpeed");
             upOnGroundOffset.Read(reader, this, "upOnGroundOffset");
             downOnGroundOffset.Read(reader, this, "downOnGroundOffset");
-            pad.Read(reader, this, "pad");
         }
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
@@ -152,9 +150,9 @@ namespace Recombobulator.SR1Structures
             soundVuln.Write(writer);
             weaponVuln.Write(writer);
             missileVuln.Write(writer);
-            bruiseRed.Write(writer);
-            bruiseGreen.Write(writer);
-            bruiseBlue.Write(writer);
+            bruiseRed.Write(writer, SR1_File.Version.Jun01, SR1_File.Version.Next);
+            bruiseGreen.Write(writer, SR1_File.Version.Jun01, SR1_File.Version.Next);
+            bruiseBlue.Write(writer, SR1_File.Version.Jun01, SR1_File.Version.Next);
             minSpikeRange.Write(writer);
             maxSpikeRange.Write(writer);
             maxSpikeAngle.Write(writer);
@@ -163,7 +161,6 @@ namespace Recombobulator.SR1Structures
             maxSpikeVertSpeed.Write(writer);
             upOnGroundOffset.Write(writer);
             downOnGroundOffset.Write(writer);
-            pad.Write(writer);
         }
     }
 }

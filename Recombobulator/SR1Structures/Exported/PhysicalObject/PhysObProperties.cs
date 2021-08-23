@@ -24,7 +24,7 @@ namespace Recombobulator.SR1Structures
                 case 0:
                     return new PhysObWeaponProperties();
                 case 1:
-                    return new PhysObGenericProperties();
+                    return new PhysObGenericProperties(4);
                 case 2:
                     return new PhysObSwitchProperties();
                 case 3:
@@ -39,7 +39,7 @@ namespace Recombobulator.SR1Structures
                     // There's a __PhysObProjectileData in extraData containing a PhysObWeaponAttributes
                     return new PhysObProjectileProperties();
                 default:
-                    return new PhysObProperties();
+                    return new PhysObGenericProperties(0);
             }
         }
 

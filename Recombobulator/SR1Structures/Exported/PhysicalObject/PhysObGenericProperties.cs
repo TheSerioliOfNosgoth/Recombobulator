@@ -5,12 +5,18 @@ namespace Recombobulator.SR1Structures
 {
     class PhysObGenericProperties : PhysObPropertiesBase
     {
-        SR1_Primative<uint> pad = new SR1_Primative<uint>();
+        SR1_PrimativeArray<byte> data = new SR1_PrimativeArray<byte>(0);
+
+        public PhysObGenericProperties(int length)
+            : base()
+        {
+            data = new SR1_PrimativeArray<byte>(length);
+        }
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
             Properties.Read(reader, this, "Properties");
-            pad.Read(reader, this, "pad");
+            data.Read(reader, this, "data");
         }
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
@@ -20,7 +26,7 @@ namespace Recombobulator.SR1Structures
         public override void WriteMembers(SR1_Writer writer)
         {
             Properties.Write(writer);
-            pad.Write(writer);
+            data.Write(writer);
         }
     }
 }

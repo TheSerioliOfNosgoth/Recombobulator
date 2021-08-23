@@ -120,7 +120,7 @@ namespace Recombobulator.SR1Structures
                 new SR1_Primative<byte>().SetPadding(4).Read(reader, null, "");
             }
 
-            temp = new SR1_PointerArray<MonsterSubAttributes>(numSubAttributes.Value, true).ReadFromPointer(reader, subAttributesList);
+            temp = new SR1_PointerArray<MonsterSubAttributes>(numSubAttributes.Value, true, 4).ReadFromPointer(reader, subAttributesList);
 
             // Unknown byte plus padding. Always 0xD1
             if (temp.End != 0x00000000 && !reader.File._Structures.ContainsKey(temp.End))
@@ -144,7 +144,7 @@ namespace Recombobulator.SR1Structures
             new SR1_StructureArray<MonsterIdle>(numIdles.Value).ReadFromPointer(reader, idleList);
 
             int realNumBehaviors = (numBehaviors.Value > 0) ? (numBehaviors.Value - 1) : 0;
-            if (reader.File._Version >= SR1_File.Version.Jun01)
+            if (reader.File._Version >= SR1_File.Version.May12)
             {
                 if (reader.ObjectName.ToString() == "wrshp___")
                 {

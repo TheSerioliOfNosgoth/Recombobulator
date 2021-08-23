@@ -371,7 +371,7 @@ namespace Recombobulator.SR1Structures
             string scriptName = reader.ObjectName.ToString();
 
             // Kain has one weird animation that doesn't match the rest. Checking for the three seems hacky though.
-            if (scriptName == "paths___")
+            if (scriptName == "paths___" || scriptName == "urn_____")
             {
                 sectionData.sectionA = 4;// reader.Object.sectionA.Value;
                 sectionData.sectionB = reader.Object.sectionB.Value;
@@ -399,7 +399,8 @@ namespace Recombobulator.SR1Structures
                 scriptName == "pilhost_" || scriptName == "cathost_" ||
                 scriptName == "tmbhost_" || scriptName == "boshost_" ||
                 scriptName == "ronhost_" || scriptName == "cronhstr" ||
-                scriptName == "prthstr_")
+                scriptName == "prthstr_" ||
+                scriptName == "flamesk_" || scriptName == "flamesl_")
             {
                 sectionData.numSections = sectionCount.Value;
                 sectionData.sectionA = reader.Object.sectionA.Value;

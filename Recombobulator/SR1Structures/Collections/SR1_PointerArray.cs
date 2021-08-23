@@ -15,16 +15,18 @@ namespace Recombobulator.SR1Structures
     class SR1_PointerArray<T> : SR1_PointerArray where T : SR1_Structure, new()
     {
         private bool _ShouldCreate = false;
+        private int _EntryPadding = 0;
 
         protected override SR1_PointerBase CreateElement()
         {
             return new SR1_Pointer<T>();
         }
 
-        public SR1_PointerArray(int arrayLength, bool shouldCreate)
+        public SR1_PointerArray(int arrayLength, bool shouldCreate, int entryPadding = 0)
             : base(arrayLength)
         {
             _ShouldCreate = shouldCreate;
+            _EntryPadding = entryPadding;
         }
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
@@ -36,6 +38,7 @@ namespace Recombobulator.SR1Structures
                     if (_array[i].PrepareToReadReference(reader))
                     {
                         SR1_Structure structure = (SR1_Structure)_array[i].CreateObject(this, reader);
+                        structure.SetPadding(_EntryPadding);
                         structure.Read(reader, null, "");
                     }
                 }
