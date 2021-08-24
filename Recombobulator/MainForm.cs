@@ -31,7 +31,7 @@ namespace Recombobulator
                 CheckFileExists = true,
                 CheckPathExists = true,
                 Filter =
-                    "Soul Reaver PCM Files|*.pcm|" +
+                    "Soul Reaver Files|*.pcm;*.drm|" +
                     "All Files (*.*)|*.*",
                 DefaultExt = "pcm",
                 FilterIndex = 1

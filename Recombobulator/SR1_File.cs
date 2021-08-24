@@ -23,7 +23,7 @@ namespace Recombobulator
             Alpha_1_X,
             Alpha_1,
             Alpha_2,
-            Alpha_3,
+            Feb16,
             May12,
             Jun01,
             Jun10,
@@ -135,14 +135,24 @@ namespace Recombobulator
                 {
                     streamReader.BaseStream.Position = 0xF0;
                     UInt32 version = streamReader.ReadUInt32();
-                    if (version == RETAIL_VERSION)
+                    if (!validVersion && version == RETAIL_VERSION)
                     {
                         _Version = Version.Jun01;
                         validVersion = true;
                     }
-                    else if (version == BETA_19990512_VERSION)
+
+                    if (!validVersion && version == BETA_19990512_VERSION)
                     {
                         _Version = Version.May12;
+                        validVersion = true;
+                    }
+
+                    streamReader.BaseStream.Position = 0xE4;
+                    version = streamReader.ReadUInt32();
+
+                    if (!validVersion && version == ALPHA_19990216_VERSION_3)
+                    {
+                        _Version = Version.Feb16;
                         validVersion = true;
                     }
                 }
@@ -545,7 +555,9 @@ namespace Recombobulator
         public static string[] TestFolder(string folderName, TestFlags flags, ref int filesRead, ref int filesToRead, ref string recentMessage)
         {
             DirectoryInfo directoryInfo = new DirectoryInfo(folderName);
-            FileInfo[] fileInfos = directoryInfo.GetFiles("*.pcm", SearchOption.AllDirectories);
+            FileInfo[] fileInfos = directoryInfo.GetFiles("*.*", SearchOption.AllDirectories);
+            fileInfos = Array.FindAll(fileInfos, info => (info.Extension == ".pcm" || info.Extension == ".drm"));
+
             List<string> physObs = new List<string>();
             List<string> genericTunes = new List<string>();
             List<string> monAttributes = new List<string>();

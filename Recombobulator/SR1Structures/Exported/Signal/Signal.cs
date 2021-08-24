@@ -5,7 +5,7 @@ namespace Recombobulator.SR1Structures
 {
     class Signal : SR1_Structure
     {
-        private enum SignalTypeRetail
+        private enum SignalTypeJun01
         {
             HandleLightGroup,           // long lightGroup;
             HandleCameraAdjust,         // long cameraAdjust;
@@ -35,7 +35,7 @@ namespace Recombobulator.SR1Structures
             HandleSetCameraTilt,        // long cameraTilt;
             HandleSetCameraDistance,    // long cameraDistance;
         }
-        private enum SignalTypeBeta
+        private enum SignalTypeMay12
         {
             HandleLightGroup = 12,      // long lightGroup;
             HandleCameraAdjust,         // long cameraAdjust;
@@ -67,6 +67,121 @@ namespace Recombobulator.SR1Structures
             HandleSetCameraDistance,    // long cameraDistance;
         }
 
+        private enum SignalTypeFeb16
+        {
+            HandleHideObject = 0,
+            HandleUnhideObject,
+            HandleDecoupledTimer,
+            HandleGotoFrame,
+            HandleChangeModel,
+            HandleStartAniTex,
+            HandleStopAniTex,
+            HandleStartSpline,
+            HandleStopSpline,
+            HandleDeathZ,
+            HandleDSignal,
+            HandleGSignal,
+            HandleLightGroup,           // long lightGroup;
+            HandleCameraAdjust,         // long cameraAdjust;
+            HandleCameraMode,           // long cameraMode;
+            HandleCameraKey,            // CameraKey *cameraKey // DOUBLE CHECK THIS
+            HandleCameraTimer,          // long cameraTimer;
+            HandleCameraSmooth,         // long cameraSmooth;
+            HandleCameraValue,          // long index; long value;
+            HandleCameraLock,           // long cameraLock;
+            HandleCameraUnlock,         // long cameraUnlock;
+            HandleCameraSave,           // long cameraSave;
+            HandleCameraRestore,        // long cameraRestore;
+            HandleTeleport,
+            HandleFarPlane,
+            HandleSoundStartSequence,
+            HandleSoundStopSlot,
+            HandleSoundPauseSlot,
+            HandleSoundResumeSlot,
+            HandleSoundMuteChannel,
+            HandleSoundUnmuteChannel,
+            HandleTimes,
+            HandleFreeze,
+            HandleUnfreeze,
+            HandleFreezeAll,
+            HandleUnfreezeAll,
+            HandleHideBG,
+            HandleUnhideBG,
+            HandleHideBGObject,
+            HandleUnhideBGObject,
+            HandleMirror,               // Mirror *mirror;
+            HandleUnmirror,
+            HandleSetMirror,
+            HandleFogNear,              // long fogNear;
+            HandleFogFar,               // long fogFar;
+            HandleStartVertexMorph,
+            HandleStopVertexMorph,
+            HandleLogicValue,
+            HandleCameraShake,          // long time; long scale;
+            HandleLogicAnd,
+            HandleLogicOr,
+            HandleLogicXor,
+            HandleLogicTrue,
+            HandleLogicFalse,
+            HandleCallSignal,           // void* callSignal; (callSignal is itself a signal?)
+            HandleOffset,
+            HandleLogicAdd,
+            HandleLogicSub,
+            HandleGoto,
+            HandleLabel,
+            HandleEnd,                  // (nothing)
+            HandleGosub,
+            HandleStopPlayerControl,    // (nothing)
+            HandleStartPlayerControl,   // (nothing)
+            HandleSetPlayerControl,
+            HandleLaunch,
+            HandleCostumeChange,
+            HandleGameValue,
+            HandleSetZSignal,
+            HandleResetZSignal,
+            HandleSoundEffect,
+            HandleMusicControl,
+            HandleLevelChange,
+            HandleVoiceControl,
+            HandleBankChange,
+            HandleGameLoadSave,
+            HandleHideObjectGroup,
+            HandleUnhideObjectGroup,
+            HandleStreamLevel,          // long currentnum; long streamID; char toname[16];
+            HandleShards,
+            HandleCameraSpline,         // long index; Intro* intro;
+            HandleScreenWipe,           // short type; short time;
+            HandleVoiceQueue,
+            HandleVoiceUnQueue,
+            HandleVoiceRequest,
+            HandleVoiceClearQueue,
+            HandleVoiceForce,
+            HandleSetMusicVariable,
+            HandleIntroActive,
+            HandleIntroFX,
+            HandleGotoPos,
+            HandleFrameTimer,
+            HandleBirthObject,
+            HandleBlendStart,           // long blendStart;
+            HandleMiscValue,
+            HandleVoiceDisable,
+            HandleVoiceReEnable,
+            HandleSetTimes,
+            HandleScreenWipeColor,      // unsigned char r; unsigned char g; unsigned char b; unsigned char pad;
+            HandleRelocate,
+            HandleLogicTrueElse,
+            HandleLogicFalseElse,
+            HandlePrint,
+            HandleTagTimer,
+            HandleSetNoRemove,
+            HandleResetNoRemove,
+            HandleSetSlideAngle,        // long slideAngle;
+            HandleResetSlideAngle,      // (nothing)
+            HandleSetCameraTilt,        // long cameraTilt;
+            HandleSetCameraDistance,    // long cameraDistance;
+            HandleDecoupledTimer2,
+        }
+
         SR1_Primative<int> id = new SR1_Primative<int>();
         SignalData data = new SignalData();
 
@@ -76,87 +191,87 @@ namespace Recombobulator.SR1Structures
 
             if (reader.File._Version >= SR1_File.Version.Jun01)
             {
-                switch ((SignalTypeRetail)id.Value)
+                switch ((SignalTypeJun01)id.Value)
                 {
-                    case SignalTypeRetail.HandleLightGroup:
+                    case SignalTypeJun01.HandleLightGroup:
                         data = new SignalLightGroup();
                         break;
-                    case SignalTypeRetail.HandleCameraAdjust:
+                    case SignalTypeJun01.HandleCameraAdjust:
                         data = new SignalCameraAdjust();
                         break;
-                    case SignalTypeRetail.HandleCameraMode:
+                    case SignalTypeJun01.HandleCameraMode:
                         data = new SignalCameraMode();
                         break;
-                    case SignalTypeRetail.HandleCameraKey:
+                    case SignalTypeJun01.HandleCameraKey:
                         data = new SignalCameraKey();
                         break;
-                    case SignalTypeRetail.HandleCameraTimer:
+                    case SignalTypeJun01.HandleCameraTimer:
                         data = new SignalCameraTimer();
                         break;
-                    case SignalTypeRetail.HandleCameraSmooth:
+                    case SignalTypeJun01.HandleCameraSmooth:
                         data = new SignalCameraSmooth();
                         break;
-                    case SignalTypeRetail.HandleCameraValue:
+                    case SignalTypeJun01.HandleCameraValue:
                         data = new SignalCameraValue();
                         break;
-                    case SignalTypeRetail.HandleCameraLock:
+                    case SignalTypeJun01.HandleCameraLock:
                         data = new SignalCameraLock();
                         break;
-                    case SignalTypeRetail.HandleCameraUnlock:
+                    case SignalTypeJun01.HandleCameraUnlock:
                         data = new SignalCameraUnlock();
                         break;
-                    case SignalTypeRetail.HandleCameraSave:
+                    case SignalTypeJun01.HandleCameraSave:
                         data = new SignalCameraSave();
                         break;
-                    case SignalTypeRetail.HandleCameraRestore:
+                    case SignalTypeJun01.HandleCameraRestore:
                         data = new SignalCameraRestore();
                         break;
-                    case SignalTypeRetail.HandleFogNear:
+                    case SignalTypeJun01.HandleFogNear:
                         data = new SignalFogNear();
                         break;
-                    case SignalTypeRetail.HandleFogFar:
+                    case SignalTypeJun01.HandleFogFar:
                         data = new SignalFogFar();
                         break;
-                    case SignalTypeRetail.HandleCameraShake:
+                    case SignalTypeJun01.HandleCameraShake:
                         data = new SignalCameraShake();
                         break;
-                    case SignalTypeRetail.HandleCallSignal:
+                    case SignalTypeJun01.HandleCallSignal:
                         data = new SignalCallSignal();
                         break;
-                    case SignalTypeRetail.HandleEnd:
+                    case SignalTypeJun01.HandleEnd:
                         data = new SignalEnd();
                         break;
-                    case SignalTypeRetail.HandleStopPlayerControl:
+                    case SignalTypeJun01.HandleStopPlayerControl:
                         data = new SignalStopPlayerControl();
                         break;
-                    case SignalTypeRetail.HandleStartPlayerControl:
+                    case SignalTypeJun01.HandleStartPlayerControl:
                         data = new SignalStartPlayerControl();
                         break;
-                    case SignalTypeRetail.HandleStreamLevel:
+                    case SignalTypeJun01.HandleStreamLevel:
                         data = new SignalStreamLevel();
                         break;
-                    case SignalTypeRetail.HandleCameraSpline:
+                    case SignalTypeJun01.HandleCameraSpline:
                         data = new SignalCameraSpline();
                         break;
-                    case SignalTypeRetail.HandleScreenWipe:
+                    case SignalTypeJun01.HandleScreenWipe:
                         data = new SignalScreenWipe();
                         break;
-                    case SignalTypeRetail.HandleBlendStart:
+                    case SignalTypeJun01.HandleBlendStart:
                         data = new SignalBlendStart();
                         break;
-                    case SignalTypeRetail.HandleScreenWipeColor:
+                    case SignalTypeJun01.HandleScreenWipeColor:
                         data = new SignalScreenWipeColor();
                         break;
-                    case SignalTypeRetail.HandleSetSlideAngle:
+                    case SignalTypeJun01.HandleSetSlideAngle:
                         data = new SignalSetSlideAngle();
                         break;
-                    case SignalTypeRetail.HandleResetSlideAngle:
+                    case SignalTypeJun01.HandleResetSlideAngle:
                         data = new SignalResetSlideAngle();
                         break;
-                    case SignalTypeRetail.HandleSetCameraTilt:
+                    case SignalTypeJun01.HandleSetCameraTilt:
                         data = new SignalCameraTilt();
                         break;
-                    case SignalTypeRetail.HandleSetCameraDistance:
+                    case SignalTypeJun01.HandleSetCameraDistance:
                         data = new SignalCameraDistance();
                         break;
                     default:
@@ -167,90 +282,187 @@ namespace Recombobulator.SR1Structures
             }
             else if (reader.File._Version >= SR1_File.Version.May12)
             {
-                switch ((SignalTypeBeta)id.Value)
+                switch ((SignalTypeMay12)id.Value)
                 {
-                    case SignalTypeBeta.HandleLightGroup:
+                    case SignalTypeMay12.HandleLightGroup:
                         data = new SignalLightGroup();
                         break;
-                    case SignalTypeBeta.HandleCameraAdjust:
+                    case SignalTypeMay12.HandleCameraAdjust:
                         data = new SignalCameraAdjust();
                         break;
-                    case SignalTypeBeta.HandleCameraMode:
+                    case SignalTypeMay12.HandleCameraMode:
                         data = new SignalCameraMode();
                         break;
-                    case SignalTypeBeta.HandleCameraKey:
+                    case SignalTypeMay12.HandleCameraKey:
                         data = new SignalCameraKey();
                         break;
-                    case SignalTypeBeta.HandleCameraTimer:
+                    case SignalTypeMay12.HandleCameraTimer:
                         data = new SignalCameraTimer();
                         break;
-                    case SignalTypeBeta.HandleCameraSmooth:
+                    case SignalTypeMay12.HandleCameraSmooth:
                         data = new SignalCameraSmooth();
                         break;
-                    case SignalTypeBeta.HandleCameraValue:
+                    case SignalTypeMay12.HandleCameraValue:
                         data = new SignalCameraValue();
                         break;
-                    case SignalTypeBeta.HandleCameraLock:
+                    case SignalTypeMay12.HandleCameraLock:
                         data = new SignalCameraLock();
                         break;
-                    case SignalTypeBeta.HandleCameraUnlock:
+                    case SignalTypeMay12.HandleCameraUnlock:
                         data = new SignalCameraUnlock();
                         break;
-                    case SignalTypeBeta.HandleCameraSave:
+                    case SignalTypeMay12.HandleCameraSave:
                         data = new SignalCameraSave();
                         break;
-                    case SignalTypeBeta.HandleCameraRestore:
+                    case SignalTypeMay12.HandleCameraRestore:
                         data = new SignalCameraRestore();
                         break;
-                    case SignalTypeBeta.HandleMirror:
+                    case SignalTypeMay12.HandleMirror:
                         data = new SignalMirror();
                         break;
-                    case SignalTypeBeta.HandleFogNear:
+                    case SignalTypeMay12.HandleFogNear:
                         data = new SignalFogNear();
                         break;
-                    case SignalTypeBeta.HandleFogFar:
+                    case SignalTypeMay12.HandleFogFar:
                         data = new SignalFogFar();
                         break;
-                    case SignalTypeBeta.HandleCameraShake:
+                    case SignalTypeMay12.HandleCameraShake:
                         data = new SignalCameraShake();
                         break;
-                    case SignalTypeBeta.HandleCallSignal:
+                    case SignalTypeMay12.HandleCallSignal:
                         data = new SignalCallSignal();
                         break;
-                    case SignalTypeBeta.HandleEnd:
+                    case SignalTypeMay12.HandleEnd:
                         data = new SignalEnd();
                         break;
-                    case SignalTypeBeta.HandleStopPlayerControl:
+                    case SignalTypeMay12.HandleStopPlayerControl:
                         data = new SignalStopPlayerControl();
                         break;
-                    case SignalTypeBeta.HandleStartPlayerControl:
+                    case SignalTypeMay12.HandleStartPlayerControl:
                         data = new SignalStartPlayerControl();
                         break;
-                    case SignalTypeBeta.HandleStreamLevel:
+                    case SignalTypeMay12.HandleStreamLevel:
                         data = new SignalStreamLevel();
                         break;
-                    case SignalTypeBeta.HandleCameraSpline:
+                    case SignalTypeMay12.HandleCameraSpline:
                         data = new SignalCameraSpline();
                         break;
-                    case SignalTypeBeta.HandleScreenWipe:
+                    case SignalTypeMay12.HandleScreenWipe:
                         data = new SignalScreenWipe();
                         break;
-                    case SignalTypeBeta.HandleBlendStart:
+                    case SignalTypeMay12.HandleBlendStart:
                         data = new SignalBlendStart();
                         break;
-                    case SignalTypeBeta.HandleScreenWipeColor:
+                    case SignalTypeMay12.HandleScreenWipeColor:
                         data = new SignalScreenWipeColor();
                         break;
-                    case SignalTypeBeta.HandleSetSlideAngle:
+                    case SignalTypeMay12.HandleSetSlideAngle:
                         data = new SignalSetSlideAngle();
                         break;
-                    case SignalTypeBeta.HandleResetSlideAngle:
+                    case SignalTypeMay12.HandleResetSlideAngle:
                         data = new SignalResetSlideAngle();
                         break;
-                    case SignalTypeBeta.HandleSetCameraTilt:
+                    case SignalTypeMay12.HandleSetCameraTilt:
                         data = new SignalCameraTilt();
                         break;
-                    case SignalTypeBeta.HandleSetCameraDistance:
+                    case SignalTypeMay12.HandleSetCameraDistance:
+                        data = new SignalCameraDistance();
+                        break;
+                    default:
+                        // The lenghs can be different. Check the length field in signalInfoList entries.
+                        data = new SignalDepricated(GetSizeOfDepricated(reader, id.Value));
+                        break;
+                }
+            }
+            else if (reader.File._Version >= SR1_File.Version.Feb16)
+            {
+                switch ((SignalTypeFeb16)id.Value)
+                {
+                    case SignalTypeFeb16.HandleLightGroup:
+                        data = new SignalLightGroup();
+                        break;
+                    case SignalTypeFeb16.HandleCameraAdjust:
+                        data = new SignalCameraAdjust();
+                        break;
+                    case SignalTypeFeb16.HandleCameraMode:
+                        data = new SignalCameraMode();
+                        break;
+                    case SignalTypeFeb16.HandleCameraKey:
+                        data = new SignalCameraKey();
+                        break;
+                    case SignalTypeFeb16.HandleCameraTimer:
+                        data = new SignalCameraTimer();
+                        break;
+                    case SignalTypeFeb16.HandleCameraSmooth:
+                        data = new SignalCameraSmooth();
+                        break;
+                    case SignalTypeFeb16.HandleCameraValue:
+                        data = new SignalCameraValue();
+                        break;
+                    case SignalTypeFeb16.HandleCameraLock:
+                        data = new SignalCameraLock();
+                        break;
+                    case SignalTypeFeb16.HandleCameraUnlock:
+                        data = new SignalCameraUnlock();
+                        break;
+                    case SignalTypeFeb16.HandleCameraSave:
+                        data = new SignalCameraSave();
+                        break;
+                    case SignalTypeFeb16.HandleCameraRestore:
+                        data = new SignalCameraRestore();
+                        break;
+                    case SignalTypeFeb16.HandleSoundStartSequence:
+                        data = new SignalMiscValue();
+                        break;
+                    case SignalTypeFeb16.HandleMirror:
+                        data = new SignalMirror();
+                        break;
+                    case SignalTypeFeb16.HandleFogNear:
+                        data = new SignalFogNear();
+                        break;
+                    case SignalTypeFeb16.HandleFogFar:
+                        data = new SignalFogFar();
+                        break;
+                    case SignalTypeFeb16.HandleCameraShake:
+                        data = new SignalCameraShake();
+                        break;
+                    case SignalTypeFeb16.HandleCallSignal:
+                        data = new SignalCallSignal();
+                        break;
+                    case SignalTypeFeb16.HandleEnd:
+                        data = new SignalEnd();
+                        break;
+                    case SignalTypeFeb16.HandleStopPlayerControl:
+                        data = new SignalStopPlayerControl();
+                        break;
+                    case SignalTypeFeb16.HandleStartPlayerControl:
+                        data = new SignalStartPlayerControl();
+                        break;
+                    case SignalTypeFeb16.HandleStreamLevel:
+                        data = new SignalStreamLevel();
+                        break;
+                    case SignalTypeFeb16.HandleCameraSpline:
+                        data = new SignalCameraSpline();
+                        break;
+                    case SignalTypeFeb16.HandleScreenWipe:
+                        data = new SignalScreenWipe();
+                        break;
+                    case SignalTypeFeb16.HandleBlendStart:
+                        data = new SignalBlendStart();
+                        break;
+                    case SignalTypeFeb16.HandleScreenWipeColor:
+                        data = new SignalScreenWipeColor();
+                        break;
+                    case SignalTypeFeb16.HandleSetSlideAngle:
+                        data = new SignalSetSlideAngle();
+                        break;
+                    case SignalTypeFeb16.HandleResetSlideAngle:
+                        data = new SignalResetSlideAngle();
+                        break;
+                    case SignalTypeFeb16.HandleSetCameraTilt:
+                        data = new SignalCameraTilt();
+                        break;
+                    case SignalTypeFeb16.HandleSetCameraDistance:
                         data = new SignalCameraDistance();
                         break;
                     default:
@@ -338,7 +550,14 @@ namespace Recombobulator.SR1Structures
                         return 1;
                 }
             }
-
+            else if (reader.File._Version >= SR1_File.Version.Feb16)
+            {
+                switch (id)
+                {
+                    default:
+                        return 1;
+                }
+            }
             return 1;
         }
     }

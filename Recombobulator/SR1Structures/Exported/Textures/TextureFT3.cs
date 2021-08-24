@@ -15,6 +15,7 @@ namespace Recombobulator.SR1Structures
         SR1_Primative<byte> u2 = new SR1_Primative<byte>();
         SR1_Primative<byte> v2 = new SR1_Primative<byte>();
         SR1_Primative<ushort> attr = new SR1_Primative<ushort>();
+        SR1_Primative<int> color = new SR1_Primative<int>();
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
@@ -33,6 +34,8 @@ namespace Recombobulator.SR1Structures
             u2.Read(reader, this, "u2");
             v2.Read(reader, this, "v2");
             attr.Read(reader, this, "attr");
+
+            color.Read(reader, this, "color", SR1_File.Version.Feb16, SR1_File.Version.May12);
 
             ushort textureID;
             if (reader.File._Version == SR1_File.Version.Retail_PC)
@@ -71,6 +74,8 @@ namespace Recombobulator.SR1Structures
             u2.Write(writer);
             v2.Write(writer);
             attr.Write(writer);
+
+            color.Write(writer, SR1_File.Version.Feb16, SR1_File.Version.May12);
         }
 
         public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion)

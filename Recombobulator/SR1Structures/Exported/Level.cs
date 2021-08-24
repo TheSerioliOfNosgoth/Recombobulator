@@ -38,6 +38,7 @@ namespace Recombobulator.SR1Structures
         SR1_Primative<ushort> waterFogNear = new SR1_Primative<ushort>();
         SR1_Primative<int> depthQBlendStart = new SR1_Primative<int>();
         SR1_Pointer<LightList> spectrallightList = new SR1_Pointer<LightList>();
+        SR1_PrimativePointer<short> depthQPTable = new SR1_PrimativePointer<short>();
         SR1_Primative<int> numCameras = new SR1_Primative<int>();
         SR1_Pointer<CameraKey> cameraList = new SR1_Pointer<CameraKey>(); // void in sym, but really a CameraKey
         SR1_Primative<int> bspPlaneError = new SR1_Primative<int>();
@@ -56,6 +57,8 @@ namespace Recombobulator.SR1Structures
         SR1_Primative<int> morphLastStep = new SR1_Primative<int>();
         SR1_PrimativePointer<char> worldName = new SR1_PrimativePointer<char>();
         VramSize vramSize = new VramSize();
+        SR1_Primative<int> numberBrotherUnits = new SR1_Primative<int>();
+        SR1_PrimativePointer<char> brotherUnitsNames = new SR1_PrimativePointer<char>();
         SR1_Primative<ushort> holdFogFar = new SR1_Primative<ushort>();
         SR1_Primative<ushort> holdFogNear = new SR1_Primative<ushort>();
         SR1_Primative<int> numberEnemyUnits = new SR1_Primative<int>();
@@ -125,10 +128,11 @@ namespace Recombobulator.SR1Structures
             fogNear.Read(reader, this, "fogNear");
             spectralFogFar.Read(reader, this, "spectralFogFar");
             spectralFogNear.Read(reader, this, "spectralFogNear");
-            waterFogFar.Read(reader, this, "waterFogFar");
-            waterFogNear.Read(reader, this, "waterFogNear");
+            waterFogFar.Read(reader, this, "waterFogFar", SR1_File.Version.May12, SR1_File.Version.Next);
+            waterFogNear.Read(reader, this, "waterFogNear", SR1_File.Version.May12, SR1_File.Version.Next);
             depthQBlendStart.Read(reader, this, "depthQBlendStart");
-            spectrallightList.Read(reader, this, "spectrallightList");
+            spectrallightList.Read(reader, this, "spectrallightList", SR1_File.Version.May12, SR1_File.Version.Next);
+            depthQPTable.Read(reader, this, "depthQPTable", SR1_File.Version.Feb16, SR1_File.Version.May12);
             numCameras.Read(reader, this, "numCameras");
             cameraList.Read(reader, this, "cameraList");
             bspPlaneError.Read(reader, this, "bspPlaneError");
@@ -146,7 +150,9 @@ namespace Recombobulator.SR1Structures
             depthQFogStart.Read(reader, this, "depthQFogStart");
             morphLastStep.Read(reader, this, "morphLastStep");
             worldName.Read(reader, this, "worldName");
-            vramSize.Read(reader, this, "vramSize");
+            vramSize.Read(reader, this, "vramSize", SR1_File.Version.May12, SR1_File.Version.Next);
+            numberBrotherUnits.Read(reader, this, "numberBrotherUnits", SR1_File.Version.Feb16, SR1_File.Version.May12);
+            brotherUnitsNames.Read(reader, this, "brotherUnitsNames", SR1_File.Version.Feb16, SR1_File.Version.May12);
             holdFogFar.Read(reader, this, "holdFogFar");
             holdFogNear.Read(reader, this, "holdFogNear");
             numberEnemyUnits.Read(reader, this, "numberEnemyUnits");
@@ -165,8 +171,8 @@ namespace Recombobulator.SR1Structures
             PuzzleInstances.Read(reader, this, "PuzzleInstances");
             NumberOfPlanMarkers.Read(reader, this, "NumberOfPlanMarkers");
             PlanMarkerList.Read(reader, this, "PlanMarkerList");
-            NumberOfSFXMarkers.Read(reader, this, "NumberOfSFXMarkers");
-            SFXMarkerList.Read(reader, this, "SFXMarkerList");
+            NumberOfSFXMarkers.Read(reader, this, "NumberOfSFXMarkers", SR1_File.Version.May12, SR1_File.Version.Next);
+            SFXMarkerList.Read(reader, this, "SFXMarkerList", SR1_File.Version.May12, SR1_File.Version.Next);
             versionNumber.Read(reader, this, "versionNumber");
             dynamicMusicName.Read(reader, this, "dynamicMusicName");
             streamUnitID.Read(reader, this, "streamUnitID");
@@ -184,8 +190,8 @@ namespace Recombobulator.SR1Structures
             TODbackColorG.Read(reader, this, "TODbackColorG");
             TODbackColorB.Read(reader, this, "TODbackColorB");
             cpad3.Read(reader, this, "cpad3");
-            razielLightGroup.Read(reader, this, "razielLightGroup");
-            razielSpectralLightGroup.Read(reader, this, "razielSpectralLightGroup");
+            razielLightGroup.Read(reader, this, "razielLightGroup", SR1_File.Version.May12, SR1_File.Version.Next);
+            razielSpectralLightGroup.Read(reader, this, "razielSpectralLightGroup", SR1_File.Version.May12, SR1_File.Version.Next);
 
             reader.PlanMarkerList = PlanMarkerList;
         }
@@ -196,13 +202,51 @@ namespace Recombobulator.SR1Structures
             reader.WorldName = (SR1_String)worldNameStruct;
 
             SR1_Structure terrainStruct = new Terrain().ReadFromPointer(reader, terrain);
-            new LightList().ReadFromPointer(reader, lightList);
+
+            LightList lightListStruct = (LightList)(new LightList().ReadFromPointer(reader, lightList));
+            if (reader.File._Version == SR1_File.Version.Feb16)
+            {
+                if (reader.WorldName.ToString() == "push1" ||
+                    reader.WorldName.ToString() == "push10")
+                {
+                    reader.BaseStream.Position = lightListStruct.End;
+                    lightListStruct = new LightList();
+                    lightListStruct.SetSkipAmbient(true);
+                    lightListStruct.Read(reader, null, "");
+                }
+                if (reader.WorldName.ToString() == "push6")
+                {
+                    new SR1_PrimativeArray<byte>(8).ReadOrphan(reader, 0x000003B8);
+                }
+            }
+
             new VMObjectList(numVMObjects.Value).ReadFromPointer(reader, vmobjectList);
             if (reader.File._Version <= SR1_File.Version.May12)
             {
                 new SR1_StructureArray<SpotLight>(numSpotLights.Value).ReadFromPointer(reader, spotLightList);
             }
             new LightList().ReadFromPointer(reader, spectrallightList);
+
+            if (reader.File._Version == SR1_File.Version.Feb16)
+            {
+                // depthQPTable is length 3464 discovered in function LIGHT_CalcDQPTable
+                /*int iVar6 = -((int)(fogFar.Value * fogNear.Value) / (int)(fogFar.Value - fogNear.Value));
+                if (0x9ffe < iVar6)
+                {
+                    iVar6 = 0x9ffe;
+                }
+                if (iVar6 < -0x9ffe)
+                {
+                    iVar6 = -0x9ffe;
+                }
+                int iVar8 = (int)((uint)fogFar.Value << 0xc) / (int)((uint)fogFar.Value - (uint)fogNear.Value);
+                int iVar9 = (iVar6 * -0x1000) / iVar8;
+                int iVar10 = (iVar6 * 0x1000) / (0x1000 - iVar8);
+                int iVar11 = 0x3620;
+                int iVar12 = iVar11 / 4;*/
+                new SR1_PrimativeArray<short>(3464).ReadFromPointer(reader, depthQPTable);
+            }
+
             new SR1_StructureArray<CameraKey>(numCameras.Value).ReadFromPointer(reader, cameraList);
             new SR1_StructureArray<VGroup>(numVGroups.Value).ReadFromPointer(reader, vGroupList);
             new SR1_StructureArray<Intro>(numIntros.Value).ReadFromPointer(reader, introList);
@@ -213,6 +257,10 @@ namespace Recombobulator.SR1Structures
             if (reader.File._Version >= SR1_File.Version.Jun01)
             {
                 new SR1_String(4).SetPadding(4).ReadFromPointer(reader, dynamicMusicName);
+            }
+            else if (reader.File._Version == SR1_File.Version.Feb16 && reader.WorldName.ToString() == "push10")
+            {
+                new SR1_String(8).SetPadding(4).ReadOrphan(reader, dynamicMusicName.Offset + 2);
             }
             else
             {
@@ -308,10 +356,11 @@ namespace Recombobulator.SR1Structures
             fogNear.Write(writer);
             spectralFogFar.Write(writer);
             spectralFogNear.Write(writer);
-            waterFogFar.Write(writer);
-            waterFogNear.Write(writer);
+            waterFogFar.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+            waterFogNear.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
             depthQBlendStart.Write(writer);
-            spectrallightList.Write(writer);
+            spectrallightList.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+            depthQPTable.Write(writer, SR1_File.Version.Feb16, SR1_File.Version.May12);
             numCameras.Write(writer);
             cameraList.Write(writer);
             bspPlaneError.Write(writer);
@@ -329,7 +378,9 @@ namespace Recombobulator.SR1Structures
             depthQFogStart.Write(writer);
             morphLastStep.Write(writer);
             worldName.Write(writer);
-            vramSize.Write(writer);
+            vramSize.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+            numberBrotherUnits.Write(writer, SR1_File.Version.Feb16, SR1_File.Version.May12);
+            brotherUnitsNames.Write(writer, SR1_File.Version.Feb16, SR1_File.Version.May12);
             holdFogFar.Write(writer);
             holdFogNear.Write(writer);
             numberEnemyUnits.Write(writer);
@@ -348,8 +399,8 @@ namespace Recombobulator.SR1Structures
             PuzzleInstances.Write(writer);
             NumberOfPlanMarkers.Write(writer);
             PlanMarkerList.Write(writer);
-            NumberOfSFXMarkers.Write(writer);
-            SFXMarkerList.Write(writer);
+            NumberOfSFXMarkers.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+            SFXMarkerList.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
             versionNumber.Write(writer);
             dynamicMusicName.Write(writer);
             streamUnitID.Write(writer);
@@ -367,8 +418,8 @@ namespace Recombobulator.SR1Structures
             TODbackColorG.Write(writer);
             TODbackColorB.Write(writer);
             cpad3.Write(writer);
-            razielLightGroup.Write(writer);
-            razielSpectralLightGroup.Write(writer);
+            razielLightGroup.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+            razielSpectralLightGroup.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
         }
 
         public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion)

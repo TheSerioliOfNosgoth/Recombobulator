@@ -10,11 +10,8 @@ namespace Recombobulator.SR1Structures
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
-            lightMatrix.Read(reader, this, "lightMatrix");
-            colorMatrix.Read(reader, this, "colorMatrix");
-
-            reader.BaseStream.Position += 4;
-            End = (uint)reader.BaseStream.Position;
+            lightMatrix.SetPadding(4).Read(reader, this, "lightMatrix");
+            colorMatrix.SetPadding(4).Read(reader, this, "colorMatrix");
         }
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
@@ -25,7 +22,6 @@ namespace Recombobulator.SR1Structures
         {
             lightMatrix.Write(writer);
             colorMatrix.Write(writer);
-            writer.Write(0x00000000u);
         }
     }
 }

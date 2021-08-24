@@ -10,6 +10,8 @@ namespace Recombobulator.SR1Structures
         SR1_Primative<short> UnitChangeFlags = new SR1_Primative<short>();
         SR1_Primative<short> spad = new SR1_Primative<short>();
         SR1_Primative<int> lpad2 = new SR1_Primative<int>();
+        SR1_Primative<int> vplLength = new SR1_Primative<int>();
+        SR1_PrimativePointer<byte> vpList = new SR1_PrimativePointer<byte>();
         SR1_Primative<int> numIntros = new SR1_Primative<int>();
         SR1_Pointer<Intro> introList = new SR1_Pointer<Intro>();
         SR1_Primative<int> numVertices = new SR1_Primative<int>();
@@ -36,9 +38,11 @@ namespace Recombobulator.SR1Structures
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
-            UnitChangeFlags.Read(reader, this, "UnitChangeFlags");
-            spad.Read(reader, this, "spad");
-            lpad2.Read(reader, this, "lpad2");
+            UnitChangeFlags.Read(reader, this, "UnitChangeFlags", SR1_File.Version.May12, SR1_File.Version.Next);
+            spad.Read(reader, this, "spad", SR1_File.Version.May12, SR1_File.Version.Next);
+            lpad2.Read(reader, this, "lpad2", SR1_File.Version.May12, SR1_File.Version.Next);
+            vplLength.Read(reader, this, "vplLength", SR1_File.Version.Feb16, SR1_File.Version.May12);
+            vpList.Read(reader, this, "vpList", SR1_File.Version.Feb16, SR1_File.Version.May12);
             numIntros.Read(reader, this, "numIntros");
             introList.Read(reader, this, "introList");
             numVertices.Read(reader, this, "numVertices");
@@ -110,7 +114,10 @@ namespace Recombobulator.SR1Structures
             }
 
             new SR1_StructureSeries<MorphVertex>((int)(MorphColorList.Offset - MorphDiffList.Offset)).ReadFromPointer(reader, MorphDiffList);
-            new SR1_StructureArray<MorphColor>(numVertices.Value).SetPadding(4).ReadFromPointer(reader, MorphColorList);
+
+            int morphColorPadding = (reader.File._Version >= SR1_File.Version.May12) ? 4 : 2;
+            new SR1_StructureArray<MorphColor>(numVertices.Value).SetPadding(morphColorPadding).ReadFromPointer(reader, MorphColorList);
+
             new SR1_StructureArray<BSPTree>(numBSPTrees.Value).ReadFromPointer(reader, BSPTreeArray);
             new SR1_PrimativeArray<ushort>(numFaces.Value).SetPadding(4).ReadFromPointer(reader, morphNormalIdx);
             if (reader.File._Version == SR1_File.Version.Retail_PC)
@@ -156,9 +163,11 @@ namespace Recombobulator.SR1Structures
 
         public override void WriteMembers(SR1_Writer writer)
         {
-            UnitChangeFlags.Write(writer);
-            spad.Write(writer);
-            lpad2.Write(writer);
+            UnitChangeFlags.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+            spad.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+            lpad2.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+            vplLength.Write(writer, SR1_File.Version.Feb16, SR1_File.Version.May12);
+            vpList.Write(writer, SR1_File.Version.Feb16, SR1_File.Version.May12);
             numIntros.Write(writer);
             introList.Write(writer);
             numVertices.Write(writer);
