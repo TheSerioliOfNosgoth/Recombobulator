@@ -203,20 +203,19 @@ namespace Recombobulator.SR1Structures
 
             SR1_Structure terrainStruct = new Terrain().ReadFromPointer(reader, terrain);
 
-            LightList lightListStruct = (LightList)(new LightList().ReadFromPointer(reader, lightList));
+            LightList lightListStruct0 = (LightList)(new LightList().ReadFromPointer(reader, lightList));
             if (reader.File._Version == SR1_File.Version.Feb16)
             {
-                if (reader.WorldName.ToString() == "push1" ||
-                    reader.WorldName.ToString() == "push10")
-                {
-                    reader.BaseStream.Position = lightListStruct.End;
-                    lightListStruct = new LightList();
-                    lightListStruct.SetSkipAmbient(true);
-                    lightListStruct.Read(reader, null, "");
-                }
                 if (reader.WorldName.ToString() == "push6")
                 {
                     new SR1_PrimativeArray<byte>(8).ReadOrphan(reader, 0x000003B8);
+                }
+                else if (lightListStruct0.End != 0 && lightListStruct0.End != depthQPTable.Offset)
+                {
+                    // Got lucky with depthQPTable always being there. Could use a better solution.
+                    LightList lightListStruct1 = new LightList();
+                    lightListStruct1.SetSkipAmbient(true);
+                    lightListStruct1.ReadOrphan(reader, lightListStruct0.End);
                 }
             }
 
@@ -258,9 +257,11 @@ namespace Recombobulator.SR1Structures
             {
                 new SR1_String(4).SetPadding(4).ReadFromPointer(reader, dynamicMusicName);
             }
-            else if (reader.File._Version == SR1_File.Version.Feb16 && reader.WorldName.ToString() == "push10")
+            else if (reader.File._Version == SR1_File.Version.Feb16 &&
+                dynamicMusicName.Offset != 0 && dynamicMusicName.Offset < cpad3.End)
             {
-                new SR1_String(8).SetPadding(4).ReadOrphan(reader, dynamicMusicName.Offset + 2);
+                uint adjustLength = cpad3.End - dynamicMusicName.Offset;
+                new SR1_String(12 - (int)adjustLength).SetPadding(4).ReadOrphan(reader, cpad3.End);
             }
             else
             {

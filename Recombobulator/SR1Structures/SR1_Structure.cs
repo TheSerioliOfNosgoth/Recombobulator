@@ -146,12 +146,13 @@ namespace Recombobulator.SR1Structures
             }
         }
 
-        public void ReadOrphan(SR1_Reader reader, uint offset)
+        public SR1_Structure ReadOrphan(SR1_Reader reader, uint offset)
         {
             long oldPos = reader.BaseStream.Position;
             reader.BaseStream.Position = offset;
             Read(reader, null, "");
             reader.BaseStream.Position = oldPos;
+            return this;
         }
 
         public void ReadTemp(SR1_Reader reader)
