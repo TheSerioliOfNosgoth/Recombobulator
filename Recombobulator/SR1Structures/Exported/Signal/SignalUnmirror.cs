@@ -1,6 +1,6 @@
 ﻿namespace Recombobulator.SR1Structures
 {
-    class SignalMirror : SignalData
+    class SignalUnmirror : SignalData
     {
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {

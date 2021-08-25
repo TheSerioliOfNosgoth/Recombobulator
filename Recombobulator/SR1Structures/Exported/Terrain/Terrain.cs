@@ -72,15 +72,31 @@ namespace Recombobulator.SR1Structures
         {
             SR1_Structure temp = null;
 
-            new SR1_StructureArray<TVertex>(numVertices.Value).ReadFromPointer(reader, vertexList);
-            new SR1_StructureArray<TFace>(numFaces.Value).ReadFromPointer(reader, faceList);
-            temp = new SR1_StructureArray<Normal>(numNormals.Value).SetPadding(4).ReadFromPointer(reader, normalList);
-
-            // 2 mystery bytes after normalList. Always 0x2A and 0xCD.
-            if (temp.End != 0x00000000 && !reader.File._Structures.ContainsKey(temp.End))
+            if (numVertices.Value > 0)
             {
-                reader.BaseStream.Position = temp.End;
-                new SR1_Primative<ushort>().Read(reader, null, "");
+                new SR1_StructureArray<TVertex>(numVertices.Value).ReadFromPointer(reader, vertexList);
+            }
+
+            if (numFaces.Value > 0)
+            {
+                new SR1_StructureArray<TFace>(numFaces.Value).ReadFromPointer(reader, faceList);
+            }
+
+            if (numNormals.Value > 0)
+            {
+                temp = new SR1_StructureArray<Normal>(numNormals.Value).SetPadding(4).ReadFromPointer(reader, normalList);
+
+                // 2 mystery bytes after normalList. Always 0x2A and 0xCD.
+                if (temp.End != 0x00000000 && !reader.File._Structures.ContainsKey(temp.End))
+                {
+                    reader.BaseStream.Position = temp.End;
+                    new SR1_Primative<ushort>().Read(reader, null, "");
+
+                    if (numFaces.Value <= 0)
+                    {
+                        new SR1_Primative<ushort>().Read(reader, null, "");
+                    }
+                }
             }
 
             new DrMoveAniTex().ReadFromPointer(reader, aniList);

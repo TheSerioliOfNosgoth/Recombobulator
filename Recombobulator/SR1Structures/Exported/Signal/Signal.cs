@@ -48,7 +48,7 @@ namespace Recombobulator.SR1Structures
             HandleCameraUnlock,         // long cameraUnlock;
             HandleCameraSave,           // long cameraSave;
             HandleCameraRestore,        // long cameraRestore;
-            HandleMirror = 42,          // Mirror *mirror;
+            HandleSetMirror = 42,       // Mirror *mirror;
             HandleFogNear,              // long fogNear;
             HandleFogFar,               // long fogFar;
             HandleCameraShake = 48,     // long time; long scale;
@@ -109,9 +109,9 @@ namespace Recombobulator.SR1Structures
             HandleUnhideBG,
             HandleHideBGObject,
             HandleUnhideBGObject,
-            HandleMirror,               // Mirror *mirror;
+            HandleMirror,
             HandleUnmirror,
-            HandleSetMirror,
+            HandleSetMirror,            // Mirror *mirror;
             HandleFogNear,              // long fogNear;
             HandleFogFar,               // long fogFar;
             HandleStartVertexMorph,
@@ -317,8 +317,8 @@ namespace Recombobulator.SR1Structures
                     case SignalTypeMay12.HandleCameraRestore:
                         data = new SignalCameraRestore();
                         break;
-                    case SignalTypeMay12.HandleMirror:
-                        data = new SignalMirror();
+                    case SignalTypeMay12.HandleSetMirror:
+                        data = new SignalSetMirror();
                         break;
                     case SignalTypeMay12.HandleFogNear:
                         data = new SignalFogNear();
@@ -378,6 +378,30 @@ namespace Recombobulator.SR1Structures
             {
                 switch ((SignalTypeFeb16)id.Value)
                 {
+                    case SignalTypeFeb16.HandleHideObject:
+                        data = new SignalHideObject();
+                        break;
+                    case SignalTypeFeb16.HandleUnhideObject:
+                        data = new SignalHideObject();
+                        break;
+                    case SignalTypeFeb16.HandleDecoupledTimer:
+                        data = new SignalDecoupledTimer();
+                        break;
+                    case SignalTypeFeb16.HandleGotoFrame:
+                        data = new SignalGoToFrame();
+                        break;
+                    case SignalTypeFeb16.HandleChangeModel:
+                        data = new SignalChangeModel();
+                        break;
+                    case SignalTypeFeb16.HandleStartAniTex:
+                    case SignalTypeFeb16.HandleStopAniTex:
+                    case SignalTypeFeb16.HandleStartSpline:
+                    case SignalTypeFeb16.HandleStopSpline:
+                    case SignalTypeFeb16.HandleDeathZ:
+                    case SignalTypeFeb16.HandleDSignal:
+                    case SignalTypeFeb16.HandleGSignal:
+                        data = new SignalDepricated(GetSizeOfDepricated(reader, id.Value));
+                        break;
                     case SignalTypeFeb16.HandleLightGroup:
                         data = new SignalLightGroup();
                         break;
@@ -417,11 +441,23 @@ namespace Recombobulator.SR1Structures
                     case SignalTypeFeb16.HandleMirror:
                         data = new SignalMirror();
                         break;
+                    case SignalTypeFeb16.HandleUnmirror:
+                        data = new SignalUnmirror();
+                        break;
+                    case SignalTypeFeb16.HandleSetMirror:
+                        data = new SignalSetMirror();
+                        break;
                     case SignalTypeFeb16.HandleFogNear:
                         data = new SignalFogNear();
                         break;
                     case SignalTypeFeb16.HandleFogFar:
                         data = new SignalFogFar();
+                        break;
+                    case SignalTypeFeb16.HandleStartVertexMorph:
+                        data = new SignalStartVertexMorph();
+                        break;
+                    case SignalTypeFeb16.HandleStopVertexMorph:
+                        data = new SignalStopVertexMorph();
                         break;
                     case SignalTypeFeb16.HandleCameraShake:
                         data = new SignalCameraShake();
