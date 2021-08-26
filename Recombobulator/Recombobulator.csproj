@@ -88,9 +88,17 @@
     <Compile Include="SR1Structures\Exported\GlyphColors.cs" />
     <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObGenericProperties.cs" />
     <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObPropertiesBase.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalDeathZ.cs" />
     <Compile Include="SR1Structures\Exported\Signal\SignalDecoupledTimer.cs" />
     <Compile Include="SR1Structures\Exported\Signal\SignalChangeModel.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalDSignal.cs" />
     <Compile Include="SR1Structures\Exported\Signal\SignalGoToFrame.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalGSignal.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalSoundStartSequence.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalStartAniTex.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalStartSpline.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalStopAniTex.cs" />
+    <Compile Include="SR1Structures\Exported\Signal\SignalStopSpline.cs" />
     <Compile Include="SR1Structures\Exported\Signal\SignalUnmirror.cs" />
     <Compile Include="SR1Structures\Exported\Signal\SignalMirror.cs" />
     <Compile Include="SR1Structures\Exported\Signal\SignalStopVertexMorph.cs" />
