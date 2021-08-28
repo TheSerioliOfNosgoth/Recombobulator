@@ -276,11 +276,11 @@ namespace Recombobulator.SR1Structures
 
         public abstract void WriteMembers(SR1_Writer writer);
 
-        public virtual void MigrateVersion(SR1_File file, SR1_File.Version targetVersion)
+        public virtual void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
         {
             foreach (SR1_Structure structure in MembersRead)
             {
-                structure.MigrateVersion(file, targetVersion);
+                structure.MigrateVersion(file, targetVersion, migrateFlags);
             }
         }
 

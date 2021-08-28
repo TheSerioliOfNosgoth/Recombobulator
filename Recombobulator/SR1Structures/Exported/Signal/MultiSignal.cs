@@ -35,5 +35,28 @@ namespace Recombobulator.SR1Structures
             signalList.Write(writer);
             pad.Write(writer);
         }
+
+        public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
+        {
+            base.MigrateVersion(file, targetVersion, migrateFlags);
+
+            if ((migrateFlags & SR1_File.MigrateFlags.RemoveSignals) != 0)
+            {
+                int newNumSignals = 0;
+
+                if (signalList.Length > 0)
+                {
+                    foreach (Signal signal in signalList.List)
+                    {
+                        if (!signal.OmitFromMigration)
+                        {
+                            newNumSignals++;
+                        }
+                    }
+                }
+
+                numSignals.Value = newNumSignals;
+            }
+        }
     }
 }

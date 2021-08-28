@@ -209,9 +209,9 @@ namespace Recombobulator.SR1Structures
             unknownPCList.Write(writer, SR1_File.Version.Retail_PC, SR1_File.Version.Next);
         }
 
-        public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion)
+        public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
         {
-            base.MigrateVersion(file, targetVersion);
+            base.MigrateVersion(file, targetVersion, migrateFlags);
 
             if (file._Version <= SR1_File.Version.May12 && targetVersion == SR1_File.Version.Retail_PC)
             {
@@ -228,6 +228,12 @@ namespace Recombobulator.SR1Structures
                 UnknownPCList newUnknownPCList = new UnknownPCList();
                 file._Structures.Add(position, newUnknownPCList);
                 file._MigrationStructures.Add(position, newUnknownPCList);
+
+                if (aniList.Offset != 0)
+                {
+                    file._Structures.Remove(aniList.Offset);
+                    aniList.Offset = 0;
+                }
 
                 if (sbspRoot.Offset != 0)
                 {

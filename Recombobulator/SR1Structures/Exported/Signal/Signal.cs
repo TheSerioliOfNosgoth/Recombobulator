@@ -69,11 +69,11 @@ namespace Recombobulator.SR1Structures
 
         private enum SignalTypeFeb16
         {
-            HandleHideObject = 0,
-            HandleUnhideObject,
-            HandleDecoupledTimer,
-            HandleGotoFrame,
-            HandleChangeModel,
+            HandleHideObject = 0,       // Intro* intro;
+            HandleUnhideObject,         // Intro* intro;
+            HandleDecoupledTimer,       // long timer;
+            HandleGotoFrame,            // Intro* intro; long frame;
+            HandleChangeModel,          // Intro* intro; long model;
             HandleStartAniTex,
             HandleStopAniTex,
             HandleStartSpline,
@@ -111,11 +111,11 @@ namespace Recombobulator.SR1Structures
             HandleUnhideBGObject,
             HandleMirror,
             HandleUnmirror,
-            HandleSetMirror,            // Mirror *mirror;
+            HandleSetMirror,            // Mirror* mirror;
             HandleFogNear,              // long fogNear;
             HandleFogFar,               // long fogFar;
-            HandleStartVertexMorph,
-            HandleStopVertexMorph,
+            HandleStartVertexMorph,     // VMObject* vmobject
+            HandleStopVertexMorph,      // VMObject* vmobject
             HandleLogicValue,
             HandleCameraShake,          // long time; long scale;
             HandleLogicAnd,
@@ -184,6 +184,8 @@ namespace Recombobulator.SR1Structures
 
         SR1_Primative<int> id = new SR1_Primative<int>();
         SignalData data = new SignalData();
+
+        public bool OmitFromMigration { get; private set; } = false;
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
@@ -394,13 +396,25 @@ namespace Recombobulator.SR1Structures
                         data = new SignalChangeModel();
                         break;
                     case SignalTypeFeb16.HandleStartAniTex:
+                        data = new SignalStartAnitex();
+                        break;
                     case SignalTypeFeb16.HandleStopAniTex:
+                        data = new SignalStopAnitex();
+                        break;
                     case SignalTypeFeb16.HandleStartSpline:
+                        data = new SignalStartSpline();
+                        break;
                     case SignalTypeFeb16.HandleStopSpline:
+                        data = new SignalStopSpline();
+                        break;
                     case SignalTypeFeb16.HandleDeathZ:
+                        data = new SignalDeathZ();
+                        break;
                     case SignalTypeFeb16.HandleDSignal:
+                        data = new SignalDSignal();
+                        break;
                     case SignalTypeFeb16.HandleGSignal:
-                        data = new SignalDepricated(GetSizeOfDepricated(reader, id.Value));
+                        data = new SignalGsignal();
                         break;
                     case SignalTypeFeb16.HandleLightGroup:
                         data = new SignalLightGroup();
@@ -436,7 +450,7 @@ namespace Recombobulator.SR1Structures
                         data = new SignalCameraRestore();
                         break;
                     case SignalTypeFeb16.HandleSoundStartSequence:
-                        data = new SignalMiscValue();
+                        data = new SignalSoundStartSequence();
                         break;
                     case SignalTypeFeb16.HandleMirror:
                         data = new SignalMirror();
@@ -522,8 +536,60 @@ namespace Recombobulator.SR1Structures
 
         public override void WriteMembers(SR1_Writer writer)
         {
-            id.Write(writer);
-            data.Write(writer);
+            if (MembersRead.Contains(id)) id.Write(writer);
+            if (MembersRead.Contains(data)) data.Write(writer);
+        }
+
+        public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
+        {
+            base.MigrateVersion(file, targetVersion, migrateFlags);
+
+            if (file._Version < SR1_File.Version.Retail_PC && targetVersion == SR1_File.Version.Retail_PC)
+            {
+                int newID = -1;
+
+                switch ((SignalTypeFeb16)id.Value)
+                {
+                    case SignalTypeFeb16.HandleLightGroup: newID = (int)SignalTypeJun01.HandleLightGroup; break;
+                    case SignalTypeFeb16.HandleCameraAdjust: newID = (int)SignalTypeJun01.HandleCameraAdjust; break;
+                    case SignalTypeFeb16.HandleCameraMode: newID = (int)SignalTypeJun01.HandleCameraMode; break;
+                    case SignalTypeFeb16.HandleCameraKey: newID = (int)SignalTypeJun01.HandleCameraKey; break;
+                    case SignalTypeFeb16.HandleCameraTimer: newID = (int)SignalTypeJun01.HandleCameraTimer; break;
+                    case SignalTypeFeb16.HandleCameraSmooth: newID = (int)SignalTypeJun01.HandleCameraSmooth; break;
+                    case SignalTypeFeb16.HandleCameraValue: newID = (int)SignalTypeJun01.HandleCameraValue; break;
+                    case SignalTypeFeb16.HandleCameraLock: newID = (int)SignalTypeJun01.HandleCameraLock; break;
+                    case SignalTypeFeb16.HandleCameraUnlock: newID = (int)SignalTypeJun01.HandleCameraUnlock; break;
+                    case SignalTypeFeb16.HandleCameraSave: newID = (int)SignalTypeJun01.HandleCameraSave; break;
+                    case SignalTypeFeb16.HandleCameraRestore: newID = (int)SignalTypeJun01.HandleCameraRestore; break;
+                    case SignalTypeFeb16.HandleFogNear: newID = (int)SignalTypeJun01.HandleFogNear; break;
+                    case SignalTypeFeb16.HandleFogFar: newID = (int)SignalTypeJun01.HandleFogFar; break;
+                    case SignalTypeFeb16.HandleCameraShake: newID = (int)SignalTypeJun01.HandleCameraShake; break;
+                    case SignalTypeFeb16.HandleCallSignal: newID = (int)SignalTypeJun01.HandleCallSignal; break;
+                    case SignalTypeFeb16.HandleEnd: newID = (int)SignalTypeJun01.HandleEnd; break;
+                    case SignalTypeFeb16.HandleStopPlayerControl: newID = (int)SignalTypeJun01.HandleStopPlayerControl; break;
+                    case SignalTypeFeb16.HandleStartPlayerControl: newID = (int)SignalTypeJun01.HandleStartPlayerControl; break;
+                    case SignalTypeFeb16.HandleStreamLevel: newID = (int)SignalTypeJun01.HandleStreamLevel; break;
+                    case SignalTypeFeb16.HandleCameraSpline: newID = (int)SignalTypeJun01.HandleCameraSpline; break;
+                    case SignalTypeFeb16.HandleScreenWipe: newID = (int)SignalTypeJun01.HandleScreenWipe; break;
+                    case SignalTypeFeb16.HandleBlendStart: newID = (int)SignalTypeJun01.HandleBlendStart; break;
+                    case SignalTypeFeb16.HandleScreenWipeColor: newID = (int)SignalTypeJun01.HandleScreenWipeColor; break;
+                    case SignalTypeFeb16.HandleSetSlideAngle: newID = (int)SignalTypeJun01.HandleSetSlideAngle; break;
+                    case SignalTypeFeb16.HandleResetSlideAngle: newID = (int)SignalTypeJun01.HandleResetSlideAngle; break;
+                    case SignalTypeFeb16.HandleSetCameraTilt: newID = (int)SignalTypeJun01.HandleSetCameraTilt; break;
+                    case SignalTypeFeb16.HandleSetCameraDistance: newID = (int)SignalTypeJun01.HandleSetCameraDistance; break;
+                }
+
+                if ((migrateFlags & SR1_File.MigrateFlags.RemoveSignals) == 0 && newID > -1)
+                {
+                    id.Value = newID;
+                }
+                else
+                {
+                    MembersRead.Remove(id);
+                    MembersRead.Remove(data);
+                    OmitFromMigration = true;
+                }
+            }
         }
 
         int GetSizeOfDepricated(SR1_Reader reader, int id)

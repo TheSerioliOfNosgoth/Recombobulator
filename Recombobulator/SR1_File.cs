@@ -41,6 +41,14 @@ namespace Recombobulator
             DetectPCRetail = 4,
         }
 
+        public enum MigrateFlags
+        {
+            None = 0,
+            RemoveEvents,
+            RemoveSignals,
+            RemovePortals,
+        }
+
         public enum TestFlags : int
         {
             None = 0,
@@ -285,7 +293,7 @@ namespace Recombobulator
             _Structures.Values.CopyTo(structures, 0);
             foreach (SR1_Structure structure in structures)
             {
-                structure.MigrateVersion(this, targetVersion);
+                structure.MigrateVersion(this, targetVersion, MigrateFlags.RemoveEvents | MigrateFlags.RemoveSignals | MigrateFlags.RemovePortals);
             }
 
             _Version = targetVersion;
@@ -296,6 +304,7 @@ namespace Recombobulator
             }
 
             List<uint> sortedPrimativeKeys = new List<uint>(_Primatives.Keys);
+            List<uint> sortedStructureKeys = new List<uint>(_Structures.Keys);
 
             Directory.CreateDirectory(Path.GetDirectoryName(fileName));
             FileStream file = new FileStream(fileName, FileMode.Create, FileAccess.Write);
@@ -356,6 +365,18 @@ namespace Recombobulator
                         {
                             newOffset = primative.NewStart + (pointer.Offset - primative.Start);
                         }
+                        else
+                        {
+                            index = sortedStructureKeys.BinarySearch(pointer.Offset);
+                            if (index >= 0)
+                            {
+                                SR1_Structure structure = _Structures[sortedStructureKeys[index]];
+                                if (pointer.Offset == structure.Start)
+                                {
+                                    newOffset = structure.NewStart;
+                                }
+                            }
+                        }
 
                         streamWriter.BaseStream.Position = pointer.NewStart;
                         streamWriter.Write(newOffset);
@@ -404,7 +425,7 @@ namespace Recombobulator
             _Structures.Values.CopyTo(structures, 0);
             foreach (SR1_Structure structure in structures)
             {
-                structure.MigrateVersion(this, _Version);
+                structure.MigrateVersion(this, _Version, MigrateFlags.None);
             }
 
             foreach (KeyValuePair<uint, SR1_Structure> entry in _Structures)
@@ -413,6 +434,7 @@ namespace Recombobulator
             }
 
             List<uint> sortedPrimativeKeys = new List<uint>(_Primatives.Keys);
+            List<uint> sortedStructureKeys = new List<uint>(_Structures.Keys);
 
             MemoryStream file = new MemoryStream();
             BinaryWriter fileWriter = new BinaryWriter(file, System.Text.Encoding.UTF8);
@@ -471,6 +493,18 @@ namespace Recombobulator
                         if (pointer.Offset >= primative.Start && pointer.Offset < primative.End)
                         {
                             newOffset = primative.NewStart + (pointer.Offset - primative.Start);
+                        }
+                        else
+                        {
+                            index = sortedStructureKeys.BinarySearch(pointer.Offset);
+                            if (index >= 0)
+                            {
+                                SR1_Structure structure = _Structures[sortedStructureKeys[index]];
+                                if (pointer.Offset == structure.Start)
+                                {
+                                    newOffset = structure.NewStart;
+                                }
+                            }
                         }
 
                         streamWriter.BaseStream.Position = pointer.NewStart;

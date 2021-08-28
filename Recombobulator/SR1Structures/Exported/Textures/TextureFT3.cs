@@ -78,21 +78,31 @@ namespace Recombobulator.SR1Structures
             color.Write(writer, SR1_File.Version.Feb16, SR1_File.Version.May12);
         }
 
-        public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion)
+        public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
         {
-            base.MigrateVersion(file, targetVersion);
+            base.MigrateVersion(file, targetVersion, migrateFlags);
 
-            if (file._Version >= SR1_File.Version.May12 && file._Version < SR1_File.Version.Retail_PC &&
-                targetVersion == SR1_File.Version.Retail_PC)
+            if (file._Version < SR1_File.Version.Retail_PC && targetVersion == SR1_File.Version.Retail_PC)
             {
                 int textureID = file._NewTextureIDs[tpage.Value & 0x00000007];
                 tpage.Value = (ushort)textureID;
                 attr2.Value = 0x0108;
 
-                if ((attr.Value & 0x0040) != 0)
+                if (file._Version <= SR1_File.Version.Feb16)
                 {
-                    tpage.Value |= 0x4000;
-                    attr2.Value |= 0x0060;
+                    if ((attr.Value & 0x0010) != 0)
+                    {
+                        tpage.Value |= 0x4000;
+                        attr2.Value |= 0x0060;
+                    }
+                }
+                else
+                {
+                    if ((attr.Value & 0x0040) != 0)
+                    {
+                        tpage.Value |= 0x4000;
+                        attr2.Value |= 0x0060;
+                    }
                 }
 
                 //attr.Value &= ~0x0040;

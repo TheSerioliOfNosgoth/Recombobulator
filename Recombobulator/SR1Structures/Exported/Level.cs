@@ -99,6 +99,10 @@ namespace Recombobulator.SR1Structures
         SR1_Pointer<LightGroup> razielLightGroup = new SR1_Pointer<LightGroup>();
         SR1_Pointer<LightGroup> razielSpectralLightGroup = new SR1_Pointer<LightGroup>();
 
+        LightList lightListStruct0 = new LightList();
+        LightList lightListStruct1 = new LightList();
+        SR1_PrimativeArray<byte> push6Padding = new SR1_PrimativeArray<byte>(8);
+
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
             terrain.Read(reader, this, "terrain");
@@ -203,17 +207,17 @@ namespace Recombobulator.SR1Structures
 
             SR1_Structure terrainStruct = new Terrain().ReadFromPointer(reader, terrain);
 
-            LightList lightListStruct0 = (LightList)(new LightList().ReadFromPointer(reader, lightList));
-            if (reader.File._Version == SR1_File.Version.Feb16)
+            lightListStruct0.ReadFromPointer(reader, lightList);
+            if (reader.File._Version == SR1_File.Version.Feb16 &&
+                lightListStruct0.End != 0 && lightListStruct0.End != depthQPTable.Offset)
             {
                 if (reader.WorldName.ToString() == "push6")
                 {
-                    new SR1_PrimativeArray<byte>(8).ReadOrphan(reader, 0x000003B8);
+                    push6Padding.ReadOrphan(reader, lightListStruct0.End);
                 }
-                else if (lightListStruct0.End != 0 && lightListStruct0.End != depthQPTable.Offset)
+                else
                 {
                     // Got lucky with depthQPTable always being there. Could use a better solution.
-                    LightList lightListStruct1 = new LightList();
                     lightListStruct1.SetSkipAmbient(true);
                     lightListStruct1.ReadOrphan(reader, lightListStruct0.End);
                 }
@@ -423,17 +427,16 @@ namespace Recombobulator.SR1Structures
             razielSpectralLightGroup.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
         }
 
-        public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion)
+        public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
         {
-            base.MigrateVersion(file, targetVersion);
+            base.MigrateVersion(file, targetVersion, migrateFlags);
 
             if (file._Version != targetVersion && file._NewStreamUnitID != 0)
             {
                 streamUnitID.Value = file._NewStreamUnitID;
             }
 
-            if (file._Version >= SR1_File.Version.May12 && file._Version < SR1_File.Version.Retail_PC &&
-                targetVersion == SR1_File.Version.Retail_PC)
+            if (file._Version < SR1_File.Version.Retail_PC && targetVersion == SR1_File.Version.Retail_PC)
             {
                 versionNumber.Value = SR1_File.RETAIL_VERSION;
 
@@ -463,6 +466,50 @@ namespace Recombobulator.SR1Structures
                     file._Structures.Remove(SFXMarkerList.Offset);
                     NumberOfSFXMarkers.Value = 0;
                     SFXMarkerList.Offset = 0;
+                }
+
+                if (lightListStruct1.Start != 0)
+                {
+                    file._Structures.Remove(lightListStruct1.Start);
+                }
+
+                if (push6Padding.Start != 0)
+                {
+                    file._Structures.Remove(push6Padding.Start);
+                }
+
+                if (depthQPTable.Offset != 0)
+                {
+                    file._Structures.Remove(depthQPTable.Offset);
+                }
+
+                numCameras.Value = 0;
+                if (cameraList.Offset != 0)
+                {
+                    file._Structures.Remove(cameraList.Offset);
+                    cameraList.Offset = 0;
+                }
+
+                numVMObjects.Value = 0;
+                if (vmobjectList.Offset != 0)
+                {
+                    file._Structures.Remove(vmobjectList.Offset);
+                    vmobjectList.Offset = 0;
+                }
+
+                if (bgAniList.Offset != 0)
+                {
+                    file._Structures.Remove(bgAniList.Offset);
+                    bgAniList.Offset = 0;
+                }
+
+                if ((migrateFlags & SR1_File.MigrateFlags.RemoveEvents) != 0)
+                {
+                    if (PuzzleInstances.Offset != 0)
+                    {
+                        file._Structures.Remove(PuzzleInstances.Offset);
+                        PuzzleInstances.Offset = 0;
+                    }
                 }
             }
         }

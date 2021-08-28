@@ -32,5 +32,16 @@ namespace Recombobulator.SR1Structures
             normal.Write(writer);
             textoff.Write(writer);
         }
+
+        public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
+        {
+            base.MigrateVersion(file, targetVersion, migrateFlags);
+
+            if (file._Version <= SR1_File.Version.Feb16 && targetVersion > SR1_File.Version.Feb16)
+            {
+                textoff.Value = (ushort)((textoff.Value * 12) / 16);
+                attr.Value = (byte)(attr.Value & 0x02);
+            }
+        }
     }
 }

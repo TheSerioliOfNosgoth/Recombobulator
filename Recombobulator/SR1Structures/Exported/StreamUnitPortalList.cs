@@ -28,5 +28,15 @@ namespace Recombobulator.SR1Structures
             portals.Write(writer);
             writer.Write(0x0000000u);
         }
+
+        public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
+        {
+            base.MigrateVersion(file, targetVersion, migrateFlags);
+
+            if ((migrateFlags & SR1_File.MigrateFlags.RemovePortals) != 0)
+            {
+                numPortals.Value = 0;
+            }
+        }
     }
 }
