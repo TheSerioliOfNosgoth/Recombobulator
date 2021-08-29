@@ -38,25 +38,28 @@
             this.textureList = new System.Windows.Forms.ListBox();
             this.requiredObjectList = new System.Windows.Forms.ListBox();
             this.requiredObjectsLabel = new System.Windows.Forms.Label();
+            this.removeEventsCheckBox = new System.Windows.Forms.CheckBox();
+            this.removePortalsCheckBox = new System.Windows.Forms.CheckBox();
+            this.removeVMOsCheckBox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // continueButton
             // 
             this.continueButton.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.continueButton.Location = new System.Drawing.Point(12, 263);
+            this.continueButton.Location = new System.Drawing.Point(12, 337);
             this.continueButton.Name = "continueButton";
             this.continueButton.Size = new System.Drawing.Size(75, 23);
-            this.continueButton.TabIndex = 6;
+            this.continueButton.TabIndex = 11;
             this.continueButton.Text = "Continue";
             this.continueButton.UseVisualStyleBackColor = true;
             // 
             // cancelButton
             // 
             this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cancelButton.Location = new System.Drawing.Point(93, 263);
+            this.cancelButton.Location = new System.Drawing.Point(93, 337);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
-            this.cancelButton.TabIndex = 7;
+            this.cancelButton.TabIndex = 12;
             this.cancelButton.Text = "Cancel";
             this.cancelButton.UseVisualStyleBackColor = true;
             // 
@@ -66,7 +69,7 @@
             this.textureSetLabel.Location = new System.Drawing.Point(11, 62);
             this.textureSetLabel.Name = "textureSetLabel";
             this.textureSetLabel.Size = new System.Drawing.Size(62, 13);
-            this.textureSetLabel.TabIndex = 2;
+            this.textureSetLabel.TabIndex = 3;
             this.textureSetLabel.Text = "Texture Set";
             // 
             // versionLabel
@@ -94,7 +97,7 @@
             this.pathTextBox.Name = "pathTextBox";
             this.pathTextBox.ReadOnly = true;
             this.pathTextBox.Size = new System.Drawing.Size(259, 20);
-            this.pathTextBox.TabIndex = 4;
+            this.pathTextBox.TabIndex = 2;
             // 
             // textureSetCombo
             // 
@@ -103,7 +106,7 @@
             this.textureSetCombo.Location = new System.Drawing.Point(151, 59);
             this.textureSetCombo.Name = "textureSetCombo";
             this.textureSetCombo.Size = new System.Drawing.Size(121, 21);
-            this.textureSetCombo.TabIndex = 24;
+            this.textureSetCombo.TabIndex = 4;
             this.textureSetCombo.SelectedIndexChanged += new System.EventHandler(this.textureSetCombo_SelectedIndexChanged);
             // 
             // textureList
@@ -114,7 +117,7 @@
             this.textureList.ScrollAlwaysVisible = true;
             this.textureList.SelectionMode = System.Windows.Forms.SelectionMode.None;
             this.textureList.Size = new System.Drawing.Size(260, 69);
-            this.textureList.TabIndex = 25;
+            this.textureList.TabIndex = 5;
             // 
             // requiredObjectList
             // 
@@ -124,7 +127,7 @@
             this.requiredObjectList.ScrollAlwaysVisible = true;
             this.requiredObjectList.SelectionMode = System.Windows.Forms.SelectionMode.None;
             this.requiredObjectList.Size = new System.Drawing.Size(260, 69);
-            this.requiredObjectList.TabIndex = 28;
+            this.requiredObjectList.TabIndex = 7;
             // 
             // requiredObjectsLabel
             // 
@@ -132,8 +135,45 @@
             this.requiredObjectsLabel.Location = new System.Drawing.Point(11, 164);
             this.requiredObjectsLabel.Name = "requiredObjectsLabel";
             this.requiredObjectsLabel.Size = new System.Drawing.Size(133, 13);
-            this.requiredObjectsLabel.TabIndex = 26;
+            this.requiredObjectsLabel.TabIndex = 6;
             this.requiredObjectsLabel.Text = "Additional Objects Needed";
+            // 
+            // removeEventsCheckBox
+            // 
+            this.removeEventsCheckBox.AutoSize = true;
+            this.removeEventsCheckBox.Checked = true;
+            this.removeEventsCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.removeEventsCheckBox.Enabled = false;
+            this.removeEventsCheckBox.Location = new System.Drawing.Point(12, 286);
+            this.removeEventsCheckBox.Name = "removeEventsCheckBox";
+            this.removeEventsCheckBox.Size = new System.Drawing.Size(102, 17);
+            this.removeEventsCheckBox.TabIndex = 9;
+            this.removeEventsCheckBox.Text = "Remove Events";
+            this.removeEventsCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // removePortalsCheckBox
+            // 
+            this.removePortalsCheckBox.AutoSize = true;
+            this.removePortalsCheckBox.Checked = true;
+            this.removePortalsCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.removePortalsCheckBox.Location = new System.Drawing.Point(12, 263);
+            this.removePortalsCheckBox.Name = "removePortalsCheckBox";
+            this.removePortalsCheckBox.Size = new System.Drawing.Size(101, 17);
+            this.removePortalsCheckBox.TabIndex = 8;
+            this.removePortalsCheckBox.Text = "Remove Portals";
+            this.removePortalsCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // removeVMOsCheckBox
+            // 
+            this.removeVMOsCheckBox.AutoSize = true;
+            this.removeVMOsCheckBox.Checked = true;
+            this.removeVMOsCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.removeVMOsCheckBox.Location = new System.Drawing.Point(11, 309);
+            this.removeVMOsCheckBox.Name = "removeVMOsCheckBox";
+            this.removeVMOsCheckBox.Size = new System.Drawing.Size(171, 17);
+            this.removeVMOsCheckBox.TabIndex = 10;
+            this.removeVMOsCheckBox.Text = "Remove Vertex Morph Objects";
+            this.removeVMOsCheckBox.UseVisualStyleBackColor = true;
             // 
             // AddFileForm
             // 
@@ -141,8 +181,11 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cancelButton;
-            this.ClientSize = new System.Drawing.Size(284, 301);
+            this.ClientSize = new System.Drawing.Size(284, 376);
             this.ControlBox = false;
+            this.Controls.Add(this.removeVMOsCheckBox);
+            this.Controls.Add(this.removeEventsCheckBox);
+            this.Controls.Add(this.removePortalsCheckBox);
             this.Controls.Add(this.requiredObjectList);
             this.Controls.Add(this.requiredObjectsLabel);
             this.Controls.Add(this.textureList);
@@ -157,6 +200,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "AddFileForm";
+            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Add To Project...";
             this.ResumeLayout(false);
@@ -176,5 +220,8 @@
         private System.Windows.Forms.ListBox textureList;
         private System.Windows.Forms.ListBox requiredObjectList;
         private System.Windows.Forms.Label requiredObjectsLabel;
+        private System.Windows.Forms.CheckBox removeEventsCheckBox;
+        private System.Windows.Forms.CheckBox removePortalsCheckBox;
+        private System.Windows.Forms.CheckBox removeVMOsCheckBox;
     }
 }

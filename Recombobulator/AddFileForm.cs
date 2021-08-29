@@ -14,16 +14,17 @@ namespace Recombobulator
 
         public int TextureSet { get; private set; } = 0;
 
+        public bool RemovePortals { get { return removePortalsCheckBox.Checked; } }
+
+        public bool RemoveEvents { get { return removeEventsCheckBox.Checked; } }
+
+        public bool RemoveVMOs { get { return removeVMOsCheckBox.Checked; } }
+
         Repository _repository = null;
 
         public AddFileForm()
         {
             InitializeComponent();
-
-            string a = null;
-            string b = null;
-            System.Reflection.ConstructorInfo cinfo = typeof(TreeList.TreeListColumn).GetConstructor(new Type[] { typeof(string), typeof(string) });
-            object o = new System.ComponentModel.Design.Serialization.InstanceDescriptor(cinfo, new object[] { a, b }, false);
         }
 
         public void Initialize(Repository repository, string fileName, bool isLevel, List<string> requiredObjects)

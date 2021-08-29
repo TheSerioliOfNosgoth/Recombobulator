@@ -16,6 +16,21 @@ namespace Recombobulator.SR1Structures
         {
         }
 
+        public void SetText(string text)
+        {
+            for (int i = 0; i < _array.Length; i++)
+            {
+                if (i < text.Length)
+                {
+                    _array[i] = text[i];
+                }
+                else
+                {
+                    _array[i] = '\0';
+                }
+            }
+        }
+
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
             if (_array != null)

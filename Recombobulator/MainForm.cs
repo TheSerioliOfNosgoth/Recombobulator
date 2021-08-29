@@ -119,6 +119,29 @@ namespace Recombobulator
         {
             string fileName = Path.GetFileNameWithoutExtension(_file._FilePath);
 
+            while (true)
+            {
+                string filePath = _file._IsLevel ?
+                    _repository.MakeLevelFilePath(fileName) :
+                    _repository.MakeObjectFilePath(fileName);
+
+                uint fileHash = Repository.GetSR1HashName(filePath);
+                if (_repository.Assets.Assets.Find(x => x.FileHash == fileHash) != null)
+                {
+                    ExistingFileForm existingFileForm = new ExistingFileForm();
+                    if (existingFileForm.ShowDialog() == DialogResult.Cancel)
+                    {
+                        return;
+                    }
+
+                    fileName = existingFileForm.FileName;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
             AddFileForm addFileDialog = new AddFileForm();
             addFileDialog.Initialize(_repository, fileName, _file._IsLevel, _file._ObjectNames);
             if (addFileDialog.ShowDialog() == DialogResult.OK)
@@ -224,7 +247,23 @@ namespace Recombobulator
                     int[] newIntroIDs = new int[numIntros];
                     _repository.FindAvailableIntroIDs(ref newIntroIDs);
 
-                    _file.Export(addFileDialog.FullPath, SR1_File.Version.Retail_PC, textureSet.TextureIDs, newStreamUnitID, newIntroIDs);
+                    SR1_File.MigrateFlags migrateFlags = SR1_File.MigrateFlags.RemoveSignals;
+                    if (addFileDialog.RemoveEvents)
+                    {
+                        migrateFlags |= SR1_File.MigrateFlags.RemoveEvents;
+                    }
+
+                    if (addFileDialog.RemovePortals)
+                    {
+                        migrateFlags |= SR1_File.MigrateFlags.RemovePortals;
+                    }
+
+                    if (addFileDialog.RemoveVMOs)
+                    {
+                        migrateFlags |= SR1_File.MigrateFlags.RemoveVertexMorphs;
+                    }
+
+                    _file.Export(addFileDialog.FullPath, SR1_File.Version.Retail_PC, migrateFlags, fileName, textureSet.TextureIDs, newStreamUnitID, newIntroIDs);
 
                     object newObject = null;
                     string category = null;

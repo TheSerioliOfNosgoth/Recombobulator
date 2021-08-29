@@ -41,12 +41,13 @@ namespace Recombobulator
             DetectPCRetail = 4,
         }
 
-        public enum MigrateFlags
+        public enum MigrateFlags : int
         {
             None = 0,
-            RemoveEvents,
-            RemoveSignals,
-            RemovePortals,
+            RemoveEvents = 1,
+            RemoveSignals = 2,
+            RemovePortals = 4,
+            RemoveVertexMorphs = 8,
         }
 
         public enum TestFlags : int
@@ -72,6 +73,7 @@ namespace Recombobulator
         public readonly StringWriter _ImportErrors = new StringWriter();
         public readonly StringWriter _Scripts = new StringWriter();
         public SR1_PrimativeBase _LastPrimative = null;
+        public string _NewName { get; private set; } = null;
         public ushort[] _NewTextureIDs { get; private set; } = null;
         public int _NewStreamUnitID = 0;
         public int[] _NewIntroIDs { get; private set; } = null;
@@ -264,13 +266,14 @@ namespace Recombobulator
 
         public uint Export(string fileName)
         {
-            return Export(fileName, _Version, null, 0, null);
+            return Export(fileName, _Version, MigrateFlags.None, null, null, 0, null);
         }
 
-        public uint Export(string fileName, Version targetVersion, ushort[] newTextureIDs, int newStreamUnitID, int[] newIntroIDs)
+        public uint Export(string fileName, Version targetVersion, MigrateFlags migrateFlags, string newName, ushort[] newTextureIDs, int newStreamUnitID, int[] newIntroIDs)
         {
             uint fileLength = 0;
 
+            _NewName = newName;
             _NewTextureIDs = newTextureIDs;
             _NewStreamUnitID = newStreamUnitID;
             _NewIntroIDs = newIntroIDs;
@@ -293,7 +296,7 @@ namespace Recombobulator
             _Structures.Values.CopyTo(structures, 0);
             foreach (SR1_Structure structure in structures)
             {
-                structure.MigrateVersion(this, targetVersion, MigrateFlags.RemoveEvents | MigrateFlags.RemoveSignals | MigrateFlags.RemovePortals);
+                structure.MigrateVersion(this, targetVersion, migrateFlags);
             }
 
             _Version = targetVersion;
@@ -396,6 +399,7 @@ namespace Recombobulator
 
             stream.Close();
 
+            _NewName = null;
             _NewTextureIDs = null;
             _NewStreamUnitID = 0;
             _NewIntroIDs = null;

@@ -99,6 +99,7 @@ namespace Recombobulator.SR1Structures
         SR1_Pointer<LightGroup> razielLightGroup = new SR1_Pointer<LightGroup>();
         SR1_Pointer<LightGroup> razielSpectralLightGroup = new SR1_Pointer<LightGroup>();
 
+        SR1_String worldNameString = new SR1_String(12);
         LightList lightListStruct0 = new LightList();
         LightList lightListStruct1 = new LightList();
         SR1_PrimativeArray<byte> push6Padding = new SR1_PrimativeArray<byte>(8);
@@ -202,8 +203,8 @@ namespace Recombobulator.SR1Structures
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
         {
-            SR1_Structure worldNameStruct = new SR1_String(12).SetPadding(4).ReadFromPointer(reader, worldName);
-            reader.WorldName = (SR1_String)worldNameStruct;
+            worldNameString.SetPadding(4).ReadFromPointer(reader, worldName);
+            reader.WorldName = worldNameString;
 
             SR1_Structure terrainStruct = new Terrain().ReadFromPointer(reader, terrain);
 
@@ -431,6 +432,11 @@ namespace Recombobulator.SR1Structures
         {
             base.MigrateVersion(file, targetVersion, migrateFlags);
 
+            if (file._Version < SR1_File.Version.Retail_PC && targetVersion == SR1_File.Version.Retail_PC)
+            {
+                worldNameString.SetText(file._NewName);
+            }
+
             if (file._Version != targetVersion && file._NewStreamUnitID != 0)
             {
                 streamUnitID.Value = file._NewStreamUnitID;
@@ -490,13 +496,6 @@ namespace Recombobulator.SR1Structures
                     cameraList.Offset = 0;
                 }
 
-                numVMObjects.Value = 0;
-                if (vmobjectList.Offset != 0)
-                {
-                    file._Structures.Remove(vmobjectList.Offset);
-                    vmobjectList.Offset = 0;
-                }
-
                 if (bgAniList.Offset != 0)
                 {
                     file._Structures.Remove(bgAniList.Offset);
@@ -509,6 +508,16 @@ namespace Recombobulator.SR1Structures
                     {
                         file._Structures.Remove(PuzzleInstances.Offset);
                         PuzzleInstances.Offset = 0;
+                    }
+                }
+
+                if ((migrateFlags & SR1_File.MigrateFlags.RemoveVertexMorphs) != 0)
+                {
+                    numVMObjects.Value = 0;
+                    if (vmobjectList.Offset != 0)
+                    {
+                        file._Structures.Remove(vmobjectList.Offset);
+                        vmobjectList.Offset = 0;
                     }
                 }
             }
