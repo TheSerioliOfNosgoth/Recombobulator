@@ -57,6 +57,8 @@ namespace Recombobulator.SR1Structures
 
                 numSignals.Value = newNumSignals;
             }
+
+            pad.Value = 15;
         }
     }
 }

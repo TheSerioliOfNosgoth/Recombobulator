@@ -35,6 +35,7 @@ namespace Recombobulator.SR1Structures
 
             if ((migrateFlags & SR1_File.MigrateFlags.RemovePortals) != 0)
             {
+                // 0x004ABBBA has something to do with the portals.
                 numPortals.Value = 0;
             }
         }

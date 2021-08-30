@@ -247,20 +247,36 @@ namespace Recombobulator
                     int[] newIntroIDs = new int[numIntros];
                     _repository.FindAvailableIntroIDs(ref newIntroIDs);
 
-                    SR1_File.MigrateFlags migrateFlags = SR1_File.MigrateFlags.RemoveSignals;
-                    if (addFileDialog.RemoveEvents)
-                    {
-                        migrateFlags |= SR1_File.MigrateFlags.RemoveEvents;
-                    }
+                    SR1_File.MigrateFlags migrateFlags = SR1_File.MigrateFlags.None;
 
                     if (addFileDialog.RemovePortals)
                     {
                         migrateFlags |= SR1_File.MigrateFlags.RemovePortals;
                     }
 
+                    if (addFileDialog.RemoveSignals)
+                    {
+                        migrateFlags |= SR1_File.MigrateFlags.RemoveSignals;
+                    }
+
+                    if (addFileDialog.RemoveEvents)
+                    {
+                        migrateFlags |= SR1_File.MigrateFlags.RemoveEvents;
+                    }
+
                     if (addFileDialog.RemoveVMOs)
                     {
                         migrateFlags |= SR1_File.MigrateFlags.RemoveVertexMorphs;
+                    }
+
+                    string sourceUnitName = "";
+                    uint sourceVersion = 0;
+
+                    if (_file._IsLevel)
+                    {
+                        SR1Structures.Level level = (SR1Structures.Level)_file._Structures[0];
+                        sourceUnitName = level.WorldName;
+                        sourceVersion = level.versionNumber.Value;
                     }
 
                     _file.Export(addFileDialog.FullPath, SR1_File.Version.Retail_PC, migrateFlags, fileName, textureSet.TextureIDs, newStreamUnitID, newIntroIDs);
@@ -269,7 +285,7 @@ namespace Recombobulator
                     string category = null;
                     if (_file._IsLevel)
                     {
-                        newObject = _repository.AddNewLevel(fileName, addFileDialog.FileID, textureSet.Name);
+                        newObject = _repository.AddNewLevel(fileName, sourceUnitName, sourceVersion, textureSet.Name);
                         category = "Levels";
                     }
                     else
@@ -605,6 +621,8 @@ namespace Recombobulator
 
             if (repository != null && repository.LoadRepository())
             {
+                projectTreeView.Nodes.Clear();
+
                 _repository = repository;
 
                 addToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
@@ -703,12 +721,25 @@ namespace Recombobulator
                 Level level = (Level)e.Node.Tag;
                 string text = "Unit Name: " + level.UnitName + "\r\n";
                 text += "Unit ID: " + level.StreamUnitID.ToString() + "\r\n";
+                text += "Source Unit Name: " + level.SourceUnitName + "\r\n";
+                text += "Source Version: 0x" + level.SourceVersion.ToString("X8") + "\r\n";
                 if (level.TextureSet != null && level.TextureSet != "")
                 {
                     text += "Texture Set (imported): " + level.TextureSet + "\r\n";
                 }
-                text += "Intros:\r\n";
 
+                text += "Portals:\r\n";
+                foreach (Portal portal in level.Portals.Portals)
+                {
+                    string newName = "missing";
+                    if (portal.UnitName != null && portal.UnitName != "")
+                    {
+                        newName = portal.UnitName;
+                    }
+                    text += "\t" + newName + ", sourceFile { " + portal.SourceUnitName + ", 0x" + portal.SourceVersion.ToString("X8") + " }\r\n";
+                }
+
+                text += "Intros:\r\n";
                 foreach (Intro intro in _repository.Intros.Intros)
                 {
                     if (intro.StreamUnitID == level.StreamUnitID)

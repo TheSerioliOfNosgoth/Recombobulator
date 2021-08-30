@@ -40,6 +40,8 @@ namespace Recombobulator.SR1Structures
             if (file._Version <= SR1_File.Version.Feb16 && targetVersion > SR1_File.Version.Feb16)
             {
                 textoff.Value = (ushort)((textoff.Value * 12) / 16);
+                // 0x02 lets forge 6 work and prevents crashing in retreat when using portals.
+                // 0x46 lets portals work but not fully, however crashes forge 5.
                 attr.Value = (byte)(attr.Value & 0x02);
             }
         }

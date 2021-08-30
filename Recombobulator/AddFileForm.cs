@@ -10,11 +10,11 @@ namespace Recombobulator
         public string FullPath { get; private set; } = "";
         public string RelativePath { get { return pathTextBox.Text; } }
 
-        public int FileID { get; set; } = 0;
-
         public int TextureSet { get; private set; } = 0;
 
         public bool RemovePortals { get { return removePortalsCheckBox.Checked; } }
+
+        public bool RemoveSignals { get { return removeSignalsCheckBox.Checked; } }
 
         public bool RemoveEvents { get { return removeEventsCheckBox.Checked; } }
 
@@ -37,9 +37,6 @@ namespace Recombobulator
             {
                 pathTextBox.Text = _repository.MakeLevelFilePath(fileName);
                 FullPath = _repository.MakeLevelFilePath(fileName, true);
-
-                // Could find an unused one or even validate overwrites of existing levels.
-                FileID = _repository.Levels.NextAvailableID;
 
                 Level existingLevel = repository.Levels.Levels.Find(x => x.UnitName == fileName);
                 if (existingLevel != null && existingLevel.TextureSet != "")

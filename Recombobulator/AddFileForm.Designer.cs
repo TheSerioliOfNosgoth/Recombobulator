@@ -41,25 +41,26 @@
             this.removeEventsCheckBox = new System.Windows.Forms.CheckBox();
             this.removePortalsCheckBox = new System.Windows.Forms.CheckBox();
             this.removeVMOsCheckBox = new System.Windows.Forms.CheckBox();
+            this.removeSignalsCheckBox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // continueButton
             // 
             this.continueButton.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.continueButton.Location = new System.Drawing.Point(12, 337);
+            this.continueButton.Location = new System.Drawing.Point(10, 360);
             this.continueButton.Name = "continueButton";
             this.continueButton.Size = new System.Drawing.Size(75, 23);
-            this.continueButton.TabIndex = 11;
+            this.continueButton.TabIndex = 12;
             this.continueButton.Text = "Continue";
             this.continueButton.UseVisualStyleBackColor = true;
             // 
             // cancelButton
             // 
             this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cancelButton.Location = new System.Drawing.Point(93, 337);
+            this.cancelButton.Location = new System.Drawing.Point(91, 360);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
-            this.cancelButton.TabIndex = 12;
+            this.cancelButton.TabIndex = 13;
             this.cancelButton.Text = "Cancel";
             this.cancelButton.UseVisualStyleBackColor = true;
             // 
@@ -144,10 +145,10 @@
             this.removeEventsCheckBox.Checked = true;
             this.removeEventsCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
             this.removeEventsCheckBox.Enabled = false;
-            this.removeEventsCheckBox.Location = new System.Drawing.Point(12, 286);
+            this.removeEventsCheckBox.Location = new System.Drawing.Point(10, 309);
             this.removeEventsCheckBox.Name = "removeEventsCheckBox";
             this.removeEventsCheckBox.Size = new System.Drawing.Size(102, 17);
-            this.removeEventsCheckBox.TabIndex = 9;
+            this.removeEventsCheckBox.TabIndex = 10;
             this.removeEventsCheckBox.Text = "Remove Events";
             this.removeEventsCheckBox.UseVisualStyleBackColor = true;
             // 
@@ -168,12 +169,24 @@
             this.removeVMOsCheckBox.AutoSize = true;
             this.removeVMOsCheckBox.Checked = true;
             this.removeVMOsCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.removeVMOsCheckBox.Location = new System.Drawing.Point(11, 309);
+            this.removeVMOsCheckBox.Location = new System.Drawing.Point(9, 332);
             this.removeVMOsCheckBox.Name = "removeVMOsCheckBox";
             this.removeVMOsCheckBox.Size = new System.Drawing.Size(171, 17);
-            this.removeVMOsCheckBox.TabIndex = 10;
+            this.removeVMOsCheckBox.TabIndex = 11;
             this.removeVMOsCheckBox.Text = "Remove Vertex Morph Objects";
             this.removeVMOsCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // removeSignalsCheckBox
+            // 
+            this.removeSignalsCheckBox.AutoSize = true;
+            this.removeSignalsCheckBox.Checked = true;
+            this.removeSignalsCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.removeSignalsCheckBox.Location = new System.Drawing.Point(11, 286);
+            this.removeSignalsCheckBox.Name = "removeSignalsCheckBox";
+            this.removeSignalsCheckBox.Size = new System.Drawing.Size(103, 17);
+            this.removeSignalsCheckBox.TabIndex = 9;
+            this.removeSignalsCheckBox.Text = "Remove Signals";
+            this.removeSignalsCheckBox.UseVisualStyleBackColor = true;
             // 
             // AddFileForm
             // 
@@ -181,8 +194,9 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cancelButton;
-            this.ClientSize = new System.Drawing.Size(284, 376);
+            this.ClientSize = new System.Drawing.Size(284, 396);
             this.ControlBox = false;
+            this.Controls.Add(this.removeSignalsCheckBox);
             this.Controls.Add(this.removeVMOsCheckBox);
             this.Controls.Add(this.removeEventsCheckBox);
             this.Controls.Add(this.removePortalsCheckBox);
@@ -223,5 +237,6 @@
         private System.Windows.Forms.CheckBox removeEventsCheckBox;
         private System.Windows.Forms.CheckBox removePortalsCheckBox;
         private System.Windows.Forms.CheckBox removeVMOsCheckBox;
+        private System.Windows.Forms.CheckBox removeSignalsCheckBox;
     }
 }

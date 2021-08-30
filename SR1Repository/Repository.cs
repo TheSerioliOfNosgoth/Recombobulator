@@ -387,7 +387,7 @@ namespace SR1Repository
             return obj;
         }
 
-        public Level AddNewLevel(string unitName, int streamUnitID, string textureSet)
+        public Level AddNewLevel(string unitName, string sourceUnitName, uint sourceVersion, string textureSet)
         {
             string fullPath = MakeLevelFilePath(unitName, true);
             if (!File.Exists(fullPath))
@@ -407,6 +407,23 @@ namespace SR1Repository
             BinaryReader reader = new BinaryReader(levelFile, System.Text.Encoding.ASCII);
             uint dataStart = ((reader.ReadUInt32() >> 9) << 11) + 0x00000800;
             ProcessLevel(level, reader, dataStart);
+            level.SourceUnitName = sourceUnitName;
+            level.SourceVersion = sourceVersion;
+
+            foreach (Portal portal in level.Portals.Portals)
+            {
+                portal.SourceVersion = sourceVersion;
+                Level targetLevel = _levels.Levels.Find(x => x.SourceUnitName == portal.SourceUnitName && x.SourceVersion == portal.SourceVersion);
+                if (targetLevel != null)
+                {
+                    portal.UnitName = targetLevel.UnitName;
+                }
+                else
+                {
+                    portal.UnitName = "";
+                }
+            }
+
             reader.Close();
             levelFile.Close();
 
@@ -449,6 +466,32 @@ namespace SR1Repository
             level.UnitName = CleanName(new string(reader.ReadChars(8)));
             reader.BaseStream.Position = dataStart + 0xF8;
             level.StreamUnitID = reader.ReadInt32();
+            level.SourceUnitName = level.UnitName;
+            reader.BaseStream.Position = dataStart + 0xF0;
+            level.SourceVersion = reader.ReadUInt32();
+            reader.BaseStream.Position = dataStart;
+            uint terrainPos = reader.ReadUInt32();
+            if (terrainPos != 0)
+            {
+                reader.BaseStream.Position = dataStart + terrainPos + 0x30;
+                uint portalListPos = reader.ReadUInt32();
+                if (portalListPos != 0)
+                {
+                    reader.BaseStream.Position = dataStart + portalListPos;
+                    int numPortals = reader.ReadInt32();
+                    for (int p = 0; p < numPortals; p++)
+                    {
+                        string portalDest = new string(reader.ReadChars(16));
+                        portalDest = portalDest.Substring(0, portalDest.IndexOf(','));
+                        Portal portal = new Portal();
+                        portal.UnitName = portalDest;
+                        portal.SourceUnitName = portalDest;
+                        portal.SourceVersion = level.SourceVersion;
+                        level.Portals.Add(portal);
+                        reader.BaseStream.Position += 0x4C;
+                    }
+                }
+            }
 
             // There could be duplicate levels when unpacking. Read the data anyway for debugging.
             if (_levels.Find(x => x.UnitName == level.UnitName) == null)

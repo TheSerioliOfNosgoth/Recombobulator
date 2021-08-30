@@ -74,6 +74,8 @@
     <Compile Include="AssetDescList.cs" />
     <Compile Include="Intro.cs" />
     <Compile Include="IntroList.cs" />
+    <Compile Include="Portal.cs" />
+    <Compile Include="PortalList.cs" />
     <Compile Include="ListBase.cs" />
     <Compile Include="ObjectList.cs" />
     <Compile Include="Object.cs" />
