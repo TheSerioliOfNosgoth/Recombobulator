@@ -87,7 +87,7 @@ namespace Recombobulator.SR1Structures
         {
             base.MigrateVersion(file, targetVersion, migrateFlags);
 
-            if (file._Version < SR1_File.Version.Retail_PC && targetVersion == SR1_File.Version.Retail_PC)
+            if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
             {
                 int textureID = file._NewTextureIDs[tpage.Value & 0x00000007];
                 tpage.Value = (ushort)textureID;

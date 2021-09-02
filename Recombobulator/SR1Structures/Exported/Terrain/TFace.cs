@@ -5,11 +5,13 @@ namespace Recombobulator.SR1Structures
 {
     class TFace : SR1_Structure
     {
-        Face face = new Face();
-        SR1_Primative<byte> attr = new SR1_Primative<byte>();
-        SR1_Primative<sbyte> sortPush = new SR1_Primative<sbyte>();
-        SR1_Primative<ushort> normal = new SR1_Primative<ushort>();
-        SR1_Primative<ushort> textoff = new SR1_Primative<ushort>();
+        public readonly Face face = new Face();
+        public readonly SR1_Primative<byte> attr = new SR1_Primative<byte>();
+        public readonly SR1_Primative<sbyte> sortPush = new SR1_Primative<sbyte>();
+        public readonly SR1_Primative<ushort> normal = new SR1_Primative<ushort>();
+        public readonly SR1_Primative<ushort> textoff = new SR1_Primative<ushort>();
+
+        public bool IsInSignalGroup = false;
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
@@ -37,13 +39,40 @@ namespace Recombobulator.SR1Structures
         {
             base.MigrateVersion(file, targetVersion, migrateFlags);
 
-            if (file._Version <= SR1_File.Version.Feb16 && targetVersion > SR1_File.Version.Feb16)
+            if (file._Version < SR1_File.Version.May12 && targetVersion >= SR1_File.Version.May12)
             {
-                textoff.Value = (ushort)((textoff.Value * 12) / 16);
-                // 0x02 lets forge 6 work and prevents crashing in retreat when using portals.
-                // 0x46 lets portals work but not fully, however crashes forge 5.
-                attr.Value = (byte)(attr.Value & 0x02);
+                if (!IsInSignalGroup)
+                {
+                    // 0x02 lets forge 6 work and prevents crashing in retreat when using portals.
+                    // 0x08 is water?
+                    // 0x46 lets portals work but not fully, however crashes forge 5.
+                    // attr.Value = (byte)(attr.Value & 0x46);
+                    textoff.Value = (ushort)((textoff.Value * 12) / 16);
+                    //attr.Value = (byte)(attr.Value & 0x02); // 0x44 is used for signals. Renderable stuff too?
+                }
             }
+
+            if (IsInSignalGroup)
+            {
+                if ((migrateFlags & SR1_File.MigrateFlags.RemovePortals) != 0 ||
+                    (migrateFlags & SR1_File.MigrateFlags.RemoveSignals) != 0)
+                {
+                    // 0x004ABBBA has something to do with the portals.
+                    // COLLIDE_LineWithSignals does care about TFace::texoff. See address 00490DF6 in game.
+                    attr.Value = 0;
+                    textoff.Value = 0;
+                }
+            }
+        }
+
+        public override string ToString()
+        {
+            string result = base.ToString();
+            if (IsInSignalGroup)
+            {
+                result += "- SG";
+            }
+            return result;
         }
     }
 }

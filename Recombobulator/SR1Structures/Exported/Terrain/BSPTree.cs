@@ -5,15 +5,15 @@ namespace Recombobulator.SR1Structures
 {
     class BSPTree : SR1_Structure
     {
-        SR1_Pointer<BSPNode> bspRoot = new SR1_Pointer<BSPNode>();
-        SR1_Pointer<BSPLeaf> startLeaves = new SR1_Pointer<BSPLeaf>();
-        SR1_Pointer<BSPLeaf> endLeaves = new SR1_Pointer<BSPLeaf>();
-        Position globalOffset = new Position();
-        SR1_Primative<short> flags = new SR1_Primative<short>();
-        Position localOffset = new Position();
-        SR1_Primative<short> ID = new SR1_Primative<short>();
-        SR1_Primative<int> splineID = new SR1_Primative<int>();
-        SR1_Pointer<Instance> instanceSpline = new SR1_Pointer<Instance>();
+        public readonly SR1_Pointer<BSPNode> bspRoot = new SR1_Pointer<BSPNode>();
+        public readonly SR1_Pointer<BSPLeaf> startLeaves = new SR1_Pointer<BSPLeaf>();
+        public readonly SR1_Pointer<BSPLeaf> endLeaves = new SR1_Pointer<BSPLeaf>();
+        public readonly Position globalOffset = new Position();
+        public readonly SR1_Primative<short> flags = new SR1_Primative<short>();
+        public readonly Position localOffset = new Position();
+        public readonly SR1_Primative<short> ID = new SR1_Primative<short>();
+        public readonly SR1_Primative<int> splineID = new SR1_Primative<int>();
+        public readonly SR1_Pointer<Instance> instanceSpline = new SR1_Pointer<Instance>();
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
@@ -58,7 +58,7 @@ namespace Recombobulator.SR1Structures
         {
             base.MigrateVersion(file, targetVersion, migrateFlags);
 
-            if (file._Version < SR1_File.Version.Retail_PC && targetVersion == SR1_File.Version.Retail_PC)
+            if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
             {
                 // Burn in sunlight.
                 // The 0x0040 seems right, but not sure about the 0x0002.

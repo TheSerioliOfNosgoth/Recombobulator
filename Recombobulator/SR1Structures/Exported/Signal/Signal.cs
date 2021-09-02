@@ -544,7 +544,7 @@ namespace Recombobulator.SR1Structures
         {
             base.MigrateVersion(file, targetVersion, migrateFlags);
 
-            if (file._Version < SR1_File.Version.Retail_PC && targetVersion == SR1_File.Version.Retail_PC)
+            if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
             {
                 int newID = -1;
 

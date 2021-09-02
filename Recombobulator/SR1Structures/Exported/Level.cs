@@ -434,17 +434,20 @@ namespace Recombobulator.SR1Structures
         {
             base.MigrateVersion(file, targetVersion, migrateFlags);
 
-            if (file._Version < SR1_File.Version.Retail_PC && targetVersion == SR1_File.Version.Retail_PC)
+            if (file._Version != targetVersion)
             {
-                worldNameString.SetText(file._NewName);
+                if (file._NewName != null)
+                {
+                    worldNameString.SetText(file._NewName);
+                }
+
+                if (file._NewStreamUnitID != 0)
+                {
+                    streamUnitID.Value = file._NewStreamUnitID;
+                }
             }
 
-            if (file._Version != targetVersion && file._NewStreamUnitID != 0)
-            {
-                streamUnitID.Value = file._NewStreamUnitID;
-            }
-
-            if (file._Version < SR1_File.Version.Retail_PC && targetVersion == SR1_File.Version.Retail_PC)
+            if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
             {
                 versionNumber.Value = SR1_File.RETAIL_VERSION;
 
@@ -489,13 +492,6 @@ namespace Recombobulator.SR1Structures
                 if (depthQPTable.Offset != 0)
                 {
                     file._Structures.Remove(depthQPTable.Offset);
-                }
-
-                numCameras.Value = 0;
-                if (cameraList.Offset != 0)
-                {
-                    file._Structures.Remove(cameraList.Offset);
-                    cameraList.Offset = 0;
                 }
 
                 if (bgAniList.Offset != 0)

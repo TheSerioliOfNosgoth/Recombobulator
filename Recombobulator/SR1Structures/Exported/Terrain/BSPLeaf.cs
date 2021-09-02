@@ -5,13 +5,13 @@ namespace Recombobulator.SR1Structures
 {
     class BSPLeaf : SR1_Structure
     {
-        Sphere_noSq sphere = new Sphere_noSq();
-        SR1_Pointer<TFace> faceList = new SR1_Pointer<TFace>();
-        SR1_Primative<short> numFaces = new SR1_Primative<short>();
-        SR1_Primative<short> flags = new SR1_Primative<short>();
-        BoundingBox box = new BoundingBox();
-        BoundingBox spectralBox = new BoundingBox();
-        Sphere_noSq spectralSphere = new Sphere_noSq();
+        public readonly Sphere_noSq sphere = new Sphere_noSq();
+        public readonly SR1_Pointer<TFace> faceList = new SR1_Pointer<TFace>();
+        public readonly SR1_Primative<short> numFaces = new SR1_Primative<short>();
+        public readonly SR1_Primative<short> flags = new SR1_Primative<short>();
+        public readonly BoundingBox box = new BoundingBox();
+        public readonly BoundingBox spectralBox = new BoundingBox();
+        public readonly Sphere_noSq spectralSphere = new Sphere_noSq();
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {

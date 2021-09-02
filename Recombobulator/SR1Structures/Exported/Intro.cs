@@ -101,10 +101,13 @@ namespace Recombobulator.SR1Structures
         {
             base.MigrateVersion(file, targetVersion, migrateFlags);
 
-            if (file._Version != targetVersion && file._NewIntroIDs != null)
+            if (file._Version != targetVersion)
             {
-                UniqueID.Value = file._NewIntroIDs[file._NextIntroID];
-                file._NextIntroID++;
+                if (file._NewIntroIDs != null)
+                {
+                    UniqueID.Value = file._NewIntroIDs[file._NextIntroID];
+                    file._NextIntroID++;
+                }
             }
         }
 

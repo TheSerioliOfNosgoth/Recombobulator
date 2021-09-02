@@ -5,17 +5,17 @@ namespace Recombobulator.SR1Structures
 {
     class TextureFT3 : SR1_Structure
     {
-        SR1_Primative<byte> u0 = new SR1_Primative<byte>();
-        SR1_Primative<byte> v0 = new SR1_Primative<byte>();
-        SR1_Primative<ushort> clut = new SR1_Primative<ushort>();
-        SR1_Primative<byte> u1 = new SR1_Primative<byte>();
-        SR1_Primative<byte> v1 = new SR1_Primative<byte>();
-        SR1_Primative<ushort> tpage = new SR1_Primative<ushort>();
-        SR1_Primative<ushort> attr2 = new SR1_Primative<ushort>();
-        SR1_Primative<byte> u2 = new SR1_Primative<byte>();
-        SR1_Primative<byte> v2 = new SR1_Primative<byte>();
-        SR1_Primative<ushort> attr = new SR1_Primative<ushort>();
-        SR1_Primative<int> color = new SR1_Primative<int>();
+        public readonly SR1_Primative<byte> u0 = new SR1_Primative<byte>();
+        public readonly SR1_Primative<byte> v0 = new SR1_Primative<byte>();
+        public readonly SR1_Primative<ushort> clut = new SR1_Primative<ushort>();
+        public readonly SR1_Primative<byte> u1 = new SR1_Primative<byte>();
+        public readonly SR1_Primative<byte> v1 = new SR1_Primative<byte>();
+        public readonly SR1_Primative<ushort> tpage = new SR1_Primative<ushort>();
+        public readonly SR1_Primative<ushort> attr2 = new SR1_Primative<ushort>();
+        public readonly SR1_Primative<byte> u2 = new SR1_Primative<byte>();
+        public readonly SR1_Primative<byte> v2 = new SR1_Primative<byte>();
+        public readonly SR1_Primative<ushort> attr = new SR1_Primative<ushort>();
+        public readonly SR1_Primative<int> color = new SR1_Primative<int>();
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
@@ -82,7 +82,7 @@ namespace Recombobulator.SR1Structures
         {
             base.MigrateVersion(file, targetVersion, migrateFlags);
 
-            if (file._Version < SR1_File.Version.Retail_PC && targetVersion == SR1_File.Version.Retail_PC)
+            if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
             {
                 int textureID = file._NewTextureIDs[tpage.Value & 0x00000007];
                 tpage.Value = (ushort)textureID;

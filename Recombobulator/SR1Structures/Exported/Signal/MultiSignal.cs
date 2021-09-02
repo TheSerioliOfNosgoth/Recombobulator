@@ -58,7 +58,10 @@ namespace Recombobulator.SR1Structures
                 numSignals.Value = newNumSignals;
             }
 
-            pad.Value = 15;
+            if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
+            {
+                pad.Value = 15;
+            }
         }
     }
 }

@@ -77,9 +77,11 @@ namespace Recombobulator.SR1Structures
                 new SR1_StructureArray<TVertex>(numVertices.Value).ReadFromPointer(reader, vertexList);
             }
 
+            SR1_StructureArray<TFace> faces = new SR1_StructureArray<TFace>(0);
             if (numFaces.Value > 0)
             {
-                new SR1_StructureArray<TFace>(numFaces.Value).ReadFromPointer(reader, faceList);
+                faces = new SR1_StructureArray<TFace>(numFaces.Value);
+                faces.ReadFromPointer(reader, faceList);
             }
 
             if (numNormals.Value > 0)
@@ -120,7 +122,7 @@ namespace Recombobulator.SR1Structures
                 {
                     SR1_StructureList<SR1_PointerArray<Intro>> introListSet = new SR1_StructureList<SR1_PointerArray<Intro>>();
 
-                    foreach (KeyValuePair<uint, SR1_PointerArray <Intro>> introList in reader.IntroListDictionary)
+                    foreach (KeyValuePair<uint, SR1_PointerArray<Intro>> introList in reader.IntroListDictionary)
                     {
                         introListSet.Add(introList.Value);
                     }
@@ -134,8 +136,33 @@ namespace Recombobulator.SR1Structures
             int morphColorPadding = (reader.File._Version >= SR1_File.Version.May12) ? 4 : 2;
             new SR1_StructureArray<MorphColor>(numVertices.Value).SetPadding(morphColorPadding).ReadFromPointer(reader, MorphColorList);
 
-            new SR1_StructureArray<BSPTree>(numBSPTrees.Value).ReadFromPointer(reader, BSPTreeArray);
+            SR1_StructureArray<BSPTree> bspTrees = new SR1_StructureArray<BSPTree>(numBSPTrees.Value);
+            bspTrees.ReadFromPointer(reader, BSPTreeArray);
+            if (bspTrees.Length > 0 && faces.Length > 0)
+            {
+                BSPTree tree = (BSPTree)bspTrees[numBSPTrees.Value - 1];
+                if (tree.startLeaves.Offset != 0 &&
+                    reader.File._Structures.ContainsKey(tree.startLeaves.Offset))
+                {
+                    SR1_Structure leavesStruct = reader.File._Structures[tree.startLeaves.Offset];
+                    if (leavesStruct.GetType() == typeof(SR1_StructureSeries<BSPLeaf>))
+                    {
+                        SR1_StructureSeries<BSPLeaf> leaves = (SR1_StructureSeries<BSPLeaf>)leavesStruct;
+                        foreach (BSPLeaf leaf in leaves.List)
+                        {
+                            uint faceIndex = (leaf.faceList.Offset - faces.Start) / 12;
+                            short numFaces = leaf.numFaces.Value;
+                            for (short f = 0; f < numFaces; f++)
+                            {
+                                ((TFace)faces[(int)faceIndex + f]).IsInSignalGroup = true;
+                            }
+                        }
+                    }
+                }
+            }
+
             new SR1_PrimativeArray<ushort>(numFaces.Value).SetPadding(4).ReadFromPointer(reader, morphNormalIdx);
+
             if (reader.File._Version == SR1_File.Version.Retail_PC)
             {
                 new UnknownPCList().ReadFromPointer(reader, unknownPCList);
@@ -213,7 +240,7 @@ namespace Recombobulator.SR1Structures
         {
             base.MigrateVersion(file, targetVersion, migrateFlags);
 
-            if (file._Version <= SR1_File.Version.May12 && targetVersion == SR1_File.Version.Retail_PC)
+            if (file._Version <= SR1_File.Version.May12 && targetVersion >= SR1_File.Version.Retail_PC)
             {
                 MembersRead.Insert(MembersRead.IndexOf(sbspRoot), pad);
                 MembersRead.Remove(sbspRoot);
@@ -248,8 +275,7 @@ namespace Recombobulator.SR1Structures
                     sbspEndLeaves.Offset = 0;
                 }
             }
-
-            if (file._Version == SR1_File.Version.Jun01 && targetVersion == SR1_File.Version.Retail_PC)
+            else if (file._Version <= SR1_File.Version.Jun01 && targetVersion >= SR1_File.Version.Retail_PC)
             {
                 MembersRead.Add(unknownPCList);
 
@@ -260,6 +286,32 @@ namespace Recombobulator.SR1Structures
                 UnknownPCList newUnknownPCList = new UnknownPCList();
                 file._Structures.Add(position, newUnknownPCList);
                 file._MigrationStructures.Add(position, newUnknownPCList);
+            }
+
+            if ((migrateFlags & SR1_File.MigrateFlags.ForceWaterTranslucent) != 0)
+            {
+                if (numFaces.Value > 0 && faceList.Offset != 0 && file._Structures.ContainsKey(faceList.Offset) &&
+                    StartTextureList.Offset != 0 && file._Structures.ContainsKey(StartTextureList.Offset))
+                {
+                    SR1_Structure facesStruct = file._Structures[faceList.Offset];
+                    SR1_Structure texturesStruct = file._Structures[StartTextureList.Offset];
+
+                    if (facesStruct.GetType() == typeof(SR1_StructureArray<TFace>) &&
+                        texturesStruct.GetType() == typeof(SR1_StructureSeries<TextureFT3>))
+                    {
+                        SR1_StructureArray<TFace> faces = (SR1_StructureArray<TFace>)facesStruct;
+                        SR1_StructureSeries<TextureFT3> textures = (SR1_StructureSeries<TextureFT3>)texturesStruct;
+                        foreach (TFace face in faces.List)
+                        {
+                            if (!face.IsInSignalGroup && (face.attr.Value & 0x08) != 0)
+                            {
+                                int textureSize = file._Version <= SR1_File.Version.Feb16 ? 16 : 12;
+                                TextureFT3 texture = (TextureFT3)textures[face.textoff.Value / textureSize];
+                                texture.attr.Value |= 0x0010;
+                            }
+                        }
+                    }
+                }
             }
         }
     }

@@ -7,8 +7,10 @@ namespace Recombobulator.SR1Structures
     {
         protected List<T> _List = new List<T>();
 
-        public IReadOnlyCollection<T> List { get { return _List; } }
+        public T this[int i] { get { return _List[i]; } set { _List[i] = value; } }
         public int Count { get { return _List.Count; } }
+
+        public IReadOnlyCollection<T> List { get { return _List; } }
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
         {
