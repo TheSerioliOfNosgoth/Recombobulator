@@ -9,6 +9,7 @@ namespace SR1Repository
     public class Portal
     {
         public string UnitName { get; set; } = "";
+        public int StreamUnitID { get; set; } = 0;
         public string SourceUnitName { get; set; } = "";
         public uint SourceVersion { get; set; } = 0;
     }

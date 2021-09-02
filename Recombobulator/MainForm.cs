@@ -736,7 +736,10 @@ namespace Recombobulator
                     {
                         newName = portal.UnitName;
                     }
-                    text += "\t" + newName + ", sourceFile { " + portal.SourceUnitName + ", 0x" + portal.SourceVersion.ToString("X8") + " }\r\n";
+
+                    int newID = portal.StreamUnitID;
+
+                    text += "\t" + newName + ", " + newID + ", sourceFile { " + portal.SourceUnitName + ", 0x" + portal.SourceVersion.ToString("X8") + " }\r\n";
                 }
 
                 text += "Intros:\r\n";
