@@ -11,6 +11,37 @@ namespace SR1Repository
 {
     public class Repository
     {
+        private enum SignalTypes
+        {
+            HandleLightGroup,           // long lightGroup;
+            HandleCameraAdjust,         // long cameraAdjust;
+            HandleCameraMode,           // long cameraMode;
+            HandleCameraKey,            // CameraKey *cameraKey
+            HandleCameraTimer,          // long cameraTimer;
+            HandleCameraSmooth,         // long cameraSmooth;
+            HandleCameraValue,          // long index; long value;
+            HandleCameraLock,           // long cameraLock;
+            HandleCameraUnlock,         // long cameraUnlock;
+            HandleCameraSave,           // long cameraSave;
+            HandleCameraRestore,        // long cameraRestore;
+            HandleFogNear,              // long fogNear;
+            HandleFogFar,               // long fogFar;
+            HandleCameraShake,          // long time; long scale;
+            HandleCallSignal,           // void* callSignal; (callSignal is itself a signal?)
+            HandleEnd,                  // (nothing)
+            HandleStopPlayerControl,    // (nothing)
+            HandleStartPlayerControl,   // (nothing)
+            HandleStreamLevel,          // long currentnum; long streamID; char toname[16];
+            HandleCameraSpline,         // long index; Intro* intro;
+            HandleScreenWipe,           // short type; short time;
+            HandleBlendStart,           // long blendStart;
+            HandleScreenWipeColor,      // unsigned char r; unsigned char g; unsigned char b; unsigned char pad;
+            HandleSetSlideAngle,        // long slideAngle;
+            HandleResetSlideAngle,      // (nothing)
+            HandleSetCameraTilt,        // long cameraTilt;
+            HandleSetCameraDistance,    // long cameraDistance;
+        }
+
         const int textureWidth = 256;
         const int textureHeight = 256;
         const int headerLength = 4096;
@@ -441,6 +472,8 @@ namespace SR1Repository
             reader.Close();
             levelFile.Close();
 
+            UpdateLevelPortals(level);
+
             level.IsNew = true;
             return level;
         }
@@ -497,10 +530,11 @@ namespace SR1Repository
                     {
                         string portalDest = new string(reader.ReadChars(16));
                         portalDest = portalDest.Substring(0, portalDest.IndexOf(','));
-                        reader.BaseStream.Position += 0x04;
+                        int signalID = reader.ReadInt32();
                         int streamUnitID = reader.ReadInt32();
                         Portal portal = new Portal();
                         portal.UnitName = portalDest;
+                        portal.SignalID = signalID;
                         portal.StreamUnitID = streamUnitID;
                         portal.SourceUnitName = portalDest;
                         portal.SourceVersion = level.SourceVersion;
@@ -634,6 +668,87 @@ namespace SR1Repository
                         }
                     }
                 }
+            }
+
+            reader.BaseStream.Position = dataStart + 0xD0;
+            uint signalListStart = dataStart + reader.ReadUInt32();
+            uint signalListEnd = dataStart + reader.ReadUInt32();
+            reader.BaseStream.Position = signalListStart;
+
+            while (reader.BaseStream.Position < signalListEnd)
+            {
+                int numSignals = reader.ReadInt32();
+                reader.BaseStream.Position += 0x04;
+                for (int s = 0; s < numSignals; s++)
+                {
+                    int signalID = reader.ReadInt32();
+                    int signalLength = 0;
+
+                    switch ((SignalTypes)signalID)
+                    {
+                        case SignalTypes.HandleEnd:
+                        case SignalTypes.HandleStartPlayerControl:
+                        case SignalTypes.HandleStopPlayerControl:
+                        case SignalTypes.HandleResetSlideAngle:
+                            signalLength = 0;
+                            break;
+                        case SignalTypes.HandleLightGroup:
+                        case SignalTypes.HandleCameraAdjust:
+                        case SignalTypes.HandleCameraMode:
+                        case SignalTypes.HandleCameraKey:
+                        case SignalTypes.HandleCameraTimer:
+                        case SignalTypes.HandleCameraSmooth:
+                        case SignalTypes.HandleCameraLock:
+                        case SignalTypes.HandleCameraUnlock:
+                        case SignalTypes.HandleCameraSave:
+                        case SignalTypes.HandleCameraRestore:
+                        case SignalTypes.HandleFogNear:
+                        case SignalTypes.HandleFogFar:
+                        case SignalTypes.HandleCallSignal:
+                        case SignalTypes.HandleScreenWipe:
+                        case SignalTypes.HandleBlendStart:
+                        case SignalTypes.HandleScreenWipeColor:
+                        case SignalTypes.HandleSetSlideAngle:
+                        case SignalTypes.HandleSetCameraTilt:
+                        case SignalTypes.HandleSetCameraDistance:
+                            signalLength = 4;
+                            break;
+                        case SignalTypes.HandleCameraValue:
+                        case SignalTypes.HandleCameraShake:
+                        case SignalTypes.HandleCameraSpline:
+                            signalLength = 8;
+                            break;
+                        case SignalTypes.HandleStreamLevel:
+                            signalLength = 24;
+                            break;
+                    }
+
+                    if ((SignalTypes)signalID == SignalTypes.HandleStreamLevel)
+                    {
+                        int currentNum = reader.ReadInt32();
+                        int streamID = reader.ReadInt32();
+                        string portalString = new string(reader.ReadChars(16)).Trim('\0');
+                        string[] subStrings = portalString.Split(new char[] { ',' });
+                        string unitName = subStrings[0];
+                        string destSignal = subStrings[1];
+                        Portal portal = level.Portals.Portals.Find(x => x.SignalID == currentNum);
+                        if (portal != null && portal.UnitName != "")
+                        {
+                            portalString = portal.UnitName + "," + destSignal;
+                            char[] asChars = new char[16];
+                            portalString.CopyTo(0, asChars, 0, Math.Min(portalString.Length, 16));
+                            writer.BaseStream.Position -= 20;
+                            writer.Write(portal.StreamUnitID);
+                            writer.Write(asChars);
+                        }
+                    }
+                    else
+                    {
+                        reader.BaseStream.Position += signalLength;
+                    }
+                }
+
+                reader.BaseStream.Position += 0x04;
             }
 
             writer.Close();
