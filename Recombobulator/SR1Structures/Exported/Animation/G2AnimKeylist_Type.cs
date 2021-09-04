@@ -444,6 +444,14 @@ namespace Recombobulator.SR1Structures
                 sectionData.sectionC = -1;
                 sectionData.numSegments = sectionData.sectionA + 1;
             }
+            else if (scriptName == "lthbeam_")
+            {
+                sectionData.numSections = 1;
+                sectionData.sectionA = 29;
+                sectionData.sectionB = -1;
+                sectionData.sectionC = -1;
+                sectionData.numSegments = sectionData.sectionA + 1;
+            }
             else if ((reader.Object.oflags2.Value & 0x00040000) != 0)
             {
                 // InitPhysicalObject

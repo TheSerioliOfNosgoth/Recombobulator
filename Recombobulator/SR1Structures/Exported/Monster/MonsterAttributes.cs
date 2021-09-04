@@ -41,6 +41,7 @@ namespace Recombobulator.SR1Structures
         public readonly SR1_Primative<sbyte> numIdles = new SR1_Primative<sbyte>();
         public readonly SR1_Primative<sbyte> numBehaviors = new SR1_Primative<sbyte>();
         public readonly SR1_Primative<sbyte> numShatters = new SR1_Primative<sbyte>();
+        public readonly SR1_PrimativeArray<byte> pad = new SR1_PrimativeArray<byte>(0);
         public readonly SR1_PointerArrayPointer<MonsterSubAttributes> subAttributesList = new SR1_PointerArrayPointer<MonsterSubAttributes>();
         public readonly SR1_PointerArrayPointer<MonsterCombatAttributes> combatAttributesList = new SR1_PointerArrayPointer<MonsterCombatAttributes>();
         public readonly SR1_Pointer<MonsterAttackAttributes> attackAttributesList = new SR1_Pointer<MonsterAttackAttributes>();
@@ -87,7 +88,8 @@ namespace Recombobulator.SR1Structures
             numAnims.Read(reader, this, "numAnims");
             numIdles.Read(reader, this, "numIdles");
             numBehaviors.Read(reader, this, "numBehaviors");
-            numShatters.SetPadding(4).Read(reader, this, "numShatters");
+            numShatters.Read(reader, this, "numShatters", SR1_File.Version.May12, SR1_File.Version.Next);
+            pad.SetPadding(4).Read(reader, this, "pad");
             subAttributesList.Read(reader, this, "subAttributesList");
             combatAttributesList.Read(reader, this, "combatAttributesList");
             attackAttributesList.Read(reader, this, "attackAttributesList");
@@ -95,7 +97,7 @@ namespace Recombobulator.SR1Structures
             animList.Read(reader, this, "animList");
             idleList.Read(reader, this, "idleList");
             behaviorList.Read(reader, this, "behaviorList");
-            shatterList.Read(reader, this, "shatterList");
+            shatterList.Read(reader, this, "shatterList", SR1_File.Version.May12, SR1_File.Version.Next);
         }
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
@@ -144,7 +146,7 @@ namespace Recombobulator.SR1Structures
             new SR1_StructureArray<MonsterIdle>(numIdles.Value).ReadFromPointer(reader, idleList);
 
             int realNumBehaviors = (numBehaviors.Value > 0) ? (numBehaviors.Value - 1) : 0;
-            if (reader.File._Version >= SR1_File.Version.May12)
+            if (reader.File._Version >= SR1_File.Version.Feb16)
             {
                 if (reader.ObjectName.ToString() == "wrshp___")
                 {
@@ -197,7 +199,8 @@ namespace Recombobulator.SR1Structures
             numAnims.Write(writer);
             numIdles.Write(writer);
             numBehaviors.Write(writer);
-            numShatters.Write(writer);
+            numShatters.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+            pad.Write(writer);
             subAttributesList.Write(writer);
             combatAttributesList.Write(writer);
             attackAttributesList.Write(writer);
@@ -205,7 +208,7 @@ namespace Recombobulator.SR1Structures
             animList.Write(writer);
             idleList.Write(writer);
             behaviorList.Write(writer);
-            shatterList.Write(writer);
+            shatterList.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
         }
     }
 }

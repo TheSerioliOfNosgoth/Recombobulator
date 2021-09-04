@@ -20,16 +20,16 @@ namespace Recombobulator.SR1Structures
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
             Damage.Read(reader, this, "Damage");
-            AltDamage.Read(reader, this, "AltDamage");
-            knockBackDistance.Read(reader, this, "knockBackDistance");
-            knockBackFrames.Read(reader, this, "knockBackFrames");
-            dropSound.Read(reader, this, "dropSound");
+            AltDamage.Read(reader, this, "AltDamage", SR1_File.Version.May12, SR1_File.Version.Next);
+            knockBackDistance.Read(reader, this, "knockBackDistance", SR1_File.Version.May12, SR1_File.Version.Next);
+            knockBackFrames.Read(reader, this, "knockBackFrames", SR1_File.Version.May12, SR1_File.Version.Next);
+            dropSound.Read(reader, this, "dropSound", SR1_File.Version.May12, SR1_File.Version.Next);
             Class.Read(reader, this, "Class");
             ThrowSphere.Read(reader, this, "ThrowSphere");
             LeftHandSphere.Read(reader, this, "LeftHandSphere");
             RightHandSphere.Read(reader, this, "RightHandSphere");
             Light.Read(reader, this, "Light");
-            splinter.Read(reader, this, "splinter");
+            splinter.Read(reader, this, "splinter", SR1_File.Version.May12, SR1_File.Version.Next);
         }
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
@@ -40,16 +40,16 @@ namespace Recombobulator.SR1Structures
         public override void WriteMembers(SR1_Writer writer)
         {
             Damage.Write(writer);
-            AltDamage.Write(writer);
-            knockBackDistance.Write(writer);
-            knockBackFrames.Write(writer);
-            dropSound.Write(writer);
+            AltDamage.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+            knockBackDistance.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+            knockBackFrames.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+            dropSound.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
             Class.Write(writer);
             ThrowSphere.Write(writer);
             LeftHandSphere.Write(writer);
             RightHandSphere.Write(writer);
             Light.Write(writer);
-            splinter.Write(writer);
+            splinter.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
         }
     }
 }

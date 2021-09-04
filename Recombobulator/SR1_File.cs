@@ -212,32 +212,60 @@ namespace Recombobulator
                                 _Version = Version.May12;
                                 validVersion = true;
                             }
+                            else if (magicNum == 0xACE0005C)
+                            {
+                                _Version = Version.Feb16;
+                                validVersion = true;
+                            }
                         }
                     }
                     else
                     {
-                        streamReader.BaseStream.Position = 0x4C;
-                        char[] objectName = streamReader.ReadChars(8);
-                        string objectNameStr = new string(objectName);
-                        if (objectNameStr == "particle")
+                        streamWriter.BaseStream.Position = 0x24;
+                        uint namePos = streamReader.ReadUInt32();
+                        if (namePos == 0x00000044)
                         {
-                            streamReader.BaseStream.Position = 0x0424;
-                            if (streamReader.ReadUInt32() == 0x00000440 &&
-                                streamReader.ReadUInt32() == 0x00003000 &&
-                                streamReader.ReadUInt32() == 0x00003150 &&
-                                streamReader.ReadUInt32() == 0x0000355C &&
-                                streamReader.ReadUInt32() == 0x00003B60 &&
-                                streamReader.ReadUInt32() == 0x00003EE8 &&
-                                streamReader.ReadUInt32() == 0x00003EA0)
-                            {
-                                _Version = Version.May12;
-                            }
-                            else
-                            {
-                                _Version = Version.Jun01;
-                            }
-
+                            _Version = Version.Feb16;
                             validVersion = true;
+                        }
+
+                        if (!validVersion)
+                        {
+                            streamReader.BaseStream.Position = 0x50;
+                            char[] objectName = streamReader.ReadChars(8);
+                            string objectNameStr = new string(objectName);
+                            if (objectNameStr == "flamegs_")
+                            {
+                                _Version = Version.Feb16;
+                                validVersion = true;
+                            }
+                        }
+                        
+                        if (!validVersion)
+                        {
+                            streamReader.BaseStream.Position = 0x4C;
+                            char[] objectName = streamReader.ReadChars(8);
+                            string objectNameStr = new string(objectName);
+                            if (objectNameStr == "particle")
+                            {
+                                streamReader.BaseStream.Position = 0x0424;
+                                if (streamReader.ReadUInt32() == 0x00000440 &&
+                                    streamReader.ReadUInt32() == 0x00003000 &&
+                                    streamReader.ReadUInt32() == 0x00003150 &&
+                                    streamReader.ReadUInt32() == 0x0000355C &&
+                                    streamReader.ReadUInt32() == 0x00003B60 &&
+                                    streamReader.ReadUInt32() == 0x00003EE8 &&
+                                    streamReader.ReadUInt32() == 0x00003EA0)
+                                {
+                                    _Version = Version.May12;
+                                }
+                                else
+                                {
+                                    _Version = Version.Jun01;
+                                }
+
+                                validVersion = true;
+                            }
                         }
                     }
                 }

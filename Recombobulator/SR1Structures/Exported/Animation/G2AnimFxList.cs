@@ -20,7 +20,8 @@ namespace Recombobulator.SR1Structures
                 fxHeader.Read(reader, this, "[" + _List.Count.ToString() + "]");
                 _List.Add(fxHeader);
 
-                if (fxHeader.type.Value == -1)
+                if (fxHeader.type.Value == -1 ||
+                    (reader.Object != null && fxHeader.End >= reader.Object.AnimKeyListStart))
                 {
                     break;
                 }

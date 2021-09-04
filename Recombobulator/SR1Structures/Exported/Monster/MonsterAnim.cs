@@ -29,7 +29,11 @@ namespace Recombobulator.SR1Structures
             alphaTableOut.Read(reader, this, "alphaTableOut");
             controllingSection.Read(reader, this, "controllingSection");
             index.Read(reader, this, "index");
-            pad.Read(reader, this, "pad");
+
+            if (reader.BaseStream.Position < reader.BaseStream.Length)
+            {
+                pad.Read(reader, this, "pad");
+            }
         }
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
@@ -48,7 +52,11 @@ namespace Recombobulator.SR1Structures
             alphaTableOut.Write(writer);
             controllingSection.Write(writer);
             index.Write(writer);
-            pad.Write(writer);
+
+            if (MembersRead.Contains(pad))
+            {
+                pad.Write(writer);
+            }
         }
     }
 }

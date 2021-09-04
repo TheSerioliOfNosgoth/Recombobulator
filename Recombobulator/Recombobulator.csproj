@@ -86,6 +86,7 @@
     <Compile Include="SR1Structures\Collections\SR1_StructureSeriesBase.cs" />
     <Compile Include="SR1Structures\Exported\Mirror.cs" />
     <Compile Include="SR1Structures\Exported\Geometry\Sphere.cs" />
+    <Compile Include="SR1Structures\Exported\Monster\PriestsTuneData.cs" />
     <Compile Include="SR1Structures\Exported\NodeType.cs" />
     <Compile Include="SR1Structures\Exported\GenericFX\FXSplinter.cs" />
     <Compile Include="SR1Structures\Exported\GenericFX\BubbleParams.cs" />

@@ -98,8 +98,8 @@ namespace Recombobulator.SR1Structures
             minSpikeHorzSpeed.Read(reader, this, "minSpikeHorzSpeed");
             maxSpikeHorzSpeed.Read(reader, this, "maxSpikeHorzSpeed");
             maxSpikeVertSpeed.Read(reader, this, "maxSpikeVertSpeed");
-            upOnGroundOffset.Read(reader, this, "upOnGroundOffset");
-            downOnGroundOffset.Read(reader, this, "downOnGroundOffset");
+            upOnGroundOffset.Read(reader, this, "upOnGroundOffset", SR1_File.Version.May12, SR1_File.Version.Next);
+            downOnGroundOffset.Read(reader, this, "downOnGroundOffset", SR1_File.Version.May12, SR1_File.Version.Next);
         }
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
@@ -159,8 +159,8 @@ namespace Recombobulator.SR1Structures
             minSpikeHorzSpeed.Write(writer);
             maxSpikeHorzSpeed.Write(writer);
             maxSpikeVertSpeed.Write(writer);
-            upOnGroundOffset.Write(writer);
-            downOnGroundOffset.Write(writer);
+            upOnGroundOffset.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+            downOnGroundOffset.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
         }
     }
 }

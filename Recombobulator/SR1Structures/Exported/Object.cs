@@ -41,6 +41,8 @@ namespace Recombobulator.SR1Structures
         public readonly SR1_PrimativePointer<byte> relocModule = new SR1_PrimativePointer<byte>();
         public readonly VramSize vramSize = new VramSize();
 
+        public uint AnimKeyListStart { get; private set; } = 0xFFFFFFFF;
+
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
             reader.Object = this;
@@ -68,7 +70,7 @@ namespace Recombobulator.SR1Structures
             effectList.Read(reader, this, "effectList");
             relocList.Read(reader, this, "relocList");
             relocModule.Read(reader, this, "relocModule");
-            vramSize.Read(reader, this, "vramSize");
+            vramSize.Read(reader, this, "vramSize", SR1_File.Version.May12, SR1_File.Version.Next);
         }
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
@@ -165,6 +167,10 @@ namespace Recombobulator.SR1Structures
                     {
                         new VWraithTuneData().ReadFromPointer(reader, monAttributes.tunData);
                     }
+                    else if (scriptName == "priests_")
+                    {
+                        new PriestsTuneData().ReadFromPointer(reader, monAttributes.tunData);
+                    }
                 }
                 else if (scriptName == "raziel__")
                 {
@@ -205,6 +211,11 @@ namespace Recombobulator.SR1Structures
             if (numAnims.Value > 0)
             {
                 SR1_StructureArray<G2AnimKeylist_Type> keyLists = new SR1_StructureArray<G2AnimKeylist_Type>(numAnims.Value);
+                if (reader.File._Version >= SR1_File.Version.Feb16 && reader.File._Version < SR1_File.Version.May12 &&
+                    scriptName == "wrshp___")
+                {
+                    ((G2AnimKeylist_Type)keyLists[14]).OverridePadLength(8);
+                }
                 if (reader.File._Version >= SR1_File.Version.May12 && reader.File._Version < SR1_File.Version.Jun01 &&
                     scriptName == "wrshp___")
                 {
@@ -215,11 +226,24 @@ namespace Recombobulator.SR1Structures
                 {
                     ((G2AnimKeylist_Type)keyLists[13]).OverridePadLength(8);
                 }
+
                 keyLists.ReadFromPointer(reader, ((SR1_PointerArray<G2AnimKeylist_Type>)animListStruct)[0]);
+                AnimKeyListStart = keyLists.Start;
+
+                bool readUnusedAnimFX = false;
 
                 if (reader.File._Version >= SR1_File.Version.May12 && reader.File._Version < SR1_File.Version.Jul14 &&
-                    scriptName == "hunter__" || scriptName == "wrshp___" ||
-                    scriptName == "vlgra___" || scriptName == "vlgrb___" || scriptName == "vlgrc___")
+                    (scriptName == "hunter__" || scriptName == "wrshp___" ||
+                    scriptName == "vlgra___" || scriptName == "vlgrb___" || scriptName == "vlgrc___"))
+                {
+                    readUnusedAnimFX = true;
+                }
+                else if (reader.File._Version == SR1_File.Version.Feb16)
+                {
+                    readUnusedAnimFX = true;
+                }
+
+                if (readUnusedAnimFX)
                 {
                     reader.BaseStream.Position = keyLists.Start - 1;
                     while (!reader.File._Structures.ContainsKey((uint)reader.BaseStream.Position))
@@ -228,10 +252,14 @@ namespace Recombobulator.SR1Structures
                     }
                     reader.BaseStream.Position = reader.File._Structures[(uint)reader.BaseStream.Position].End;
                     uint length = keyLists.Start - (uint)reader.BaseStream.Position;
-                    new SR1_StructureSeries<G2AnimFXList>((int)length).SetPadding(4).Read(reader, null, "");
+                    if (length > 0)
+                    {
+                        new SR1_StructureSeries<G2AnimFXList>((int)length).SetPadding(4).Read(reader, null, "");
+                    }
                 }
                 else if (reader.AnimFXDictionary.Count > 0)
                 {
+                    // Superceeded by code above?
                     int numEffects = reader.AnimFXDictionary.Count;
                     if (reader.ObjectName.ToString() == "wrshp___")
                     {
@@ -290,7 +318,7 @@ namespace Recombobulator.SR1Structures
             effectList.Write(writer);
             relocList.Write(writer);
             relocModule.Write(writer);
-            vramSize.Write(writer);
+            vramSize.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
         }
     }
 }

@@ -48,11 +48,18 @@ namespace Recombobulator.SR1Structures
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
         {
             new SR1_StructureArray<MVertex>(numVertices.Value).ReadFromPointer(reader, vertexList);
-            new SR1_StructureArray<SVectorNoPad>(numNormals.Value).SetPadding(4).ReadFromPointer(reader, normalList);
+            SR1_Structure normalsStruct = new SR1_StructureArray<SVectorNoPad>(numNormals.Value).ReadFromPointer(reader, normalList);
             new SR1_StructureArray<MFace>(numFaces.Value).ReadFromPointer(reader, faceList);
             new SR1_StructureArray<Segment>(numSegments.Value).ReadFromPointer(reader, segmentList);
             new AniTex().ReadFromPointer(reader, aniTextures);
             new SR1_StructureSeries<TextureMT3>((int)(endTextures.Offset - startTextures.Offset)).ReadFromPointer(reader, startTextures);
+
+            // This needs to be at the end so that other structures can be checked for first.
+            // The padding was causing issues when it was at the very end of the file.
+            if (normalsStruct.End != reader.BaseStream.Length && !reader.File._Structures.ContainsKey(normalsStruct.End))
+            {
+                new SR1_PrimativeArray<byte>(0).SetPadding(4).ReadOrphan(reader, normalsStruct.End);
+            }
         }
 
         public override void WriteMembers(SR1_Writer writer)

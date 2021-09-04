@@ -18,9 +18,9 @@ namespace Recombobulator.SR1Structures
             collectClass.Read(reader, this, "collectClass");
             collectValue.Read(reader, this, "collectValue");
             distance.Read(reader, this, "distance");
-            idleAnim.Read(reader, this, "idleAnim");
-            collectAnim.Read(reader, this, "collectAnim");
-            spatialNode.Read(reader, this, "spatialNode");
+            idleAnim.Read(reader, this, "idleAnim", SR1_File.Version.May12, SR1_File.Version.Next);
+            collectAnim.Read(reader, this, "collectAnim", SR1_File.Version.May12, SR1_File.Version.Next);
+            spatialNode.Read(reader, this, "spatialNode", SR1_File.Version.May12, SR1_File.Version.Next);
         }
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
@@ -33,9 +33,9 @@ namespace Recombobulator.SR1Structures
             collectClass.Write(writer);
             collectValue.Write(writer);
             distance.Write(writer);
-            idleAnim.Write(writer);
-            collectAnim.Write(writer);
-            spatialNode.Write(writer);
+            idleAnim.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+            collectAnim.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+            spatialNode.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
         }
     }
 }
