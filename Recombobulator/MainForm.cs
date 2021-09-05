@@ -281,7 +281,7 @@ namespace Recombobulator
                         sourceVersion = level.versionNumber.Value;
                     }
 
-                    _file.Export(addFileDialog.FullPath, SR1_File.Version.Retail_PC, migrateFlags, fileName, textureSet.TextureIDs, 0/*newStreamUnitID*/, newIntroIDs);
+                    _file.Export(addFileDialog.FullPath, SR1_File.Version.Retail_PC, migrateFlags, fileName, textureSet.TextureIDs, newStreamUnitID, newIntroIDs);
 
                     object newObject = null;
                     string category = null;

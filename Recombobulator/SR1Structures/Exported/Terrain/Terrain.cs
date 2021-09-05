@@ -141,7 +141,7 @@ namespace Recombobulator.SR1Structures
             if (bspTrees.Length > 0 && faces.Length > 0)
             {
                 BSPTree tree = (BSPTree)bspTrees[numBSPTrees.Value - 1];
-                if (tree.startLeaves.Offset != 0 &&
+                if (tree.ID.Value == -1 && tree.startLeaves.Offset != 0 &&
                     reader.File._Structures.ContainsKey(tree.startLeaves.Offset))
                 {
                     SR1_Structure leavesStruct = reader.File._Structures[tree.startLeaves.Offset];
