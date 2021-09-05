@@ -148,11 +148,11 @@ namespace Recombobulator.SR1Structures
             int realNumBehaviors = (numBehaviors.Value > 0) ? (numBehaviors.Value - 1) : 0;
             if (reader.File._Version >= SR1_File.Version.Feb16)
             {
-                if (reader.ObjectName.ToString() == "wrshp___")
+                if (reader.Object.Name == "wrshp___")
                 {
                     realNumBehaviors -= 1;
                 }
-                else if (reader.ObjectName.ToString() == "soul____")
+                else if (reader.Object.Name == "soul____")
                 {
                     realNumBehaviors = 1;
                 }
@@ -209,6 +209,23 @@ namespace Recombobulator.SR1Structures
             idleList.Write(writer);
             behaviorList.Write(writer);
             shatterList.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+        }
+
+        public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
+        {
+            base.MigrateVersion(file, targetVersion, migrateFlags);
+
+            if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
+            {
+                magicnum.Value = 0xACE00065;
+                whatAmI.Value = 66;
+
+                if (tunData.Offset != 0)
+                {
+                    file._Structures.Remove(tunData.Offset);
+                    tunData.Offset = 0;
+                }
+            }
         }
     }
 }

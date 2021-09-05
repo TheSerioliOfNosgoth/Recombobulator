@@ -41,6 +41,9 @@ namespace Recombobulator.SR1Structures
         public readonly SR1_PrimativePointer<byte> relocModule = new SR1_PrimativePointer<byte>();
         public readonly VramSize vramSize = new VramSize();
 
+        SR1_String nameString = new SR1_String(12);
+        SR1_String scriptString = new SR1_String(12);
+
         public uint AnimKeyListStart { get; private set; } = 0xFFFFFFFF;
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
@@ -75,15 +78,14 @@ namespace Recombobulator.SR1Structures
 
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
         {
-            SR1_Structure nameStruct = new SR1_String(12).SetPadding(4).ReadFromPointer(reader, name);
-            SR1_Structure scriptStruct = new SR1_String(12).SetPadding(4).ReadFromPointer(reader, script);
+            nameString.SetPadding(4).ReadFromPointer(reader, name);
+            scriptString.SetPadding(4).ReadFromPointer(reader, script);
 
-            reader.ObjectName = (SR1_String)(scriptStruct);
-            string scriptName = reader.ObjectName.ToString();
+            Name = scriptString.ToString();
 
             bool useFlameGSHack = false;
 
-            if (reader.File._Version == SR1_File.Version.Feb16 && scriptName == "flamegs_")
+            if (reader.File._Version == SR1_File.Version.Feb16 && Name == "flamegs_")
             {
                 new SR1_String(12).SetPadding(4).ReadOrphan(reader, 0x44);
                 useFlameGSHack = true;
@@ -95,8 +97,8 @@ namespace Recombobulator.SR1Structures
             SR1_Structure soundDataStruct = new SFXFileData().SetPadding(4).ReadFromPointer(reader, soundData);
             SR1_Structure relocListStruct = new RelocateList().ReadFromPointer(reader, relocList);
             SR1_Structure relocModuleStruct =
-                (scriptName == "cinemax_") ? new CinemaFnTableT().ReadFromPointer(reader, relocModule) :
-                (scriptName == "mcardx__") ? new MCardMTableT().ReadFromPointer(reader, relocModule) :
+                (Name == "cinemax_") ? new CinemaFnTableT().ReadFromPointer(reader, relocModule) :
+                (Name == "mcardx__") ? new MCardMTableT().ReadFromPointer(reader, relocModule) :
                 new MonsterFunctionTable().ReadFromPointer(reader, relocModule);
 
             PhysObProperties physObBase = null;
@@ -104,15 +106,15 @@ namespace Recombobulator.SR1Structures
             MonsterAttributes monAttributes = null;
             if (data.Offset != 0)
             {
-                if (scriptName == "pshblkb_" || scriptName == "urn_____")
+                if (Name == "pshblkb_" || Name == "urn_____")
                 {
                     new PhysObGenericProperties(0).ReadFromPointer(reader, data);
                 }
                 else if ((oflags2.Value & 0x00040000) != 0 ||
-                    scriptName == "catdora_" ||
-                    scriptName == "walbosc_" ||
-                    scriptName == "flamesk_" ||
-                    scriptName == "flamesl_")
+                    Name == "catdora_" ||
+                    Name == "walbosc_" ||
+                    Name == "flamesk_" ||
+                    Name == "flamesl_")
                 {
                     // new PhysObProperties().ReadFromPointer(reader, data);
 
@@ -133,80 +135,80 @@ namespace Recombobulator.SR1Structures
                     monAttributes = new MonsterAttributes();
                     monAttributes.ReadFromPointer(reader, data);
 
-                    if (scriptName == "aluka___")
+                    if (Name == "aluka___")
                     {
                         new AlukaTuneData().ReadFromPointer(reader, monAttributes.tunData);
                     }
-                    else if (scriptName == "alukabss")
+                    else if (Name == "alukabss")
                     {
                         new AlukaBssTuneData().ReadFromPointer(reader, monAttributes.tunData);
                     }
-                    else if (scriptName == "hunter__")
+                    else if (Name == "hunter__")
                     {
                         new HunterTuneData().ReadFromPointer(reader, monAttributes.tunData);
                     }
-                    else if (scriptName == "kain____")
+                    else if (Name == "kain____")
                     {
                         KainTuneData kainData = new KainTuneData();
                         kainData.SetPadding(soundData.Offset != 0 ? 0 : 4);
                         kainData.ReadFromPointer(reader, monAttributes.tunData);
                     }
-                    else if (scriptName == "roninbss")
+                    else if (Name == "roninbss")
                     {
                         new RoninBssTuneData().ReadFromPointer(reader, monAttributes.tunData);
                     }
-                    else if (scriptName == "skinbos_")
+                    else if (Name == "skinbos_")
                     {
                         new SkinBosTuneData().ReadFromPointer(reader, monAttributes.tunData);
                     }
-                    else if (scriptName == "walboss_")
+                    else if (Name == "walboss_")
                     {
                         new WalBosTuneData().ReadFromPointer(reader, monAttributes.tunData);
                     }
-                    else if (scriptName == "walbosb_")
+                    else if (Name == "walbosb_")
                     {
                         new WalBosBTuneData().ReadFromPointer(reader, monAttributes.tunData);
                     }
-                    else if (scriptName == "wallcr__")
+                    else if (Name == "wallcr__")
                     {
                         new WallcrData().ReadFromPointer(reader, monAttributes.tunData);
                     }
-                    else if (scriptName == "vwraith_")
+                    else if (Name == "vwraith_")
                     {
                         new VWraithTuneData().ReadFromPointer(reader, monAttributes.tunData);
                     }
-                    else if (scriptName == "priests_")
+                    else if (Name == "priests_")
                     {
                         new PriestsTuneData().ReadFromPointer(reader, monAttributes.tunData);
                     }
                 }
-                else if (scriptName == "raziel__")
+                else if (Name == "raziel__")
                 {
                     new RazielData().ReadFromPointer(reader, data);
                 }
-                else if (scriptName == "sreavr__")
+                else if (Name == "sreavr__")
                 {
                     new ReaverTuneData().ReadFromPointer(reader, data);
                 }
-                else if (scriptName == "glphicon")
+                else if (Name == "glphicon")
                 {
                     new GlyphTuneData().ReadFromPointer(reader, data);
                 }
-                else if (scriptName == "monster_")
+                else if (Name == "monster_")
                 {
                     new MonsterAttributes().ReadFromPointer(reader, data);
                 }
-                else if (scriptName == "particle")
+                else if (Name == "particle")
                 {
                     // GenericFXObject?
                     // See FX_RelocateGeneric?
                     new GenericFXObject().ReadFromPointer(reader, data);
                 }
-                else if (scriptName == "litshaft")
+                else if (Name == "litshaft")
                 {
                     new LitShaftProperties().ReadFromPointer(reader, data);
                 }
-                else if (scriptName == "waterfx_")
+                else if (Name == "waterfx_")
                 {
                     new WaterFXProperties().ReadFromPointer(reader, data);
                 }
@@ -220,17 +222,17 @@ namespace Recombobulator.SR1Structures
             {
                 SR1_StructureArray<G2AnimKeylist_Type> keyLists = new SR1_StructureArray<G2AnimKeylist_Type>(numAnims.Value);
                 if (reader.File._Version >= SR1_File.Version.Feb16 && reader.File._Version < SR1_File.Version.May12 &&
-                    scriptName == "wrshp___")
+                    Name == "wrshp___")
                 {
                     ((G2AnimKeylist_Type)keyLists[14]).OverridePadLength(8);
                 }
                 if (reader.File._Version >= SR1_File.Version.May12 && reader.File._Version < SR1_File.Version.Jun01 &&
-                    scriptName == "wrshp___")
+                    Name == "wrshp___")
                 {
                     ((G2AnimKeylist_Type)keyLists[15]).OverridePadLength(8);
                 }
                 else if (reader.File._Version >= SR1_File.Version.Jun01 && reader.File._Version < SR1_File.Version.Next &&
-                    scriptName == "wrshp___")
+                    Name == "wrshp___")
                 {
                     ((G2AnimKeylist_Type)keyLists[13]).OverridePadLength(8);
                 }
@@ -241,8 +243,8 @@ namespace Recombobulator.SR1Structures
                 bool readUnusedAnimFX = false;
 
                 if (reader.File._Version >= SR1_File.Version.May12 && reader.File._Version < SR1_File.Version.Jul14 &&
-                    (scriptName == "hunter__" || scriptName == "wrshp___" ||
-                    scriptName == "vlgra___" || scriptName == "vlgrb___" || scriptName == "vlgrc___"))
+                    (Name == "hunter__" || Name == "wrshp___" ||
+                    Name == "vlgra___" || Name == "vlgrb___" || Name == "vlgrc___"))
                 {
                     readUnusedAnimFX = true;
                 }
@@ -269,7 +271,7 @@ namespace Recombobulator.SR1Structures
                 {
                     // Superceeded by code above?
                     int numEffects = reader.AnimFXDictionary.Count;
-                    if (reader.ObjectName.ToString() == "wrshp___")
+                    if (reader.Object.Name == "wrshp___")
                     {
                         if (reader.File._Version >= SR1_File.Version.Jul14)
                         {
@@ -287,8 +289,8 @@ namespace Recombobulator.SR1Structures
             }
 
             uint padAdress = End;
-            if (nameStruct.End > padAdress) padAdress = nameStruct.End;
-            if (scriptStruct.End > padAdress) padAdress = scriptStruct.End;
+            if (nameString.End > padAdress) padAdress = nameString.End;
+            if (scriptString.End > padAdress) padAdress = scriptString.End;
             if (modelListStruct.End > padAdress) padAdress = modelListStruct.End;
             if (animListStruct.End > padAdress) padAdress = animListStruct.End;
             if (effectListStruct.End > padAdress) padAdress = effectListStruct.End;
@@ -327,6 +329,38 @@ namespace Recombobulator.SR1Structures
             relocList.Write(writer);
             relocModule.Write(writer);
             vramSize.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+        }
+
+        public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
+        {
+            base.MigrateVersion(file, targetVersion, migrateFlags);
+
+            if (file._Version != targetVersion)
+            {
+                if (file._NewName != null)
+                {
+                    nameString.SetText(file._NewName);
+                    scriptString.SetText(file._NewName);
+                }
+            }
+
+            if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
+            {
+                //oflags.Value = 0x280042F1;
+                //oflags2.Value = 0x06E80004;
+
+                if (relocList.Offset != 0)
+                {
+                    file._Structures.Remove(relocList.Offset);
+                    relocList.Offset = 0;
+                }
+
+                if (relocModule.Offset != 0)
+                {
+                    file._Structures.Remove(relocModule.Offset);
+                    relocModule.Offset = 0;
+                }
+            }
         }
     }
 }

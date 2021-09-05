@@ -10,11 +10,13 @@ using System.Windows.Forms;
 
 namespace Recombobulator
 {
-    public partial class ExistingFileForm : Form
+    public partial class RenameForm : Form
     {
-        public string FileName { get { return fileNameTextBox.Text; } }
+        public string Message { get { return messageLabel.Text; } set { messageLabel.Text = value; } }
 
-        public ExistingFileForm()
+        public string NewName { get { return newNameTextBox.Text; } set { newNameTextBox.Text = value; } }
+
+        public RenameForm()
         {
             InitializeComponent();
         }

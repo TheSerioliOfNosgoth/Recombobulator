@@ -80,5 +80,19 @@ namespace Recombobulator.SR1Structures
             startTextures.Write(writer);
             endTextures.Write(writer);
         }
+
+        public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
+        {
+            base.MigrateVersion(file, targetVersion, migrateFlags);
+
+            if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
+            {
+                if (aniTextures.Offset != 0)
+                {
+                    file._Structures.Remove(aniTextures.Offset);
+                    aniTextures.Offset = 0;
+                }
+            }
+        }
     }
 }

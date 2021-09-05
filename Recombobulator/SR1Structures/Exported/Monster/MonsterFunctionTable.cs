@@ -49,7 +49,7 @@ namespace Recombobulator.SR1Structures
 
             // Padding is used by the asmCode maybe?
             if (reader.File._Version >= SR1_File.Version.May12 &&
-                (reader.ObjectName.ToString() == "alukabss" || reader.ObjectName.ToString() == "roninbss"))
+                (reader.Object.Name == "alukabss" || reader.Object.Name == "roninbss"))
             {
                 pad = new SR1_PrimativeArray<byte>(8);
             }

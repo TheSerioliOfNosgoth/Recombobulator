@@ -1,7 +1,7 @@
 ﻿
 namespace Recombobulator
 {
-    partial class ExistingFileForm
+    partial class RenameForm
     {
         /// <summary>
         /// Required designer variable.
@@ -30,7 +30,7 @@ namespace Recombobulator
         private void InitializeComponent()
         {
             this.messageLabel = new System.Windows.Forms.Label();
-            this.fileNameTextBox = new System.Windows.Forms.TextBox();
+            this.newNameTextBox = new System.Windows.Forms.TextBox();
             this.okButton = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
@@ -41,15 +41,14 @@ namespace Recombobulator
             this.messageLabel.Name = "messageLabel";
             this.messageLabel.Size = new System.Drawing.Size(209, 32);
             this.messageLabel.TabIndex = 0;
-            this.messageLabel.Text = "File already exists!\r\nPlease select a new name.";
             // 
-            // fileNameTextBox
+            // newNameTextBox
             // 
-            this.fileNameTextBox.Location = new System.Drawing.Point(12, 48);
-            this.fileNameTextBox.MaxLength = 16;
-            this.fileNameTextBox.Name = "fileNameTextBox";
-            this.fileNameTextBox.Size = new System.Drawing.Size(211, 20);
-            this.fileNameTextBox.TabIndex = 1;
+            this.newNameTextBox.Location = new System.Drawing.Point(12, 48);
+            this.newNameTextBox.MaxLength = 16;
+            this.newNameTextBox.Name = "newNameTextBox";
+            this.newNameTextBox.Size = new System.Drawing.Size(211, 20);
+            this.newNameTextBox.TabIndex = 1;
             // 
             // okButton
             // 
@@ -71,7 +70,7 @@ namespace Recombobulator
             this.cancelButton.Text = "Cancel";
             this.cancelButton.UseVisualStyleBackColor = true;
             // 
-            // ExistingFileForm
+            // RenameForm
             // 
             this.AcceptButton = this.okButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -81,14 +80,13 @@ namespace Recombobulator
             this.ControlBox = false;
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.okButton);
-            this.Controls.Add(this.fileNameTextBox);
+            this.Controls.Add(this.newNameTextBox);
             this.Controls.Add(this.messageLabel);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "ExistingFileForm";
+            this.Name = "RenameForm";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Existing File";
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -97,7 +95,7 @@ namespace Recombobulator
         #endregion
 
         private System.Windows.Forms.Label messageLabel;
-        private System.Windows.Forms.TextBox fileNameTextBox;
+        private System.Windows.Forms.TextBox newNameTextBox;
         private System.Windows.Forms.Button okButton;
         private System.Windows.Forms.Button cancelButton;
     }

@@ -68,7 +68,7 @@ namespace Recombobulator.SR1Structures
                 reader.BaseStream.Position = (long)data.Offset;
                 commands.Read(reader, null, "");
 
-                if (reader.WorldName.ToString() == "push10")
+                if (reader.Level.Name == "push10")
                 {
                     new SR1_Primative<int>().Read(reader, null, "");
                 }

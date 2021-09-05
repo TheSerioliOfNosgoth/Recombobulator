@@ -368,10 +368,10 @@ namespace Recombobulator.SR1Structures
             // Raziel has the numSections hardcoded, but they're the same as the highest of sectionA, sectionB, and sectionC + 1.
             // For kain and vlgra, try getting it from the MonsterSubAttributes.
 
-            string scriptName = reader.ObjectName.ToString();
+            string objectName = reader.Object.Name;
 
             // Kain has one weird animation that doesn't match the rest. Checking for the three seems hacky though.
-            if (scriptName == "paths___" || scriptName == "urn_____")
+            if (objectName == "paths___" || objectName == "urn_____")
             {
                 sectionData.sectionA = 4;// reader.Object.sectionA.Value;
                 sectionData.sectionB = reader.Object.sectionB.Value;
@@ -380,11 +380,11 @@ namespace Recombobulator.SR1Structures
                 sectionData.numSections = 1;
             }
             else if (//reader.Model == null || 
-                (sectionCount.Value == 3 && scriptName == "kain____") ||
-                (sectionCount.Value == 3 && scriptName == "moebius_") ||
-                (sectionCount.Value == 3 && scriptName == "bellchn_") ||
-                (sectionCount.Value == 3 && scriptName == "vlgr____") ||
-                (sectionCount.Value == 3 && scriptName == "human___"))
+                (sectionCount.Value == 3 && objectName == "kain____") ||
+                (sectionCount.Value == 3 && objectName == "moebius_") ||
+                (sectionCount.Value == 3 && objectName == "bellchn_") ||
+                (sectionCount.Value == 3 && objectName == "vlgr____") ||
+                (sectionCount.Value == 3 && objectName == "human___"))
             {
                 sectionData.sectionA = reader.Object.sectionA.Value;
                 sectionData.sectionB = reader.Object.sectionB.Value;
@@ -392,15 +392,15 @@ namespace Recombobulator.SR1Structures
                 sectionData.numSegments = sectionData.sectionC + 1;
                 sectionData.numSections = 3;
             }
-            else if (scriptName == "raziel__" || scriptName == "host____" ||
-                scriptName == "firhost_" || scriptName == "hostfor_" ||
-                scriptName == "glfhost_" || scriptName == "undhost_" ||
-                scriptName == "tranhst_" || scriptName == "pilxhst_" ||
-                scriptName == "pilhost_" || scriptName == "cathost_" ||
-                scriptName == "tmbhost_" || scriptName == "boshost_" ||
-                scriptName == "ronhost_" || scriptName == "cronhstr" ||
-                scriptName == "prthstr_" || scriptName == "pilhosta" ||
-                scriptName == "flamesk_" || scriptName == "flamesl_")
+            else if (objectName == "raziel__" || objectName == "host____" ||
+                objectName == "firhost_" || objectName == "hostfor_" ||
+                objectName == "glfhost_" || objectName == "undhost_" ||
+                objectName == "tranhst_" || objectName == "pilxhst_" ||
+                objectName == "pilhost_" || objectName == "cathost_" ||
+                objectName == "tmbhost_" || objectName == "boshost_" ||
+                objectName == "ronhost_" || objectName == "cronhstr" ||
+                objectName == "prthstr_" || objectName == "pilhosta" ||
+                objectName == "flamesk_" || objectName == "flamesl_")
             {
                 sectionData.numSections = sectionCount.Value;
                 sectionData.sectionA = reader.Object.sectionA.Value;
@@ -411,7 +411,7 @@ namespace Recombobulator.SR1Structures
                 if (sectionData.numSections > 1) sectionData.numSegments = sectionData.sectionB + 1;
                 if (sectionData.numSections > 2) sectionData.numSegments = sectionData.sectionC + 1;
             }
-            else if (scriptName == "sknhost_" || scriptName == "pilhostk" || scriptName == "cronhstk")
+            else if (objectName == "sknhost_" || objectName == "pilhostk" || objectName == "cronhstk")
             {
                 sectionData.numSections = sectionCount.Value;
                 sectionData.sectionA = 49;
@@ -419,7 +419,7 @@ namespace Recombobulator.SR1Structures
                 sectionData.sectionC = -1;
                 sectionData.numSegments = sectionData.sectionA + 1;
             }
-            else if (scriptName == "walhostb")
+            else if (objectName == "walhostb")
             {
                 sectionData.numSections = 1;
                 sectionData.sectionA = 40; // or 41
@@ -427,8 +427,8 @@ namespace Recombobulator.SR1Structures
                 sectionData.sectionC = -1;
                 sectionData.numSegments = sectionData.sectionA + 1;
             }
-            else if (scriptName == "eaggot__" || scriptName == "eaggots_" ||
-                scriptName == "saggot__" || scriptName == "saggots_")
+            else if (objectName == "eaggot__" || objectName == "eaggots_" ||
+                objectName == "saggot__" || objectName == "saggots_")
             {
                 sectionData.numSections = 1;
                 sectionData.sectionA = 4;
@@ -436,7 +436,7 @@ namespace Recombobulator.SR1Structures
                 sectionData.sectionC = -1;
                 sectionData.numSegments = sectionData.sectionA + 1;
             }
-            else if (scriptName == "pshblkz_")
+            else if (objectName == "pshblkz_")
             {
                 sectionData.numSections = 1;
                 sectionData.sectionA = 1;
@@ -444,7 +444,7 @@ namespace Recombobulator.SR1Structures
                 sectionData.sectionC = -1;
                 sectionData.numSegments = sectionData.sectionA + 1;
             }
-            else if (scriptName == "lthbeam_")
+            else if (objectName == "lthbeam_")
             {
                 sectionData.numSections = 1;
                 sectionData.sectionA = 29;
@@ -453,7 +453,7 @@ namespace Recombobulator.SR1Structures
                 sectionData.numSegments = sectionData.sectionA + 1;
             }
             else if (reader.File._Version == SR1_File.Version.Feb16 &&
-                scriptName == "wallcr__" && Start == 0x000078D0)
+                objectName == "wallcr__" && Start == 0x000078D0)
             {
                 sectionData.numSections = 2;
                 sectionData.sectionA = 17;

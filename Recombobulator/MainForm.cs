@@ -128,13 +128,15 @@ namespace Recombobulator
                 uint fileHash = Repository.GetSR1HashName(filePath);
                 if (_repository.Assets.Assets.Find(x => x.FileHash == fileHash) != null)
                 {
-                    ExistingFileForm existingFileForm = new ExistingFileForm();
-                    if (existingFileForm.ShowDialog() == DialogResult.Cancel)
+                    RenameForm renameForm = new RenameForm();
+                    renameForm.Text = "Existing File";
+                    renameForm.Message = "File already exists!\r\nPlease select a new name.";
+                    if (renameForm.ShowDialog() == DialogResult.Cancel)
                     {
                         return;
                     }
 
-                    fileName = existingFileForm.FileName;
+                    fileName = renameForm.NewName;
                 }
                 else
                 {
@@ -275,7 +277,7 @@ namespace Recombobulator
                     if (_file._IsLevel)
                     {
                         SR1Structures.Level level = (SR1Structures.Level)_file._Structures[0];
-                        sourceUnitName = level.WorldName;
+                        sourceUnitName = level.Name;
                         sourceVersion = level.versionNumber.Value;
                     }
 

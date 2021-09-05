@@ -168,7 +168,7 @@ namespace Recombobulator.SR1Structures
                 new UnknownPCList().ReadFromPointer(reader, unknownPCList);
             }
 
-            if (reader.WorldName.ToString() == "cathy28")
+            if (reader.Level.Name == "cathy28")
             {
                 reader.BaseStream.Position = BSPTreeArray.Offset - 1;
                 bool found = false;

@@ -104,10 +104,10 @@ namespace Recombobulator.SR1Structures
         LightList lightListStruct1 = new LightList();
         SR1_PrimativeArray<byte> push6Padding = new SR1_PrimativeArray<byte>(8);
 
-        public string WorldName { get { return worldNameString.ToString(); } }
-
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
+            reader.Level = this;
+
             terrain.Read(reader, this, "terrain");
             lightList.Read(reader, this, "lightList");
             numVMObjects.Read(reader, this, "numVMObjects");
@@ -206,7 +206,7 @@ namespace Recombobulator.SR1Structures
         protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
         {
             worldNameString.SetPadding(4).ReadFromPointer(reader, worldName);
-            reader.WorldName = worldNameString;
+            Name = worldNameString.ToString();
 
             SR1_Structure terrainStruct = new Terrain().ReadFromPointer(reader, terrain);
 
@@ -214,7 +214,7 @@ namespace Recombobulator.SR1Structures
             if (reader.File._Version == SR1_File.Version.Feb16 &&
                 lightListStruct0.End != 0 && lightListStruct0.End != depthQPTable.Offset)
             {
-                if (reader.WorldName.ToString() == "push6")
+                if (Name == "push6")
                 {
                     push6Padding.ReadOrphan(reader, lightListStruct0.End);
                 }
