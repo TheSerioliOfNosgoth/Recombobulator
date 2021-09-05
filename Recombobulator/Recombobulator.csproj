@@ -95,6 +95,7 @@
     <Compile Include="SR1Structures\Exported\GlyphColors.cs" />
     <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObGenericProperties.cs" />
     <Compile Include="SR1Structures\Exported\PhysicalObject\PhysObPropertiesBase.cs" />
+    <Compile Include="SR1Structures\Exported\ReaverWaveData.cs" />
     <Compile Include="SR1Structures\Exported\Signal\SignalDecoupledTimer.cs" />
     <Compile Include="SR1Structures\Exported\Signal\SignalChangeModel.cs" />
     <Compile Include="SR1Structures\Exported\Signal\SignalDSignal.cs" />

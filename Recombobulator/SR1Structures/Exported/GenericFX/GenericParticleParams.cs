@@ -11,6 +11,7 @@ namespace Recombobulator.SR1Structures
         SR1_Primative<short> birthRadius = new SR1_Primative<short>();
         SR1_Primative<sbyte> startSegment = new SR1_Primative<sbyte>();
         SR1_Primative<sbyte> endSegment = new SR1_Primative<sbyte>();
+        SR1_Primative<short> startSegment_a = new SR1_Primative<short>();
         Position direction = new Position();
         SR1_Primative<byte> spectral_colorize = new SR1_Primative<byte>();
         SR1_Primative<byte> absolute_direction = new SR1_Primative<byte>();
@@ -88,8 +89,9 @@ namespace Recombobulator.SR1Structures
                 StartOnInit.Read(reader, this, "StartOnInit");
                 type.Read(reader, this, "type");
                 birthRadius.Read(reader, this, "birthRadius");
-                startSegment.Read(reader, this, "startSegment");
-                endSegment.Read(reader, this, "endSegment");
+                startSegment.Read(reader, this, "startSegment", SR1_File.Version.May12, SR1_File.Version.Next);
+                endSegment.Read(reader, this, "endSegment", SR1_File.Version.May12, SR1_File.Version.Next);
+                startSegment_a.Read(reader, this, "startSegment", SR1_File.Version.First, SR1_File.Version.May12);
                 direction.Read(reader, this, "direction");
                 spectral_colorize.Read(reader, this, "spectral_colorize");
                 absolute_direction.Read(reader, this, "absolute_direction");
@@ -157,8 +159,9 @@ namespace Recombobulator.SR1Structures
                 StartOnInit.Write(writer);
                 type.Write(writer);
                 birthRadius.Write(writer);
-                startSegment.Write(writer);
-                endSegment.Write(writer);
+                startSegment.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+                endSegment.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+                startSegment_a.Write(writer, SR1_File.Version.First, SR1_File.Version.May12);
                 direction.Write(writer);
                 spectral_colorize.Write(writer);
                 absolute_direction.Write(writer);

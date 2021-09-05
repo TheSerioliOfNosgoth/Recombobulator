@@ -20,10 +20,15 @@ namespace Recombobulator.SR1Structures
             {
                 unknown = new SR1_PrimativeArray<byte>(24);
             }
-            else
+            else if (reader.File._Version >= SR1_File.Version.May12)
             {
                 unknown = new SR1_PrimativeArray<byte>(22);
             }
+            else
+            {
+                unknown = new SR1_PrimativeArray<byte>(30);
+            }
+
             unknown.Read(reader, this, "unknown");
         }
 

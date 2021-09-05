@@ -452,6 +452,15 @@ namespace Recombobulator.SR1Structures
                 sectionData.sectionC = -1;
                 sectionData.numSegments = sectionData.sectionA + 1;
             }
+            else if (reader.File._Version == SR1_File.Version.Feb16 &&
+                scriptName == "wallcr__" && Start == 0x000078D0)
+            {
+                sectionData.numSections = 2;
+                sectionData.sectionA = 17;
+                sectionData.sectionB = 39;
+                sectionData.sectionC = -1;
+                sectionData.numSegments = sectionData.sectionB + 1;
+            }
             else if ((reader.Object.oflags2.Value & 0x00040000) != 0)
             {
                 // InitPhysicalObject

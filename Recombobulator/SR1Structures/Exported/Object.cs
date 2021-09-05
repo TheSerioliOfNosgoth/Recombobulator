@@ -81,6 +81,14 @@ namespace Recombobulator.SR1Structures
             reader.ObjectName = (SR1_String)(scriptStruct);
             string scriptName = reader.ObjectName.ToString();
 
+            bool useFlameGSHack = false;
+
+            if (reader.File._Version == SR1_File.Version.Feb16 && scriptName == "flamegs_")
+            {
+                new SR1_String(12).SetPadding(4).ReadOrphan(reader, 0x44);
+                useFlameGSHack = true;
+            }
+
             SR1_Structure modelListStruct = new SR1_PointerArray<Model>(System.Math.Max(1, (int)numModels.Value), true).ReadFromPointer(reader, modelList);
             SR1_Structure animListStruct = new SR1_PointerArray<G2AnimKeylist_Type>(numAnims.Value, false).ReadFromPointer(reader, animList);
             SR1_Structure effectListStruct = new SR1_StructureArray<ObjectEffect>(numberOfEffects.Value).ReadFromPointer(reader, effectList);
@@ -289,7 +297,7 @@ namespace Recombobulator.SR1Structures
             if (physObBase != null && !reader.File._Structures.ContainsKey(padAdress))
             {
                 reader.BaseStream.Position = padAdress;
-                new SR1_PrimativeArray<byte>(8).Read(reader, null, "");
+                new SR1_PrimativeArray<byte>(useFlameGSHack ? 4: 8).Read(reader, null, "");
             }
         }
 
