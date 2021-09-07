@@ -218,7 +218,7 @@ namespace Recombobulator.SR1Structures
             if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
             {
                 magicnum.Value = 0xACE00065;
-                whatAmI.Value = 66;
+                //whatAmI.Value = 66;
 
                 if (tunData.Offset != 0)
                 {
