@@ -337,10 +337,10 @@ namespace Recombobulator.SR1Structures
 
             if (file._Version != targetVersion)
             {
-                if (file._NewName != null)
+                if (file._Overrides.NewName != null)
                 {
-                    nameString.SetText(file._NewName);
-                    scriptString.SetText(file._NewName);
+                    nameString.SetText(file._Overrides.NewName);
+                    scriptString.SetText(file._Overrides.NewName);
                 }
             }
 

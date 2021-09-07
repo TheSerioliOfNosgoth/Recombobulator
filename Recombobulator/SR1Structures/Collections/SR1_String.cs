@@ -6,6 +6,8 @@ namespace Recombobulator.SR1Structures
 {
     class SR1_String : SR1_PrimativeArray<char>
     {
+        bool _readMax = false;
+
         public SR1_String(int maxLength)
             : base(maxLength)
         {
@@ -14,6 +16,12 @@ namespace Recombobulator.SR1Structures
         public SR1_String()
             : base(0)
         {
+        }
+
+        public SR1_Structure SetReadMax(bool readMax)
+        {
+            _readMax = readMax;
+            return this;
         }
 
         public void SetText(string text)
@@ -40,7 +48,7 @@ namespace Recombobulator.SR1Structures
                 {
                     length++;
                     _array[i] = (char)ReadPrimativeType<char>(reader);
-                    if (_array[i] == 0)
+                    if (_array[i] == 0 && !_readMax)
                     {
                         break;
                     }

@@ -36,13 +36,13 @@ namespace Recombobulator.SR1Structures
             if (file._Version != targetVersion)
             {
                 if (command.Value == 0x1A && parameter.Length >= 1 &&
-                    file._IntroIDs != null && file._NewIntroIDs != null)
+                    file._IntroIDs != null && file._Overrides.NewIntroIDs != null)
                 {
                     for (int i = 0; i < file._IntroIDs.Count; i++)
                     {
                         if (file._IntroIDs[i] == parameter[i])
                         {
-                            parameter[i] = file._NewIntroIDs[i];
+                            parameter[i] = file._Overrides.NewIntroIDs[i];
                             break;
                         }
                     }

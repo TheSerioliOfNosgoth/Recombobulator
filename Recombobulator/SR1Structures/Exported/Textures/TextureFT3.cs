@@ -84,7 +84,7 @@ namespace Recombobulator.SR1Structures
 
             if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
             {
-                int textureID = file._NewTextureIDs[tpage.Value & 0x00000007];
+                int textureID = file._Overrides.NewTextureIDs[tpage.Value & 0x00000007];
                 tpage.Value = (ushort)textureID;
                 attr2.Value = 0x0108;
 

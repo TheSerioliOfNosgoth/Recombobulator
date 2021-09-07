@@ -6,7 +6,7 @@ namespace Recombobulator.SR1Structures
 {
     class ObjectNameList : SR1_Structure
     {
-        List<SR1_PrimativeArray<char>> _List = new List<SR1_PrimativeArray<char>>();
+        List<SR1_String> _List = new List<SR1_String>();
         SR1_PrimativePointer<char> listStart = new SR1_PrimativePointer<char>();
         SR1_Primative<int> pad = new SR1_Primative<int>();
 
@@ -26,8 +26,8 @@ namespace Recombobulator.SR1Structures
                     break;
                 }
 
-                SR1_PrimativeArray<char> name = new SR1_PrimativeArray<char>(16);
-                name.Read(reader, this, "[" + _List.Count.ToString() + "]");
+                SR1_String name = new SR1_String(16);
+                name.SetReadMax(true).Read(reader, this, "[" + _List.Count.ToString() + "]");
                 _List.Add(name);
             }
 
@@ -81,6 +81,10 @@ namespace Recombobulator.SR1Structures
                     }
                     else
                     {
+                        if (file._Overrides.NewObjectNames.ContainsKey(_List[i].ToString()))
+                        {
+                            _List[i].SetText(file._Overrides.NewObjectNames[_List[i].ToString()]);
+                        }
                         i++;
                     }
                 }

@@ -144,8 +144,20 @@ namespace Recombobulator
                 }
             }
 
-            AddFileForm addFileDialog = new AddFileForm();
-            addFileDialog.Initialize(_repository, fileName, _file._IsLevel, _file._ObjectNames);
+            AddFileForm addFileDialog;
+            if (_file._IsLevel)
+            {
+                AddLevelForm addLevelDialog = new AddLevelForm();
+                addLevelDialog.Initialize(_repository, fileName, _file._ObjectNames);
+                addFileDialog = addLevelDialog;
+            }
+            else
+            {
+                AddObjectForm addObjectDialog = new AddObjectForm();
+                addObjectDialog.Initialize(_repository, fileName);
+                addFileDialog = addObjectDialog;
+            }
+
             if (addFileDialog.ShowDialog() == DialogResult.OK)
             {
                 try
@@ -242,56 +254,57 @@ namespace Recombobulator
                     }
                     #endregion
 
-                    int newStreamUnitID = 0;
-                    _repository.FindAvailableStreamUnitID(ref newStreamUnitID);
-
-                    int numIntros = _file._IntroIDs.Count;
-                    int[] newIntroIDs = new int[numIntros];
-                    _repository.FindAvailableIntroIDs(ref newIntroIDs);
-
                     SR1_File.MigrateFlags migrateFlags = SR1_File.MigrateFlags.None;
 
-                    if (addFileDialog.RemovePortals)
-                    {
-                        migrateFlags |= SR1_File.MigrateFlags.RemovePortals;
-                    }
-
-                    if (addFileDialog.RemoveSignals)
-                    {
-                        migrateFlags |= SR1_File.MigrateFlags.RemoveSignals;
-                    }
-
-                    if (addFileDialog.RemoveEvents)
-                    {
-                        migrateFlags |= SR1_File.MigrateFlags.RemoveEvents;
-                    }
-
-                    if (addFileDialog.RemoveVMOs)
-                    {
-                        migrateFlags |= SR1_File.MigrateFlags.RemoveVertexMorphs;
-                    }
-
-                    string sourceUnitName = "";
-                    uint sourceVersion = 0;
-
-                    if (_file._IsLevel)
-                    {
-                        SR1Structures.Level level = (SR1Structures.Level)_file._Structures[0];
-                        sourceUnitName = level.Name;
-                        sourceVersion = level.versionNumber.Value;
-                    }
-
-                    _file.Export(addFileDialog.FullPath, SR1_File.Version.Retail_PC, migrateFlags, fileName, textureSet.TextureIDs, newStreamUnitID, newIntroIDs);
+                    SR1_File.Overrides overrides = new SR1_File.Overrides();
+                    overrides.NewName = fileName;
+                    overrides.NewTextureIDs = textureSet.TextureIDs;
 
                     object newObject = null;
                     string category = null;
                     if (_file._IsLevel)
                     {
+                        AddLevelForm addLevelDialog = (AddLevelForm)addFileDialog;
+
+                        if (addLevelDialog.RemovePortals)
+                        {
+                            migrateFlags |= SR1_File.MigrateFlags.RemovePortals;
+                        }
+
+                        if (addLevelDialog.RemoveSignals)
+                        {
+                            migrateFlags |= SR1_File.MigrateFlags.RemoveSignals;
+                        }
+
+                        if (addLevelDialog.RemoveEvents)
+                        {
+                            migrateFlags |= SR1_File.MigrateFlags.RemoveEvents;
+                        }
+
+                        if (addLevelDialog.RemoveVMOs)
+                        {
+                            migrateFlags |= SR1_File.MigrateFlags.RemoveVertexMorphs;
+                        }
+
+                        overrides.NewStreamUnitID = 0;
+                        _repository.FindAvailableStreamUnitID(ref overrides.NewStreamUnitID);
+
+                        overrides.NewIntroIDs = new int[_file._IntroIDs.Count];
+                        _repository.FindAvailableIntroIDs(ref overrides.NewIntroIDs);
+
+                        //overrides.NewObjectNames.Add("priests", "witch");
+                        _file.Export(addFileDialog.FullPath, SR1_File.Version.Retail_PC, migrateFlags, overrides);
+
+                        SR1Structures.Level level = (SR1Structures.Level)_file._Structures[0];
+
+                        string sourceUnitName = level.Name;
+                        uint sourceVersion = level.versionNumber.Value;
                         newObject = _repository.AddNewLevel(fileName, sourceUnitName, sourceVersion, textureSet.Name);
                         category = "Levels";
                     }
                     else
                     {
+                        _file.Export(addFileDialog.FullPath, SR1_File.Version.Retail_PC, migrateFlags, overrides);
                         newObject = _repository.AddNewObject(fileName, textureSet.Name);
                         category = "Objects";
                     }

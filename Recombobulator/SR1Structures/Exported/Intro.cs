@@ -6,7 +6,7 @@ namespace Recombobulator.SR1Structures
 {
     class Intro : SR1_Structure
     {
-        SR1_PrimativeArray<char> name = new SR1_PrimativeArray<char>(16);
+        SR1_String name = new SR1_String(16);
         SR1_Primative<int> intronum = new SR1_Primative<int>();
         SR1_Primative<int> UniqueID = new SR1_Primative<int>();
         Rotation rotation = new Rotation();
@@ -26,7 +26,7 @@ namespace Recombobulator.SR1Structures
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
-            name.Read(reader, this, "name");
+            name.SetReadMax(true).Read(reader, this, "name");
             intronum.Read(reader, this, "intronum");
             UniqueID.Read(reader, this, "UniqueID");
             rotation.Read(reader, this, "rotation");
@@ -103,10 +103,15 @@ namespace Recombobulator.SR1Structures
 
             if (file._Version != targetVersion)
             {
-                if (file._NewIntroIDs != null)
+                if (file._Overrides.NewIntroIDs != null)
                 {
-                    UniqueID.Value = file._NewIntroIDs[file._NextIntroID];
-                    file._NextIntroID++;
+                    UniqueID.Value = file._Overrides.NewIntroIDs[file._Overrides.NextIntroID];
+                    file._Overrides.NextIntroID++;
+                }
+
+                if (file._Overrides.NewObjectNames.ContainsKey(name.ToString()))
+                {
+                    name.SetText(file._Overrides.NewObjectNames[name.ToString()]);
                 }
             }
         }

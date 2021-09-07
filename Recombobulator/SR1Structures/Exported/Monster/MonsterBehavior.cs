@@ -5,10 +5,10 @@ namespace Recombobulator.SR1Structures
 {
     class MonsterBehavior : SR1_Structure
     {
-        SR1_Primative<sbyte> alertness = new SR1_Primative<sbyte>();
-        SR1_Primative<sbyte> idleFreq = new SR1_Primative<sbyte>();
-        SR1_Primative<sbyte> numIdles = new SR1_Primative<sbyte>();
-        SR1_PrimativeArray<sbyte> idleList = new SR1_PrimativeArray<sbyte>(5);
+        public readonly SR1_Primative<sbyte> alertness = new SR1_Primative<sbyte>();
+        public readonly SR1_Primative<sbyte> idleFreq = new SR1_Primative<sbyte>();
+        public readonly SR1_Primative<sbyte> numIdles = new SR1_Primative<sbyte>();
+        public readonly SR1_PrimativeArray<sbyte> idleList = new SR1_PrimativeArray<sbyte>(5);
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {

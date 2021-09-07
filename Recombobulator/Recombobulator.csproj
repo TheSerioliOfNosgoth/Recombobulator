@@ -69,6 +69,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddFileForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddObjectForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddObjectForm.Designer.cs">
+      <DependentUpon>AddObjectForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="RenameForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -211,11 +220,11 @@
     <Compile Include="TextureSetForm.Designer.cs">
       <DependentUpon>TextureSetForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="AddFileForm.cs">
+    <Compile Include="AddLevelForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AddFileForm.Designer.cs">
-      <DependentUpon>AddFileForm.cs</DependentUpon>
+    <Compile Include="AddLevelForm.Designer.cs">
+      <DependentUpon>AddLevelForm.cs</DependentUpon>
     </Compile>
     <Compile Include="SR1Structures\SR1_PrimativeBase.cs" />
     <Compile Include="SR1Structures\SR1_Primative.cs" />
@@ -365,6 +374,9 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="TreeList\TreeViewTracing.cs" />
+    <EmbeddedResource Include="AddObjectForm.resx">
+      <DependentUpon>AddObjectForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -383,8 +395,8 @@
     <EmbeddedResource Include="TextureSetForm.resx">
       <DependentUpon>TextureSetForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="AddFileForm.resx">
-      <DependentUpon>AddFileForm.cs</DependentUpon>
+    <EmbeddedResource Include="AddLevelForm.resx">
+      <DependentUpon>AddLevelForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

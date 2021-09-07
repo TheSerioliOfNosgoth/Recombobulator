@@ -436,14 +436,14 @@ namespace Recombobulator.SR1Structures
 
             if (file._Version != targetVersion)
             {
-                if (file._NewName != null)
+                if (file._Overrides.NewName != null)
                 {
-                    worldNameString.SetText(file._NewName);
+                    worldNameString.SetText(file._Overrides.NewName);
                 }
 
-                if (file._NewStreamUnitID != 0)
+                if (file._Overrides.NewStreamUnitID != 0)
                 {
-                    streamUnitID.Value = file._NewStreamUnitID;
+                    streamUnitID.Value = file._Overrides.NewStreamUnitID;
                 }
             }
 

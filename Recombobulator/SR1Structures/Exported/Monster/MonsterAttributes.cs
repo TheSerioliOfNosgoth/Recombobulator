@@ -225,6 +225,27 @@ namespace Recombobulator.SR1Structures
                     file._Structures.Remove(tunData.Offset);
                     tunData.Offset = 0;
                 }
+
+                /*if (numBehaviors.Value == 0)
+                {
+                    numBehaviors.Value = 2;
+
+                    SR1_Structure lastStructure = file._Structures.Values[file._Structures.Count - 1];
+                    uint position = lastStructure.End;
+
+                    behaviorList.Offset = position;
+                    MonsterBehavior newBehaviors = new MonsterBehavior();
+                    newBehaviors.alertness.Value = 3;
+                    newBehaviors.idleFreq.Value = 0;
+                    newBehaviors.numIdles.Value = 0;
+                    newBehaviors.idleList[0] = -1;
+                    newBehaviors.idleList[1] = -1;
+                    newBehaviors.idleList[2] = -1;
+                    newBehaviors.idleList[3] = -1;
+                    newBehaviors.idleList[4] = -1;
+                    file._Structures.Add(position, newBehaviors);
+                    file._MigrationStructures.Add(position, newBehaviors);
+                }*/
             }
         }
     }

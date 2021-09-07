@@ -60,6 +60,16 @@ namespace Recombobulator
             IgnoreDuplicates = 8,
         }
 
+        public class Overrides
+        {
+            public string NewName;
+            public ushort[] NewTextureIDs;
+            public int NewStreamUnitID;
+            public int[] NewIntroIDs;
+            public readonly Dictionary<string, string> NewObjectNames = new Dictionary<string, string>();
+            public int NextIntroID;
+        }
+
         public string _FilePath { get; private set; } = "";
         public uint _FileLength { get; private set; } = 0;
         public Version _Version { get; private set; } = SR1_File.Version.Jun01;
@@ -74,11 +84,7 @@ namespace Recombobulator
         public readonly StringWriter _ImportErrors = new StringWriter();
         public readonly StringWriter _Scripts = new StringWriter();
         public SR1_PrimativeBase _LastPrimative = null;
-        public string _NewName { get; private set; } = null;
-        public ushort[] _NewTextureIDs { get; private set; } = null;
-        public int _NewStreamUnitID = 0;
-        public int[] _NewIntroIDs { get; private set; } = null;
-        public int _NextIntroID = 0;
+        public Overrides _Overrides { get; private set; }
         public ImportFlags _ImportFlags { get; private set; } = ImportFlags.None;
 
 
@@ -295,18 +301,14 @@ namespace Recombobulator
 
         public uint Export(string fileName)
         {
-            return Export(fileName, _Version, MigrateFlags.None, null, null, 0, null);
+            return Export(fileName, _Version, MigrateFlags.None, new Overrides());
         }
 
-        public uint Export(string fileName, Version targetVersion, MigrateFlags migrateFlags, string newName, ushort[] newTextureIDs, int newStreamUnitID, int[] newIntroIDs)
+        public uint Export(string fileName, Version targetVersion, MigrateFlags migrateFlags, Overrides overrides)
         {
             uint fileLength = 0;
 
-            _NewName = newName;
-            _NewTextureIDs = newTextureIDs;
-            _NewStreamUnitID = newStreamUnitID;
-            _NewIntroIDs = newIntroIDs;
-            _NextIntroID = 0;
+            _Overrides = overrides;
 
             MemoryStream stream = new MemoryStream();
 
@@ -428,11 +430,7 @@ namespace Recombobulator
 
             stream.Close();
 
-            _NewName = null;
-            _NewTextureIDs = null;
-            _NewStreamUnitID = 0;
-            _NewIntroIDs = null;
-            _NextIntroID = 0;
+            _Overrides = null;
 
             return fileLength;
         }
