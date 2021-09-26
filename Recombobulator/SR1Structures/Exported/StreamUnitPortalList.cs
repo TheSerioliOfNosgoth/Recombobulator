@@ -6,14 +6,19 @@ namespace Recombobulator.SR1Structures
     class StreamUnitPortalList : SR1_Structure
     {
         SR1_Primative<int> numPortals = new SR1_Primative<int>();
-        SR1_StructureArray<StreamUnitPortal> portals = new SR1_StructureArray<StreamUnitPortal>(0);
+        SR1_StructureList<StreamUnitPortal> portals = new SR1_StructureList<StreamUnitPortal>();
         SR1_Primative<int> pad = new SR1_Primative<int>();
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
             numPortals.Read(reader, this, "numPortals");
-            portals = new SR1_StructureArray<StreamUnitPortal>(numPortals.Value);
+
+            for (int i = 0; i < numPortals.Value; i++)
+            {
+                portals.Add(new StreamUnitPortal());
+            }
             portals.Read(reader, this, "portals");
+
             pad.Read(reader, this, "pad");
         }
 
@@ -32,10 +37,20 @@ namespace Recombobulator.SR1Structures
         {
             base.MigrateVersion(file, targetVersion, migrateFlags);
 
-            if ((migrateFlags & SR1_File.MigrateFlags.RemovePortals) != 0)
+            int newNumPortals = 0;
+            while (newNumPortals < portals.Count)
             {
-                numPortals.Value = 0;
+                if (portals[newNumPortals].OmitFromMigration)
+                {
+                    portals.RemoveAt(newNumPortals);
+                }
+                else
+                {
+                    newNumPortals++;
+                }
             }
+
+            numPortals.Value = newNumPortals;
         }
     }
 }

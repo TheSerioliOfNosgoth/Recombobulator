@@ -100,6 +100,7 @@ namespace Recombobulator.SR1Structures
         public readonly SR1_Pointer<LightGroup> razielSpectralLightGroup = new SR1_Pointer<LightGroup>();
 
         SR1_String worldNameString = new SR1_String(12);
+        Events events = new Events(0);
         LightList lightListStruct0 = new LightList();
         LightList lightListStruct1 = new LightList();
         SR1_PrimativeArray<byte> push6Padding = new SR1_PrimativeArray<byte>(8);
@@ -277,7 +278,6 @@ namespace Recombobulator.SR1Structures
             new LightGroup().ReadFromPointer(reader, razielLightGroup);
             new LightGroup().ReadFromPointer(reader, razielSpectralLightGroup);
 
-            Events events = null;
             if (PuzzleInstances.Offset != 0)
             {
                 reader.BaseStream.Position = PuzzleInstances.Offset;
@@ -502,10 +502,11 @@ namespace Recombobulator.SR1Structures
 
                 if ((migrateFlags & SR1_File.MigrateFlags.RemoveEvents) != 0)
                 {
-                    if (PuzzleInstances.Offset != 0)
+                    // Can't use SignalListStart because I included data before that in the Events structure.
+                    if (events.Start != 0)
                     {
-                        file._Structures.Remove(PuzzleInstances.Offset);
-                        PuzzleInstances.Offset = 0;
+                        file._Structures.Remove(events.Start);
+                        SignalListEnd.Offset = events.End;
                     }
                 }
 

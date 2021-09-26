@@ -7,6 +7,8 @@ namespace Recombobulator.SR1Structures
     class SR1_StructureList<T> : SR1_Structure where T : SR1_Structure
     {
         private List<SR1_Structure> _List = new List<SR1_Structure>();
+
+        public T this[int i] { get { return (T)_List[i]; } set { _List[i] = value; } }
         public int Count { get { return _List.Count; } }
 
         public IReadOnlyCollection<SR1_Structure> List { get { return _List; } }
@@ -18,6 +20,11 @@ namespace Recombobulator.SR1Structures
         public void Add(SR1_Structure entry)
         {
             _List.Add(entry);
+        }
+
+        public void RemoveAt(int index)
+        {
+            _List.RemoveAt(index);
         }
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)

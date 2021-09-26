@@ -246,21 +246,6 @@ namespace Recombobulator.SR1Structures
                 MembersRead.Remove(sbspRoot);
                 MembersRead.Remove(sbspStartLeaves);
                 MembersRead.Remove(sbspEndLeaves);
-                MembersRead.Insert(MembersRead.Count, unknownPCList);
-
-                SR1_Structure lastStructure = file._Structures.Values[file._Structures.Count - 1];
-                uint position = lastStructure.End;
-
-                unknownPCList.Offset = position;
-                UnknownPCList newUnknownPCList = new UnknownPCList();
-                file._Structures.Add(position, newUnknownPCList);
-                file._MigrationStructures.Add(position, newUnknownPCList);
-
-                if (aniList.Offset != 0)
-                {
-                    file._Structures.Remove(aniList.Offset);
-                    aniList.Offset = 0;
-                }
 
                 if (sbspRoot.Offset != 0)
                 {
@@ -275,8 +260,16 @@ namespace Recombobulator.SR1Structures
                     sbspEndLeaves.Offset = 0;
                 }
             }
-            else if (file._Version <= SR1_File.Version.Jun01 && targetVersion >= SR1_File.Version.Retail_PC)
+
+            if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
             {
+                if (aniList.Offset != 0)
+                {
+                    file._Structures.Remove(aniList.Offset);
+                    aniList.Offset = 0;
+                    EndTextureList.Offset = MorphDiffList.Offset;
+                }
+
                 MembersRead.Add(unknownPCList);
 
                 SR1_Structure lastStructure = file._Structures.Values[file._Structures.Count - 1];

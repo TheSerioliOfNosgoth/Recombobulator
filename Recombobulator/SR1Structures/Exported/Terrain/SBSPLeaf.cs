@@ -44,5 +44,23 @@ namespace Recombobulator.SR1Structures
             numLights.Write(writer);
             pad.Write(writer);
         }
+
+        public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
+        {
+            base.MigrateVersion(file, targetVersion, migrateFlags);
+
+            if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
+            {
+                if (introList.Offset != 0)
+                {
+                    file._Structures.Remove(introList.Offset);
+                }
+
+                if (lightList.Offset != 0)
+                {
+                    file._Structures.Remove(lightList.Offset);
+                }
+            }
+        }
     }
 }

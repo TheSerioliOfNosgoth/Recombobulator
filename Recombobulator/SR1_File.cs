@@ -79,6 +79,7 @@ namespace Recombobulator
         public readonly SortedDictionary<uint, SR1_Structure> _MigrationStructures = new SortedDictionary<uint, SR1_Structure>();
         public List<SR1_PointerBase> _Pointers = new List<SR1_PointerBase>();
         public readonly List<ushort> _TextureIDs = new List<ushort>();
+        public readonly List<string> _IntroNames = new List<string>();
         public readonly List<int> _IntroIDs = new List<int>();
         public readonly List<string> _ObjectNames = new List<string>();
         public readonly StringWriter _ImportErrors = new StringWriter();
@@ -101,6 +102,7 @@ namespace Recombobulator
             _MigrationStructures.Clear();
             _Pointers.Clear();
             _TextureIDs.Clear();
+            _IntroNames.Clear();
             _IntroIDs.Clear();
             _ObjectNames.Clear();
 
@@ -318,6 +320,7 @@ namespace Recombobulator
             _MigrationStructures.Clear();
             _Pointers.Clear();
             _TextureIDs.Clear();
+            _IntroNames.Clear();
             _IntroIDs.Clear();
             _ObjectNames.Clear();
 
@@ -327,7 +330,13 @@ namespace Recombobulator
             _Structures.Values.CopyTo(structures, 0);
             foreach (SR1_Structure structure in structures)
             {
-                structure.MigrateVersion(this, targetVersion, migrateFlags);
+                try
+                {
+                    structure.MigrateVersion(this, targetVersion, migrateFlags);
+                }
+                catch (Exception e)
+                {
+                }
             }
 
             _Version = targetVersion;
@@ -447,6 +456,7 @@ namespace Recombobulator
             _MigrationStructures.Clear();
             _Pointers.Clear();
             _TextureIDs.Clear();
+            _IntroNames.Clear();
             _IntroIDs.Clear();
             _ObjectNames.Clear();
 
@@ -687,7 +697,7 @@ namespace Recombobulator
                             else if (data is MonsterAttributes)
                             {
                                 MonsterAttributes monsterAttributes = (MonsterAttributes)data;
-                                monAttributes.Add("\t" + cleanName + "\t{ oflags = " + obj.oflags.ToString() + ", oflags2 = " + obj.oflags2.ToString() + ", monsterAttributes.magicNum = " + monsterAttributes.magicnum.ToString() + " }");
+                                monAttributes.Add("\t" + cleanName + "\t{ oflags = " + obj.oflags.ToString() + ", oflags2 = " + obj.oflags2.ToString() + ", monsterAttributes.magicNum = " + monsterAttributes.magicnum.ToString() + ", monsterAttributes.whatAmI = " + monsterAttributes.whatAmI.ToString() + " }");
                             }
                         }
 

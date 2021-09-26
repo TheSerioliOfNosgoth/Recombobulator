@@ -8,7 +8,7 @@ namespace Recombobulator.SR1Structures
         SR1_Primative<int> numSignals = new SR1_Primative<int>();
         SR1_Primative<short> signalNum = new SR1_Primative<short>();
         SR1_Primative<short> flags = new SR1_Primative<short>();
-        SR1_StructureArray<Signal> signalList = new SR1_StructureArray<Signal>(0);
+        SR1_StructureList<Signal> signalList = new SR1_StructureList<Signal>();
         SR1_Primative<int> pad = new SR1_Primative<int>();
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
@@ -17,7 +17,10 @@ namespace Recombobulator.SR1Structures
             signalNum.Read(reader, this, "signalNum");
             flags.Read(reader, this, "flags");
 
-            signalList = new SR1_StructureArray<Signal>(numSignals.Value);
+            for (int i = 0; i < numSignals.Value; i++)
+            {
+                signalList.Add(new Signal());
+            }
             signalList.Read(reader, this, "signalList");
 
             pad.Read(reader, this, "pad");
@@ -40,23 +43,20 @@ namespace Recombobulator.SR1Structures
         {
             base.MigrateVersion(file, targetVersion, migrateFlags);
 
-            if ((migrateFlags & SR1_File.MigrateFlags.RemoveSignals) != 0)
+            int newNumSignals = 0;
+            while (newNumSignals < signalList.Count)
             {
-                int newNumSignals = 0;
-
-                if (signalList.Length > 0)
+                if (signalList[newNumSignals].OmitFromMigration)
                 {
-                    foreach (Signal signal in signalList.List)
-                    {
-                        if (!signal.OmitFromMigration)
-                        {
-                            newNumSignals++;
-                        }
-                    }
+                    signalList.RemoveAt(newNumSignals);
                 }
-
-                numSignals.Value = newNumSignals;
+                else
+                {
+                    newNumSignals++;
+                }
             }
+
+            numSignals.Value = newNumSignals;
 
             if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
             {
