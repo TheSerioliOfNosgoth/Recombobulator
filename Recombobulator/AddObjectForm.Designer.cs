@@ -30,13 +30,12 @@
         {
             this.continueButton = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
-            this.textureSetLabel = new System.Windows.Forms.Label();
-            this.versionLabel = new System.Windows.Forms.Label();
-            this.versionComboBox = new System.Windows.Forms.ComboBox();
-            this.pathTextBox = new System.Windows.Forms.TextBox();
-            this.textureSetCombo = new System.Windows.Forms.ComboBox();
-            this.textureList = new System.Windows.Forms.ListBox();
             this.renameButton = new System.Windows.Forms.Button();
+            this.textureSetCombo = new System.Windows.Forms.ComboBox();
+            this.pathTextBox = new System.Windows.Forms.TextBox();
+            this.versionComboBox = new System.Windows.Forms.ComboBox();
+            this.versionLabel = new System.Windows.Forms.Label();
+            this.textureSetLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // continueButton
@@ -45,7 +44,7 @@
             this.continueButton.Location = new System.Drawing.Point(10, 360);
             this.continueButton.Name = "continueButton";
             this.continueButton.Size = new System.Drawing.Size(75, 23);
-            this.continueButton.TabIndex = 7;
+            this.continueButton.TabIndex = 6;
             this.continueButton.Text = "Continue";
             this.continueButton.UseVisualStyleBackColor = true;
             // 
@@ -55,65 +54,9 @@
             this.cancelButton.Location = new System.Drawing.Point(91, 360);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
-            this.cancelButton.TabIndex = 8;
+            this.cancelButton.TabIndex = 7;
             this.cancelButton.Text = "Cancel";
             this.cancelButton.UseVisualStyleBackColor = true;
-            // 
-            // textureSetLabel
-            // 
-            this.textureSetLabel.AutoSize = true;
-            this.textureSetLabel.Location = new System.Drawing.Point(11, 62);
-            this.textureSetLabel.Name = "textureSetLabel";
-            this.textureSetLabel.Size = new System.Drawing.Size(62, 13);
-            this.textureSetLabel.TabIndex = 4;
-            this.textureSetLabel.Text = "Texture Set";
-            // 
-            // versionLabel
-            // 
-            this.versionLabel.AutoSize = true;
-            this.versionLabel.Location = new System.Drawing.Point(13, 9);
-            this.versionLabel.Name = "versionLabel";
-            this.versionLabel.Size = new System.Drawing.Size(42, 13);
-            this.versionLabel.TabIndex = 0;
-            this.versionLabel.Text = "Version";
-            // 
-            // versionComboBox
-            // 
-            this.versionComboBox.Enabled = false;
-            this.versionComboBox.FormattingEnabled = true;
-            this.versionComboBox.Location = new System.Drawing.Point(151, 6);
-            this.versionComboBox.Name = "versionComboBox";
-            this.versionComboBox.Size = new System.Drawing.Size(121, 21);
-            this.versionComboBox.TabIndex = 1;
-            this.versionComboBox.Text = "Retail PC";
-            // 
-            // pathTextBox
-            // 
-            this.pathTextBox.Location = new System.Drawing.Point(13, 33);
-            this.pathTextBox.Name = "pathTextBox";
-            this.pathTextBox.ReadOnly = true;
-            this.pathTextBox.Size = new System.Drawing.Size(189, 20);
-            this.pathTextBox.TabIndex = 2;
-            // 
-            // textureSetCombo
-            // 
-            this.textureSetCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.textureSetCombo.FormattingEnabled = true;
-            this.textureSetCombo.Location = new System.Drawing.Point(151, 59);
-            this.textureSetCombo.Name = "textureSetCombo";
-            this.textureSetCombo.Size = new System.Drawing.Size(121, 21);
-            this.textureSetCombo.TabIndex = 5;
-            this.textureSetCombo.SelectedIndexChanged += new System.EventHandler(this.textureSetCombo_SelectedIndexChanged);
-            // 
-            // textureList
-            // 
-            this.textureList.FormattingEnabled = true;
-            this.textureList.Location = new System.Drawing.Point(12, 86);
-            this.textureList.Name = "textureList";
-            this.textureList.ScrollAlwaysVisible = true;
-            this.textureList.SelectionMode = System.Windows.Forms.SelectionMode.None;
-            this.textureList.Size = new System.Drawing.Size(260, 69);
-            this.textureList.TabIndex = 6;
             // 
             // renameButton
             // 
@@ -125,6 +68,52 @@
             this.renameButton.UseVisualStyleBackColor = true;
             this.renameButton.Click += new System.EventHandler(this.renameButton_Click);
             // 
+            // textureSetCombo
+            // 
+            this.textureSetCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.textureSetCombo.FormattingEnabled = true;
+            this.textureSetCombo.Location = new System.Drawing.Point(151, 59);
+            this.textureSetCombo.Name = "textureSetCombo";
+            this.textureSetCombo.Size = new System.Drawing.Size(121, 21);
+            this.textureSetCombo.TabIndex = 5;
+            this.textureSetCombo.SelectedIndexChanged += new System.EventHandler(this.textureSetCombo_SelectedIndexChanged);
+            // 
+            // pathTextBox
+            // 
+            this.pathTextBox.Location = new System.Drawing.Point(13, 33);
+            this.pathTextBox.Name = "pathTextBox";
+            this.pathTextBox.ReadOnly = true;
+            this.pathTextBox.Size = new System.Drawing.Size(189, 20);
+            this.pathTextBox.TabIndex = 2;
+            // 
+            // versionComboBox
+            // 
+            this.versionComboBox.Enabled = false;
+            this.versionComboBox.FormattingEnabled = true;
+            this.versionComboBox.Location = new System.Drawing.Point(151, 6);
+            this.versionComboBox.Name = "versionComboBox";
+            this.versionComboBox.Size = new System.Drawing.Size(121, 21);
+            this.versionComboBox.TabIndex = 1;
+            this.versionComboBox.Text = "Retail PC";
+            // 
+            // versionLabel
+            // 
+            this.versionLabel.AutoSize = true;
+            this.versionLabel.Location = new System.Drawing.Point(13, 9);
+            this.versionLabel.Name = "versionLabel";
+            this.versionLabel.Size = new System.Drawing.Size(42, 13);
+            this.versionLabel.TabIndex = 0;
+            this.versionLabel.Text = "Version";
+            // 
+            // textureSetLabel
+            // 
+            this.textureSetLabel.AutoSize = true;
+            this.textureSetLabel.Location = new System.Drawing.Point(11, 62);
+            this.textureSetLabel.Name = "textureSetLabel";
+            this.textureSetLabel.Size = new System.Drawing.Size(62, 13);
+            this.textureSetLabel.TabIndex = 4;
+            this.textureSetLabel.Text = "Texture Set";
+            // 
             // AddObjectForm
             // 
             this.AcceptButton = this.continueButton;
@@ -134,7 +123,6 @@
             this.ClientSize = new System.Drawing.Size(284, 396);
             this.ControlBox = false;
             this.Controls.Add(this.renameButton);
-            this.Controls.Add(this.textureList);
             this.Controls.Add(this.textureSetCombo);
             this.Controls.Add(this.pathTextBox);
             this.Controls.Add(this.versionComboBox);
@@ -163,7 +151,6 @@
         private System.Windows.Forms.ComboBox versionComboBox;
         private System.Windows.Forms.TextBox pathTextBox;
         private System.Windows.Forms.ComboBox textureSetCombo;
-        private System.Windows.Forms.ListBox textureList;
         private System.Windows.Forms.Button renameButton;
     }
 }

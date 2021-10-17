@@ -5,9 +5,9 @@ namespace Recombobulator.SR1Structures
 {
     class StreamUnitPortalList : SR1_Structure
     {
-        SR1_Primative<int> numPortals = new SR1_Primative<int>();
-        SR1_StructureList<StreamUnitPortal> portals = new SR1_StructureList<StreamUnitPortal>();
-        SR1_Primative<int> pad = new SR1_Primative<int>();
+        public readonly SR1_Primative<int> numPortals = new SR1_Primative<int>();
+        public readonly SR1_StructureList<StreamUnitPortal> portals = new SR1_StructureList<StreamUnitPortal>();
+        public readonly SR1_Primative<int> pad = new SR1_Primative<int>();
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {

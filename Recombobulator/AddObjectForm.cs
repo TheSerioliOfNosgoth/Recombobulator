@@ -5,7 +5,7 @@ using SR1Repository;
 
 namespace Recombobulator
 {
-    public partial class AddObjectForm : AddFileForm
+    partial class AddObjectForm : AddFileForm
     {
         public override string RelativePath { get { return pathTextBox.Text; } }
 
@@ -56,24 +56,6 @@ namespace Recombobulator
         private void textureSetCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
             int selectedIndex = ((ComboBox)sender).SelectedIndex;
-            if (selectedIndex < _repository.TextureSets.Count)
-            {
-                TexSet textureSet = _repository.TextureSets.TexSets[selectedIndex];
-                textureList.Items.Clear();
-                foreach (ushort textureID in textureSet.TextureIDs)
-                {
-                    textureList.Items.Add(_repository.MakeTextureFilePath(textureID));
-                }
-            }
-            else
-            {
-                ushort textureIndex = (ushort)_repository.Textures.Count;
-                for (int t = 0; t < 8; t++)
-                {
-                    textureList.Items.Add(_repository.MakeTextureFilePath(textureIndex + t));
-                }
-            }
-
             TextureSet = selectedIndex;
         }
 

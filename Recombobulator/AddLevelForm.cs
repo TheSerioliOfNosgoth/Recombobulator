@@ -5,7 +5,7 @@ using SR1Repository;
 
 namespace Recombobulator
 {
-    public partial class AddLevelForm : AddFileForm
+    partial class AddLevelForm : AddFileForm
     {
         public override string RelativePath { get { return pathTextBox.Text; } }
 
@@ -23,7 +23,7 @@ namespace Recombobulator
             continueButton.Select();
         }
 
-        public void Initialize(Repository repository, string fileName, List<string> requiredObjects)
+        public void Initialize(Repository repository, string fileName, SR1_File file)
         {
             _fileName = fileName;
             _repository = repository;
@@ -60,7 +60,7 @@ namespace Recombobulator
                 textureSetCombo.SelectedIndex = _repository.TextureSets.Count;
             }
 
-            foreach (string objectName in requiredObjects)
+            foreach (string objectName in file._ObjectNames)
             {
                 string lowerCase = objectName.ToLower();
                 if (_repository.Objects.Find(x => x.ObjectName == lowerCase) == null)
@@ -68,29 +68,22 @@ namespace Recombobulator
                     requiredObjectList.Items.Add(lowerCase);
                 }
             }
+
+            SR1Structures.Level level = (SR1Structures.Level)file._Structures[0];
+            SR1Structures.Terrain terrain = (SR1Structures.Terrain)file._Structures[level.terrain.Offset];
+            SR1Structures.StreamUnitPortalList portalList = (SR1Structures.StreamUnitPortalList)file._Structures[terrain.StreamUnits.Offset];
+
+            this.portalList.Items.Clear();
+            foreach (SR1Structures.StreamUnitPortal portal in portalList.portals.List)
+            {
+                this.portalList.Items.Add(portal.tolevelname);
+                this.portalList.SetItemChecked(this.portalList.Items.Count - 1, true);
+            }
         }
 
         private void textureSetCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
             int selectedIndex = ((ComboBox)sender).SelectedIndex;
-            if (selectedIndex < _repository.TextureSets.Count)
-            {
-                TexSet textureSet = _repository.TextureSets.TexSets[selectedIndex];
-                textureList.Items.Clear();
-                foreach (ushort textureID in textureSet.TextureIDs)
-                {
-                    textureList.Items.Add(_repository.MakeTextureFilePath(textureID));
-                }
-            }
-            else
-            {
-                ushort textureIndex = (ushort)_repository.Textures.Count;
-                for (int t = 0; t < 8; t++)
-                {
-                    textureList.Items.Add(_repository.MakeTextureFilePath(textureIndex + t));
-                }
-            }
-
             TextureSet = selectedIndex;
         }
 
@@ -153,6 +146,11 @@ namespace Recombobulator
             }
 
             _fileName = fileName;
+        }
+
+        private void removePortalsCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            portalList.Enabled = removePortalsCheckBox.Checked;
         }
     }
 }

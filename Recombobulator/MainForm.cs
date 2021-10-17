@@ -148,7 +148,7 @@ namespace Recombobulator
             if (_file._IsLevel)
             {
                 AddLevelForm addLevelDialog = new AddLevelForm();
-                addLevelDialog.Initialize(_repository, fileName, _file._ObjectNames);
+                addLevelDialog.Initialize(_repository, fileName, _file);
                 addFileDialog = addLevelDialog;
             }
             else

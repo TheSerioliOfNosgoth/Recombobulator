@@ -5,11 +5,13 @@ namespace Recombobulator.SR1Structures
 {
     class MultiSignal : SR1_Structure
     {
-        SR1_Primative<int> numSignals = new SR1_Primative<int>();
-        SR1_Primative<short> signalNum = new SR1_Primative<short>();
-        SR1_Primative<short> flags = new SR1_Primative<short>();
-        SR1_StructureList<Signal> signalList = new SR1_StructureList<Signal>();
-        SR1_Primative<int> pad = new SR1_Primative<int>();
+        public readonly SR1_Primative<int> numSignals = new SR1_Primative<int>();
+        public readonly SR1_Primative<short> signalNum = new SR1_Primative<short>();
+        public readonly SR1_Primative<short> flags = new SR1_Primative<short>();
+        public readonly SR1_StructureList<Signal> signalList = new SR1_StructureList<Signal>();
+        public readonly SR1_Primative<int> pad = new SR1_Primative<int>();
+
+        public bool OmitFromMigration { get; private set; } = false;
 
         protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
         {
@@ -62,6 +64,12 @@ namespace Recombobulator.SR1Structures
             {
                 pad.Value = 15;
             }
+        }
+
+        public override string ToString()
+        {
+            string result = "{ SignalNum = " + signalNum.Value + " }";
+            return result;
         }
     }
 }

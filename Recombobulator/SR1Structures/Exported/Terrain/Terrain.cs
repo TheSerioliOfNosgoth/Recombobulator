@@ -23,7 +23,7 @@ namespace Recombobulator.SR1Structures
         SR1_Pointer<DrMoveAniTex> aniList = new SR1_Pointer<DrMoveAniTex>();
         SR1_Primative<int> pad = new SR1_Primative<int>();
         SR1_Pointer<BSPNode> sbspRoot = new SR1_Pointer<BSPNode>();
-        SR1_Pointer<StreamUnitPortalList> StreamUnits = new SR1_Pointer<StreamUnitPortalList>(); // void in sym, StreamUnitPortalList created for this tool.
+        public readonly SR1_Pointer<StreamUnitPortalList> StreamUnits = new SR1_Pointer<StreamUnitPortalList>(); // void in sym, StreamUnitPortalList created for this tool.
         SR1_Pointer<TextureFT3> StartTextureList = new SR1_Pointer<TextureFT3>();
         SR1_Pointer<TextureFT3> EndTextureList = new SR1_Pointer<TextureFT3>();
         SR1_Pointer<SBSPLeaf> sbspStartLeaves = new SR1_Pointer<SBSPLeaf>();
@@ -111,8 +111,11 @@ namespace Recombobulator.SR1Structures
                 }
             }
 
-            new StreamUnitPortalList().ReadFromPointer(reader, StreamUnits);
-            new SR1_StructureSeries<TextureFT3>((int)(EndTextureList.Offset - StartTextureList.Offset)).ReadFromPointer(reader, StartTextureList);
+            StreamUnitPortalList portalList = new StreamUnitPortalList();
+            portalList.ReadFromPointer(reader, StreamUnits);
+
+            SR1_StructureSeries<TextureFT3> textures = new SR1_StructureSeries<TextureFT3>((int)(EndTextureList.Offset - StartTextureList.Offset));
+            textures.ReadFromPointer(reader, StartTextureList);
 
             if (reader.File._Version <= SR1_File.Version.May12)
             {
@@ -138,26 +141,58 @@ namespace Recombobulator.SR1Structures
 
             SR1_StructureArray<BSPTree> bspTrees = new SR1_StructureArray<BSPTree>(numBSPTrees.Value);
             bspTrees.ReadFromPointer(reader, BSPTreeArray);
+
             if (bspTrees.Length > 0 && faces.Length > 0)
             {
                 BSPTree tree = (BSPTree)bspTrees[numBSPTrees.Value - 1];
+
                 if (tree.ID.Value == -1 && tree.startLeaves.Offset != 0 &&
-                    reader.File._Structures.ContainsKey(tree.startLeaves.Offset))
+                    reader.File._Structures.ContainsKey(tree.startLeaves.Offset) &&
+                    reader.Level.SignalListStart.Offset != 0 &&
+                    reader.File._Structures.ContainsKey(reader.Level.SignalListStart.Offset))
                 {
-                    SR1_Structure leavesStruct = reader.File._Structures[tree.startLeaves.Offset];
-                    if (leavesStruct.GetType() == typeof(SR1_StructureSeries<BSPLeaf>))
+                    SR1_StructureSeries<BSPLeaf> leaves =
+                        (SR1_StructureSeries<BSPLeaf>)reader.File._Structures[tree.startLeaves.Offset];
+                    SR1_StructureSeries<MultiSignal> multiSignals =
+                        (SR1_StructureSeries<MultiSignal>)reader.File._Structures[reader.Level.SignalListStart.Offset];
+
+                    foreach (BSPLeaf leaf in leaves.List)
                     {
-                        SR1_StructureSeries<BSPLeaf> leaves = (SR1_StructureSeries<BSPLeaf>)leavesStruct;
-                        foreach (BSPLeaf leaf in leaves.List)
+                        uint faceIndex = (leaf.faceList.Offset - faces.Start) / 12;
+                        short numFaces = leaf.numFaces.Value;
+                        for (short f = 0; f < numFaces; f++)
                         {
-                            uint faceIndex = (leaf.faceList.Offset - faces.Start) / 12;
-                            short numFaces = leaf.numFaces.Value;
-                            for (short f = 0; f < numFaces; f++)
+                            TFace tFace = (TFace)faces[(int)faceIndex + f];
+                            tFace.IsInSignalGroup = true;
+
+                            foreach (MultiSignal mSignal in multiSignals.List)
                             {
-                                ((TFace)faces[(int)faceIndex + f]).IsInSignalGroup = true;
+                                if (mSignal.Start == (signals.Offset + tFace.textoff.Value))
+                                {
+                                    tFace.Signal = mSignal;
+                                    break;
+                                }
+                            }
+
+                            foreach (StreamUnitPortal portal in portalList.portals.List)
+                            {
+                                if (portal.MSignalID.Value == tFace.Signal.signalNum.Value)
+                                {
+                                    tFace.Portal = portal;
+                                    break;
+                                }
                             }
                         }
                     }
+                }
+            }
+
+            foreach (TFace face in faces.List)
+            {
+                if (!face.IsInSignalGroup)
+                {
+                    int textureSize = (reader.File._Version >= SR1_File.Version.May12) ? 12 : 16;
+                    face.Texture = (TextureFT3)textures[face.textoff.Value / textureSize];
                 }
             }
 

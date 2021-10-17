@@ -5,7 +5,7 @@ using SR1Repository;
 
 namespace Recombobulator
 {
-    public class AddFileForm : Form
+    class AddFileForm : Form
     {
         public string FullPath { get; protected set; } = "";
         public virtual string RelativePath { get { return ""; } }
