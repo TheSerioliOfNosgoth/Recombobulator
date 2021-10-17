@@ -8,13 +8,13 @@ namespace TreeList.TreeList
 	[TypeConverterAttribute(typeof(OptionsSettingTypeConverter))]
 	public class TextFormatting
 	{
-		ContentAlignment	m_alignment = ContentAlignment.MiddleLeft;
+		ContentAlignment m_alignment = ContentAlignment.MiddleLeft;
 		Color m_foreColor = SystemColors.ControlText;
 		Color m_backColor = Color.Transparent;
-		Padding	m_padding = new Padding(0,0,0,0);
+		Padding m_padding = new Padding(0, 0, 0, 0);
 		public TextFormatFlags GetFormattingFlags()
 		{
-			TextFormatFlags	flags = 0;
+			TextFormatFlags flags = 0;
 			switch (TextAlignment)
 			{
 				case ContentAlignment.TopLeft:
@@ -47,7 +47,7 @@ namespace TreeList.TreeList
 			}
 			return flags;
 		}
-		
+
 		[DefaultValue(typeof(Padding), "0,0,0,0")]
 		public Padding Padding
 		{
@@ -80,19 +80,19 @@ namespace TreeList.TreeList
 			m_alignment = aCopy.m_alignment;
 			m_foreColor = aCopy.m_foreColor;
 			m_backColor = aCopy.m_backColor;
-			m_padding	= aCopy.m_padding;
+			m_padding = aCopy.m_padding;
 		}
 	}
-	
+
 	[TypeConverterAttribute(typeof(OptionsSettingTypeConverter))]
 	public class ViewSetting
 	{
-		TreeListView			m_owner;
+		TreeListView m_owner;
 		BorderStyle m_borderStyle = BorderStyle.None;
-		int			m_indent = 16;
-		bool		m_showLine = true;
-		bool		m_showPlusMinus = true;
-		bool		m_showGridLines = true;
+		int m_indent = 16;
+		bool m_showLine = true;
+		bool m_showPlusMinus = true;
+		bool m_showGridLines = true;
 
 		[Category("Behavior")]
 		[DefaultValue(typeof(int), "16")]
@@ -129,7 +129,7 @@ namespace TreeList.TreeList
 				m_owner.Invalidate();
 			}
 		}
-		
+
 		[Category("Behavior")]
 		[DefaultValue(typeof(bool), "True")]
 		public bool ShowGridLines
@@ -163,21 +163,21 @@ namespace TreeList.TreeList
 			m_owner = owner;
 		}
 	}
-	
+
 	[TypeConverterAttribute(typeof(OptionsSettingTypeConverter))]
 	public class CollumnSetting
 	{
-		int				m_leftMargin = 5;
-		int				m_headerHeight = 20;
-		TreeListView	m_owner;
+		int m_leftMargin = 5;
+		int m_headerHeight = 20;
+		TreeListView m_owner;
 
 		[DefaultValue(5)]
 		public int LeftMargin
 		{
 			get { return m_leftMargin; }
-			set 
-			{ 
-				m_leftMargin = value; 
+			set
+			{
+				m_leftMargin = value;
 				m_owner.Columns.RecalcVisibleColumsRect();
 				m_owner.Invalidate();
 			}
@@ -187,8 +187,8 @@ namespace TreeList.TreeList
 		{
 			get { return m_headerHeight; }
 			set
-			{ 
-				m_headerHeight = value; 
+			{
+				m_headerHeight = value;
 				m_owner.Columns.RecalcVisibleColumsRect();
 				m_owner.Invalidate();
 			}
@@ -202,10 +202,10 @@ namespace TreeList.TreeList
 	[TypeConverterAttribute(typeof(OptionsSettingTypeConverter))]
 	public class RowSetting
 	{
-		TreeListView	m_owner;
-		bool			m_showHeader = true;
-		int				m_headerWidth = 15;
-		int				m_itemHeight = 16;
+		TreeListView m_owner;
+		bool m_showHeader = true;
+		int m_headerWidth = 15;
+		int m_itemHeight = 16;
 		[DefaultValue(true)]
 		public bool ShowHeader
 		{
@@ -244,7 +244,7 @@ namespace TreeList.TreeList
 				m_owner.Invalidate();
 			}
 		}
-		
+
 		public RowSetting(TreeListView owner)
 		{
 			m_owner = owner;

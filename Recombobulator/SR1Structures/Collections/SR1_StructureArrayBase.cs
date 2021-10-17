@@ -4,128 +4,128 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-    abstract class SR1_StructureArrayBase<T> : SR1_Structure where T : SR1_Structure
-    {
-        protected int[] _dimensions = null;
-        protected T[] _array = null;
+	abstract class SR1_StructureArrayBase<T> : SR1_Structure where T : SR1_Structure
+	{
+		protected int[] _dimensions = null;
+		protected T[] _array = null;
 
-        public T this[int i] { get { return _array[i]; } set { _array[i] = value; } }
-        public int Length { get { return _array == null ? 0 : _array.Length; } }
+		public T this[int i] { get { return _array[i]; } set { _array[i] = value; } }
+		public int Length { get { return _array == null ? 0 : _array.Length; } }
 
-        public IReadOnlyCollection<T> List { get { return Array.AsReadOnly(_array); } }
+		public IReadOnlyCollection<T> List { get { return Array.AsReadOnly(_array); } }
 
-        protected abstract T CreateElement();
+		protected abstract T CreateElement();
 
-        public SR1_StructureArrayBase(params int[] dimensions)
-        {
-            _dimensions = new int[dimensions.Length];
-            dimensions.CopyTo(_dimensions, 0);
+		public SR1_StructureArrayBase(params int[] dimensions)
+		{
+			_dimensions = new int[dimensions.Length];
+			dimensions.CopyTo(_dimensions, 0);
 
-            int arrayLength = 1;
-            foreach (int d in dimensions)
-            {
-                arrayLength *= d;
-            }
+			int arrayLength = 1;
+			foreach (int d in dimensions)
+			{
+				arrayLength *= d;
+			}
 
-            if (arrayLength > 0)
-            {
-                _array = new T[arrayLength];
-                for (int i = 0; i < arrayLength; i++)
-                {
-                    _array[i] = CreateElement();
-                }
-            }
-        }
+			if (arrayLength > 0)
+			{
+				_array = new T[arrayLength];
+				for (int i = 0; i < arrayLength; i++)
+				{
+					_array[i] = CreateElement();
+				}
+			}
+		}
 
-        protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
-        {
-            if (_array != null)
-            {
-                for (int i = 0; i < _array.Length; i++)
-                {
-                    Type type = _array[i].GetType();
-                    if (type == typeof(SR1Structures.EventBasicObject))
-                    {
-                        long oldPosition = reader.BaseStream.Position;
-                        SR1Structures.EventBasicObject tempEBO = new SR1Structures.EventBasicObject();
-                        tempEBO.ReadTemp(reader);
-                        reader.BaseStream.Position = oldPosition;
+		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
+		{
+			if (_array != null)
+			{
+				for (int i = 0; i < _array.Length; i++)
+				{
+					Type type = _array[i].GetType();
+					if (type == typeof(SR1Structures.EventBasicObject))
+					{
+						long oldPosition = reader.BaseStream.Position;
+						SR1Structures.EventBasicObject tempEBO = new SR1Structures.EventBasicObject();
+						tempEBO.ReadTemp(reader);
+						reader.BaseStream.Position = oldPosition;
 
-                        _array[i] = (T)tempEBO.CreateReplacementObject();
-                    }
-                    else if (type == typeof(SR1Structures.ObjectSound))
-                    {
-                        long oldPosition = reader.BaseStream.Position;
-                        SR1Structures.ObjectSound tempOS = new SR1Structures.ObjectSound();
-                        tempOS.ReadTemp(reader);
-                        reader.BaseStream.Position = oldPosition;
+						_array[i] = (T)tempEBO.CreateReplacementObject();
+					}
+					else if (type == typeof(SR1Structures.ObjectSound))
+					{
+						long oldPosition = reader.BaseStream.Position;
+						SR1Structures.ObjectSound tempOS = new SR1Structures.ObjectSound();
+						tempOS.ReadTemp(reader);
+						reader.BaseStream.Position = oldPosition;
 
-                        _array[i] = (T)tempOS.CreateReplacementObject();
-                    }
-                    else if (type == typeof(SR1Structures.PhysObProperties))
-                    {
-                        long oldPosition = reader.BaseStream.Position;
-                        SR1Structures.PhysObProperties tempPOP = new SR1Structures.PhysObProperties();
-                        tempPOP.ReadTemp(reader);
-                        reader.BaseStream.Position = oldPosition;
+						_array[i] = (T)tempOS.CreateReplacementObject();
+					}
+					else if (type == typeof(SR1Structures.PhysObProperties))
+					{
+						long oldPosition = reader.BaseStream.Position;
+						SR1Structures.PhysObProperties tempPOP = new SR1Structures.PhysObProperties();
+						tempPOP.ReadTemp(reader);
+						reader.BaseStream.Position = oldPosition;
 
-                        _array[i] = (T)tempPOP.CreateReplacementObject();
-                    }
-                    else if (type == typeof(SR1Structures.VMObject))
-                    {
-                        long oldPosition = reader.BaseStream.Position;
-                        SR1Structures.VMObject tempVMO = new SR1Structures.VMObject();
-                        tempVMO.ReadTemp(reader);
-                        reader.BaseStream.Position = oldPosition;
+						_array[i] = (T)tempPOP.CreateReplacementObject();
+					}
+					else if (type == typeof(SR1Structures.VMObject))
+					{
+						long oldPosition = reader.BaseStream.Position;
+						SR1Structures.VMObject tempVMO = new SR1Structures.VMObject();
+						tempVMO.ReadTemp(reader);
+						reader.BaseStream.Position = oldPosition;
 
-                        _array[i] = (T)tempVMO.CreateReplacementObject();
-                    }
+						_array[i] = (T)tempVMO.CreateReplacementObject();
+					}
 
 
-                    string elementName = "";
-                    int index = i;
-                    int d = _dimensions.Length;
-                    while (d > 0)
-                    {
-                        d--;
-                        int subIndex = index % _dimensions[d];
-                        index /= _dimensions[d];
-                        string indexName = "";
-                        indexName += "[";
-                        indexName += subIndex.ToString();
-                        indexName += "]";
-                        indexName += elementName;
-                        elementName = indexName;
-                    }
+					string elementName = "";
+					int index = i;
+					int d = _dimensions.Length;
+					while (d > 0)
+					{
+						d--;
+						int subIndex = index % _dimensions[d];
+						index /= _dimensions[d];
+						string indexName = "";
+						indexName += "[";
+						indexName += subIndex.ToString();
+						indexName += "]";
+						indexName += elementName;
+						elementName = indexName;
+					}
 
-                    _array[i].Read(reader, this, elementName);
-                }
-            }
-        }
+					_array[i].Read(reader, this, elementName);
+				}
+			}
+		}
 
-        protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
-        {
-        }
+		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
+		{
+		}
 
-        public override void WriteMembers(SR1_Writer writer)
-        {
-            if (_array != null)
-            {
-                for (int i = 0; i < _array.Length; i++)
-                {
-                    _array[i].Write(writer);
-                }
-            }
-        }
+		public override void WriteMembers(SR1_Writer writer)
+		{
+			if (_array != null)
+			{
+				for (int i = 0; i < _array.Length; i++)
+				{
+					_array[i].Write(writer);
+				}
+			}
+		}
 
-        public override string ToString()
-        {
-            if (_array == null)
-            {
-                return "{ }";
-            }
+		public override string ToString()
+		{
+			if (_array == null)
+			{
+				return "{ }";
+			}
 
-            return "{...}";
-        }
-    }
+			return "{...}";
+		}
+	}
 }

@@ -3,73 +3,73 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-    class MultiSignal : SR1_Structure
-    {
-        public readonly SR1_Primative<int> numSignals = new SR1_Primative<int>();
-        public readonly SR1_Primative<short> signalNum = new SR1_Primative<short>();
-        public readonly SR1_Primative<short> flags = new SR1_Primative<short>();
-        public readonly SR1_StructureList<Signal> signalList = new SR1_StructureList<Signal>();
-        public readonly SR1_Primative<int> pad = new SR1_Primative<int>();
+	class MultiSignal : SR1_Structure
+	{
+		public readonly SR1_Primative<int> numSignals = new SR1_Primative<int>();
+		public readonly SR1_Primative<short> signalNum = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> flags = new SR1_Primative<short>();
+		public readonly SR1_StructureList<Signal> signalList = new SR1_StructureList<Signal>();
+		public readonly SR1_Primative<int> pad = new SR1_Primative<int>();
 
-        public bool OmitFromMigration { get; private set; } = false;
+		public bool OmitFromMigration { get; private set; } = false;
 
-        protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
-        {
-            numSignals.Read(reader, this, "numSignals");
-            signalNum.Read(reader, this, "signalNum");
-            flags.Read(reader, this, "flags");
+		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
+		{
+			numSignals.Read(reader, this, "numSignals");
+			signalNum.Read(reader, this, "signalNum");
+			flags.Read(reader, this, "flags");
 
-            for (int i = 0; i < numSignals.Value; i++)
-            {
-                signalList.Add(new Signal());
-            }
-            signalList.Read(reader, this, "signalList");
+			for (int i = 0; i < numSignals.Value; i++)
+			{
+				signalList.Add(new Signal());
+			}
+			signalList.Read(reader, this, "signalList");
 
-            pad.Read(reader, this, "pad");
-        }
+			pad.Read(reader, this, "pad");
+		}
 
-        protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
-        {
-        }
+		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
+		{
+		}
 
-        public override void WriteMembers(SR1_Writer writer)
-        {
-            numSignals.Write(writer);
-            signalNum.Write(writer);
-            flags.Write(writer);
-            signalList.Write(writer);
-            pad.Write(writer);
-        }
+		public override void WriteMembers(SR1_Writer writer)
+		{
+			numSignals.Write(writer);
+			signalNum.Write(writer);
+			flags.Write(writer);
+			signalList.Write(writer);
+			pad.Write(writer);
+		}
 
-        public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
-        {
-            base.MigrateVersion(file, targetVersion, migrateFlags);
+		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
+		{
+			base.MigrateVersion(file, targetVersion, migrateFlags);
 
-            int newNumSignals = 0;
-            while (newNumSignals < signalList.Count)
-            {
-                if (signalList[newNumSignals].OmitFromMigration)
-                {
-                    signalList.RemoveAt(newNumSignals);
-                }
-                else
-                {
-                    newNumSignals++;
-                }
-            }
+			int newNumSignals = 0;
+			while (newNumSignals < signalList.Count)
+			{
+				if (signalList[newNumSignals].OmitFromMigration)
+				{
+					signalList.RemoveAt(newNumSignals);
+				}
+				else
+				{
+					newNumSignals++;
+				}
+			}
 
-            numSignals.Value = newNumSignals;
+			numSignals.Value = newNumSignals;
 
-            if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
-            {
-                pad.Value = 15;
-            }
-        }
+			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
+			{
+				pad.Value = 15;
+			}
+		}
 
-        public override string ToString()
-        {
-            string result = "{ SignalNum = " + signalNum.Value + " }";
-            return result;
-        }
-    }
+		public override string ToString()
+		{
+			string result = "{ SignalNum = " + signalNum.Value + " }";
+			return result;
+		}
+	}
 }

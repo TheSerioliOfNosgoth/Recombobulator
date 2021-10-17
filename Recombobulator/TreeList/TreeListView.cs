@@ -43,10 +43,10 @@ namespace TreeList
 				NotifyAfterExpand(node, isExpanded);
 		}
 
-		TreeListViewNodes			m_nodes;
-		TreeListColumnCollection	m_columns;
-		TreeList.RowSetting			m_rowSetting;
-		TreeList.ViewSetting		m_viewSetting;
+		TreeListViewNodes m_nodes;
+		TreeListColumnCollection m_columns;
+		TreeList.RowSetting m_rowSetting;
+		TreeList.ViewSetting m_viewSetting;
 
 		[Category("Columns")]
 		[Browsable(true)]
@@ -71,7 +71,7 @@ namespace TreeList
 		{
 			get { return m_rowSetting; }
 		}
-		
+
 		[Category("Options")]
 		[Browsable(true)]
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
@@ -154,9 +154,9 @@ namespace TreeList
 
 			m_hScrollFiller = new Panel();
 			m_hScrollFiller.BackColor = Color.Transparent;
-			m_hScrollFiller.Size = new Size(m_vScroll.Width-1, m_hScroll.Height);
+			m_hScrollFiller.Size = new Size(m_vScroll.Width - 1, m_hScroll.Height);
 			m_hScrollFiller.Dock = DockStyle.Right;
-			
+
 			Controls.Add(m_vScroll);
 
 			m_hScrollPanel = new Panel();
@@ -166,14 +166,14 @@ namespace TreeList
 			m_hScrollPanel.Controls.Add(m_hScrollFiller);
 			Controls.Add(m_hScrollPanel);
 		}
-		
-		VScrollBar	m_vScroll;
-		HScrollBar	m_hScroll;
-		Panel		m_hScrollFiller;
-		Panel		m_hScrollPanel;
-		bool		m_multiSelect = true;
-		Node		m_firstVisibleNode = null;
-		ImageList	m_images = null;
+
+		VScrollBar m_vScroll;
+		HScrollBar m_hScroll;
+		Panel m_hScrollFiller;
+		Panel m_hScrollPanel;
+		bool m_multiSelect = true;
+		Node m_firstVisibleNode = null;
+		ImageList m_images = null;
 
 		RowPainter m_rowPainter;
 		CellPainter m_cellPainter;
@@ -184,11 +184,11 @@ namespace TreeList
 			set { m_cellPainter = value; }
 		}
 
-		TreeListColumn	m_resizingColumn;
+		TreeListColumn m_resizingColumn;
 		int m_resizingColumnScrollOffset;
 
-		NodesSelection	m_nodesSelection = new NodesSelection();
-		Node			m_focusedNode = null;
+		NodesSelection m_nodesSelection = new NodesSelection();
+		Node m_focusedNode = null;
 		[Browsable(false)]
 		public NodesSelection NodesSelection
 		{
@@ -206,10 +206,10 @@ namespace TreeList
 					return;
 				if (MultiSelect == false)
 					NodesSelection.Clear();
-				
+
 				int oldrow = NodeCollection.GetVisibleNodeIndex(curNode);
 				int newrow = NodeCollection.GetVisibleNodeIndex(value);
-				
+
 				m_focusedNode = value;
 				OnAfterSelect(value);
 				InvalidateRow(oldrow);
@@ -270,7 +270,7 @@ namespace TreeList
 			Rectangle r = CalcRowRecangle(visibleRowIndex);
 			if (r != Rectangle.Empty)
 			{
-				r.Inflate(1,1);
+				r.Inflate(1, 1);
 				Invalidate(r);
 			}
 		}
@@ -337,7 +337,7 @@ namespace TreeList
 				m_vScroll.SmallChange = 1;
 				m_vScroll.LargeChange = maxvisiblerows;
 				m_vScroll.Minimum = 0;
-				m_vScroll.Maximum = totalrows-1;
+				m_vScroll.Maximum = totalrows - 1;
 
 				int maxscrollvalue = m_vScroll.Maximum - m_vScroll.LargeChange;
 				if (maxscrollvalue < m_vScroll.Value)
@@ -348,7 +348,7 @@ namespace TreeList
 			{
 				m_hScrollPanel.Visible = false;
 				m_hScroll.Value = 0;
-			}	
+			}
 			else
 			{
 				m_hScroll.Minimum = 0;
@@ -480,7 +480,7 @@ namespace TreeList
 			SetHotColumn(hotcol, true);
 
 			int vScrollOffset = VScrollValue();
-			
+
 			int newhotrow = -1;
 			if (hotcol == null)
 			{
@@ -615,8 +615,8 @@ namespace TreeList
 				return 0;
 			int height = ClientRectangle.Height - Columns.Options.HeaderHeight;
 			//return (int) Math.Ceiling((double)(ClientRectangle.Height - Columns.HeaderHeight) / (double)Nodes.ItemHeight); 
-			remainder = (ClientRectangle.Height - Columns.Options.HeaderHeight) % RowOptions.ItemHeight ;
-			return (ClientRectangle.Height - Columns.Options.HeaderHeight) / RowOptions.ItemHeight ;
+			remainder = (ClientRectangle.Height - Columns.Options.HeaderHeight) % RowOptions.ItemHeight;
+			return (ClientRectangle.Height - Columns.Options.HeaderHeight) / RowOptions.ItemHeight;
 		}
 		int MaxVisibleRows()
 		{
@@ -653,7 +653,7 @@ namespace TreeList
 				return p;
 			}
 		}
-		
+
 		TreeListColumn m_hotColumn = null;
 
 		object GetDataDesignMode(Node node, TreeListColumn column)
@@ -678,9 +678,9 @@ namespace TreeList
 			{
 				Rectangle r = base.ClientRectangle;
 				if (m_vScroll.Visible)
-					r.Width -= m_vScroll.Width+1;
+					r.Width -= m_vScroll.Width + 1;
 				if (m_hScroll.Visible)
-					r.Height -= m_hScroll.Height+1;
+					r.Height -= m_hScroll.Height + 1;
 				return r;
 			}
 		}
@@ -773,7 +773,7 @@ namespace TreeList
 				cellRect.Y += (cellRect.Height / 2);
 				cellRect.Height -= (cellRect.Height / 2);
 			}
-			if (node.NextSibling != null)	// draw full height line
+			if (node.NextSibling != null)   // draw full height line
 				dc.DrawLine(pen, cellRect.X, cellRect.Top, cellRect.X, cellRect.Bottom);
 			else
 				dc.DrawLine(pen, cellRect.X, cellRect.Top, cellRect.X, halfPoint);
@@ -829,13 +829,13 @@ namespace TreeList
 		protected override void OnPaint(PaintEventArgs e)
 		{
 			base.OnPaint(e);
-			
+
 			int hScrollOffset = HScrollValue();
 			int remainder = 0;
 			int visiblerows = MaxVisibleRows(out remainder);
 			if (remainder > 0)
 				visiblerows++;
-			
+
 			bool drawColumnHeaders = true;
 			// draw columns
 			if (drawColumnHeaders)
@@ -850,7 +850,7 @@ namespace TreeList
 				int remainRows = Nodes.VisibleNodeCount - m_vScroll.Value;
 				if (visiblerows > remainRows)
 					visiblerows = remainRows;
-	
+
 				Rectangle fullRect = ClientRectangle;
 				if (drawColumnHeaders)
 					fullRect.Y += Columns.Options.HeaderHeight;
@@ -885,7 +885,7 @@ namespace TreeList
 
 				// draw the current node
 				PaintNode(e.Graphics, rowRect, node, visibleColumns, visibleRowIndex);
-				
+
 				// drow row header for current node
 				Rectangle headerRect = rowRect;
 				headerRect.X = 0;
@@ -894,7 +894,7 @@ namespace TreeList
 				int absoluteRowIndex = visibleRowIndex + VScrollValue();
 				headerRect.Width = RowHeaderWidth();
 				m_rowPainter.DrawHeader(e.Graphics, headerRect, absoluteRowIndex == m_hotrow);
-				
+
 				visibleRowIndex++;
 			}
 		}
@@ -923,7 +923,7 @@ namespace TreeList
 			if (e.KeyCode == Keys.PageUp)
 			{
 				int remainder = 0;
-				int diff = MaxVisibleRows(out remainder)-1;
+				int diff = MaxVisibleRows(out remainder) - 1;
 				newnode = NodeCollection.GetNextNode(FocusedNode, -diff);
 				if (newnode == null)
 					newnode = Nodes.FirstVisibleNode();
@@ -931,7 +931,7 @@ namespace TreeList
 			if (e.KeyCode == Keys.PageDown)
 			{
 				int remainder = 0;
-				int diff = MaxVisibleRows(out remainder)-1;
+				int diff = MaxVisibleRows(out remainder) - 1;
 				newnode = NodeCollection.GetNextNode(FocusedNode, diff);
 				if (newnode == null)
 					newnode = Nodes.LastVisibleNode(true);

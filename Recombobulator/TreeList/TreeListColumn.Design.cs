@@ -59,23 +59,23 @@ namespace TreeList
 	{
 		public override bool CanConvertTo(ITypeDescriptorContext context, Type destType)
 		{
-            if (destType == typeof(InstanceDescriptor) || destType == typeof(string))
-                return true;
-            else
-                return base.CanConvertTo(context, destType);
+			if (destType == typeof(InstanceDescriptor) || destType == typeof(string))
+				return true;
+			else
+				return base.CanConvertTo(context, destType);
 		}
 		public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo info, object value, Type destType)
 		{
-            if (destType == typeof(string))
-            {
+			if (destType == typeof(string))
+			{
 				TreeListColumn col = (TreeListColumn)value;
-                return String.Format("{0}, {1}", col.Caption, col.Fieldname);
-            }
+				return String.Format("{0}, {1}", col.Caption, col.Fieldname);
+			}
 			if (destType == typeof(InstanceDescriptor) && value is TreeListColumn)
 			{
 				TreeListColumn col = (TreeListColumn)value;
-				ConstructorInfo cinfo = typeof(TreeListColumn).GetConstructor(new Type[] { typeof(string), typeof(string)});
-				return new InstanceDescriptor(cinfo, new object[] {col.Fieldname, col.Caption}, false);
+				ConstructorInfo cinfo = typeof(TreeListColumn).GetConstructor(new Type[] { typeof(string), typeof(string) });
+				return new InstanceDescriptor(cinfo, new object[] { col.Fieldname, col.Caption }, false);
 			}
 			return base.ConvertTo(context, info, value, destType);
 		}
@@ -105,11 +105,11 @@ namespace TreeList
 		public override void Initialize(IComponent component)
 		{
 			base.Initialize(component);
-			
+
 			onChangeService = (IComponentChangeService)GetService(typeof(IComponentChangeService));
 			if (onChangeService != null)
 				onChangeService.ComponentChanged += new ComponentChangedEventHandler(OnComponentChanged);
-			
+
 			// we need to be notified when columsn have been resized.
 			TreeListView tree = Control as TreeListView;
 			tree.AfterResizingColumn += new MouseEventHandler(OnAfterResizingColumn);
