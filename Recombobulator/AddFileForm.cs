@@ -5,15 +5,15 @@ using SR1Repository;
 
 namespace Recombobulator
 {
-    public class AddFileForm : Form
-    {
-        public string FullPath { get; protected set; } = "";
-        public virtual string RelativePath { get { return ""; } }
+	class AddFileForm : Form
+	{
+		public string FullPath { get; protected set; } = "";
+		public virtual string RelativePath { get { return ""; } }
 
-        public int TextureSet { get; protected set; } = 0;
+		public int TextureSet { get; protected set; } = 0;
 
-        protected string _fileName = null;
+		protected string _fileName = null;
 
-        protected Repository _repository = null;
-    }
+		protected Repository _repository = null;
+	}
 }

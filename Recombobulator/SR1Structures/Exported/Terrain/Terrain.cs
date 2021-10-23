@@ -23,7 +23,7 @@ namespace Recombobulator.SR1Structures
         SR1_Pointer<DrMoveAniTex> aniList = new SR1_Pointer<DrMoveAniTex>();
         SR1_Primative<int> pad = new SR1_Primative<int>();
         SR1_Pointer<BSPNode> sbspRoot = new SR1_Pointer<BSPNode>();
-        SR1_Pointer<StreamUnitPortalList> StreamUnits = new SR1_Pointer<StreamUnitPortalList>(); // void in sym, StreamUnitPortalList created for this tool.
+        public SR1_Pointer<StreamUnitPortalList> StreamUnits = new SR1_Pointer<StreamUnitPortalList>(); // void in sym, StreamUnitPortalList created for this tool.
         SR1_Pointer<TextureFT3> StartTextureList = new SR1_Pointer<TextureFT3>();
         SR1_Pointer<TextureFT3> EndTextureList = new SR1_Pointer<TextureFT3>();
         SR1_Pointer<SBSPLeaf> sbspStartLeaves = new SR1_Pointer<SBSPLeaf>();
