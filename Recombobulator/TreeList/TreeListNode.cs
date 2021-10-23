@@ -8,22 +8,22 @@ namespace TreeList
 {
 	public class Node
 	{
-		NodeCollection		m_owner = null;
-		Node				m_prevSibling = null;
-		Node				m_nextSibling = null;
-		NodeCollection		m_children = null;
-		bool				m_hasChildren = false;
-		bool				m_expanded = false;
-		int					m_imageId = -1;
-		int					m_id = -1;
-		object				m_tag = null;
+		NodeCollection m_owner = null;
+		Node m_prevSibling = null;
+		Node m_nextSibling = null;
+		NodeCollection m_children = null;
+		bool m_hasChildren = false;
+		bool m_expanded = false;
+		int m_imageId = -1;
+		int m_id = -1;
+		object m_tag = null;
 
 		public Node Parent
 		{
-			get 
-			{ 
+			get
+			{
 				if (m_owner != null)
-					return m_owner.Owner; 
+					return m_owner.Owner;
 				return null;
 			}
 		}
@@ -37,7 +37,7 @@ namespace TreeList
 		}
 		public bool HasChildren
 		{
-			get 
+			get
 			{
 				if (m_children != null && m_children.IsEmpty() == false)
 					return true;
@@ -116,14 +116,14 @@ namespace TreeList
 		}
 		public Node(string text)
 		{
-			m_data = new object[1] {text};
+			m_data = new object[1] { text };
 		}
 		public Node(object[] fields)
 		{
 			SetData(fields);
 		}
 		object[] m_data = null;
-		public object this [string fieldname]
+		public object this[string fieldname]
 		{
 			get
 			{
@@ -134,7 +134,7 @@ namespace TreeList
 				this[Owner.FieldIndex(fieldname)] = value;
 			}
 		}
-		public object this [int index]
+		public object this[int index]
 		{
 			get
 			{
@@ -148,7 +148,7 @@ namespace TreeList
 				{
 					if (m_data == null || index >= m_data.Length)
 					{
-						object[] newdata = new object[index+1];
+						object[] newdata = new object[index + 1];
 						if (m_data != null)
 							m_data.CopyTo(newdata, 0);
 						m_data = newdata;
@@ -165,11 +165,11 @@ namespace TreeList
 		}
 		public int VisibleNodeCount
 		{
-			get 
-			{ 
+			get
+			{
 				// can not use Expanded property here as it returns false node has no children
 				if (m_expanded)
-					return m_childVisibleCount + 1; 
+					return m_childVisibleCount + 1;
 				return 1;
 			}
 		}
@@ -284,16 +284,16 @@ namespace TreeList
 		}
 		public int NodeIndex
 		{
-			get { return Id;}
+			get { return Id; }
 		}
 		internal int Id
 		{
-			get 
-			{ 
+			get
+			{
 				if (m_owner == null)
 					return -1;
 				m_owner.UpdateChildIds(false);
-				return m_id; 
+				return m_id;
 			}
 			set { m_id = value; }
 		}
@@ -321,14 +321,14 @@ namespace TreeList
 	public class NodeCollection : IEnumerable
 	{
 		internal int m_version = 0;
-		int		m_nextId = 0;
-		int		m_IdDirty = 0;
+		int m_nextId = 0;
+		int m_IdDirty = 0;
 
-		Node[]	m_nodesInternal = null;
-		Node	m_owner = null;
-		Node	m_firstNode = null;
-		Node	m_lastNode = null;
-		int		m_count = 0;
+		Node[] m_nodesInternal = null;
+		Node m_owner = null;
+		Node m_firstNode = null;
+		Node m_lastNode = null;
+		int m_count = 0;
 		public Node Owner
 		{
 			get { return m_owner; }
@@ -388,16 +388,16 @@ namespace TreeList
 			m_count++;
 			return newnode;
 		}
-        public void AddRange(Node[] newnodes)
-        {
-            if (newnodes != null)
-            {
-                foreach (Node newnode in newnodes)
-                {
-                    Add(newnode);
-                }
-            }
-        }
+		public void AddRange(Node[] newnodes)
+		{
+			if (newnodes != null)
+			{
+				foreach (Node newnode in newnodes)
+				{
+					Add(newnode);
+				}
+			}
+		}
 		public void Remove(Node node)
 		{
 			if (m_lastNode == null)
@@ -405,7 +405,7 @@ namespace TreeList
 			m_version++;
 			ClearInternalArray();
 			Debug.Assert(node != null && object.ReferenceEquals(node.Owner, this), "Remove(Node node)");
-			
+
 			Node prev = node.PrevSibling;
 			Node next = node.NextSibling;
 			node.Remove();
@@ -441,7 +441,7 @@ namespace TreeList
 				m_IdDirty++;
 			m_count++;
 		}
-		public Node this [int index]
+		public Node this[int index]
 		{
 			get
 			{
@@ -452,7 +452,7 @@ namespace TreeList
 				return m_nodesInternal[index];
 			}
 		}
-		
+
 		public Node NodeAtIndex(int index)
 		{
 			Node node = FirstNode;
@@ -530,7 +530,7 @@ namespace TreeList
 			global::TreeList.Tracing.EndTrack(0, "slowGetNodeFromVisibleIndex (null)");
 			return null;
 		}
-		
+
 		public IEnumerator GetEnumerator()
 		{
 			return new NodesEnumerator(m_firstNode);
@@ -839,18 +839,18 @@ namespace TreeList
 			if (searchOffset > 0)
 			{
 				ForwardNodeEnumerator iterator = new ForwardNodeEnumerator(startingNode, true);
-				while (searchOffset-- >= 0 && iterator.MoveNext());
+				while (searchOffset-- >= 0 && iterator.MoveNext()) ;
 				return iterator.Current;
 			}
 			if (searchOffset < 0)
 			{
 				ReverseNodeEnumerator iterator = new ReverseNodeEnumerator(startingNode, true);
-				while (searchOffset++ <= 0 && iterator.MoveNext());
+				while (searchOffset++ <= 0 && iterator.MoveNext()) ;
 				return iterator.Current;
 			}
 			return null;
 		}
-		
+
 		public static IEnumerable ReverseNodeIterator(Node firstNode, Node lastNode, bool mustBeVisible)
 		{
 			bool m_done = false;
@@ -879,9 +879,9 @@ namespace TreeList
 		}
 		public static IEnumerable ForwardNodeIterator(Node firstNode, bool mustBeVisible)
 		{
-				ForwardNodeEnumerator iterator = new ForwardNodeEnumerator(firstNode, mustBeVisible);
-				while (iterator.MoveNext())
-					yield return iterator.Current;
+			ForwardNodeEnumerator iterator = new ForwardNodeEnumerator(firstNode, mustBeVisible);
+			while (iterator.MoveNext())
+				yield return iterator.Current;
 		}
 		public static int GetVisibleNodeIndex(Node node)
 		{
@@ -893,7 +893,7 @@ namespace TreeList
 			// the node is switch to the parent node and the again a search is done up the sibling list.
 			// This way only higher up the tree are being iterated while nodes at the same level are skipped.
 			// Worst case scenario is if all nodes are at the same level. In that case the search is a linear search.
-			
+
 			// adjust count for the visible count of the current node.
 			int count = -node.VisibleNodeCount;
 			while (node != null)
@@ -922,8 +922,8 @@ namespace TreeList
 	}
 	public class NodesSelection : IEnumerable
 	{
-		List<Node>				m_nodes = new List<Node>();
-		Dictionary<Node, int>	m_nodesMap = new Dictionary<Node,int>();
+		List<Node> m_nodes = new List<Node>();
+		Dictionary<Node, int> m_nodesMap = new Dictionary<Node, int>();
 		public void Clear()
 		{
 			m_nodes.Clear();
@@ -958,7 +958,7 @@ namespace TreeList
 
 		public IList<Node> GetSortedNodes()
 		{
-			SortedList<string, Node> list = new SortedList<string,Node>();
+			SortedList<string, Node> list = new SortedList<string, Node>();
 			foreach (Node node in m_nodes)
 				list.Add(node.GetId(), node);
 			return list.Values;

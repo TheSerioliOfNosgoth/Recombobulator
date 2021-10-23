@@ -10,15 +10,15 @@ using System.Windows.Forms;
 
 namespace Recombobulator
 {
-    public partial class RenameForm : Form
-    {
-        public string Message { get { return messageLabel.Text; } set { messageLabel.Text = value; } }
+	public partial class RenameForm : Form
+	{
+		public string Message { get { return messageLabel.Text; } set { messageLabel.Text = value; } }
 
-        public string NewName { get { return newNameTextBox.Text; } set { newNameTextBox.Text = value; } }
+		public string NewName { get { return newNameTextBox.Text; } set { newNameTextBox.Text = value; } }
 
-        public RenameForm()
-        {
-            InitializeComponent();
-        }
-    }
+		public RenameForm()
+		{
+			InitializeComponent();
+		}
+	}
 }

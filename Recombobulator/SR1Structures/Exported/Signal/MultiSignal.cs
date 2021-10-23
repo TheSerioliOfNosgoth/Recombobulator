@@ -3,65 +3,65 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-    class MultiSignal : SR1_Structure
-    {
-        SR1_Primative<int> numSignals = new SR1_Primative<int>();
-        SR1_Primative<short> signalNum = new SR1_Primative<short>();
-        SR1_Primative<short> flags = new SR1_Primative<short>();
-        SR1_StructureArray<Signal> signalList = new SR1_StructureArray<Signal>(0);
-        SR1_Primative<int> pad = new SR1_Primative<int>();
+	class MultiSignal : SR1_Structure
+	{
+		SR1_Primative<int> numSignals = new SR1_Primative<int>();
+		SR1_Primative<short> signalNum = new SR1_Primative<short>();
+		SR1_Primative<short> flags = new SR1_Primative<short>();
+		SR1_StructureArray<Signal> signalList = new SR1_StructureArray<Signal>(0);
+		SR1_Primative<int> pad = new SR1_Primative<int>();
 
-        protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
-        {
-            numSignals.Read(reader, this, "numSignals");
-            signalNum.Read(reader, this, "signalNum");
-            flags.Read(reader, this, "flags");
+		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
+		{
+			numSignals.Read(reader, this, "numSignals");
+			signalNum.Read(reader, this, "signalNum");
+			flags.Read(reader, this, "flags");
 
-            signalList = new SR1_StructureArray<Signal>(numSignals.Value);
-            signalList.Read(reader, this, "signalList");
+			signalList = new SR1_StructureArray<Signal>(numSignals.Value);
+			signalList.Read(reader, this, "signalList");
 
-            pad.Read(reader, this, "pad");
-        }
+			pad.Read(reader, this, "pad");
+		}
 
-        protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
-        {
-        }
+		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
+		{
+		}
 
-        public override void WriteMembers(SR1_Writer writer)
-        {
-            numSignals.Write(writer);
-            signalNum.Write(writer);
-            flags.Write(writer);
-            signalList.Write(writer);
-            pad.Write(writer);
-        }
+		public override void WriteMembers(SR1_Writer writer)
+		{
+			numSignals.Write(writer);
+			signalNum.Write(writer);
+			flags.Write(writer);
+			signalList.Write(writer);
+			pad.Write(writer);
+		}
 
-        public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
-        {
-            base.MigrateVersion(file, targetVersion, migrateFlags);
+		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
+		{
+			base.MigrateVersion(file, targetVersion, migrateFlags);
 
-            if ((migrateFlags & SR1_File.MigrateFlags.RemoveSignals) != 0)
-            {
-                int newNumSignals = 0;
+			if ((migrateFlags & SR1_File.MigrateFlags.RemoveSignals) != 0)
+			{
+				int newNumSignals = 0;
 
-                if (signalList.Length > 0)
-                {
-                    foreach (Signal signal in signalList.List)
-                    {
-                        if (!signal.OmitFromMigration)
-                        {
-                            newNumSignals++;
-                        }
-                    }
-                }
+				if (signalList.Length > 0)
+				{
+					foreach (Signal signal in signalList.List)
+					{
+						if (!signal.OmitFromMigration)
+						{
+							newNumSignals++;
+						}
+					}
+				}
 
-                numSignals.Value = newNumSignals;
-            }
+				numSignals.Value = newNumSignals;
+			}
 
-            if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
-            {
-                pad.Value = 15;
-            }
-        }
-    }
+			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
+			{
+				pad.Value = 15;
+			}
+		}
+	}
 }

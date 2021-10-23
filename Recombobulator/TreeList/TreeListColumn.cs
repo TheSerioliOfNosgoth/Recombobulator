@@ -12,14 +12,14 @@ namespace TreeList
 	{
 		public enum eHitType
 		{
-			kColumnHeader			= 0x0001,
-			kColumnHeaderResize		= 0x0002,
+			kColumnHeader = 0x0001,
+			kColumnHeaderResize = 0x0002,
 		}
 
-		public eHitType			HitType = 0;
-		public TreeListColumn	Column = null;
+		public eHitType HitType = 0;
+		public TreeListColumn Column = null;
 	}
-	
+
 	/// <summary>
 	/// DesignTimeVisible(false) prevents the columns from showing in the component tray (bottom of screen)
 	/// If the class implement IComponent it must also implement default (void) constructor and when overriding
@@ -33,8 +33,8 @@ namespace TreeList
 	[TypeConverter(typeof(ColumnConverter))]
 	public class TreeListColumn
 	{
-		TreeList.TextFormatting	m_headerFormat = new TreeList.TextFormatting();
-		TreeList.TextFormatting	m_cellFormat = new TreeList.TextFormatting();
+		TreeList.TextFormatting m_headerFormat = new TreeList.TextFormatting();
+		TreeList.TextFormatting m_cellFormat = new TreeList.TextFormatting();
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
 		public TreeList.TextFormatting HeaderFormat
 		{
@@ -47,12 +47,12 @@ namespace TreeList
 		}
 
 		TreeListColumnCollection m_owner = null;
-		Rectangle	m_calculatedRect;
-		int			m_visibleIndex = -1;
-		int			m_colIndex = -1;
-		int			m_width = 50;
-		string		m_fieldName = string.Empty;
-		string		m_caption = string.Empty;
+		Rectangle m_calculatedRect;
+		int m_visibleIndex = -1;
+		int m_colIndex = -1;
+		int m_width = 50;
+		string m_fieldName = string.Empty;
+		string m_caption = string.Empty;
 
 		internal TreeListColumnCollection Owner
 		{
@@ -86,8 +86,8 @@ namespace TreeList
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public TreeListView TreeList
 		{
-			get 
-			{ 
+			get
+			{
 				if (Owner == null)
 					return null;
 				return Owner.Owner;
@@ -102,11 +102,11 @@ namespace TreeList
 		public int Width
 		{
 			get { return m_width; }
-			set 
-			{ 
+			set
+			{
 				if (m_width == value)
 					return;
-				m_width = value; 
+				m_width = value;
 				if (m_owner != null && m_owner.DesignMode)
 					m_owner.RecalcVisibleColumsRect();
 			}
@@ -115,9 +115,9 @@ namespace TreeList
 		public string Caption
 		{
 			get { return m_caption; }
-			set 
-			{ 
-				m_caption = value; 
+			set
+			{
+				m_caption = value;
 				if (m_owner != null)
 					m_owner.Invalidate();
 			}
@@ -153,19 +153,19 @@ namespace TreeList
 			m_caption = caption;
 			m_width = width;
 		}
-		
+
 		[Browsable(false)]
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public int VisibleIndex
 		{
 			get { return internalVisibleIndex; }
-			set	
+			set
 			{
 				if (m_owner != null)
 					m_owner.SetVisibleIndex(this, value);
 			}
 		}
-		
+
 		[Browsable(false)]
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public int Index
@@ -178,25 +178,25 @@ namespace TreeList
 			painter.DrawHeader(dc, r, this, this.HeaderFormat, ishot);
 		}
 
-		bool	m_autoSize = false;
-		float	m_autoSizeRatio = 100;
-		int		m_autoSizeMinSize;
-		
+		bool m_autoSize = false;
+		float m_autoSizeRatio = 100;
+		int m_autoSizeMinSize;
+
 		[DefaultValue(false)]
 		public bool AutoSize
 		{
-			get { return m_autoSize; } 
+			get { return m_autoSize; }
 			set { m_autoSize = value; }
 		}
 		[DefaultValue(100f)]
 		public float AutoSizeRatio
 		{
-			get { return m_autoSizeRatio; } 
+			get { return m_autoSizeRatio; }
 			set { m_autoSizeRatio = value; }
 		}
 		public int AutoSizeMinSize
 		{
-			get { return m_autoSizeMinSize; } 
+			get { return m_autoSizeMinSize; }
 			set { m_autoSizeMinSize = value; }
 		}
 		int m_calculatedAutoSize;
@@ -209,15 +209,15 @@ namespace TreeList
 
 	[Description("This is the columns collection")]
 	//[TypeConverterAttribute(typeof(ColumnsTypeConverter))]
-	[Editor(typeof(ColumnCollectionEditor),typeof(System.Drawing.Design.UITypeEditor))]
+	[Editor(typeof(ColumnCollectionEditor), typeof(System.Drawing.Design.UITypeEditor))]
 	public class TreeListColumnCollection : IList<TreeListColumn>, IList
 	{
-		ColumnHeaderPainter		m_painter = new ColumnHeaderPainter();
+		ColumnHeaderPainter m_painter = new ColumnHeaderPainter();
 		TreeList.CollumnSetting m_options;
-		TreeListView			m_owner;
-		List<TreeListColumn>	m_columns = new List<TreeListColumn>();
-		List<TreeListColumn>	m_visibleCols = new List<TreeListColumn>();
-		Dictionary<string, TreeListColumn>	m_columnMap = new Dictionary<string,TreeListColumn>();
+		TreeListView m_owner;
+		List<TreeListColumn> m_columns = new List<TreeListColumn>();
+		List<TreeListColumn> m_visibleCols = new List<TreeListColumn>();
+		Dictionary<string, TreeListColumn> m_columnMap = new Dictionary<string, TreeListColumn>();
 
 		[Browsable(false)]
 		public TreeList.CollumnSetting Options
@@ -279,8 +279,8 @@ namespace TreeList
 		}
 		public TreeListColumn this[string fieldname]
 		{
-			get 
-			{ 
+			get
+			{
 				TreeListColumn col;
 				m_columnMap.TryGetValue(fieldname, out col);
 				return col;
@@ -341,7 +341,7 @@ namespace TreeList
 			int y = 0;
 			int h = Options.HeaderHeight;
 			int index = 0;
-			foreach(TreeListColumn col in m_columns)
+			foreach (TreeListColumn col in m_columns)
 			{
 				col.internalVisibleIndex = -1;
 				col.internalIndex = index++;

@@ -48,14 +48,14 @@ namespace TreeList
 			 * */
 		}
 
-		[DllImport("uxtheme.dll", CharSet=CharSet.Auto)]
+		[DllImport("uxtheme.dll", CharSet = CharSet.Auto)]
 		public static extern int DrawThemeBackground(IntPtr hTheme, IntPtr hdc, int partId, int stateId, [In] RECT pRect, [In] RECT pClipRect);
- 
 
-		[DllImport("uxtheme.dll", CharSet=CharSet.Auto)]
+
+		[DllImport("uxtheme.dll", CharSet = CharSet.Auto)]
 		public static extern IntPtr OpenThemeData(IntPtr hwnd, [MarshalAs(UnmanagedType.LPWStr)] string pszClassList);
- 
-		[DllImport("uxtheme.dll", CharSet=CharSet.Auto)]
+
+		[DllImport("uxtheme.dll", CharSet = CharSet.Auto)]
 		public static extern int CloseThemeData(IntPtr hTheme);
 
 		//http://www.ookii.org/misc/vsstyle.h
@@ -82,7 +82,7 @@ namespace TreeList
 		public enum Style
 		{
 			Normal,
-			Inactive,	// when not focused
+			Inactive,   // when not focused
 		}
 		Style m_style;
 		public VisualStyleItemBackground(Style style)
@@ -167,15 +167,15 @@ namespace TreeList
 			if (m_owner.Focused && (m_owner.FocusedNode == node))
 			{
 				nodeRect.Height += 1;
-				nodeRect.Inflate(-1,-1);
+				nodeRect.Inflate(-1, -1);
 				ControlPaint.DrawFocusRectangle(dc, nodeRect);
 			}
 		}
-		public virtual void PaintCell(Graphics dc, 
-			Rectangle cellRect, 
-			Node node, 
-			TreeListColumn column, 
-			TreeList.TextFormatting format, 
+		public virtual void PaintCell(Graphics dc,
+			Rectangle cellRect,
+			Node node,
+			TreeListColumn column,
+			TreeList.TextFormatting format,
 			object data)
 		{
 			if (format.BackColor != Color.Transparent)
@@ -193,9 +193,9 @@ namespace TreeList
 				//dc.DrawRectangle(Pens.Black, cellRect);
 
 				Color color = format.ForeColor;
-				if (m_owner.FocusedNode == node && Application.RenderWithVisualStyles  == false)
+				if (m_owner.FocusedNode == node && Application.RenderWithVisualStyles == false)
 					color = SystemColors.HighlightText;
-				TextFormatFlags flags= TextFormatFlags.EndEllipsis | format.GetFormattingFlags();
+				TextFormatFlags flags = TextFormatFlags.EndEllipsis | format.GetFormattingFlags();
 				TextRenderer.DrawText(dc, data.ToString(), m_owner.Font, cellRect, color, flags);
 			}
 		}
@@ -246,21 +246,21 @@ namespace TreeList
 			if (VisualStyleRenderer.IsElementDefined(element))
 			{
 				VisualStyleRenderer renderer = new VisualStyleRenderer(element);
-                renderer.DrawBackground(dc, cellRect);
+				renderer.DrawBackground(dc, cellRect);
 
-                if (format.BackColor != Color.Transparent)
-                {
-                    SolidBrush brush = new SolidBrush(format.BackColor);
-                    dc.FillRectangle(brush, cellRect);
-                    brush.Dispose();
-                }
-                ControlPaint.DrawBorder(dc, cellRect, format.BackColor, ButtonBorderStyle.Outset);
-                //ControlPaint.DrawButton(dc, cellRect, ButtonState.Normal);
-                cellRect = global::TreeList.Util.AdjustRectangle(cellRect, format.Padding);
+				if (format.BackColor != Color.Transparent)
+				{
+					SolidBrush brush = new SolidBrush(format.BackColor);
+					dc.FillRectangle(brush, cellRect);
+					brush.Dispose();
+				}
+				ControlPaint.DrawBorder(dc, cellRect, format.BackColor, ButtonBorderStyle.Outset);
+				//ControlPaint.DrawButton(dc, cellRect, ButtonState.Normal);
+				cellRect = global::TreeList.Util.AdjustRectangle(cellRect, format.Padding);
 				//dc.DrawRectangle(Pens.Black, cellRect);
 
 				Color color = format.ForeColor;
-				TextFormatFlags flags= TextFormatFlags.EndEllipsis | format.GetFormattingFlags();
+				TextFormatFlags flags = TextFormatFlags.EndEllipsis | format.GetFormattingFlags();
 				TextRenderer.DrawText(dc, column.Caption, column.Font, cellRect, color, flags);
 			}
 		}
