@@ -339,8 +339,8 @@ namespace Recombobulator.SR1Structures
 			{
 				if (file._Overrides.NewName != null)
 				{
-					nameString.SetText(file._Overrides.NewName);
-					scriptString.SetText(file._Overrides.NewName);
+					nameString.SetText(file._Overrides.NewName, 12);
+					scriptString.SetText(file._Overrides.NewName, 12);
 				}
 			}
 

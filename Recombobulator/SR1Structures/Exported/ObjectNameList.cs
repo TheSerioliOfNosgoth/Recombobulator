@@ -83,7 +83,7 @@ namespace Recombobulator.SR1Structures
 					{
 						if (file._Overrides.NewObjectNames.ContainsKey(_List[i].ToString()))
 						{
-							_List[i].SetText(file._Overrides.NewObjectNames[_List[i].ToString()]);
+							_List[i].SetText(file._Overrides.NewObjectNames[_List[i].ToString()], 16);
 						}
 						i++;
 					}

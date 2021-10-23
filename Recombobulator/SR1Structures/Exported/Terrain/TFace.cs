@@ -55,7 +55,8 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
-			if (IsInSignalGroup && Portal.OmitFromMigration)
+			if (IsInSignalGroup/* &&
+				(Portal == null || Portal.OmitFromMigration || 	Signal == null || Signal.OmitFromMigration)*/)
 			{
 				// 0x004ABBBA has something to do with the portals.
 				// COLLIDE_LineWithSignals does care about TFace::texoff. See address 00490DF6 in game.

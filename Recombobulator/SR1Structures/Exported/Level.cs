@@ -438,7 +438,7 @@ namespace Recombobulator.SR1Structures
 			{
 				if (file._Overrides.NewName != null)
 				{
-					worldNameString.SetText(file._Overrides.NewName);
+					worldNameString.SetText(file._Overrides.NewName + "\0", 12);
 				}
 
 				if (file._Overrides.NewStreamUnitID != 0)

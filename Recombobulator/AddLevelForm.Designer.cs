@@ -120,6 +120,7 @@
 			this.portalList.ScrollAlwaysVisible = true;
 			this.portalList.Size = new System.Drawing.Size(260, 64);
 			this.portalList.TabIndex = 8;
+			this.portalList.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.portalList_ItemCheck);
 			// 
 			// requiredObjectList
 			// 
@@ -156,8 +157,6 @@
 			// removePortalsCheckBox
 			// 
 			this.removePortalsCheckBox.AutoSize = true;
-			this.removePortalsCheckBox.Checked = true;
-			this.removePortalsCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.removePortalsCheckBox.Location = new System.Drawing.Point(171, 91);
 			this.removePortalsCheckBox.Name = "removePortalsCheckBox";
 			this.removePortalsCheckBox.Size = new System.Drawing.Size(101, 17);

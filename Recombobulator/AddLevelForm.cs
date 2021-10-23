@@ -17,6 +17,8 @@ namespace Recombobulator
 
 		public bool RemoveVMOs { get { return removeVMOsCheckBox.Checked; } }
 
+		SR1Structures.StreamUnitPortalList _portalList = null;
+
 		public AddLevelForm()
 		{
 			InitializeComponent();
@@ -71,10 +73,10 @@ namespace Recombobulator
 
 			SR1Structures.Level level = (SR1Structures.Level)file._Structures[0];
 			SR1Structures.Terrain terrain = (SR1Structures.Terrain)file._Structures[level.terrain.Offset];
-			SR1Structures.StreamUnitPortalList portalList = (SR1Structures.StreamUnitPortalList)file._Structures[terrain.StreamUnits.Offset];
+			_portalList = (SR1Structures.StreamUnitPortalList)file._Structures[terrain.StreamUnits.Offset];
 
 			this.portalList.Items.Clear();
-			foreach (SR1Structures.StreamUnitPortal portal in portalList.portals.List)
+			foreach (SR1Structures.StreamUnitPortal portal in _portalList.portals.List)
 			{
 				this.portalList.Items.Add(portal.tolevelname);
 				this.portalList.SetItemChecked(this.portalList.Items.Count - 1, true);
@@ -150,7 +152,12 @@ namespace Recombobulator
 
 		private void removePortalsCheckBox_CheckedChanged(object sender, EventArgs e)
 		{
-			portalList.Enabled = removePortalsCheckBox.Checked;
+			portalList.Enabled = !removePortalsCheckBox.Checked;
+		}
+
+		private void portalList_ItemCheck(object sender, ItemCheckEventArgs e)
+		{
+			_portalList.portals[e.Index].OmitFromMigration = e.NewValue != CheckState.Checked;
 		}
 	}
 }

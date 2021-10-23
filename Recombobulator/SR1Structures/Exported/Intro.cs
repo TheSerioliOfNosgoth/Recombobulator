@@ -116,7 +116,7 @@ namespace Recombobulator.SR1Structures
 
 				if (file._Overrides.NewObjectNames.ContainsKey(name.ToString()))
 				{
-					name.SetText(file._Overrides.NewObjectNames[name.ToString()]);
+					name.SetText(file._Overrides.NewObjectNames[name.ToString()], 16);
 				}
 			}
 		}

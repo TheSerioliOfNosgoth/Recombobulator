@@ -292,13 +292,13 @@ namespace Recombobulator
 						overrides.NewIntroIDs = new int[_file._IntroIDs.Count];
 						_repository.FindAvailableIntroIDs(ref overrides.NewIntroIDs);
 
+						SR1Structures.Level level = (SR1Structures.Level)_file._Structures[0];
+						uint sourceVersion = level.versionNumber.Value;
+
 						//overrides.NewObjectNames.Add("priests", "witch");
 						_file.Export(addFileDialog.FullPath, SR1_File.Version.Retail_PC, migrateFlags, overrides);
 
-						SR1Structures.Level level = (SR1Structures.Level)_file._Structures[0];
-
 						string sourceUnitName = level.Name;
-						uint sourceVersion = level.versionNumber.Value;
 						newObject = _repository.AddNewLevel(fileName, sourceUnitName, sourceVersion, textureSet.Name);
 						category = "Levels";
 					}

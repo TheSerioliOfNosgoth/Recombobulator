@@ -24,9 +24,17 @@ namespace Recombobulator.SR1Structures
 			return this;
 		}
 
-		public void SetText(string text)
+		public void SetText(string text, int maxLength)
 		{
-			for (int i = 0; i < _array.Length; i++)
+			if (!_readMax && text.Length < maxLength)
+			{
+				maxLength = text.Length;
+			}
+
+			_array = new char[maxLength];
+			_dimensions[0] = maxLength;
+
+			for (int i = 0; i < maxLength; i++)
 			{
 				if (i < text.Length)
 				{
