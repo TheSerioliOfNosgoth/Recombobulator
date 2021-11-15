@@ -28,7 +28,7 @@ namespace Recombobulator.SR1Structures
 		{
 			string typeName = typeof(T).Name;
 
-			if (_array == null)
+			if (_array.Length == 0)
 			{
 				typeName += "[]";
 				return typeName;

@@ -43,6 +43,11 @@ namespace Recombobulator.SR1Structures
 			spectralPosition.Read(reader, this, "spectralPosition");
 			spad.Read(reader, this, "spad");
 
+			if (!reader.File._IntroNames.Contains(name.ToString()))
+			{
+				reader.File._IntroNames.Add(name.ToString());
+			}
+
 			int uniqueID = UniqueID.Value;
 			if (!reader.File._IntroIDs.Contains(uniqueID))
 			{

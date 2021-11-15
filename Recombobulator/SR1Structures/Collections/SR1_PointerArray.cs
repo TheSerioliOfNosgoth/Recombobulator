@@ -31,7 +31,7 @@ namespace Recombobulator.SR1Structures
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
 		{
-			if (_array != null && _ShouldCreate)
+			if (_ShouldCreate)
 			{
 				for (int i = 0; i < _array.Length; i++)
 				{
@@ -49,7 +49,7 @@ namespace Recombobulator.SR1Structures
 		{
 			string typeName = typeof(T).Name + "*";
 
-			if (_array == null)
+			if (_array.Length == 0)
 			{
 				typeName += "[]";
 				return typeName;

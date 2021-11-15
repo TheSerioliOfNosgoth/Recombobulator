@@ -59,6 +59,7 @@ namespace Recombobulator.SR1Structures
 				{
 					// 0x004ABBBA has something to do with the portals.
 					// COLLIDE_LineWithSignals does care about TFace::texoff. See address 00490DF6 in game.
+					// It's an offset into Terrain->signals, not Level->signalListStart
 					attr.Value = 0;
 					textoff.Value = 0;
 				}

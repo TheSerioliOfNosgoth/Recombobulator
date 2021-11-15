@@ -35,79 +35,74 @@ namespace Recombobulator.SR1Structures
 				arrayLength *= d;
 			}
 
-			if (arrayLength > 0)
+			_array = new T[arrayLength];
+
+			for (int i = 0; i < _array.Length; i++)
 			{
-				_array = new T[arrayLength];
-				for (int i = 0; i < arrayLength; i++)
-				{
-					_array[i] = CreateElement();
-				}
+				_array[i] = CreateElement();
 			}
 		}
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
-			if (_array != null)
+			for (int i = 0; i < _array.Length; i++)
 			{
-				for (int i = 0; i < _array.Length; i++)
+				Type type = _array[i].GetType();
+				if (type == typeof(SR1Structures.EventBasicObject))
 				{
-					Type type = _array[i].GetType();
-					if (type == typeof(SR1Structures.EventBasicObject))
-					{
-						long oldPosition = reader.BaseStream.Position;
-						SR1Structures.EventBasicObject tempEBO = new SR1Structures.EventBasicObject();
-						tempEBO.ReadTemp(reader);
-						reader.BaseStream.Position = oldPosition;
+					long oldPosition = reader.BaseStream.Position;
+					SR1Structures.EventBasicObject tempEBO = new SR1Structures.EventBasicObject();
+					tempEBO.ReadTemp(reader);
+					reader.BaseStream.Position = oldPosition;
 
-						_array[i] = (T)tempEBO.CreateReplacementObject();
-					}
-					else if (type == typeof(SR1Structures.ObjectSound))
-					{
-						long oldPosition = reader.BaseStream.Position;
-						SR1Structures.ObjectSound tempOS = new SR1Structures.ObjectSound();
-						tempOS.ReadTemp(reader);
-						reader.BaseStream.Position = oldPosition;
-
-						_array[i] = (T)tempOS.CreateReplacementObject();
-					}
-					else if (type == typeof(SR1Structures.PhysObProperties))
-					{
-						long oldPosition = reader.BaseStream.Position;
-						SR1Structures.PhysObProperties tempPOP = new SR1Structures.PhysObProperties();
-						tempPOP.ReadTemp(reader);
-						reader.BaseStream.Position = oldPosition;
-
-						_array[i] = (T)tempPOP.CreateReplacementObject();
-					}
-					else if (type == typeof(SR1Structures.VMObject))
-					{
-						long oldPosition = reader.BaseStream.Position;
-						SR1Structures.VMObject tempVMO = new SR1Structures.VMObject();
-						tempVMO.ReadTemp(reader);
-						reader.BaseStream.Position = oldPosition;
-
-						_array[i] = (T)tempVMO.CreateReplacementObject();
-					}
-
-
-					string elementName = "";
-					int index = i;
-					int d = _dimensions.Length;
-					while (d > 0)
-					{
-						d--;
-						int subIndex = index % _dimensions[d];
-						index /= _dimensions[d];
-						string indexName = "";
-						indexName += "[";
-						indexName += subIndex.ToString();
-						indexName += "]";
-						indexName += elementName;
-						elementName = indexName;
-					}
-
-					_array[i].Read(reader, this, elementName);
+					_array[i] = (T)tempEBO.CreateReplacementObject();
 				}
+				else if (type == typeof(SR1Structures.ObjectSound))
+				{
+					long oldPosition = reader.BaseStream.Position;
+					SR1Structures.ObjectSound tempOS = new SR1Structures.ObjectSound();
+					tempOS.ReadTemp(reader);
+					reader.BaseStream.Position = oldPosition;
+
+					_array[i] = (T)tempOS.CreateReplacementObject();
+				}
+				else if (type == typeof(SR1Structures.PhysObProperties))
+				{
+					long oldPosition = reader.BaseStream.Position;
+					SR1Structures.PhysObProperties tempPOP = new SR1Structures.PhysObProperties();
+					tempPOP.ReadTemp(reader);
+					reader.BaseStream.Position = oldPosition;
+
+					_array[i] = (T)tempPOP.CreateReplacementObject();
+				}
+				else if (type == typeof(SR1Structures.VMObject))
+				{
+					long oldPosition = reader.BaseStream.Position;
+					SR1Structures.VMObject tempVMO = new SR1Structures.VMObject();
+					tempVMO.ReadTemp(reader);
+					reader.BaseStream.Position = oldPosition;
+
+					_array[i] = (T)tempVMO.CreateReplacementObject();
+				}
+
+
+				string elementName = "";
+				int index = i;
+				int d = _dimensions.Length;
+				while (d > 0)
+				{
+					d--;
+					int subIndex = index % _dimensions[d];
+					index /= _dimensions[d];
+					string indexName = "";
+					indexName += "[";
+					indexName += subIndex.ToString();
+					indexName += "]";
+					indexName += elementName;
+					elementName = indexName;
+				}
+
+				_array[i].Read(reader, this, elementName);
 			}
 		}
 
@@ -117,18 +112,15 @@ namespace Recombobulator.SR1Structures
 
 		public override void WriteMembers(SR1_Writer writer)
 		{
-			if (_array != null)
+			for (int i = 0; i < _array.Length; i++)
 			{
-				for (int i = 0; i < _array.Length; i++)
-				{
-					_array[i].Write(writer);
-				}
+				_array[i].Write(writer);
 			}
 		}
 
 		public override string ToString()
 		{
-			if (_array == null)
+			if (_array.Length == 0)
 			{
 				return "{ }";
 			}

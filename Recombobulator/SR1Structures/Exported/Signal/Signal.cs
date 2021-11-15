@@ -277,7 +277,7 @@ namespace Recombobulator.SR1Structures
 						data = new SignalCameraDistance();
 						break;
 					default:
-						// The lenghs can be different. Check the length field in signalInfoList entries.
+						// The lengths can be different. Check the length field in signalInfoList entries.
 						data = new SignalDepricated(GetSizeOfDepricated(reader, id.Value));
 						break;
 				}
@@ -371,7 +371,7 @@ namespace Recombobulator.SR1Structures
 						data = new SignalCameraDistance();
 						break;
 					default:
-						// The lenghs can be different. Check the length field in signalInfoList entries.
+						// The lengths can be different. Check the length field in signalInfoList entries.
 						data = new SignalDepricated(GetSizeOfDepricated(reader, id.Value));
 						break;
 				}
@@ -516,7 +516,7 @@ namespace Recombobulator.SR1Structures
 						data = new SignalCameraDistance();
 						break;
 					default:
-						// The lenghs can be different. Check the length field in signalInfoList entries.
+						// The lengths can be different. Check the length field in signalInfoList entries.
 						data = new SignalDepricated(GetSizeOfDepricated(reader, id.Value));
 						break;
 				}

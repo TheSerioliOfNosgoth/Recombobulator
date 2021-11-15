@@ -9,7 +9,7 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_Pointer<MonsterTuneData> tunData = new SR1_Pointer<MonsterTuneData>();
 		public readonly SR1_PrimativePointer<sbyte> auxAnimList = new SR1_PrimativePointer<sbyte>();
 		public readonly SR1_PrimativePointer<sbyte> ambientAnimList = new SR1_PrimativePointer<sbyte>();
-		public readonly SR1_Primative<int> whatAmI = new SR1_Primative<int>();
+		public readonly SR1_Primative<int> whatAmI = new SR1_Primative<int>().ShowAsHex(true);
 		public readonly SR1_Primative<sbyte> numAuxAnims = new SR1_Primative<sbyte>();
 		public readonly SR1_Primative<sbyte> numAmbientAnims = new SR1_Primative<sbyte>();
 		public readonly SR1_Primative<byte> defaultAge = new SR1_Primative<byte>();
