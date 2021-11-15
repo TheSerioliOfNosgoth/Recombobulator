@@ -148,7 +148,7 @@ namespace Recombobulator.SR1Structures
 					if (leavesStruct.GetType() == typeof(SR1_StructureSeries<BSPLeaf>))
 					{
 						SR1_StructureSeries<BSPLeaf> leaves = (SR1_StructureSeries<BSPLeaf>)leavesStruct;
-						foreach (BSPLeaf leaf in leaves.List)
+						foreach (BSPLeaf leaf in leaves)
 						{
 							uint faceIndex = (leaf.faceList.Offset - faces.Start) / 12;
 							short numFaces = leaf.numFaces.Value;

@@ -4,12 +4,22 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class SR1_StructureList<T> : SR1_Structure where T : SR1_Structure
+	class SR1_StructureList<T> : SR1_Structure, IReadOnlyList<SR1_Structure> where T : SR1_Structure
 	{
-		private List<SR1_Structure> _List = new List<SR1_Structure>();
+		protected List<SR1_Structure> _List = new List<SR1_Structure>();
+
+		public SR1_Structure this[int i] { get { return _List[i]; } set { _List[i] = value; } }
 		public int Count { get { return _List.Count; } }
 
-		public IReadOnlyCollection<SR1_Structure> List { get { return _List; } }
+		public IEnumerator<SR1_Structure> GetEnumerator()
+		{
+			return _List.GetEnumerator();
+		}
+
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
+		}
 
 		public SR1_StructureList()
 		{
@@ -18,6 +28,11 @@ namespace Recombobulator.SR1Structures
 		public void Add(SR1_Structure entry)
 		{
 			_List.Add(entry);
+		}
+
+		public void RemoveAt(int index)
+		{
+			_List.RemoveAt(index);
 		}
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)

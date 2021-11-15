@@ -53,7 +53,7 @@ namespace Recombobulator.SR1Structures
 			pad1.Read(reader, this, "pad1");
 
 			SortedDictionary<uint, SR1_PointerBase> dictionary = new SortedDictionary<uint, SR1_PointerBase>();
-			foreach (SR1_PointerArray tableList in VMOffsetTableLists.List)
+			foreach (SR1_PointerArray tableList in VMOffsetTableLists)
 			{
 				foreach (SR1_PointerBase tablePointer in tableList.List)
 				{

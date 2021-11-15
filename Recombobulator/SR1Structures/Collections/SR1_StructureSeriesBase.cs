@@ -3,14 +3,22 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	abstract class SR1_StructureSeriesBase<T> : SR1_Structure where T : SR1_Structure
+	abstract class SR1_StructureSeriesBase<T> : SR1_Structure, IReadOnlyList<T> where T : SR1_Structure
 	{
 		protected List<T> _List = new List<T>();
 
 		public T this[int i] { get { return _List[i]; } set { _List[i] = value; } }
 		public int Count { get { return _List.Count; } }
 
-		public IReadOnlyCollection<T> List { get { return _List; } }
+		public IEnumerator<T> GetEnumerator()
+		{
+			return _List.GetEnumerator();
+		}
+
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
+		}
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
 		{

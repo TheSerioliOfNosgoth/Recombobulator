@@ -14,7 +14,7 @@ namespace Recombobulator.SR1Structures
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
 		{
-			foreach (SR1_PointerBase pointer in animSet.List)
+			foreach (SR1_PointerBase pointer in animSet)
 			{
 				if (pointer.Offset != 0 && !reader.SAnimDictionary.ContainsKey(pointer.Offset))
 				{
