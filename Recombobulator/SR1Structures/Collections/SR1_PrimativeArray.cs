@@ -4,16 +4,24 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class SR1_PrimativeArray<T> : SR1_PrimativeBase // where T : struct
+	class SR1_PrimativeArray<T> : SR1_PrimativeBase, IReadOnlyList<T> // where T : struct
 	{
 		protected int[] _dimensions = null;
 		protected T[] _array = null;
 		protected bool _showAsHex;
 
 		public T this[int i] { get { return _array[i]; } set { _array[i] = value; } }
-		public int Length { get { return _array == null ? 0 : _array.Length; } }
+		public int Count { get { return _array == null ? 0 : _array.Length; } }
 
-		public IReadOnlyCollection<T> List { get { return Array.AsReadOnly(_array); } }
+		public IEnumerator<T> GetEnumerator()
+		{
+			return ((IEnumerable<T>)_array).GetEnumerator();
+		}
+
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		{
+			return _array.GetEnumerator();
+		}
 
 		public override bool IsArray() { return true; }
 

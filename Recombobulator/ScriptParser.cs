@@ -172,7 +172,7 @@ namespace Recombobulator
 
 			unsafe
 			{
-				foreach (Event scriptEvent in reader.Events.events.List)
+				foreach (Event scriptEvent in reader.Events.events)
 				{
 					SR1_StructureArray<ScriptPCode> conditionals = scriptEvent.conditionals;
 					SR1_StructureArray<ScriptPCode> actions = scriptEvent.actions;
@@ -210,9 +210,9 @@ namespace Recombobulator
 				{
 					string script = "";
 
-					short[] opCodes = new short[scriptData.List.Count];
+					short[] opCodes = new short[scriptData.Count];
 					int c = 0;
-					foreach (short code in scriptData.List)
+					foreach (short code in scriptData)
 					{
 						opCodes[c] = code;
 						c++;

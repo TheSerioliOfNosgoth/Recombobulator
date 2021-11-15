@@ -284,7 +284,7 @@ namespace Recombobulator.SR1Structures
 				EventPointers tempEventPointers = new EventPointers();
 				tempEventPointers.ReadTemp(reader);
 				uint firstEvent = uint.MaxValue;
-				foreach (SR1_PointerBase eventInstance in tempEventPointers.eventInstances.List)
+				foreach (SR1_PointerBase eventInstance in tempEventPointers.eventInstances)
 				{
 					if (eventInstance.Offset != 0 && eventInstance.Offset < firstEvent)
 					{

@@ -138,7 +138,7 @@ namespace Recombobulator.SR1Structures
 
 			SR1_StructureArray<BSPTree> bspTrees = new SR1_StructureArray<BSPTree>(numBSPTrees.Value);
 			bspTrees.ReadFromPointer(reader, BSPTreeArray);
-			if (bspTrees.Length > 0 && faces.Length > 0)
+			if (bspTrees.Count > 0 && faces.Count > 0)
 			{
 				BSPTree tree = (BSPTree)bspTrees[numBSPTrees.Value - 1];
 				if (tree.ID.Value == -1 && tree.startLeaves.Offset != 0 &&
@@ -301,7 +301,7 @@ namespace Recombobulator.SR1Structures
 					{
 						SR1_StructureArray<TFace> faces = (SR1_StructureArray<TFace>)facesStruct;
 						SR1_StructureSeries<TextureFT3> textures = (SR1_StructureSeries<TextureFT3>)texturesStruct;
-						foreach (TFace face in faces.List)
+						foreach (TFace face in faces)
 						{
 							if (!face.IsInSignalGroup && (face.attr.Value & 0x08) != 0)
 							{

@@ -48,7 +48,7 @@ namespace Recombobulator.SR1Structures
 				{
 					conditionalPointers = new SR1_PointerArray<ScriptPCode>(numActions.Value, false);
 					conditionalPointers.Read(reader, this, "conditionalPointers");
-					foreach (SR1_PointerBase pointer in conditionalPointers.List)
+					foreach (SR1_PointerBase pointer in conditionalPointers)
 					{
 						if (pointer.Offset != 0)
 						{
@@ -61,7 +61,7 @@ namespace Recombobulator.SR1Structures
 				{
 					actionPointers = new SR1_PointerArray<ScriptPCode>(numActions.Value, false);
 					actionPointers.Read(reader, this, "actionPointers");
-					foreach (SR1_PointerBase pointer in actionPointers.List)
+					foreach (SR1_PointerBase pointer in actionPointers)
 					{
 						if (pointer.Offset != 0)
 						{

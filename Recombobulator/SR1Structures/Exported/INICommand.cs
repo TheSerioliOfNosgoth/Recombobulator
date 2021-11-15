@@ -35,7 +35,7 @@ namespace Recombobulator.SR1Structures
 
 			if (file._Version != targetVersion)
 			{
-				if (command.Value == 0x1A && parameter.Length >= 1 &&
+				if (command.Value == 0x1A && parameter.Count >= 1 &&
 					file._IntroIDs != null && file._Overrides.NewIntroIDs != null)
 				{
 					for (int i = 0; i < file._IntroIDs.Count; i++)

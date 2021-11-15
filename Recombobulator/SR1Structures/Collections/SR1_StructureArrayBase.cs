@@ -4,15 +4,23 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	abstract class SR1_StructureArrayBase<T> : SR1_Structure where T : SR1_Structure
+	abstract class SR1_StructureArrayBase<T> : SR1_Structure, IReadOnlyList<T> where T : SR1_Structure
 	{
 		protected int[] _dimensions = null;
 		protected T[] _array = null;
 
 		public T this[int i] { get { return _array[i]; } set { _array[i] = value; } }
-		public int Length { get { return _array == null ? 0 : _array.Length; } }
+		public int Count { get { return _array == null ? 0 : _array.Length; } }
 
-		public IReadOnlyCollection<T> List { get { return Array.AsReadOnly(_array); } }
+		public IEnumerator<T> GetEnumerator()
+		{
+			return ((IEnumerable<T>)_array).GetEnumerator();
+		}
+
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		{
+			return _array.GetEnumerator();
+		}
 
 		protected abstract T CreateElement();
 

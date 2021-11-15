@@ -44,9 +44,9 @@ namespace Recombobulator.SR1Structures
 			{
 				int newNumSignals = 0;
 
-				if (signalList.Length > 0)
+				if (signalList.Count > 0)
 				{
-					foreach (Signal signal in signalList.List)
+					foreach (Signal signal in signalList)
 					{
 						if (!signal.OmitFromMigration)
 						{

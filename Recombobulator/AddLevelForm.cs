@@ -76,7 +76,7 @@ namespace Recombobulator
 			_portalList = (SR1Structures.StreamUnitPortalList)file._Structures[terrain.StreamUnits.Offset];
 
 			this.portalList.Items.Clear();
-			foreach (SR1Structures.StreamUnitPortal portal in _portalList.portals.List)
+			foreach (SR1Structures.StreamUnitPortal portal in _portalList.portals)
 			{
 				this.portalList.Items.Add(portal.tolevelname);
 				this.portalList.SetItemChecked(this.portalList.Items.Count - 1, true);
