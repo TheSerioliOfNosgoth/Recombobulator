@@ -20,6 +20,8 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_StructureArray<SVector> t1 = new SR1_StructureArray<SVector>(3);
 		public readonly SR1_StructureArray<SVector> t2 = new SR1_StructureArray<SVector>(3);
 
+		public bool OmitFromMigration { get; private set; } = false;
+
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
 			tolevelname.Read(reader, this, "tolevelname");
@@ -58,6 +60,16 @@ namespace Recombobulator.SR1Structures
 			toStreamUnit.Write(writer);
 			t1.Write(writer);
 			t2.Write(writer);
+		}
+
+		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
+		{
+			base.MigrateVersion(file, targetVersion, migrateFlags);
+
+			if ((migrateFlags & SR1_File.MigrateFlags.RemovePortals) != 0)
+			{
+				OmitFromMigration = true;
+			}
 		}
 	}
 }

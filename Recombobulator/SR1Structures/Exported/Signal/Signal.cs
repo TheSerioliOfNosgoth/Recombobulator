@@ -522,12 +522,7 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
-			data.Read(reader, this, "data");
-
-			while (((uint)reader.BaseStream.Position - Start) % 4u != 0)
-			{
-				reader.BaseStream.Position++;
-			}
+			data.SetPadding(4).Read(reader, this, "data");
 		}
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
@@ -536,8 +531,8 @@ namespace Recombobulator.SR1Structures
 
 		public override void WriteMembers(SR1_Writer writer)
 		{
-			if (MembersRead.Contains(id)) id.Write(writer);
-			if (MembersRead.Contains(data)) data.Write(writer);
+			id.Write(writer);
+			data.Write(writer);
 		}
 
 		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
@@ -579,14 +574,10 @@ namespace Recombobulator.SR1Structures
 					case SignalTypeFeb16.HandleSetCameraDistance: newID = (int)SignalTypeJun01.HandleSetCameraDistance; break;
 				}
 
-				if ((migrateFlags & SR1_File.MigrateFlags.RemoveSignals) == 0 && newID > -1)
+				id.Value = newID;
+
+				if ((migrateFlags & SR1_File.MigrateFlags.RemoveSignals) != 0 || id.Value < 0)
 				{
-					id.Value = newID;
-				}
-				else
-				{
-					MembersRead.Remove(id);
-					MembersRead.Remove(data);
 					OmitFromMigration = true;
 				}
 			}

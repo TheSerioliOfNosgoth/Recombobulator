@@ -10,7 +10,7 @@ namespace Recombobulator.SR1Structures
 
 		public readonly SR1_StructureList<VMObject> VMObjects = new SR1_StructureList<VMObject>();
 		public readonly SR1_StructureList<SR1_PointerArray<VMOffsetTable>> VMOffsetTableLists = new SR1_StructureList<SR1_PointerArray<VMOffsetTable>>();
-		public readonly SR1_StructureList<SR1_StructureArray<VMMoveVertex>> VMVertexLists = new SR1_StructureList<SR1_StructureArray<VMMoveVertex>>();
+		public readonly SR1_StructureList<SR1_StructureArray<VMVertex>> VMVertexLists = new SR1_StructureList<SR1_StructureArray<VMVertex>>();
 		public readonly SR1_StructureList<SR1_StructureArray<VMInterpolated>> VMInterpolatedLists = new SR1_StructureList<SR1_StructureArray<VMInterpolated>>();
 		private SR1_PrimativeArray<byte> pad0 = new SR1_PrimativeArray<byte>(0);
 		public readonly SR1_StructureList<SR1_String> VMObjectNames = new SR1_StructureList<SR1_String>();
