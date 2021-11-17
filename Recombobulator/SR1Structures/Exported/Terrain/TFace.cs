@@ -12,6 +12,10 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_Primative<ushort> textoff = new SR1_Primative<ushort>();
 
 		public bool IsInSignalGroup = false;
+		public MultiSignal MultiSignal = null;
+		public Signal Signal = null;
+		public StreamUnitPortal Portal = null;
+		public TextureFT3 Texture = null;
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
@@ -54,12 +58,16 @@ namespace Recombobulator.SR1Structures
 
 			if (IsInSignalGroup)
 			{
-				if ((migrateFlags & SR1_File.MigrateFlags.RemovePortals) != 0 ||
-					(migrateFlags & SR1_File.MigrateFlags.RemoveSignals) != 0)
+				bool removeSignal = false;
+				removeSignal |= Portal != null && Portal.OmitFromMigration;
+				removeSignal |= MultiSignal != null && MultiSignal.OmitFromMigration;
+				removeSignal |= Signal != null && Signal.OmitFromMigration;
+
+				// 0x004ABBBA has something to do with the portals.
+				// COLLIDE_LineWithSignals does care about TFace::texoff. See address 00490DF6 in game.
+				// It's an offset into Terrain->signals, not Level->signalListStart
+				if (removeSignal)
 				{
-					// 0x004ABBBA has something to do with the portals.
-					// COLLIDE_LineWithSignals does care about TFace::texoff. See address 00490DF6 in game.
-					// It's an offset into Terrain->signals, not Level->signalListStart
 					attr.Value = 0;
 					textoff.Value = 0;
 				}
@@ -69,10 +77,30 @@ namespace Recombobulator.SR1Structures
 		public override string ToString()
 		{
 			string result = base.ToString();
+
 			if (IsInSignalGroup)
 			{
-				result += "- SG";
+				if (MultiSignal != null)
+				{
+					result += "{ MultiSignal = 0x" + MultiSignal.Start.ToString("X8") + " }";
+				}
+				else
+				{
+					result += "{ MultiSignal = 0x00000000 }";
+				}
 			}
+			else
+			{
+				if (Texture != null)
+				{
+					result += "{ Texture = 0x" + Texture.Start.ToString("X8") + " }";
+				}
+				else
+				{
+					result += "{ Texture = 0x00000000 }";
+				}
+			}
+
 			return result;
 		}
 	}

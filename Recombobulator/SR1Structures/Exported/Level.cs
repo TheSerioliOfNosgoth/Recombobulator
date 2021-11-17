@@ -209,6 +209,7 @@ namespace Recombobulator.SR1Structures
 			worldNameString.SetPadding(4).ReadFromPointer(reader, worldName);
 			Name = worldNameString.ToString();
 
+			new SR1_StructureSeries<MultiSignal>((int)(SignalListEnd.Offset - SignalListStart.Offset)).ReadFromPointer(reader, SignalListStart);
 			SR1_Structure terrainStruct = new Terrain().ReadFromPointer(reader, terrain);
 
 			lightListStruct0.ReadFromPointer(reader, lightList);
@@ -258,7 +259,6 @@ namespace Recombobulator.SR1Structures
 			new SR1_StructureArray<VGroup>(numVGroups.Value).ReadFromPointer(reader, vGroupList);
 			new SR1_StructureArray<Intro>(numIntros.Value).ReadFromPointer(reader, introList);
 			SR1_Structure objectNameListStruct = new ObjectNameList().ReadFromPointer(reader, objectNameList);
-			new SR1_StructureSeries<MultiSignal>((int)(SignalListEnd.Offset - SignalListStart.Offset)).ReadFromPointer(reader, SignalListStart);
 			new SR1_StructureArray<PlanMkr>(NumberOfPlanMarkers.Value).SetPadding(4).ReadFromPointer(reader, PlanMarkerList);
 			new SR1_StructureArray<SFXMkr>(NumberOfSFXMarkers.Value).ReadFromPointer(reader, SFXMarkerList);
 			if (reader.File._Version >= SR1_File.Version.Jun01)

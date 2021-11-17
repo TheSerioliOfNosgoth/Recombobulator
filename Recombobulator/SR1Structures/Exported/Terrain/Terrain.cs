@@ -111,8 +111,11 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
-			new StreamUnitPortalList().ReadFromPointer(reader, StreamUnits);
-			new SR1_StructureSeries<TextureFT3>((int)(EndTextureList.Offset - StartTextureList.Offset)).ReadFromPointer(reader, StartTextureList);
+			StreamUnitPortalList portalList = new StreamUnitPortalList();
+			portalList.ReadFromPointer(reader, StreamUnits);
+
+			SR1_StructureSeries<TextureFT3> textures = new SR1_StructureSeries<TextureFT3>((int)(EndTextureList.Offset - StartTextureList.Offset));
+			textures.ReadFromPointer(reader, StartTextureList);
 
 			if (reader.File._Version <= SR1_File.Version.May12)
 			{
@@ -138,25 +141,68 @@ namespace Recombobulator.SR1Structures
 
 			SR1_StructureArray<BSPTree> bspTrees = new SR1_StructureArray<BSPTree>(numBSPTrees.Value);
 			bspTrees.ReadFromPointer(reader, BSPTreeArray);
+
 			if (bspTrees.Count > 0 && faces.Count > 0)
 			{
 				BSPTree tree = (BSPTree)bspTrees[numBSPTrees.Value - 1];
+
 				if (tree.ID.Value == -1 && tree.startLeaves.Offset != 0 &&
-					reader.File._Structures.ContainsKey(tree.startLeaves.Offset))
+					reader.File._Structures.ContainsKey(tree.startLeaves.Offset) &&
+					reader.Level.SignalListStart.Offset != 0 &&
+					reader.File._Structures.ContainsKey(reader.Level.SignalListStart.Offset))
 				{
-					SR1_Structure leavesStruct = reader.File._Structures[tree.startLeaves.Offset];
-					if (leavesStruct.GetType() == typeof(SR1_StructureSeries<BSPLeaf>))
+					SR1_StructureSeries<BSPLeaf> leaves =
+						(SR1_StructureSeries<BSPLeaf>)reader.File._Structures[tree.startLeaves.Offset];
+					SR1_StructureSeries<MultiSignal> multiSignals =
+						(SR1_StructureSeries<MultiSignal>)reader.File._Structures[reader.Level.SignalListStart.Offset];
+
+					foreach (BSPLeaf leaf in leaves)
 					{
-						SR1_StructureSeries<BSPLeaf> leaves = (SR1_StructureSeries<BSPLeaf>)leavesStruct;
-						foreach (BSPLeaf leaf in leaves)
+						uint faceIndex = (leaf.faceList.Offset - faces.Start) / 12;
+						short numFaces = leaf.numFaces.Value;
+						for (short f = 0; f < numFaces; f++)
 						{
-							uint faceIndex = (leaf.faceList.Offset - faces.Start) / 12;
-							short numFaces = leaf.numFaces.Value;
-							for (short f = 0; f < numFaces; f++)
+							TFace tFace = (TFace)faces[(int)faceIndex + f];
+							tFace.IsInSignalGroup = true;
+
+							foreach (MultiSignal mSignal in multiSignals)
 							{
-								((TFace)faces[(int)faceIndex + f]).IsInSignalGroup = true;
+								if (mSignal.Start == (signals.Offset + tFace.textoff.Value))
+								{
+									tFace.MultiSignal = mSignal;
+									if (mSignal.numSignals.Value > 0)
+									{
+										tFace.Signal = (Signal)mSignal.signalList[0];
+									}
+									break;
+								}
+							}
+
+							if (tFace.MultiSignal != null)
+							{
+								foreach (StreamUnitPortal portal in portalList.portals)
+								{
+									if (portal.MSignalID.Value == tFace.MultiSignal.signalNum.Value)
+									{
+										tFace.Portal = portal;
+										break;
+									}
+								}
 							}
 						}
+					}
+				}
+			}
+
+			foreach (TFace face in faces)
+			{
+				if (!face.IsInSignalGroup)
+				{
+					int textureSize = (reader.File._Version >= SR1_File.Version.May12) ? 12 : 16;
+					int textureIndex = face.textoff.Value / textureSize;
+					if (textureIndex < textures.Count)
+					{
+						face.Texture = (TextureFT3)textures[textureIndex];
 					}
 				}
 			}

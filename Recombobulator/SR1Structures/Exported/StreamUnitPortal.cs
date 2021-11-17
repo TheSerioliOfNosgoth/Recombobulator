@@ -5,7 +5,7 @@ namespace Recombobulator.SR1Structures
 {
 	class StreamUnitPortal : SR1_Structure
 	{
-		public readonly SR1_PrimativeArray<char> tolevelname = new SR1_PrimativeArray<char>(16);
+		public readonly SR1_String tolevelname = new SR1_String(16);
 		public readonly SR1_Primative<int> MSignalID = new SR1_Primative<int>();
 		public readonly SR1_Primative<int> streamID = new SR1_Primative<int>();
 		public readonly SR1_Primative<short> minx = new SR1_Primative<short>();
@@ -24,7 +24,7 @@ namespace Recombobulator.SR1Structures
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
-			tolevelname.Read(reader, this, "tolevelname");
+			tolevelname.SetReadMax(true).Read(reader, this, "tolevelname");
 			MSignalID.Read(reader, this, "MSignalID");
 			streamID.Read(reader, this, "streamID");
 			minx.Read(reader, this, "minx");
