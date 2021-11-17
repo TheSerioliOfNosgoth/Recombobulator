@@ -28,7 +28,7 @@ namespace Recombobulator
 
 		public void Initialize(Repository repository, string fileName, SR1_File file)
 		{
-			_fileName = fileName;
+			FileName = fileName;
 			_repository = repository;
 
 			string textureSetName = fileName;
@@ -150,7 +150,7 @@ namespace Recombobulator
 				}
 			}
 
-			_fileName = fileName;
+			FileName = fileName;
 		}
 
 		private void removePortalsCheckBox_CheckedChanged(object sender, EventArgs e)

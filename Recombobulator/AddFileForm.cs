@@ -12,7 +12,7 @@ namespace Recombobulator
 
 		public int TextureSet { get; protected set; } = 0;
 
-		protected string _fileName = null;
+		public string FileName { get; protected set; } = "";
 
 		protected Repository _repository = null;
 	}

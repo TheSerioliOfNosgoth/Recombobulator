@@ -17,7 +17,7 @@ namespace Recombobulator
 
 		public void Initialize(Repository repository, string fileName)
 		{
-			_fileName = fileName;
+			FileName = fileName;
 			_repository = repository;
 
 			string textureSetName = fileName;
@@ -117,7 +117,7 @@ namespace Recombobulator
 				}
 			}
 
-			_fileName = fileName;
+			FileName = fileName;
 		}
 	}
 }

@@ -162,6 +162,8 @@ namespace Recombobulator
 			{
 				try
 				{
+					fileName = addFileDialog.FileName;
+
 					#region Textures
 					TexSet textureSet = _repository.TextureSets.TexSets.Find(x => x.Index == addFileDialog.TextureSet);
 					if (textureSet == null)
