@@ -17,6 +17,7 @@ namespace Recombobulator
 
 		public bool RemoveVMOs { get { return removeVMOsCheckBox.Checked; } }
 
+		SR1Structures.SR1_StructureSeries<SR1Structures.MultiSignal> _multiSignals = null;
 		SR1Structures.StreamUnitPortalList _portalList = null;
 
 		public AddLevelForm()
@@ -73,6 +74,8 @@ namespace Recombobulator
 
 			SR1Structures.Level level = (SR1Structures.Level)file._Structures[0];
 			SR1Structures.Terrain terrain = (SR1Structures.Terrain)file._Structures[level.terrain.Offset];
+
+			_multiSignals = (SR1Structures.SR1_StructureSeries<SR1Structures.MultiSignal>)file._Structures[level.SignalListStart.Offset];
 			_portalList = (SR1Structures.StreamUnitPortalList)file._Structures[terrain.StreamUnits.Offset];
 
 			this.portalList.Items.Clear();
@@ -134,16 +137,16 @@ namespace Recombobulator
 			pathTextBox.Text = _repository.MakeLevelFilePath(fileName);
 			FullPath = _repository.MakeLevelFilePath(fileName, true);
 
-			string initialTextureSet = textureSetCombo.Items[_repository.TextureSets.Count].ToString();
+			string initialTextureSet = textureSetCombo.Items[textureSetCombo.Items.Count - 1].ToString();
 			SR1Repository.TexSet existingObject = _repository.TextureSets.Find(x => x.Name == initialTextureSet);
 			if (existingObject == null)
 			{
 				bool newSetSelected = (textureSetCombo.SelectedIndex == _repository.TextureSets.Count);
-				textureSetCombo.Items.RemoveAt(_repository.TextureSets.Count);
+				textureSetCombo.Items.RemoveAt(textureSetCombo.Items.Count - 1);
 				textureSetCombo.Items.Add(fileName);
 				if (newSetSelected)
 				{
-					textureSetCombo.SelectedIndex = _repository.TextureSets.Count;
+					textureSetCombo.SelectedIndex = textureSetCombo.Items.Count - 1;
 				}
 			}
 
@@ -157,7 +160,23 @@ namespace Recombobulator
 
 		private void portalList_ItemCheck(object sender, ItemCheckEventArgs e)
 		{
-			//_portalList.portals[e.Index].OmitFromMigration = e.NewValue != CheckState.Checked;
+			var portal = ((SR1Structures.StreamUnitPortal)_portalList.portals[e.Index]);
+			portal.OmitFromMigration = e.NewValue != CheckState.Checked;
+
+			foreach (SR1Structures.MultiSignal mSignal in _multiSignals)
+			{
+				if (mSignal.signalNum.Value == portal.MSignalID.Value)
+				{
+					mSignal.OmitFromMigration = portal.OmitFromMigration;
+
+					if (mSignal.numSignals.Value > 0)
+					{
+						((SR1Structures.Signal)mSignal.signalList[0]).OmitFromMigration = portal.OmitFromMigration;
+					}
+
+					break;
+				}
+			}
 		}
 	}
 }

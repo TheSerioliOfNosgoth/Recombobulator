@@ -36,6 +36,25 @@ namespace Recombobulator.SR1Structures
 			attr.Write(writer);
 			sortPush.Write(writer);
 			normal.Write(writer);
+
+			if (IsInSignalGroup && attr.Value != 0)
+			{
+				Level level = (Level)writer.File._Structures[0];
+				Terrain terrain = (Terrain)writer.File._Structures[level.terrain.Offset];
+				SR1_StructureSeries<MultiSignal> signals = (SR1_StructureSeries<MultiSignal>)writer.File._Structures[level.SignalListStart.Offset];
+				MultiSignal terrainSignals = null;
+				foreach (MultiSignal signal in signals)
+				{
+					if (signal.Start == terrain.signals.Offset)
+					{
+						terrainSignals = signal;
+						break;
+					}
+				}
+
+				textoff.Value = (ushort)(MultiSignal.NewStart - terrainSignals.NewStart);
+			}
+
 			textoff.Write(writer);
 		}
 

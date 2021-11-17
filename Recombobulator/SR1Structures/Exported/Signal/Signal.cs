@@ -185,7 +185,7 @@ namespace Recombobulator.SR1Structures
 		SR1_Primative<int> id = new SR1_Primative<int>();
 		SignalData data = new SignalData();
 
-		public bool OmitFromMigration { get; private set; } = false;
+		public bool OmitFromMigration { get; set; } = false;
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{

@@ -11,7 +11,7 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_StructureList<Signal> signalList = new SR1_StructureList<Signal>();
 		public readonly SR1_Primative<int> pad = new SR1_Primative<int>();
 
-		public bool OmitFromMigration { get; private set; } = false;
+		public bool OmitFromMigration { get; set; } = false;
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{

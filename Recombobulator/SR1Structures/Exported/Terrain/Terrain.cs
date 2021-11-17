@@ -33,7 +33,7 @@ namespace Recombobulator.SR1Structures
 		SR1_Primative<int> numBSPTrees = new SR1_Primative<int>();
 		SR1_Pointer<BSPTree> BSPTreeArray = new SR1_Pointer<BSPTree>();
 		SR1_PrimativePointer<ushort> morphNormalIdx = new SR1_PrimativePointer<ushort>(); // Not sure if array or pointer. One short, followed by ushort[numFaces]. Alternate TFace.Normal's?
-		SR1_Pointer<MultiSignal> signals = new SR1_Pointer<MultiSignal>();
+		public SR1_Pointer<MultiSignal> signals = new SR1_Pointer<MultiSignal>();
 		SR1_Pointer<UnknownPCList> unknownPCList = new SR1_Pointer<UnknownPCList>();
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
