@@ -398,6 +398,7 @@ namespace Recombobulator
 			{
 				_progressWindow.Dispose();
 			}
+
 			_progressWindow = new ProgressWindow();
 			_progressWindow.Title = "Unpacking Repository...";
 			_progressWindow.SetMessage("");
@@ -406,6 +407,11 @@ namespace Recombobulator
 			_progressWindow.TopLevel = true;
 			_progressWindow.ShowInTaskbar = false;
 			this.Enabled = false;
+
+			addToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
+			compileProjectToolStripMenuItem.Enabled = (_repository != null);
+			editPortalToolStripMenuItem.Enabled = false;
+
 			_progressWindow.Show();
 		}
 
@@ -413,6 +419,7 @@ namespace Recombobulator
 		{
 			addToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
 			compileProjectToolStripMenuItem.Enabled = (_repository != null);
+			editPortalToolStripMenuItem.Enabled = false;
 
 			if (_repository != null)
 			{
@@ -634,16 +641,20 @@ namespace Recombobulator
 			Properties.Settings.Default.RecentFolder = folderDialog.SelectedPath;
 			Properties.Settings.Default.Save();
 
-			Repository repository = new Repository(folderDialog.SelectedPath);
+			addToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
+			compileProjectToolStripMenuItem.Enabled = (_repository != null);
+			editPortalToolStripMenuItem.Enabled = false;
 
+			Repository repository = new Repository(folderDialog.SelectedPath);
 			if (repository != null && repository.LoadRepository())
 			{
-				projectTreeView.Nodes.Clear();
-
 				_repository = repository;
 
 				addToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
 				compileProjectToolStripMenuItem.Enabled = (_repository != null);
+				editPortalToolStripMenuItem.Enabled = false;
+
+				projectTreeView.Nodes.Clear();
 
 				TreeNode levelsNode = projectTreeView.Nodes.Add("Levels", "Levels");
 				foreach (Level level in _repository.Levels.Levels)
@@ -724,6 +735,8 @@ namespace Recombobulator
 
 		private void projectTreeView_AfterSelect(object sender, TreeViewEventArgs e)
 		{
+			editPortalToolStripMenuItem.Enabled = false;
+
 			if (_repository == null)
 			{
 				return;
@@ -735,6 +748,8 @@ namespace Recombobulator
 			}
 			else if (e.Node.Parent.Text == "Levels")
 			{
+				editPortalToolStripMenuItem.Enabled = true;
+
 				Level level = (Level)e.Node.Tag;
 				string text = "Unit Name: " + level.UnitName + "\r\n";
 				text += "Unit ID: " + level.StreamUnitID.ToString() + "\r\n";
@@ -789,6 +804,45 @@ namespace Recombobulator
 				}
 
 				projectTextBox.Text = text;
+			}
+		}
+		private void projectTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+		{
+			if (_repository == null)
+			{
+				return;
+			}
+
+			if (e.Button == MouseButtons.Right)
+			{
+				TreeNode treeNode = e.Node;
+				projectTreeView.SelectedNode = treeNode;
+
+				if (treeNode != null && treeNode.Parent != null && treeNode.Parent.Text == "Levels")
+				{
+					projectContextMenu.Show(projectTreeView, e.Location);
+				}
+			}
+		}
+
+		private void editPortalToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if (_repository == null)
+			{
+				return;
+			}
+
+			TreeNode treeNode = projectTreeView.SelectedNode;
+			if (treeNode == null || treeNode.Parent == null || treeNode.Parent.Text != "Levels")
+			{
+				return;
+			}
+
+			EditPortalForm editPortalForm = new EditPortalForm();
+			editPortalForm.Initialize(_repository, treeNode.Text);
+
+			if (editPortalForm.ShowDialog() == DialogResult.OK)
+			{
 			}
 		}
 	}

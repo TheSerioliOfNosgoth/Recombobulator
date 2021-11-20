@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			TreeList.TreeListColumn treeListColumn1 = new TreeList.TreeListColumn("Offset", "Offset");
 			TreeList.TreeListColumn treeListColumn2 = new TreeList.TreeListColumn("Type", "Type");
 			TreeList.TreeListColumn treeListColumn3 = new TreeList.TreeListColumn("Name", "Name");
@@ -52,6 +53,8 @@
 			this.projectTab = new System.Windows.Forms.TabPage();
 			this.projectSplitContainer = new System.Windows.Forms.SplitContainer();
 			this.projectTreeView = new System.Windows.Forms.TreeView();
+			this.projectContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.editPortalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.projectTextBox = new System.Windows.Forms.TextBox();
 			this.pcmFileDataTab = new System.Windows.Forms.TabPage();
 			this.scriptsTab = new System.Windows.Forms.TabPage();
@@ -70,6 +73,7 @@
 			this.projectSplitContainer.Panel1.SuspendLayout();
 			this.projectSplitContainer.Panel2.SuspendLayout();
 			this.projectSplitContainer.SuspendLayout();
+			this.projectContextMenu.SuspendLayout();
 			this.pcmFileDataTab.SuspendLayout();
 			this.scriptsTab.SuspendLayout();
 			this.testResultsTab.SuspendLayout();
@@ -78,7 +82,7 @@
 			// _mainMenu
 			// 
 			this._mainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.fileToolStripMenuItem});
+            this.fileToolStripMenuItem});
 			this._mainMenu.Location = new System.Drawing.Point(0, 0);
 			this._mainMenu.Name = "_mainMenu";
 			this._mainMenu.Size = new System.Drawing.Size(800, 24);
@@ -88,14 +92,14 @@
 			// fileToolStripMenuItem
 			// 
 			this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.newProjectToolStripMenuItem,
-			this.openProjectToolStripMenuItem,
-			this.openFileToolStripMenuItem,
-			this.addToProjectToolStripMenuItem,
-			this.compileProjectToolStripMenuItem,
-			this.testExportToolStripMenuItem,
-			this.bulkTestingToolStripMenuItem,
-			this.exitToolStripMenuItem});
+            this.newProjectToolStripMenuItem,
+            this.openProjectToolStripMenuItem,
+            this.openFileToolStripMenuItem,
+            this.addToProjectToolStripMenuItem,
+            this.compileProjectToolStripMenuItem,
+            this.testExportToolStripMenuItem,
+            this.bulkTestingToolStripMenuItem,
+            this.exitToolStripMenuItem});
 			this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
 			this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
 			this.fileToolStripMenuItem.Text = "File";
@@ -148,8 +152,8 @@
 			// bulkTestingToolStripMenuItem
 			// 
 			this.bulkTestingToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.detailedExportToolStripMenuItem,
-			this.briefExportToolStripMenuItem});
+            this.detailedExportToolStripMenuItem,
+            this.briefExportToolStripMenuItem});
 			this.bulkTestingToolStripMenuItem.Name = "bulkTestingToolStripMenuItem";
 			this.bulkTestingToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.bulkTestingToolStripMenuItem.Text = "Bulk Testing";
@@ -191,10 +195,10 @@
 			treeListColumn4.HeaderFormat.BackColor = System.Drawing.SystemColors.ButtonFace;
 			treeListColumn4.Width = 50;
 			this.pcmFileTreeListView.Columns.AddRange(new TreeList.TreeListColumn[] {
-			treeListColumn1,
-			treeListColumn2,
-			treeListColumn3,
-			treeListColumn4});
+            treeListColumn1,
+            treeListColumn2,
+            treeListColumn3,
+            treeListColumn4});
 			this.pcmFileTreeListView.Cursor = System.Windows.Forms.Cursors.Arrow;
 			this.pcmFileTreeListView.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.pcmFileTreeListView.Images = null;
@@ -284,6 +288,22 @@
 			this.projectTreeView.Size = new System.Drawing.Size(262, 394);
 			this.projectTreeView.TabIndex = 0;
 			this.projectTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.projectTreeView_AfterSelect);
+			this.projectTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.projectTreeView_NodeMouseClick);
+			// 
+			// projectContextMenu
+			// 
+			this.projectContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.editPortalToolStripMenuItem});
+			this.projectContextMenu.Name = "projectContextMenu";
+			this.projectContextMenu.Size = new System.Drawing.Size(181, 48);
+			// 
+			// editPortalToolStripMenuItem
+			// 
+			this.editPortalToolStripMenuItem.Enabled = false;
+			this.editPortalToolStripMenuItem.Name = "editPortalToolStripMenuItem";
+			this.editPortalToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.editPortalToolStripMenuItem.Text = "Edit Portal...";
+			this.editPortalToolStripMenuItem.Click += new System.EventHandler(this.editPortalToolStripMenuItem_Click);
 			// 
 			// projectTextBox
 			// 
@@ -381,6 +401,7 @@
 			this.projectSplitContainer.Panel2.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.projectSplitContainer)).EndInit();
 			this.projectSplitContainer.ResumeLayout(false);
+			this.projectContextMenu.ResumeLayout(false);
 			this.pcmFileDataTab.ResumeLayout(false);
 			this.scriptsTab.ResumeLayout(false);
 			this.scriptsTab.PerformLayout();
@@ -418,6 +439,8 @@
 		private System.Windows.Forms.SplitContainer projectSplitContainer;
 		private System.Windows.Forms.TreeView projectTreeView;
 		private System.Windows.Forms.TextBox projectTextBox;
+		private System.Windows.Forms.ContextMenuStrip projectContextMenu;
+		private System.Windows.Forms.ToolStripMenuItem editPortalToolStripMenuItem;
 	}
 }
 

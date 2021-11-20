@@ -78,6 +78,12 @@
     <Compile Include="AddObjectForm.Designer.cs">
       <DependentUpon>AddObjectForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="EditPortalForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditPortalForm.Designer.cs">
+      <DependentUpon>EditPortalForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="RenameForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -376,6 +382,9 @@
     <Compile Include="TreeList\TreeViewTracing.cs" />
     <EmbeddedResource Include="AddObjectForm.resx">
       <DependentUpon>AddObjectForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditPortalForm.resx">
+      <DependentUpon>EditPortalForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>

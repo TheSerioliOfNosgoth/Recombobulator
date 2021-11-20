@@ -1,0 +1,20 @@
+In mrlock1
+
+Vertices used by the faces referencing the hubb portal.
+
+-23699
+-15520
+1599
+
+-23699
+-10880
+-8640
+
+-23699
+-10879
+1599
+
+-23699
+-15520
+-8640
+
