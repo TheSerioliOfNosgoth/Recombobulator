@@ -443,20 +443,20 @@ namespace SR1Repository
 
 			foreach (Portal fromPortal in level.Portals.Portals)
 			{
-				fromPortal.SourceVersion = sourceVersion;
-				Level targetLevel = _levels.Levels.Find(x => x.SourceUnitName == fromPortal.SourceUnitName && x.SourceVersion == fromPortal.SourceVersion);
+				fromPortal.OldDestVersion = sourceVersion;
+				Level targetLevel = _levels.Levels.Find(x => x.SourceUnitName == fromPortal.OldDestUnitName && x.SourceVersion == fromPortal.OldDestVersion);
 				if (targetLevel != null)
 				{
-					fromPortal.UnitName = targetLevel.UnitName;
-					fromPortal.StreamUnitID = targetLevel.StreamUnitID;
+					fromPortal.DestUnitName = targetLevel.UnitName;
+					fromPortal.DestUnitID = targetLevel.StreamUnitID;
 
 					foreach (Portal toPortal in targetLevel.Portals.Portals)
 					{
-						if (toPortal.SourceUnitName == level.SourceUnitName &&
-							toPortal.SourceVersion == level.SourceVersion)
+						if (toPortal.OldDestUnitName == level.SourceUnitName &&
+							toPortal.OldDestVersion == level.SourceVersion)
 						{
-							toPortal.UnitName = level.UnitName;
-							toPortal.StreamUnitID = level.StreamUnitID;
+							toPortal.DestUnitName = level.UnitName;
+							toPortal.DestUnitID = level.StreamUnitID;
 						}
 					}
 
@@ -464,8 +464,9 @@ namespace SR1Repository
 				}
 				else
 				{
-					fromPortal.UnitName = "";
-					fromPortal.StreamUnitID = 0;
+					fromPortal.DestUnitName = "";
+					fromPortal.DestUnitID = 0;
+					fromPortal.DestSignalID = 0;
 				}
 			}
 
@@ -528,16 +529,21 @@ namespace SR1Repository
 					int numPortals = reader.ReadInt32();
 					for (int p = 0; p < numPortals; p++)
 					{
-						string portalDest = new string(reader.ReadChars(16));
-						portalDest = portalDest.Substring(0, portalDest.IndexOf(','));
+						string portalString = new string(reader.ReadChars(16));
+						string destUnit = portalString.Substring(0, portalString.IndexOf(','));
+						string destSignal = portalString.Substring(portalString.IndexOf(',') + 1);
 						int signalID = reader.ReadInt32();
 						int streamUnitID = reader.ReadInt32();
 						Portal portal = new Portal();
-						portal.UnitName = portalDest;
 						portal.SignalID = signalID;
-						portal.StreamUnitID = streamUnitID;
-						portal.SourceUnitName = portalDest;
-						portal.SourceVersion = level.SourceVersion;
+						portal.DestUnitName = destUnit;
+						portal.DestUnitID = streamUnitID;
+						if (Int32.TryParse(destSignal, out int destSignalID))
+						{
+							portal.DestSignalID = destSignalID;
+						}
+						portal.OldDestUnitName = destUnit;
+						portal.OldDestVersion = level.SourceVersion;
 						level.Portals.Add(portal);
 						reader.BaseStream.Position += 0x44;
 					}
@@ -623,6 +629,36 @@ namespace SR1Repository
 			#endregion
 		}
 
+		public void EditPortal(string fromLevelName, string toLevelName, int fromSignalID, int toSignalID)
+		{
+			Level fromLevel = _levels.Find(x => x.UnitName == fromLevelName);
+			Level toLevel = _levels.Find(x => x.UnitName == toLevelName);
+
+			foreach (Portal portal in fromLevel.Portals.Portals)
+			{
+				if (portal.SignalID == fromSignalID)
+				{
+					portal.DestUnitName = toLevel.UnitName;
+					portal.DestUnitID = toLevel.StreamUnitID;
+					portal.DestSignalID = toSignalID;
+					UpdateLevelPortals(fromLevel);
+					break;
+				}
+			}
+
+			foreach (Portal portal in toLevel.Portals.Portals)
+			{
+				if (portal.SignalID == toSignalID)
+				{
+					portal.DestUnitName = fromLevel.UnitName;
+					portal.DestUnitID = fromLevel.StreamUnitID;
+					portal.DestSignalID = fromSignalID;
+					UpdateLevelPortals(toLevel);
+					break;
+				}
+			}
+		}
+
 		void UpdateLevelPortals(Level level)
 		{
 			string fullPath = MakeLevelFilePath(level.UnitName, true);
@@ -653,17 +689,16 @@ namespace SR1Repository
 						if (p < level.Portals.Count)
 						{
 							Portal portal = level.Portals.Portals[p];
-							if (portal.UnitName != "")
+							if (portal.DestUnitName != "")
 							{
-								string portalString = new string(reader.ReadChars(16)).Trim('\0');
-								string destSignal = portalString.Split(new char[] { ',' })[1];
-								portalString = portal.UnitName + "," + destSignal;
 								char[] asChars = new char[16];
+								string portalString = new string(reader.ReadChars(16)).Trim('\0');
+								portalString = portal.DestUnitName + "," + portal.DestSignalID.ToString("D2");
 								portalString.CopyTo(0, asChars, 0, Math.Min(portalString.Length, 16));
 								writer.BaseStream.Position -= 16;
 								writer.Write(asChars);
 								writer.BaseStream.Position += 0x04;
-								writer.Write(portal.StreamUnitID);
+								writer.Write(portal.DestUnitID);
 							}
 						}
 					}
@@ -727,18 +762,15 @@ namespace SR1Repository
 					{
 						int currentNum = reader.ReadInt32();
 						int streamID = reader.ReadInt32();
-						string portalString = new string(reader.ReadChars(16)).Trim('\0');
-						string[] subStrings = portalString.Split(new char[] { ',' });
-						string unitName = subStrings[0];
-						string destSignal = subStrings[1];
 						Portal portal = level.Portals.Portals.Find(x => x.SignalID == currentNum);
-						if (portal != null && portal.UnitName != "")
+						string portalString = new string(reader.ReadChars(16)).Trim('\0');
+						if (portal != null && portal.DestUnitName != "")
 						{
-							portalString = portal.UnitName + "," + destSignal;
 							char[] asChars = new char[16];
+							portalString = portal.DestUnitName + "," + portal.DestSignalID.ToString("D2");
 							portalString.CopyTo(0, asChars, 0, Math.Min(portalString.Length, 16));
 							writer.BaseStream.Position -= 20;
-							writer.Write(portal.StreamUnitID);
+							writer.Write(portal.DestUnitID);
 							writer.Write(asChars);
 						}
 					}

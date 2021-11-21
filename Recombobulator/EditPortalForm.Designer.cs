@@ -30,15 +30,15 @@ namespace Recombobulator
 		private void InitializeComponent()
 		{
 			this.fromUnitLabel = new System.Windows.Forms.Label();
-			this.fromUnitTextBox = new System.Windows.Forms.TextBox();
 			this.fromSignalLabel = new System.Windows.Forms.Label();
-			this.toUnitTextBox = new System.Windows.Forms.TextBox();
 			this.okButton = new System.Windows.Forms.Button();
 			this.cancelButton = new System.Windows.Forms.Button();
-			this.toSignalTextBox = new System.Windows.Forms.TextBox();
 			this.toSignaLabel = new System.Windows.Forms.Label();
-			this.fromSignalTextBox = new System.Windows.Forms.TextBox();
 			this.toUnitLabel = new System.Windows.Forms.Label();
+			this.toUnitComboBox = new System.Windows.Forms.ComboBox();
+			this.fromUnitComboBox = new System.Windows.Forms.ComboBox();
+			this.fromSignalComboBox = new System.Windows.Forms.ComboBox();
+			this.toSignalComboBox = new System.Windows.Forms.ComboBox();
 			this.SuspendLayout();
 			// 
 			// fromUnitLabel
@@ -50,53 +50,34 @@ namespace Recombobulator
 			this.fromUnitLabel.TabIndex = 0;
 			this.fromUnitLabel.Text = "From Unit:";
 			// 
-			// fromUnitTextBox
-			// 
-			this.fromUnitTextBox.Location = new System.Drawing.Point(12, 25);
-			this.fromUnitTextBox.Name = "fromUnitTextBox";
-			this.fromUnitTextBox.Size = new System.Drawing.Size(100, 20);
-			this.fromUnitTextBox.TabIndex = 1;
-			// 
 			// fromSignalLabel
 			// 
 			this.fromSignalLabel.AutoSize = true;
 			this.fromSignalLabel.Location = new System.Drawing.Point(121, 9);
 			this.fromSignalLabel.Name = "fromSignalLabel";
 			this.fromSignalLabel.Size = new System.Drawing.Size(65, 13);
-			this.fromSignalLabel.TabIndex = 2;
+			this.fromSignalLabel.TabIndex = 1;
 			this.fromSignalLabel.Text = "From Signal:";
-			// 
-			// toUnitTextBox
-			// 
-			this.toUnitTextBox.Location = new System.Drawing.Point(12, 64);
-			this.toUnitTextBox.Name = "toUnitTextBox";
-			this.toUnitTextBox.Size = new System.Drawing.Size(100, 20);
-			this.toUnitTextBox.TabIndex = 3;
 			// 
 			// okButton
 			// 
+			this.okButton.DialogResult = System.Windows.Forms.DialogResult.OK;
 			this.okButton.Location = new System.Drawing.Point(12, 91);
 			this.okButton.Name = "okButton";
 			this.okButton.Size = new System.Drawing.Size(75, 23);
-			this.okButton.TabIndex = 4;
+			this.okButton.TabIndex = 8;
 			this.okButton.Text = "OK";
 			this.okButton.UseVisualStyleBackColor = true;
 			// 
 			// cancelButton
 			// 
+			this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
 			this.cancelButton.Location = new System.Drawing.Point(96, 91);
 			this.cancelButton.Name = "cancelButton";
 			this.cancelButton.Size = new System.Drawing.Size(75, 23);
-			this.cancelButton.TabIndex = 5;
+			this.cancelButton.TabIndex = 9;
 			this.cancelButton.Text = "Cancel";
 			this.cancelButton.UseVisualStyleBackColor = true;
-			// 
-			// toSignalTextBox
-			// 
-			this.toSignalTextBox.Location = new System.Drawing.Point(121, 64);
-			this.toSignalTextBox.Name = "toSignalTextBox";
-			this.toSignalTextBox.Size = new System.Drawing.Size(100, 20);
-			this.toSignalTextBox.TabIndex = 9;
 			// 
 			// toSignaLabel
 			// 
@@ -104,15 +85,8 @@ namespace Recombobulator
 			this.toSignaLabel.Location = new System.Drawing.Point(121, 48);
 			this.toSignaLabel.Name = "toSignaLabel";
 			this.toSignaLabel.Size = new System.Drawing.Size(55, 13);
-			this.toSignaLabel.TabIndex = 8;
+			this.toSignaLabel.TabIndex = 5;
 			this.toSignaLabel.Text = "To Signal:";
-			// 
-			// fromSignalTextBox
-			// 
-			this.fromSignalTextBox.Location = new System.Drawing.Point(121, 25);
-			this.fromSignalTextBox.Name = "fromSignalTextBox";
-			this.fromSignalTextBox.Size = new System.Drawing.Size(100, 20);
-			this.fromSignalTextBox.TabIndex = 7;
 			// 
 			// toUnitLabel
 			// 
@@ -120,8 +94,42 @@ namespace Recombobulator
 			this.toUnitLabel.Location = new System.Drawing.Point(12, 48);
 			this.toUnitLabel.Name = "toUnitLabel";
 			this.toUnitLabel.Size = new System.Drawing.Size(45, 13);
-			this.toUnitLabel.TabIndex = 6;
+			this.toUnitLabel.TabIndex = 4;
 			this.toUnitLabel.Text = "To Unit:";
+			// 
+			// toUnitComboBox
+			// 
+			this.toUnitComboBox.Location = new System.Drawing.Point(12, 64);
+			this.toUnitComboBox.Name = "toUnitComboBox";
+			this.toUnitComboBox.Size = new System.Drawing.Size(100, 21);
+			this.toUnitComboBox.Sorted = true;
+			this.toUnitComboBox.TabIndex = 6;
+			this.toUnitComboBox.SelectedIndexChanged += new System.EventHandler(this.toUnitComboBox_SelectedIndexChanged);
+			// 
+			// fromUnitComboBox
+			// 
+			this.fromUnitComboBox.Location = new System.Drawing.Point(12, 25);
+			this.fromUnitComboBox.Name = "fromUnitComboBox";
+			this.fromUnitComboBox.Size = new System.Drawing.Size(100, 21);
+			this.fromUnitComboBox.Sorted = true;
+			this.fromUnitComboBox.TabIndex = 2;
+			this.fromUnitComboBox.SelectedIndexChanged += new System.EventHandler(this.fromUnitComboBox_SelectedIndexChanged);
+			// 
+			// fromSignalComboBox
+			// 
+			this.fromSignalComboBox.Location = new System.Drawing.Point(121, 25);
+			this.fromSignalComboBox.Name = "fromSignalComboBox";
+			this.fromSignalComboBox.Size = new System.Drawing.Size(100, 21);
+			this.fromSignalComboBox.Sorted = true;
+			this.fromSignalComboBox.TabIndex = 3;
+			// 
+			// toSignalComboBox
+			// 
+			this.toSignalComboBox.Location = new System.Drawing.Point(121, 64);
+			this.toSignalComboBox.Name = "toSignalComboBox";
+			this.toSignalComboBox.Size = new System.Drawing.Size(100, 21);
+			this.toSignalComboBox.Sorted = true;
+			this.toSignalComboBox.TabIndex = 7;
 			// 
 			// EditPortalForm
 			// 
@@ -131,15 +139,15 @@ namespace Recombobulator
 			this.CancelButton = this.cancelButton;
 			this.ClientSize = new System.Drawing.Size(237, 129);
 			this.ControlBox = false;
-			this.Controls.Add(this.toSignalTextBox);
+			this.Controls.Add(this.fromSignalComboBox);
+			this.Controls.Add(this.toSignalComboBox);
+			this.Controls.Add(this.fromUnitComboBox);
+			this.Controls.Add(this.toUnitComboBox);
 			this.Controls.Add(this.toSignaLabel);
-			this.Controls.Add(this.fromSignalTextBox);
 			this.Controls.Add(this.toUnitLabel);
 			this.Controls.Add(this.cancelButton);
 			this.Controls.Add(this.okButton);
-			this.Controls.Add(this.toUnitTextBox);
 			this.Controls.Add(this.fromSignalLabel);
-			this.Controls.Add(this.fromUnitTextBox);
 			this.Controls.Add(this.fromUnitLabel);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.MaximizeBox = false;
@@ -156,14 +164,14 @@ namespace Recombobulator
 		#endregion
 
 		private System.Windows.Forms.Label fromUnitLabel;
-		private System.Windows.Forms.TextBox fromUnitTextBox;
 		private System.Windows.Forms.Label fromSignalLabel;
-		private System.Windows.Forms.TextBox toUnitTextBox;
 		private System.Windows.Forms.Button okButton;
 		private System.Windows.Forms.Button cancelButton;
-		private System.Windows.Forms.TextBox toSignalTextBox;
 		private System.Windows.Forms.Label toSignaLabel;
-		private System.Windows.Forms.TextBox fromSignalTextBox;
 		private System.Windows.Forms.Label toUnitLabel;
+		private System.Windows.Forms.ComboBox toUnitComboBox;
+		private System.Windows.Forms.ComboBox fromUnitComboBox;
+		private System.Windows.Forms.ComboBox fromSignalComboBox;
+		private System.Windows.Forms.ComboBox toSignalComboBox;
 	}
 }

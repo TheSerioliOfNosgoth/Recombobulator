@@ -764,14 +764,14 @@ namespace Recombobulator
 				foreach (Portal portal in level.Portals.Portals)
 				{
 					string newName = "missing";
-					if (portal.UnitName != null && portal.UnitName != "")
+					if (portal.DestUnitName != null && portal.DestUnitName != "")
 					{
-						newName = portal.UnitName;
+						newName = portal.DestUnitName;
 					}
 
-					int newID = portal.StreamUnitID;
+					int newID = portal.SignalID;
 
-					text += "\t" + newName + ", " + newID + ", sourceFile { " + portal.SourceUnitName + ", 0x" + portal.SourceVersion.ToString("X8") + " }\r\n";
+					text += "\torigin { " + level.UnitName + ", " + newID + " }, destination { " + newName + ", " + portal.DestSignalID + " }, default { " + portal.OldDestUnitName + ", 0x" + portal.OldDestVersion.ToString("X8") + " }\r\n";
 				}
 
 				text += "Intros:\r\n";
@@ -843,7 +843,11 @@ namespace Recombobulator
 
 			if (editPortalForm.ShowDialog() == DialogResult.OK)
 			{
+				_repository.EditPortal(editPortalForm.FromUnit, editPortalForm.ToUnit, editPortalForm.FromSignal, editPortalForm.ToSignal);
+				_repository.SaveRepository();
 			}
+
+			editPortalForm.Dispose();
 		}
 	}
 }

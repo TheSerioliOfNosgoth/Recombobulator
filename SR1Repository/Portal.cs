@@ -8,10 +8,11 @@ namespace SR1Repository
 {
 	public class Portal
 	{
-		public string UnitName { get; set; } = "";
 		public int SignalID { get; set; } = 0;
-		public int StreamUnitID { get; set; } = 0;
-		public string SourceUnitName { get; set; } = "";
-		public uint SourceVersion { get; set; } = 0;
+		public string DestUnitName { get; set; } = "";
+		public int DestUnitID { get; set; } = 0;
+		public int DestSignalID { get; set; } = 0;
+		public string OldDestUnitName { get; set; } = "";
+		public uint OldDestVersion { get; set; } = 0;
 	}
 }
