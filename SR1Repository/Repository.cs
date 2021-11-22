@@ -457,6 +457,7 @@ namespace SR1Repository
 						{
 							toPortal.DestUnitName = level.UnitName;
 							toPortal.DestUnitID = level.StreamUnitID;
+							toPortal.DestSignalID = fromPortal.SignalID;
 						}
 					}
 

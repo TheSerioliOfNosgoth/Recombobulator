@@ -52,7 +52,12 @@ namespace Recombobulator.SR1Structures
 					}
 				}
 
-				textoff.Value = (ushort)(MultiSignal.NewStart - terrainSignals.NewStart);
+				// Looks like there are other things triggered besides portals/signals.
+				// TODO - Figure out what, and correct here.
+				if (MultiSignal != null)
+				{
+					textoff.Value = (ushort)(MultiSignal.NewStart - terrainSignals.NewStart);
+				}
 			}
 
 			textoff.Write(writer);
@@ -81,6 +86,9 @@ namespace Recombobulator.SR1Structures
 				removeSignal |= Portal != null && Portal.OmitFromMigration;
 				removeSignal |= MultiSignal != null && MultiSignal.OmitFromMigration;
 				removeSignal |= Signal != null && Signal.OmitFromMigration;
+
+				// Looks like there are other things triggered besides portals/signals.
+				removeSignal |= (attr.Value != 0x44);
 
 				// 0x004ABBBA has something to do with the portals.
 				// COLLIDE_LineWithSignals does care about TFace::texoff. See address 00490DF6 in game.
