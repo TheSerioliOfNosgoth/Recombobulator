@@ -13,6 +13,8 @@ namespace Recombobulator.SR1Structures
 		// Sometimes an SFXMarker, but always null in the area files, so probaby doesn't matter.
 		public SR1_Pointer<Intro> data = new SR1_Pointer<Intro>();
 
+		Intro Intro = null;
+
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
 			id.Read(reader, this, "id");
@@ -25,6 +27,16 @@ namespace Recombobulator.SR1Structures
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
 		{
+			Level level = (Level)reader.File._Structures[0];
+			SR1_StructureArray<Intro> intros = (SR1_StructureArray<Intro>)reader.File._Structures[level.introList.Offset];
+			foreach (Intro intro in intros)
+			{
+				if (intro.UniqueID.Value == introUniqueID.Value)
+				{
+					Intro = intro;
+					break;
+				}
+			}
 		}
 
 		public override void WriteMembers(SR1_Writer writer)
@@ -35,6 +47,18 @@ namespace Recombobulator.SR1Structures
 			introUniqueID.Write(writer);
 			instance.Write(writer);
 			data.Write(writer);
+		}
+
+		public override string ToString()
+		{
+			string result = base.ToString();
+
+			if (Intro != null)
+			{
+				result += "{ Intro = 0x" + Intro.Start.ToString("X8") + ", " + Intro.name + "-" + introUniqueID.Value + " }";
+			}
+
+			return result;
 		}
 	}
 }

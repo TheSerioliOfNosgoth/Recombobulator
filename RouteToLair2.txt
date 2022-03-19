@@ -1,0 +1,19 @@
+mrlock 1
+mrlock 2
+mrlock 3
+mrlock 
+mrlock 
+mrlock 
+mrlock 
+mrlock 
+mrlock 
+mrlock 
+lair 9
+lair 31
+lair 30
+lair 2
+lair 
+lair 
+lair 
+lair 
+lair 

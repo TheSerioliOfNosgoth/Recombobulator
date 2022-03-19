@@ -495,9 +495,9 @@ namespace SR1Repository
 			short sectionB = reader.ReadInt16();
 			short sectionC = reader.ReadInt16();
 
-			obj.NumSections += (sectionA > 0 ? sectionA : 0);
-			obj.NumSections += (sectionB > 0 ? sectionB : 0);
-			obj.NumSections += (sectionC > 0 ? sectionC : 0);
+			obj.NumSections += (sectionA > 0 ? sectionA : (short)0);
+			obj.NumSections += (sectionB > 0 ? sectionB : (short)0);
+			obj.NumSections += (sectionC > 0 ? sectionC : (short)0);
 
 			// There could be duplicate objects when unpacking. Read the data anyway for debugging.
 			if (_objects.Find(x => x.ObjectName == obj.ObjectName) == null)

@@ -6,23 +6,23 @@ namespace Recombobulator.SR1Structures
 {
 	class Intro : SR1_Structure
 	{
-		SR1_String name = new SR1_String(16);
-		SR1_Primative<int> intronum = new SR1_Primative<int>();
-		SR1_Primative<int> UniqueID = new SR1_Primative<int>();
-		Rotation rotation = new Rotation();
-		Position position = new Position();
-		SR1_Primative<short> maxRad = new SR1_Primative<short>();
-		SR1_Primative<int> maxRadSq = new SR1_Primative<int>();
-		SR1_Primative<int> flags = new SR1_Primative<int>();
-		SR1_Pointer<INICommand> data = new SR1_Pointer<INICommand>();
-		SR1_Pointer<Instance> instance = new SR1_Pointer<Instance>();
-		SR1_Pointer<MultiSpline> multiSpline = new SR1_Pointer<MultiSpline>();
+		public readonly SR1_String name = new SR1_String(16);
+		public readonly SR1_Primative<int> intronum = new SR1_Primative<int>();
+		public readonly SR1_Primative<int> UniqueID = new SR1_Primative<int>();
+		public readonly Rotation rotation = new Rotation();
+		public readonly Position position = new Position();
+		public readonly SR1_Primative<short> maxRad = new SR1_Primative<short>();
+		public readonly SR1_Primative<int> maxRadSq = new SR1_Primative<int>();
+		public readonly SR1_Primative<int> flags = new SR1_Primative<int>();
+		public readonly SR1_Pointer<INICommand> data = new SR1_Pointer<INICommand>();
+		public readonly SR1_Pointer<Instance> instance = new SR1_Pointer<Instance>();
+		public readonly SR1_Pointer<MultiSpline> multiSpline = new SR1_Pointer<MultiSpline>();
 		// Sometimes an SFXMarker, but always null in the area files, so probaby doesn't matter.
-		SR1_PrimativePointer<object> dsignal = new SR1_PrimativePointer<object>();
-		SR1_Primative<short> specturalLightGroup = new SR1_Primative<short>();
-		SR1_Primative<short> meshColor = new SR1_Primative<short>();
-		Position spectralPosition = new Position();
-		SR1_Primative<short> spad = new SR1_Primative<short>();
+		public readonly SR1_PrimativePointer<object> dsignal = new SR1_PrimativePointer<object>();
+		public readonly SR1_Primative<short> specturalLightGroup = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> meshColor = new SR1_Primative<short>();
+		public readonly Position spectralPosition = new Position();
+		public readonly SR1_Primative<short> spad = new SR1_Primative<short>();
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
