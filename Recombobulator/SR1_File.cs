@@ -88,15 +88,18 @@ namespace Recombobulator
 		public Overrides _Overrides { get; private set; }
 		public ImportFlags _ImportFlags { get; private set; } = ImportFlags.None;
 
-
-		public SR1_File()
-		{
-		}
-
 		public void Import(string fileName, ImportFlags flags = ImportFlags.None | ImportFlags.DetectPCRetail)
 		{
 			_ImportFlags = flags;
+			_FilePath = fileName;
 
+			FileStream file = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+			Import(file);
+			file.Close();
+		}
+
+		private void Import(Stream inputStream)
+		{
 			_Structures.Clear();
 			_Primatives.Clear();
 			_MigrationStructures.Clear();
@@ -111,39 +114,34 @@ namespace Recombobulator
 			_ImportErrors.GetStringBuilder().Clear();
 			_Scripts.GetStringBuilder().Clear();
 
-			_FilePath = fileName;
+			MemoryStream dataStream = new MemoryStream();
+			BinaryWriter dataWriter = new BinaryWriter(dataStream, System.Text.Encoding.UTF8, true);
+			SR1_Reader dataReader = new SR1_Reader(this, dataStream, System.Text.Encoding.UTF8, true);
 
-			MemoryStream stream = new MemoryStream();
+			using (BinaryReader inputReader = new BinaryReader(inputStream, System.Text.Encoding.UTF8, true))
+			{
+				uint dataStart = ((inputReader.ReadUInt32() >> 9) << 11) + 0x00000800;
+				_FileLength = (uint)inputStream.Length - dataStart;
 
-			FileStream file = new FileStream(fileName, FileMode.Open, FileAccess.Read);
-			BinaryReader fileReader = new BinaryReader(file, System.Text.Encoding.UTF8, true);
-			BinaryWriter streamWriter = new BinaryWriter(stream, System.Text.Encoding.UTF8, true);
+				_IsLevel = inputReader.ReadUInt32() == 0;
 
-			uint dataStart = ((fileReader.ReadUInt32() >> 9) << 11) + 0x00000800;
-			_FileLength = (uint)file.Length - dataStart;
+				inputReader.BaseStream.Position = dataStart;
+				dataWriter.BaseStream.Position = 0;
+				inputReader.BaseStream.CopyTo(dataWriter.BaseStream);
+				dataWriter.BaseStream.Position = 0;
 
-			_IsLevel = fileReader.ReadUInt32() == 0;
-
-			fileReader.BaseStream.Position = dataStart;
-			streamWriter.BaseStream.Position = 0;
-			fileReader.BaseStream.CopyTo(streamWriter.BaseStream);
-			streamWriter.BaseStream.Position = 0;
-
-			streamWriter.Dispose();
-			fileReader.Dispose();
-			file.Close();
+			}
 
 			SR1_Structure root;
-			SR1_Reader streamReader = new SR1_Reader(this, stream);
 
 			if (_IsLevel)
 			{
 				bool validVersion = false;
 
-				if (!validVersion && ((flags & ImportFlags.DetectPCRetail) != 0))
+				if (!validVersion && ((_ImportFlags & ImportFlags.DetectPCRetail) != 0))
 				{
-					streamReader.BaseStream.Position = 0x9C;
-					if (streamReader.ReadUInt64() == 0xFFFFFFFFFFFFFFFF)
+					dataReader.BaseStream.Position = 0x9C;
+					if (dataReader.ReadUInt64() == 0xFFFFFFFFFFFFFFFF)
 					{
 						_Version = Version.Retail_PC;
 						validVersion = true;
@@ -152,8 +150,8 @@ namespace Recombobulator
 
 				if (!validVersion)
 				{
-					streamReader.BaseStream.Position = 0xF0;
-					UInt32 version = streamReader.ReadUInt32();
+					dataReader.BaseStream.Position = 0xF0;
+					UInt32 version = dataReader.ReadUInt32();
 					if (!validVersion && version == RETAIL_VERSION)
 					{
 						_Version = Version.Jun01;
@@ -166,8 +164,8 @@ namespace Recombobulator
 						validVersion = true;
 					}
 
-					streamReader.BaseStream.Position = 0xE4;
-					version = streamReader.ReadUInt32();
+					dataReader.BaseStream.Position = 0xE4;
+					version = dataReader.ReadUInt32();
 
 					if (!validVersion && version == ALPHA_19990216_VERSION_3)
 					{
@@ -190,16 +188,16 @@ namespace Recombobulator
 
 				if (!validVersion)
 				{
-					streamReader.BaseStream.Position = 0x2C;
-					UInt32 oflags2 = streamReader.ReadUInt32();
+					dataReader.BaseStream.Position = 0x2C;
+					UInt32 oflags2 = dataReader.ReadUInt32();
 					if ((oflags2 & 0x00080000) != 0)
 					{
-						streamReader.BaseStream.Position = 0x1C;
-						UInt32 dataPos = streamReader.ReadUInt32();
+						dataReader.BaseStream.Position = 0x1C;
+						UInt32 dataPos = dataReader.ReadUInt32();
 						if (dataPos != 0)
 						{
-							streamReader.BaseStream.Position = dataPos;
-							UInt32 magicNum = streamReader.ReadUInt32();
+							dataReader.BaseStream.Position = dataPos;
+							UInt32 magicNum = dataReader.ReadUInt32();
 							if (magicNum == 0xACE00065)
 							{
 								_Version = Version.Jul14;
@@ -229,8 +227,8 @@ namespace Recombobulator
 					}
 					else
 					{
-						streamWriter.BaseStream.Position = 0x24;
-						uint namePos = streamReader.ReadUInt32();
+						dataWriter.BaseStream.Position = 0x24;
+						uint namePos = dataReader.ReadUInt32();
 						if (namePos == 0x00000044)
 						{
 							_Version = Version.Feb16;
@@ -239,8 +237,8 @@ namespace Recombobulator
 
 						if (!validVersion)
 						{
-							streamReader.BaseStream.Position = 0x50;
-							char[] objectName = streamReader.ReadChars(8);
+							dataReader.BaseStream.Position = 0x50;
+							char[] objectName = dataReader.ReadChars(8);
 							string objectNameStr = new string(objectName);
 							if (objectNameStr == "flamegs_")
 							{
@@ -251,19 +249,19 @@ namespace Recombobulator
 
 						if (!validVersion)
 						{
-							streamReader.BaseStream.Position = 0x4C;
-							char[] objectName = streamReader.ReadChars(8);
+							dataReader.BaseStream.Position = 0x4C;
+							char[] objectName = dataReader.ReadChars(8);
 							string objectNameStr = new string(objectName);
 							if (objectNameStr == "particle")
 							{
-								streamReader.BaseStream.Position = 0x0424;
-								if (streamReader.ReadUInt32() == 0x00000440 &&
-									streamReader.ReadUInt32() == 0x00003000 &&
-									streamReader.ReadUInt32() == 0x00003150 &&
-									streamReader.ReadUInt32() == 0x0000355C &&
-									streamReader.ReadUInt32() == 0x00003B60 &&
-									streamReader.ReadUInt32() == 0x00003EE8 &&
-									streamReader.ReadUInt32() == 0x00003EA0)
+								dataReader.BaseStream.Position = 0x0424;
+								if (dataReader.ReadUInt32() == 0x00000440 &&
+									dataReader.ReadUInt32() == 0x00003000 &&
+									dataReader.ReadUInt32() == 0x00003150 &&
+									dataReader.ReadUInt32() == 0x0000355C &&
+									dataReader.ReadUInt32() == 0x00003B60 &&
+									dataReader.ReadUInt32() == 0x00003EE8 &&
+									dataReader.ReadUInt32() == 0x00003EA0)
 								{
 									_Version = Version.May12;
 								}
@@ -287,18 +285,18 @@ namespace Recombobulator
 				root = new SR1Structures.Object();
 			}
 
-			streamReader.BaseStream.Position = 0;
+			dataReader.BaseStream.Position = 0;
 
-			root.Read(streamReader, null, "");
+			root.Read(dataReader, null, "");
 
-			if (_IsLevel && (flags & ImportFlags.LogScripts) != 0)
+			if (_IsLevel && (_ImportFlags & ImportFlags.LogScripts) != 0)
 			{
-				streamReader.ScriptParser.ParseAll(streamReader);
+				dataReader.ScriptParser.ParseAll(dataReader);
 			}
 
-			streamReader.Dispose();
-
-			stream.Close();
+			dataReader.Dispose();
+			dataWriter.Dispose();
+			dataStream.Close();
 		}
 
 		public uint Export(string fileName)
@@ -308,7 +306,7 @@ namespace Recombobulator
 
 		public uint Export(string fileName, Version targetVersion, MigrateFlags migrateFlags, Overrides overrides)
 		{
-			uint fileLength = 0;
+			uint fileLength;
 
 			_Overrides = overrides;
 

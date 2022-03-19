@@ -27,8 +27,8 @@ namespace Recombobulator
 		public SortedList<uint, SR1_PointerBase> EventList { get; } = new SortedList<uint, SR1_PointerBase>();
 		public ScriptParser ScriptParser { get; } = new ScriptParser();
 
-		public SR1_Reader(SR1_File file, Stream input)
-			: base(input, System.Text.Encoding.UTF8)
+		public SR1_Reader(SR1_File file, Stream input, System.Text.Encoding encoding, bool leaveOpen)
+			: base(input, encoding, leaveOpen)
 		{
 			File = file;
 		}
