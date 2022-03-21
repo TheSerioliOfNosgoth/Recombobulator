@@ -9,8 +9,8 @@ namespace Recombobulator
 		public SR1_File File = null;
 		public StringWriter Errors = new StringWriter();
 
-		public SR1_Writer(SR1_File file, Stream output)
-			: base(output, System.Text.Encoding.UTF8)
+		public SR1_Writer(SR1_File file, Stream output, bool leaveOpen)
+			: base(output, System.Text.Encoding.UTF8, leaveOpen)
 		{
 			File = file;
 		}

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using Recombobulator.SR1Structures;
 
 namespace Recombobulator
@@ -129,7 +127,6 @@ namespace Recombobulator
 				dataWriter.BaseStream.Position = 0;
 				inputReader.BaseStream.CopyTo(dataWriter.BaseStream);
 				dataWriter.BaseStream.Position = 0;
-
 			}
 
 			SR1_Structure root;
@@ -299,20 +296,28 @@ namespace Recombobulator
 			dataStream.Close();
 		}
 
-		public uint Export(string fileName)
+		public void Export(string fileName)
 		{
-			return Export(fileName, _Version, MigrateFlags.None, new Overrides());
+			Export(fileName, _Version, MigrateFlags.None, new Overrides());
 		}
 
-		public uint Export(string fileName, Version targetVersion, MigrateFlags migrateFlags, Overrides overrides)
+		public void Export(string fileName, Version targetVersion, MigrateFlags migrateFlags, Overrides overrides)
 		{
-			uint fileLength;
+			Directory.CreateDirectory(Path.GetDirectoryName(fileName));
+			FileStream file = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+			Export(file, targetVersion, migrateFlags, overrides);
+			Import(file);
+			file.Close();
+		}
 
+		private void Export(Stream outputStream, Version targetVersion, MigrateFlags migrateFlags, Overrides overrides)
+		{
 			_Overrides = overrides;
 
-			MemoryStream stream = new MemoryStream();
+			MemoryStream dataStream = new MemoryStream();
 
-			SR1_Writer streamWriter = new SR1_Writer(this, stream);
+			BinaryWriter outputWriter = new BinaryWriter(outputStream, System.Text.Encoding.UTF8, true);
+			SR1_Writer dataWriter = new SR1_Writer(this, dataStream, true);
 
 			_Primatives.Clear();
 			_MigrationStructures.Clear();
@@ -335,27 +340,23 @@ namespace Recombobulator
 
 			foreach (KeyValuePair<uint, SR1_Structure> entry in _Structures)
 			{
-				entry.Value.Write(streamWriter);
+				entry.Value.Write(dataWriter);
 			}
 
 			List<uint> sortedPrimativeKeys = new List<uint>(_Primatives.Keys);
 			List<uint> sortedStructureKeys = new List<uint>(_Structures.Keys);
 
-			Directory.CreateDirectory(Path.GetDirectoryName(fileName));
-			FileStream file = new FileStream(fileName, FileMode.Create, FileAccess.Write);
-			BinaryWriter fileWriter = new BinaryWriter(file, System.Text.Encoding.UTF8);
-
-			fileWriter.Write(_Pointers.Count);
+			outputWriter.Write(_Pointers.Count);
 
 			foreach (SR1_PointerBase pointer in _Pointers)
 			{
 				if (pointer.Offset != 0)
 				{
-					fileWriter.Write(pointer.NewStart);
+					outputWriter.Write(pointer.NewStart);
 				}
 			}
 
-			uint dataStart = (uint)fileWriter.BaseStream.Position;
+			uint dataStart = (uint)outputWriter.BaseStream.Position;
 			uint mod = dataStart % 0x800;
 			if (mod > 0)
 			{
@@ -363,26 +364,25 @@ namespace Recombobulator
 				dataStart += padding;
 			}
 
-			//uint dataStart = ((uint)fileWriter.BaseStream.Position + 0x00000800) & 0xFFFFF800;
-			while (fileWriter.BaseStream.Position < dataStart)
+			while (outputWriter.BaseStream.Position < dataStart)
 			{
-				fileWriter.Write((sbyte)0);
+				outputWriter.Write((sbyte)0);
 			}
 
 			foreach (SR1_PointerBase pointer in _Pointers)
 			{
 				if (_MigrationStructures.ContainsKey(pointer.Offset))
 				{
-					streamWriter.BaseStream.Position = pointer.NewStart;
-					streamWriter.Write(_MigrationStructures[pointer.Offset].NewStart);
+					dataWriter.BaseStream.Position = pointer.NewStart;
+					dataWriter.Write(_MigrationStructures[pointer.Offset].NewStart);
 					continue;
 				}
 
 				if (pointer.Offset == _LastPrimative.End)
 				{
 					uint newOffset = _LastPrimative.NewEnd + (pointer.Offset - _LastPrimative.End);
-					streamWriter.BaseStream.Position = pointer.NewStart;
-					streamWriter.Write(newOffset);
+					dataWriter.BaseStream.Position = pointer.NewStart;
+					dataWriter.Write(newOffset);
 				}
 				else
 				{
@@ -413,27 +413,23 @@ namespace Recombobulator
 							}
 						}
 
-						streamWriter.BaseStream.Position = pointer.NewStart;
-						streamWriter.Write(newOffset);
+						dataWriter.BaseStream.Position = pointer.NewStart;
+						dataWriter.Write(newOffset);
 					}
 				}
-
-				//streamWriter.BaseStream.Position = pointer.Start;
-				//streamWriter.Write(pointer.Offset);
 			}
 
-			stream.WriteTo(file);
+			dataStream.WriteTo(outputStream);
+			outputStream.Flush();
 
-			fileLength = (uint)file.Length;
+			dataWriter.Dispose();
+			outputWriter.Dispose();
 
-			file.Flush();
-			file.Dispose();
+			dataStream.Close();
 
-			stream.Close();
+			outputStream.Position = 0;
 
 			_Overrides = null;
-
-			return fileLength;
 		}
 
 		public bool TestExport()
@@ -442,129 +438,21 @@ namespace Recombobulator
 
 			MemoryStream stream = new MemoryStream();
 
-			SR1_Writer streamWriter = new SR1_Writer(this, stream);
-
-			_Primatives.Clear();
-			_MigrationStructures.Clear();
-			_Pointers.Clear();
-			_TextureIDs.Clear();
-			_IntroNames.Clear();
-			_IntroIDs.Clear();
-			_ObjectNames.Clear();
-
-			_LastPrimative = null;
-
-			SR1_Structure[] structures = new SR1_Structure[_Structures.Values.Count];
-			_Structures.Values.CopyTo(structures, 0);
-			foreach (SR1_Structure structure in structures)
-			{
-				structure.MigrateVersion(this, _Version, MigrateFlags.None);
-			}
-
-			foreach (KeyValuePair<uint, SR1_Structure> entry in _Structures)
-			{
-				entry.Value.Write(streamWriter);
-			}
-
-			List<uint> sortedPrimativeKeys = new List<uint>(_Primatives.Keys);
-			List<uint> sortedStructureKeys = new List<uint>(_Structures.Keys);
-
-			MemoryStream file = new MemoryStream();
-			BinaryWriter fileWriter = new BinaryWriter(file, System.Text.Encoding.UTF8);
-
-			fileWriter.Write(_Pointers.Count);
-
-			foreach (SR1_PointerBase pointer in _Pointers)
-			{
-				if (pointer.Offset != 0)
-				{
-					fileWriter.Write(pointer.NewStart);
-				}
-			}
-
-			uint dataStart = (uint)fileWriter.BaseStream.Position;
-			uint mod = dataStart % 0x800;
-			if (mod > 0)
-			{
-				uint padding = 0x800 - mod;
-				dataStart += padding;
-			}
-
-			//uint dataStart = ((uint)fileWriter.BaseStream.Position + 0x00000800) & 0xFFFFF800;
-			while (fileWriter.BaseStream.Position < dataStart)
-			{
-				fileWriter.Write((sbyte)0);
-			}
-
-			foreach (SR1_PointerBase pointer in _Pointers)
-			{
-				if (_MigrationStructures.ContainsKey(pointer.Offset))
-				{
-					streamWriter.BaseStream.Position = pointer.NewStart;
-					streamWriter.Write(_MigrationStructures[pointer.Offset].NewStart);
-					continue;
-				}
-
-				if (pointer.Offset == _LastPrimative.End)
-				{
-					uint newOffset = _LastPrimative.NewEnd + (pointer.Offset - _LastPrimative.End);
-					streamWriter.BaseStream.Position = pointer.NewStart;
-					streamWriter.Write(newOffset);
-				}
-				else
-				{
-					int index = sortedPrimativeKeys.BinarySearch(pointer.Offset);
-					if (index < 0)
-					{
-						index = (~index - 1);
-					}
-
-					if (index >= 0)
-					{
-						uint newOffset = 0;
-						SR1_PrimativeBase primative = _Primatives[sortedPrimativeKeys[index]];
-						if (pointer.Offset >= primative.Start && pointer.Offset < primative.End)
-						{
-							newOffset = primative.NewStart + (pointer.Offset - primative.Start);
-						}
-						else
-						{
-							index = sortedStructureKeys.BinarySearch(pointer.Offset);
-							if (index >= 0)
-							{
-								SR1_Structure structure = _Structures[sortedStructureKeys[index]];
-								if (pointer.Offset == structure.Start)
-								{
-									newOffset = structure.NewStart;
-								}
-							}
-						}
-
-						streamWriter.BaseStream.Position = pointer.NewStart;
-						streamWriter.Write(newOffset);
-					}
-				}
-
-				//streamWriter.BaseStream.Position = pointer.Start;
-				//streamWriter.Write(pointer.Offset);
-			}
-
-			stream.WriteTo(file);
+			Export(stream, _Version, MigrateFlags.None, new Overrides());
 
 			if (File.Exists(_FilePath))
 			{
-				file.Position = 0;
 				FileStream compareFile = new FileStream(_FilePath, FileMode.Open, FileAccess.Read);
-				if (file.Length != compareFile.Length)
+				if (stream.Length != compareFile.Length)
 				{
 					result = false;
 				}
 				else
 				{
-					long fileLength = Math.Min(file.Length, compareFile.Length);
+					long fileLength = Math.Min(stream.Length, compareFile.Length);
 					for (long i = 0; i < fileLength; i++)
 					{
-						if (file.ReadByte() != compareFile.ReadByte())
+						if (stream.ReadByte() != compareFile.ReadByte())
 						{
 							result = false;
 						}
@@ -576,9 +464,6 @@ namespace Recombobulator
 			{
 				result = false;
 			}
-
-			file.Flush();
-			file.Dispose();
 
 			stream.Close();
 
