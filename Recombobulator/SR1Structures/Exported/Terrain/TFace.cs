@@ -67,9 +67,16 @@ namespace Recombobulator.SR1Structures
 		{
 			base.MigrateVersion(file, targetVersion, migrateFlags);
 
+			bool removeSignal = false;
+
 			if (file._Version < SR1_File.Version.May12 && targetVersion >= SR1_File.Version.May12)
 			{
-				if (!IsInSignalGroup)
+				if (IsInSignalGroup)
+				{
+					// Looks like there are other things triggered besides portals/signals.
+					removeSignal |= (attr.Value != 0x44);
+				}
+				else
 				{
 					// 0x02 lets forge 6 work and prevents crashing in retreat when using portals.
 					// 0x08 is water?
@@ -82,13 +89,9 @@ namespace Recombobulator.SR1Structures
 
 			if (IsInSignalGroup)
 			{
-				bool removeSignal = false;
 				removeSignal |= Portal != null && Portal.OmitFromMigration;
 				removeSignal |= MultiSignal != null && MultiSignal.OmitFromMigration;
 				removeSignal |= Signal != null && Signal.OmitFromMigration;
-
-				// Looks like there are other things triggered besides portals/signals.
-				removeSignal |= (attr.Value != 0x44);
 
 				// 0x004ABBBA has something to do with the portals.
 				// COLLIDE_LineWithSignals does care about TFace::texoff. See address 00490DF6 in game.
