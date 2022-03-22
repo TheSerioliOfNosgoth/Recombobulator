@@ -304,7 +304,7 @@ namespace Recombobulator
 		public void Export(string fileName, Version targetVersion, MigrateFlags migrateFlags, Overrides overrides)
 		{
 			Directory.CreateDirectory(Path.GetDirectoryName(fileName));
-			FileStream file = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+			FileStream file = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite);
 			Export(file, targetVersion, migrateFlags, overrides);
 			Import(file);
 			file.Close();

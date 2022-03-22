@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Threading;
@@ -164,97 +165,11 @@ namespace Recombobulator
 				{
 					fileName = addFileDialog.FileName;
 
-					#region Textures
 					TexSet textureSet = _repository.TextureSets.TexSets.Find(x => x.Index == addFileDialog.TextureSet);
 					if (textureSet == null)
 					{
-						CDC.Objects.ExportOptions options = new CDC.Objects.ExportOptions();
-						SRFile srFile = new SR1File(_file._FilePath, options);
-						string textureFileName = Path.ChangeExtension(_file._FilePath, "crm");
-						try
-						{
-							SR1PSTextureFile textureFile = new SR1PSTextureFile(textureFileName);
-
-							uint polygonCountAllModels = 0;
-							foreach (SRModel srModel in srFile.Models)
-							{
-								polygonCountAllModels += srModel.PolygonCount;
-							}
-
-							SR1PSTextureFile.SoulReaverPlaystationPolygonTextureData[] polygons =
-								new SR1PSTextureFile.SoulReaverPlaystationPolygonTextureData[polygonCountAllModels];
-
-							int polygonNum = 0;
-							foreach (SRModel srModel in srFile.Models)
-							{
-								foreach (CDC.Polygon polygon in srModel.Polygons)
-								{
-									polygons[polygonNum].paletteColumn = polygon.paletteColumn;
-									polygons[polygonNum].paletteRow = polygon.paletteRow;
-									polygons[polygonNum].u = new int[3];
-									polygons[polygonNum].v = new int[3];
-									polygons[polygonNum].materialColour = polygon.colour;
-
-									polygons[polygonNum].u[0] = (int)(srModel.Geometry.UVs[polygon.v1.UVID].u * 255);
-									polygons[polygonNum].v[0] = (int)(srModel.Geometry.UVs[polygon.v1.UVID].v * 255);
-									polygons[polygonNum].u[1] = (int)(srModel.Geometry.UVs[polygon.v2.UVID].u * 255);
-									polygons[polygonNum].v[1] = (int)(srModel.Geometry.UVs[polygon.v2.UVID].v * 255);
-									polygons[polygonNum].u[2] = (int)(srModel.Geometry.UVs[polygon.v3.UVID].u * 255);
-									polygons[polygonNum].v[2] = (int)(srModel.Geometry.UVs[polygon.v3.UVID].v * 255);
-
-									polygons[polygonNum].textureID = polygon.material.textureID;
-									polygons[polygonNum].CLUT = polygon.material.clutValue;
-
-									polygons[polygonNum].textureUsed = polygon.material.textureUsed;
-									polygons[polygonNum].visible = polygon.material.visible;
-
-									polygonNum++;
-								}
-							}
-
-							textureFile.BuildTexturesFromPolygonData(polygons, false, true, options);
-
-							textureSet = new TexSet();
-							textureSet.Name = fileName;
-							textureSet.Index = _repository.TextureSets.Count;
-
-							TexDesc[] textures = new TexDesc[8];
-
-							ushort textureIndex = (ushort)_repository.Textures.Count;
-							for (int t = 0; t < textures.Length; t++)
-							{
-								Bitmap bitmap;
-								if (t >= textureFile.TextureCount)
-								{
-									textureSet.TextureIDs[t] = textureIndex;
-								}
-								else
-								{
-									bitmap = textureFile.GetTextureAsBitmap(t);
-
-									int newTextureIndex = textureIndex + t;
-
-									string textureName = _repository.MakeTextureFilePath(newTextureIndex, true);
-									bitmap.Save(textureName);
-
-									textures[t] = new TexDesc();
-									textures[t].TextureIndex = textureIndex + t;
-									textures[t].FilePath = _repository.MakeTextureFilePath(newTextureIndex);
-									textures[t].IsNew = true;
-
-									_repository.Textures.Add(textures[t]);
-
-									textureSet.TextureIDs[t] = (ushort)newTextureIndex;
-								}
-							}
-
-							_repository.TextureSets.Add(textureSet);
-						}
-						catch (Exception)
-						{
-						}
+						textureSet = ImportTextures(fileName, _file._FilePath);
 					}
-					#endregion
 
 					SR1_File.MigrateFlags migrateFlags = SR1_File.MigrateFlags.None;
 
@@ -410,6 +325,7 @@ namespace Recombobulator
 
 			addToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
 			compileProjectToolStripMenuItem.Enabled = (_repository != null);
+			runScriptToolStripMenuItem.Enabled = (_repository != null);
 			editPortalToolStripMenuItem.Enabled = false;
 
 			_progressWindow.Show();
@@ -419,6 +335,7 @@ namespace Recombobulator
 		{
 			addToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
 			compileProjectToolStripMenuItem.Enabled = (_repository != null);
+			runScriptToolStripMenuItem.Enabled = (_repository != null);
 			editPortalToolStripMenuItem.Enabled = false;
 
 			if (_repository != null)
@@ -643,6 +560,7 @@ namespace Recombobulator
 
 			addToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
 			compileProjectToolStripMenuItem.Enabled = (_repository != null);
+			runScriptToolStripMenuItem.Enabled = (_repository != null);
 			editPortalToolStripMenuItem.Enabled = false;
 
 			Repository repository = new Repository(folderDialog.SelectedPath);
@@ -652,6 +570,7 @@ namespace Recombobulator
 
 				addToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
 				compileProjectToolStripMenuItem.Enabled = (_repository != null);
+				runScriptToolStripMenuItem.Enabled = (_repository != null);
 				editPortalToolStripMenuItem.Enabled = false;
 
 				projectTreeView.Nodes.Clear();
@@ -848,6 +767,228 @@ namespace Recombobulator
 			}
 
 			editPortalForm.Dispose();
+		}
+
+		struct ImportFile
+		{
+			public string importName;
+			public string exportName;
+			public string textureSet;
+			public bool isLevel;
+		};
+
+		private void runScriptToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			FolderBrowserDialog dialog = new FolderBrowserDialog();
+			dialog.Description = "Select root folder.";
+			dialog.ShowNewFolderButton = false;
+
+			string recentFolder = Properties.Settings.Default.RecentFolder;
+			if (recentFolder != null && System.IO.Directory.Exists(recentFolder))
+			{
+				dialog.SelectedPath = recentFolder;
+			}
+
+			if (dialog.ShowDialog() == DialogResult.OK)
+			{
+				Properties.Settings.Default.RecentFolder = dialog.SelectedPath;
+				Properties.Settings.Default.Save();
+
+				List<ImportFile> importList = new List<ImportFile>();
+				importList.Add(new ImportFile { importName = "retreat1", exportName = null, textureSet = null, isLevel = true });
+				importList.Add(new ImportFile { importName = "retreat2", exportName = null, textureSet = null, isLevel = true });
+				importList.Add(new ImportFile { importName = "retreat3", exportName = null, textureSet = null, isLevel = true });
+
+				foreach (ImportFile importFile in importList)
+				{
+					string importFolderName = importFile.importName.TrimEnd("0123456789".ToCharArray());
+					string importParentFolder = dialog.SelectedPath;
+					string importPath = importFile.isLevel ?
+						Path.Combine(importParentFolder, "kain2\\area", importFolderName, "bin", importFile.importName + ".drm") :
+						Path.Combine(importParentFolder, "kain2\\object", importFolderName, "bin", importFile.importName + ".drm");
+
+					if (!File.Exists(importPath))
+					{
+						continue;
+					}
+
+					SR1_File file = new SR1_File();
+					file.Import(importPath);
+
+					string exportName = (importFile.exportName != null) ? importFile.exportName : importFile.importName;
+					string exportPath = importFile.isLevel ?
+						_repository.MakeLevelFilePath(exportName, true) :
+						_repository.MakeObjectFilePath(exportName, true);
+					string relativeExportPath = importFile.isLevel ?
+						_repository.MakeLevelFilePath(exportName) :
+						_repository.MakeObjectFilePath(exportName);
+
+					uint fileHash = Repository.GetSR1HashName(exportPath);
+					if (_repository.Assets.Assets.Find(x => x.FileHash == fileHash) != null)
+					{
+						continue;
+					}
+
+					TexSet textureSet = null;
+
+					if (importFile.textureSet != null)
+					{
+						textureSet = _repository.TextureSets.TexSets.Find(x => x.Name == importFile.textureSet);
+					}
+
+					if (textureSet == null)
+					{
+						textureSet = ImportTextures(exportName, importPath);
+					}
+
+					SR1_File.MigrateFlags migrateFlags = SR1_File.MigrateFlags.None;
+
+					SR1_File.Overrides overrides = new SR1_File.Overrides();
+					overrides.NewName = exportName;
+					overrides.NewTextureIDs = textureSet.TextureIDs;
+
+					object newObject = null;
+					string category = null;
+
+					if (importFile.isLevel)
+					{
+						migrateFlags |= SR1_File.MigrateFlags.RemoveEvents;
+						migrateFlags |= SR1_File.MigrateFlags.RemoveVertexMorphs;
+
+						overrides.NewStreamUnitID = 0;
+						_repository.FindAvailableStreamUnitID(ref overrides.NewStreamUnitID);
+
+						overrides.NewIntroIDs = new int[file._IntroIDs.Count];
+						_repository.FindAvailableIntroIDs(ref overrides.NewIntroIDs);
+
+						SR1Structures.Level level = (SR1Structures.Level)file._Structures[0];
+						uint sourceVersion = level.versionNumber.Value;
+
+						//overrides.NewObjectNames.Add("priests", "witch");
+						file.Export(exportPath, SR1_File.Version.Retail_PC, migrateFlags, overrides);
+
+						string sourceUnitName = level.Name;
+						newObject = _repository.AddNewLevel(exportName, sourceUnitName, sourceVersion, textureSet.Name);
+						category = "Levels";
+					}
+					else
+					{
+						file.Export(exportPath, SR1_File.Version.Retail_PC, migrateFlags, overrides);
+						newObject = _repository.AddNewObject(exportName, textureSet.Name);
+						category = "Objects";
+					}
+
+					if (newObject != null && category != null)
+					{
+						TreeNode[] nodes = projectTreeView.Nodes.Find(category, false);
+						if (nodes.Length > 0 && nodes[0] != null)
+						{
+							TreeNode node = new TreeNode();
+							node.Text = exportName;
+							node.Tag = newObject;
+							nodes[0].Nodes.Add(node);
+							projectTreeView.Sort();
+						}
+					}
+
+					_repository.AddNewAsset(relativeExportPath);
+					_repository.SaveRepository();
+				}
+			}
+		}
+
+		TexSet ImportTextures(string textureSetName, string filePath)
+		{
+			TexSet textureSet = new TexSet();
+			textureSet.Name = textureSetName;
+			textureSet.Index = _repository.TextureSets.Count;
+
+			try
+			{
+
+				CDC.Objects.ExportOptions options = new CDC.Objects.ExportOptions();
+				SRFile srFile = new SR1File(filePath, options);
+
+				string textureFileName = Path.ChangeExtension(filePath, "crm");
+				SR1PSTextureFile textureFile = new SR1PSTextureFile(textureFileName);
+
+				uint polygonCountAllModels = 0;
+				foreach (SRModel srModel in srFile.Models)
+				{
+					polygonCountAllModels += srModel.PolygonCount;
+				}
+
+				SR1PSTextureFile.SoulReaverPlaystationPolygonTextureData[] polygons =
+					new SR1PSTextureFile.SoulReaverPlaystationPolygonTextureData[polygonCountAllModels];
+
+				int polygonNum = 0;
+				foreach (SRModel srModel in srFile.Models)
+				{
+					foreach (CDC.Polygon polygon in srModel.Polygons)
+					{
+						polygons[polygonNum].paletteColumn = polygon.paletteColumn;
+						polygons[polygonNum].paletteRow = polygon.paletteRow;
+						polygons[polygonNum].u = new int[3];
+						polygons[polygonNum].v = new int[3];
+						polygons[polygonNum].materialColour = polygon.colour;
+
+						polygons[polygonNum].u[0] = (int)(srModel.Geometry.UVs[polygon.v1.UVID].u * 255);
+						polygons[polygonNum].v[0] = (int)(srModel.Geometry.UVs[polygon.v1.UVID].v * 255);
+						polygons[polygonNum].u[1] = (int)(srModel.Geometry.UVs[polygon.v2.UVID].u * 255);
+						polygons[polygonNum].v[1] = (int)(srModel.Geometry.UVs[polygon.v2.UVID].v * 255);
+						polygons[polygonNum].u[2] = (int)(srModel.Geometry.UVs[polygon.v3.UVID].u * 255);
+						polygons[polygonNum].v[2] = (int)(srModel.Geometry.UVs[polygon.v3.UVID].v * 255);
+
+						polygons[polygonNum].textureID = polygon.material.textureID;
+						polygons[polygonNum].CLUT = polygon.material.clutValue;
+
+						polygons[polygonNum].textureUsed = polygon.material.textureUsed;
+						polygons[polygonNum].visible = polygon.material.visible;
+
+						polygonNum++;
+					}
+				}
+
+				textureFile.BuildTexturesFromPolygonData(polygons, false, true, options);
+
+				TexDesc[] textures = new TexDesc[8];
+
+				ushort textureIndex = (ushort)_repository.Textures.Count;
+				for (int t = 0; t < textures.Length; t++)
+				{
+					Bitmap bitmap;
+					if (t >= textureFile.TextureCount)
+					{
+						textureSet.TextureIDs[t] = textureIndex;
+					}
+					else
+					{
+						bitmap = textureFile.GetTextureAsBitmap(t);
+
+						int newTextureIndex = textureIndex + t;
+
+						string textureName = _repository.MakeTextureFilePath(newTextureIndex, true);
+						bitmap.Save(textureName);
+
+						textures[t] = new TexDesc();
+						textures[t].TextureIndex = textureIndex + t;
+						textures[t].FilePath = _repository.MakeTextureFilePath(newTextureIndex);
+						textures[t].IsNew = true;
+
+						_repository.Textures.Add(textures[t]);
+
+						textureSet.TextureIDs[t] = (ushort)newTextureIndex;
+					}
+				}
+
+				_repository.TextureSets.Add(textureSet);
+			}
+			catch (Exception)
+			{
+
+			}
+
+			return textureSet;
 		}
 	}
 }

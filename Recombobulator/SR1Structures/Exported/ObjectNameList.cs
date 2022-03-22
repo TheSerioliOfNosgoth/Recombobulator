@@ -76,7 +76,6 @@ namespace Recombobulator.SR1Structures
 						objectName == "Shadow2" ||
 						objectName == "Shadow3")
 					{
-						MembersRead.Remove(_List[i]);
 						_List.Remove(_List[i]);
 					}
 					else

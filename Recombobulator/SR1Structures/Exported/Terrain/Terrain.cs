@@ -288,11 +288,6 @@ namespace Recombobulator.SR1Structures
 
 			if (file._Version <= SR1_File.Version.May12 && targetVersion >= SR1_File.Version.Retail_PC)
 			{
-				MembersRead.Insert(MembersRead.IndexOf(sbspRoot), pad);
-				MembersRead.Remove(sbspRoot);
-				MembersRead.Remove(sbspStartLeaves);
-				MembersRead.Remove(sbspEndLeaves);
-
 				if (sbspRoot.Offset != 0)
 				{
 					file._Structures.Remove(sbspRoot.Offset);
@@ -315,8 +310,6 @@ namespace Recombobulator.SR1Structures
 					aniList.Offset = 0;
 					EndTextureList.Offset = MorphDiffList.Offset;
 				}
-
-				MembersRead.Add(unknownPCList);
 
 				SR1_Structure lastStructure = file._Structures.Values[file._Structures.Count - 1];
 				uint position = lastStructure.End;
