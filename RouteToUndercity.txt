@@ -1,0 +1,3 @@
+city9, city16 (replace portal to city8, 2)
+city10, city17
+city11, city22 (No portal in city12)

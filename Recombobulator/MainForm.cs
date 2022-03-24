@@ -775,7 +775,14 @@ namespace Recombobulator
 			public string exportName;
 			public string textureSet;
 			public bool isLevel;
+			public string[] renovePortals;
 		};
+
+		struct ReplacePortal
+        {
+			public string fromSignal;
+			public string toSignal;
+        }
 
 		private void runScriptToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -794,12 +801,17 @@ namespace Recombobulator
 				Properties.Settings.Default.RecentFolder = dialog.SelectedPath;
 				Properties.Settings.Default.Save();
 
-				List<ImportFile> importList = new List<ImportFile>();
-				importList.Add(new ImportFile { importName = "retreat1", exportName = null, textureSet = null, isLevel = true });
-				importList.Add(new ImportFile { importName = "retreat2", exportName = null, textureSet = null, isLevel = true });
-				importList.Add(new ImportFile { importName = "retreat3", exportName = null, textureSet = null, isLevel = true });
+				List<ImportFile> importFiles = new List<ImportFile>();
+				importFiles.Add(new ImportFile { importName = "retreat1", exportName = null, textureSet = null, isLevel = true });
+				importFiles.Add(new ImportFile { importName = "retreat2", exportName = null, textureSet = null, isLevel = true });
+				importFiles.Add(new ImportFile { importName = "retreat3", exportName = null, textureSet = null, isLevel = true });
+				importFiles.Add(new ImportFile { importName = "city9", exportName = "city16", textureSet = null, isLevel = true });
+				importFiles.Add(new ImportFile { importName = "city10", exportName = "city17", textureSet = null, isLevel = true });
+				importFiles.Add(new ImportFile { importName = "city11", exportName = "city22", textureSet = null, isLevel = true, renovePortals = new string[] { "city12,1" } });
+				//List<ReplacePortal> replacePortals = new List<ReplacePortal>();
+				//replacePortals.Add(new ReplacePortal { fromSignal = "city8,2", toSignal = "city16,1" });
 
-				foreach (ImportFile importFile in importList)
+				foreach (ImportFile importFile in importFiles)
 				{
 					string importFolderName = importFile.importName.TrimEnd("0123456789".ToCharArray());
 					string importParentFolder = dialog.SelectedPath;
@@ -865,6 +877,8 @@ namespace Recombobulator
 						uint sourceVersion = level.versionNumber.Value;
 
 						//overrides.NewObjectNames.Add("priests", "witch");
+
+						RemovePortals(file, importFile);
 						file.Export(exportPath, SR1_File.Version.Retail_PC, migrateFlags, overrides);
 
 						string sourceUnitName = level.Name;
@@ -893,6 +907,51 @@ namespace Recombobulator
 
 					_repository.AddNewAsset(relativeExportPath);
 					_repository.SaveRepository();
+				}
+
+				//foreach (ReplacePortal replacePortal in replacePortals)
+				//{
+				//	_repository.EditPortal(editPortalForm.FromUnit, editPortalForm.ToUnit, editPortalForm.FromSignal, editPortalForm.ToSignal);
+				//	_repository.SaveRepository();
+				//}
+			}
+		}
+
+		void RemovePortals(SR1_File file, ImportFile importFile)
+		{
+			if (importFile.renovePortals != null && importFile.renovePortals.Length > 0)
+			{
+				SR1Structures.Level level = (SR1Structures.Level)file._Structures[0];
+				SR1Structures.Terrain terrain =
+					(SR1Structures.Terrain)file._Structures[level.terrain.Offset];
+				SR1Structures.SR1_StructureSeries<SR1Structures.MultiSignal> multiSignals =
+					multiSignals = (SR1Structures.SR1_StructureSeries<SR1Structures.MultiSignal>)file._Structures[level.SignalListStart.Offset];
+				SR1Structures.StreamUnitPortalList portalList =
+					portalList = (SR1Structures.StreamUnitPortalList)file._Structures[terrain.StreamUnits.Offset];
+
+				foreach (SR1Structures.StreamUnitPortal portal in portalList.portals)
+				{
+					if (!Array.Exists(importFile.renovePortals, x => x == portal.tolevelname.ToString()))
+					{
+						continue;
+					}
+
+					portal.OmitFromMigration = true;
+
+					foreach (SR1Structures.MultiSignal mSignal in multiSignals)
+					{
+						if (mSignal.signalNum.Value == portal.MSignalID.Value)
+						{
+							mSignal.OmitFromMigration = true;
+
+							if (mSignal.numSignals.Value > 0)
+							{
+								((SR1Structures.Signal)mSignal.signalList[0]).OmitFromMigration = true;
+							}
+
+							break;
+						}
+					}
 				}
 			}
 		}
