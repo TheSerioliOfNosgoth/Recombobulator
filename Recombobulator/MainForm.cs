@@ -808,8 +808,8 @@ namespace Recombobulator
 				importFiles.Add(new ImportFile { importName = "city9", exportName = "city16", textureSet = null, isLevel = true });
 				importFiles.Add(new ImportFile { importName = "city10", exportName = "city17", textureSet = null, isLevel = true });
 				importFiles.Add(new ImportFile { importName = "city11", exportName = "city22", textureSet = null, isLevel = true, renovePortals = new string[] { "city12,1" } });
-				//List<ReplacePortal> replacePortals = new List<ReplacePortal>();
-				//replacePortals.Add(new ReplacePortal { fromSignal = "city8,2", toSignal = "city16,1" });
+				List<ReplacePortal> replacePortals = new List<ReplacePortal>();
+				replacePortals.Add(new ReplacePortal { fromSignal = "city8,2", toSignal = "city16,1" });
 
 				foreach (ImportFile importFile in importFiles)
 				{
@@ -906,15 +906,21 @@ namespace Recombobulator
 					}
 
 					_repository.AddNewAsset(relativeExportPath);
-					_repository.SaveRepository();
 				}
 
-				//foreach (ReplacePortal replacePortal in replacePortals)
-				//{
-				//	_repository.EditPortal(editPortalForm.FromUnit, editPortalForm.ToUnit, editPortalForm.FromSignal, editPortalForm.ToSignal);
-				//	_repository.SaveRepository();
-				//}
+				foreach (ReplacePortal replacePortal in replacePortals)
+				{
+					string[] fromPortal = replacePortal.fromSignal.Split(',');
+					string[] toPortal = replacePortal.toSignal.Split(',');
+					string fromUnit = fromPortal[0];
+					string toUnit = toPortal[0];
+					int.TryParse(fromPortal[1], out int fromSignal);
+					int.TryParse(toPortal[1], out int toSignal);
+					_repository.EditPortal(fromUnit, toUnit, fromSignal, toSignal);
+				}
 			}
+
+			_repository.SaveRepository();
 		}
 
 		void RemovePortals(SR1_File file, ImportFile importFile)
