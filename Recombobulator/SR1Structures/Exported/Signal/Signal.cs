@@ -5,7 +5,7 @@ namespace Recombobulator.SR1Structures
 {
 	class Signal : SR1_Structure
 	{
-		private enum SignalTypeJun01
+		public enum SignalTypeJun01
 		{
 			HandleLightGroup,           // long lightGroup;
 			HandleCameraAdjust,         // long cameraAdjust;
@@ -35,7 +35,7 @@ namespace Recombobulator.SR1Structures
 			HandleSetCameraTilt,        // long cameraTilt;
 			HandleSetCameraDistance,    // long cameraDistance;
 		}
-		private enum SignalTypeMay12
+		public enum SignalTypeMay12
 		{
 			HandleLightGroup = 12,      // long lightGroup;
 			HandleCameraAdjust,         // long cameraAdjust;
@@ -67,7 +67,7 @@ namespace Recombobulator.SR1Structures
 			HandleSetCameraDistance,    // long cameraDistance;
 		}
 
-		private enum SignalTypeFeb16
+		public enum SignalTypeFeb16
 		{
 			HandleHideObject = 0,       // Intro* intro;
 			HandleUnhideObject,         // Intro* intro;
@@ -182,8 +182,8 @@ namespace Recombobulator.SR1Structures
 			HandleDecoupledTimer2,
 		}
 
-		SR1_Primative<int> id = new SR1_Primative<int>();
-		SignalData data = new SignalData();
+		public readonly SR1_Primative<int> id = new SR1_Primative<int>();
+		public SignalData data = new SignalData();
 
 		public bool OmitFromMigration { get; set; } = false;
 

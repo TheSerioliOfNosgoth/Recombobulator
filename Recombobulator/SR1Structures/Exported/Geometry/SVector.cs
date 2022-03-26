@@ -5,10 +5,17 @@ namespace Recombobulator.SR1Structures
 {
 	class SVector : SR1_Structure
 	{
-		SR1_Primative<short> x = new SR1_Primative<short>();
-		SR1_Primative<short> y = new SR1_Primative<short>();
-		SR1_Primative<short> z = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> x = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> y = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> z = new SR1_Primative<short>();
 		SR1_Primative<short> pad = new SR1_Primative<short>();
+
+		public void SetValues(short x, short y, short z)
+		{
+			this.x.Value = x;
+			this.y.Value = y;
+			this.z.Value = z;
+		}
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
@@ -28,6 +35,11 @@ namespace Recombobulator.SR1Structures
 			y.Write(writer);
 			z.Write(writer);
 			pad.Write(writer);
+		}
+
+		public override string ToString()
+		{
+			return "{ x = " + x + ", y = " + y + ", z = " + z + " }";
 		}
 	}
 }

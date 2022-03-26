@@ -17,8 +17,8 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_Primative<short> maxz = new SR1_Primative<short>();
 		public readonly SR1_Primative<short> pad2 = new SR1_Primative<short>();
 		public readonly SR1_Pointer<StreamUnit> toStreamUnit = new SR1_Pointer<StreamUnit>();
-		public readonly SR1_StructureArray<SVector> t1 = new SR1_StructureArray<SVector>(3);
-		public readonly SR1_StructureArray<SVector> t2 = new SR1_StructureArray<SVector>(3);
+		public SR1_StructureArray<SVector> t1 = new SR1_StructureArray<SVector>(3);
+		public SR1_StructureArray<SVector> t2 = new SR1_StructureArray<SVector>(3);
 
 		public bool OmitFromMigration { get; set; } = false;
 

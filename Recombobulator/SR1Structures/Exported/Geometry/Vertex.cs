@@ -26,5 +26,10 @@ namespace Recombobulator.SR1Structures
 			y.Write(writer);
 			z.Write(writer);
 		}
-	}
+
+        public override string ToString()
+        {
+			return "{ x = " + x + ", y = " + y + ", z = " + z + " }";
+        }
+    }
 }

@@ -1,3 +1,41 @@
 city9, city16 (replace portal to city8, 2)
 city10, city17
 city11, city22 (No portal in city12)
+
+city12
+
+portalA
+{
+	faces = { 447, 478 };
+
+	vertices = { 149, 150, 151, 152 };
+
+	xValues = {  2686,   3672,  3152,  3206 };
+	yValues = {  2086,   3611,  2086,  3611 };
+	zValues = { -10696, -9329, -9147, -10878 };
+
+	minx = 2686;
+	miny = 2086;
+	minz = -10878;
+	maxx = 3672;
+	maxy = 3611;
+	maxz = -9147
+}
+
+portalB
+{
+	faces = { 479, 480 };
+
+	vertices = { 136, 148, 153, 154 }
+
+	xValues = {  10880,   10879,  10880,  10879 };
+	yValues = {  1163,   -1396,   1163,  -1396  };
+	zValues = { -14072,  -14072, -12792, -12792 };
+
+	minx = 10879;
+	miny = -1396;
+	minz = -14072;
+	maxx = 10880;
+	maxy = 1163;
+	maxz = -12792;
+}

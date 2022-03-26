@@ -2,15 +2,15 @@
 {
 	class SignalStreamLevel : SignalData
 	{
-		SR1_Primative<int> currentnum = new SR1_Primative<int>();
-		SR1_Primative<int> streamID = new SR1_Primative<int>();
-		SR1_PrimativeArray<char> toname = new SR1_PrimativeArray<char>(16);
+		public readonly SR1_Primative<int> currentnum = new SR1_Primative<int>();
+		public readonly SR1_Primative<int> streamID = new SR1_Primative<int>();
+		public readonly SR1_String toname = new SR1_String(16);
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
 			currentnum.Read(reader, this, "currentnum");
 			streamID.Read(reader, this, "streamID");
-			toname.Read(reader, this, "toname");
+			toname.SetReadMax(true).Read(reader, this, "toname");
 		}
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)

@@ -802,12 +802,13 @@ namespace Recombobulator
 				Properties.Settings.Default.Save();
 
 				List<ImportFile> importFiles = new List<ImportFile>();
-				importFiles.Add(new ImportFile { importName = "retreat1", exportName = null, textureSet = null, isLevel = true });
-				importFiles.Add(new ImportFile { importName = "retreat2", exportName = null, textureSet = null, isLevel = true });
-				importFiles.Add(new ImportFile { importName = "retreat3", exportName = null, textureSet = null, isLevel = true });
-				importFiles.Add(new ImportFile { importName = "city9", exportName = "city16", textureSet = null, isLevel = true });
-				importFiles.Add(new ImportFile { importName = "city10", exportName = "city17", textureSet = null, isLevel = true });
-				importFiles.Add(new ImportFile { importName = "city11", exportName = "city22", textureSet = null, isLevel = true, renovePortals = new string[] { "city12,1" } });
+				importFiles.Add(new ImportFile { importName = "retreat1", isLevel = true });
+				importFiles.Add(new ImportFile { importName = "retreat2", isLevel = true });
+				importFiles.Add(new ImportFile { importName = "retreat3", isLevel = true });
+				importFiles.Add(new ImportFile { importName = "city9", exportName = "city16", isLevel = true });
+				importFiles.Add(new ImportFile { importName = "city10", exportName = "city17", isLevel = true });
+				importFiles.Add(new ImportFile { importName = "city11", exportName = "city22", isLevel = true, renovePortals = new string[] { "city12,1" } });
+				//importFiles.Add(new ImportFile { importName = "city12", isLevel = true });
 				List<ReplacePortal> replacePortals = new List<ReplacePortal>();
 				replacePortals.Add(new ReplacePortal { fromSignal = "city8,2", toSignal = "city16,1" });
 
@@ -931,9 +932,9 @@ namespace Recombobulator
 				SR1Structures.Terrain terrain =
 					(SR1Structures.Terrain)file._Structures[level.terrain.Offset];
 				SR1Structures.SR1_StructureSeries<SR1Structures.MultiSignal> multiSignals =
-					multiSignals = (SR1Structures.SR1_StructureSeries<SR1Structures.MultiSignal>)file._Structures[level.SignalListStart.Offset];
+					(SR1Structures.SR1_StructureSeries<SR1Structures.MultiSignal>)file._Structures[level.SignalListStart.Offset];
 				SR1Structures.StreamUnitPortalList portalList =
-					portalList = (SR1Structures.StreamUnitPortalList)file._Structures[terrain.StreamUnits.Offset];
+					(SR1Structures.StreamUnitPortalList)file._Structures[terrain.StreamUnits.Offset];
 
 				foreach (SR1Structures.StreamUnitPortal portal in portalList.portals)
 				{
