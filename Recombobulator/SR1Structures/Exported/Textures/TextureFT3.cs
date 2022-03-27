@@ -35,7 +35,7 @@ namespace Recombobulator.SR1Structures
 			v2.Read(reader, this, "v2");
 			attr.Read(reader, this, "attr");
 
-			color.Read(reader, this, "color", SR1_File.Version.Feb16, SR1_File.Version.May12);
+			color.Read(reader, this, "color", SR1_File.Version.Feb04, SR1_File.Version.May12);
 
 			ushort textureID;
 			if (reader.File._Version == SR1_File.Version.Retail_PC)
@@ -75,7 +75,7 @@ namespace Recombobulator.SR1Structures
 			v2.Write(writer);
 			attr.Write(writer);
 
-			color.Write(writer, SR1_File.Version.Feb16, SR1_File.Version.May12);
+			color.Write(writer, SR1_File.Version.Feb04, SR1_File.Version.May12);
 		}
 
 		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
@@ -88,7 +88,7 @@ namespace Recombobulator.SR1Structures
 				tpage.Value = (ushort)textureID;
 				attr2.Value = 0x0108;
 
-				if (file._Version <= SR1_File.Version.Feb16)
+				if (file._Version < SR1_File.Version.May12)
 				{
 					if ((attr.Value & 0x0010) != 0)
 					{

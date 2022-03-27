@@ -805,12 +805,15 @@ namespace Recombobulator
 				importFiles.Add(new ImportFile { importName = "retreat1", isLevel = true });
 				importFiles.Add(new ImportFile { importName = "retreat2", isLevel = true });
 				importFiles.Add(new ImportFile { importName = "retreat3", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "city9", exportName = "city16", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "city10", exportName = "city17", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "city11", exportName = "city22", isLevel = true, renovePortals = new string[] { "city12,1" } });
-				//importFiles.Add(new ImportFile { importName = "city12", isLevel = true });
+
+				importFiles.Add(new ImportFile { importName = "city9", exportName = "city17", isLevel = true });
+				importFiles.Add(new ImportFile { importName = "city10", exportName = "city18", isLevel = true });
+				importFiles.Add(new ImportFile { importName = "city11", exportName = "city22", isLevel = true });
+				importFiles.Add(new ImportFile { importName = "city12", isLevel = true });
+				importFiles.Add(new ImportFile { importName = "city16", isLevel = true, renovePortals = new string[] { "undrct1,90" } });
+
 				List<ReplacePortal> replacePortals = new List<ReplacePortal>();
-				replacePortals.Add(new ReplacePortal { fromSignal = "city8,2", toSignal = "city16,1" });
+				replacePortals.Add(new ReplacePortal { fromSignal = "city8,2", toSignal = "city17,1" });
 
 				foreach (ImportFile importFile in importFiles)
 				{

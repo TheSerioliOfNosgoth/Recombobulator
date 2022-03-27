@@ -41,8 +41,8 @@ namespace Recombobulator.SR1Structures
 			UnitChangeFlags.Read(reader, this, "UnitChangeFlags", SR1_File.Version.May12, SR1_File.Version.Next);
 			spad.Read(reader, this, "spad", SR1_File.Version.May12, SR1_File.Version.Next);
 			lpad2.Read(reader, this, "lpad2", SR1_File.Version.May12, SR1_File.Version.Next);
-			vplLength.Read(reader, this, "vplLength", SR1_File.Version.Feb16, SR1_File.Version.May12);
-			vpList.Read(reader, this, "vpList", SR1_File.Version.Feb16, SR1_File.Version.May12);
+			vplLength.Read(reader, this, "vplLength", SR1_File.Version.Feb04, SR1_File.Version.May12);
+			vpList.Read(reader, this, "vpList", SR1_File.Version.Feb04, SR1_File.Version.May12);
 			numIntros.Read(reader, this, "numIntros");
 			introList.Read(reader, this, "introList");
 			numVertices.Read(reader, this, "numVertices");
@@ -255,8 +255,8 @@ namespace Recombobulator.SR1Structures
 			UnitChangeFlags.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
 			spad.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
 			lpad2.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
-			vplLength.Write(writer, SR1_File.Version.Feb16, SR1_File.Version.May12);
-			vpList.Write(writer, SR1_File.Version.Feb16, SR1_File.Version.May12);
+			vplLength.Write(writer, SR1_File.Version.Feb04, SR1_File.Version.May12);
+			vpList.Write(writer, SR1_File.Version.Feb04, SR1_File.Version.May12);
 			numIntros.Write(writer);
 			introList.Write(writer);
 			numVertices.Write(writer);
@@ -337,7 +337,7 @@ namespace Recombobulator.SR1Structures
 						{
 							if (!face.IsInSignalGroup && (face.attr.Value & 0x08) != 0)
 							{
-								int textureSize = file._Version <= SR1_File.Version.Feb16 ? 16 : 12;
+								int textureSize = file._Version < SR1_File.Version.May12 ? 16 : 12;
 								TextureFT3 texture = (TextureFT3)textures[face.textoff.Value / textureSize];
 								texture.attr.Value |= 0x0010;
 							}

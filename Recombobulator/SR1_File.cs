@@ -20,7 +20,7 @@ namespace Recombobulator
 			First = 0,
 			Alpha_1_X,
 			Alpha_1,
-			Alpha_2,
+			Feb04,
 			Feb16,
 			May12,
 			Jun01,
@@ -86,6 +86,25 @@ namespace Recombobulator
 		public Overrides _Overrides { get; private set; }
 		public ImportFlags _ImportFlags { get; private set; } = ImportFlags.None;
 
+		public void Reset()
+		{
+			_FileLength = 0;
+			_Version = SR1_File.Version.Jun01;
+			_IsLevel = false;
+			_Structures.Clear();
+			_Primatives.Clear();
+			_MigrationStructures.Clear();
+			_Pointers.Clear();
+			_TextureIDs.Clear();
+			_IntroNames.Clear();
+			_IntroIDs.Clear();
+			_ObjectNames.Clear();
+			_ImportErrors.GetStringBuilder().Clear();
+			_Scripts.GetStringBuilder().Clear();
+			_LastPrimative = null;
+			_Overrides = null;
+		}
+
 		public void Import(string fileName, ImportFlags flags = ImportFlags.None | ImportFlags.DetectPCRetail)
 		{
 			_ImportFlags = flags;
@@ -98,19 +117,7 @@ namespace Recombobulator
 
 		private void Import(Stream inputStream)
 		{
-			_Structures.Clear();
-			_Primatives.Clear();
-			_MigrationStructures.Clear();
-			_Pointers.Clear();
-			_TextureIDs.Clear();
-			_IntroNames.Clear();
-			_IntroIDs.Clear();
-			_ObjectNames.Clear();
-
-			_LastPrimative = null;
-
-			_ImportErrors.GetStringBuilder().Clear();
-			_Scripts.GetStringBuilder().Clear();
+			Reset();
 
 			MemoryStream dataStream = new MemoryStream();
 			BinaryWriter dataWriter = new BinaryWriter(dataStream, System.Text.Encoding.UTF8, true);
@@ -161,12 +168,27 @@ namespace Recombobulator
 						validVersion = true;
 					}
 
-					dataReader.BaseStream.Position = 0xE4;
-					version = dataReader.ReadUInt32();
+					if (!validVersion)
+					{
+						dataReader.BaseStream.Position = 0xE4;
+						version = dataReader.ReadUInt32();
+					}
 
 					if (!validVersion && version == ALPHA_19990216_VERSION_3)
 					{
 						_Version = Version.Feb16;
+						validVersion = true;
+					}
+
+					if (!validVersion)
+					{
+						dataReader.BaseStream.Position = 0xE0;
+						version = dataReader.ReadUInt32();
+					}
+
+					if (!validVersion && version == ALPHA_19990204_VERSION_2)
+					{
+						_Version = Version.Feb04;
 						validVersion = true;
 					}
 				}

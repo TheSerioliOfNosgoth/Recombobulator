@@ -9,6 +9,7 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_String name = new SR1_String(16);
 		public readonly SR1_Primative<int> intronum = new SR1_Primative<int>();
 		public readonly SR1_Primative<int> UniqueID = new SR1_Primative<int>();
+		public readonly SR1_Pointer<Intro> link = new SR1_Pointer<Intro>();
 		public readonly Rotation rotation = new Rotation();
 		public readonly Position position = new Position();
 		public readonly SR1_Primative<short> maxRad = new SR1_Primative<short>();
@@ -29,6 +30,7 @@ namespace Recombobulator.SR1Structures
 			name.SetReadMax(true).Read(reader, this, "name");
 			intronum.Read(reader, this, "intronum");
 			UniqueID.Read(reader, this, "UniqueID");
+			link.Read(reader, this, "link", SR1_File.Version.Feb04, SR1_File.Version.Feb16);
 			rotation.Read(reader, this, "rotation");
 			position.Read(reader, this, "position");
 			maxRad.Read(reader, this, "maxRad");
@@ -87,6 +89,7 @@ namespace Recombobulator.SR1Structures
 			name.Write(writer);
 			intronum.Write(writer);
 			UniqueID.Write(writer);
+			link.Write(writer, SR1_File.Version.Feb04, SR1_File.Version.Feb16);
 			rotation.Write(writer);
 			position.Write(writer);
 			maxRad.Write(writer);
