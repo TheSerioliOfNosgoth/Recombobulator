@@ -775,14 +775,21 @@ namespace Recombobulator
 			public string exportName;
 			public string textureSet;
 			public bool isLevel;
-			public string[] renovePortals;
+			public string[] removePortals;
+			public ReplaceObject[] replaceObjects;
 		};
 
+		struct ReplaceObject
+		{
+			public string oldObject;
+			public string newObject;
+		}
+
 		struct ReplacePortal
-        {
+		{
 			public string fromSignal;
 			public string toSignal;
-        }
+		}
 
 		private void runScriptToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -810,7 +817,33 @@ namespace Recombobulator
 				importFiles.Add(new ImportFile { importName = "city10", exportName = "city18", isLevel = true });
 				importFiles.Add(new ImportFile { importName = "city11", exportName = "city22", isLevel = true });
 				importFiles.Add(new ImportFile { importName = "city12", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "city16", isLevel = true, renovePortals = new string[] { "undrct1,90" } });
+				importFiles.Add(new ImportFile { importName = "city16", isLevel = true/*, removePortals = new string[] { "undrct1,90" }*/ });
+
+				ReplaceObject replaceUndblk = new ReplaceObject { oldObject = "undblk", newObject = "pshblk" };
+				ReplaceObject replaceDumbub = new ReplaceObject { oldObject = "dumbub", newObject = "pshblk" };
+				ReplaceObject[] replaceUCObjects = new ReplaceObject[] { replaceUndblk, replaceDumbub };
+
+				importFiles.Add(new ImportFile { importName = "undrct1", isLevel = true });
+				importFiles.Add(new ImportFile { importName = "undrct2", isLevel = true });
+				importFiles.Add(new ImportFile { importName = "undrct3", isLevel = true, replaceObjects = replaceUCObjects });
+				importFiles.Add(new ImportFile { importName = "undrct4", isLevel = true });
+				importFiles.Add(new ImportFile { importName = "undrct5", isLevel = true, replaceObjects = replaceUCObjects });
+				importFiles.Add(new ImportFile { importName = "undrct8", isLevel = true });
+				importFiles.Add(new ImportFile { importName = "undrct9", isLevel = true });
+				importFiles.Add(new ImportFile { importName = "undrct10", isLevel = true, removePortals = new string[] { "undrct11,1" } });
+				importFiles.Add(new ImportFile { importName = "undrct11", isLevel = true });
+				importFiles.Add(new ImportFile { importName = "undrct12", isLevel = true, removePortals = new string[] { "undrct11,1" }, replaceObjects = replaceUCObjects });
+				importFiles.Add(new ImportFile { importName = "undrct15", isLevel = true });
+				importFiles.Add(new ImportFile { importName = "undrct16", isLevel = true });
+				importFiles.Add(new ImportFile { importName = "undrct17", isLevel = true });
+				importFiles.Add(new ImportFile { importName = "undrct20", isLevel = true, removePortals = new string[] { "undrct3,1" } });
+				importFiles.Add(new ImportFile { importName = "undrct21", isLevel = true, removePortals = new string[] { "undrct5,1" } });
+				importFiles.Add(new ImportFile { importName = "undrct22", isLevel = true });
+				importFiles.Add(new ImportFile { importName = "undrct23", isLevel = true });
+				//importFiles.Add(new ImportFile { importName = "lantm", isLevel = false });
+				//importFiles.Add(new ImportFile { importName = "bwall", isLevel = false });
+				//importFiles.Add(new ImportFile { importName = "swall", isLevel = false });
+				//importFiles.Add(new ImportFile { importName = "undblk", isLevel = false });
 
 				List<ReplacePortal> replacePortals = new List<ReplacePortal>();
 				replacePortals.Add(new ReplacePortal { fromSignal = "city8,2", toSignal = "city17,1" });
@@ -882,6 +915,14 @@ namespace Recombobulator
 
 						//overrides.NewObjectNames.Add("priests", "witch");
 
+						if (importFile.replaceObjects != null)
+						{
+							foreach (ReplaceObject replaceObject in importFile.replaceObjects)
+                            {
+								overrides.NewObjectNames.Add(replaceObject.oldObject, replaceObject.newObject);
+                            }
+						}
+
 						RemovePortals(file, importFile);
 						file.Export(exportPath, SR1_File.Version.Retail_PC, migrateFlags, overrides);
 
@@ -929,7 +970,7 @@ namespace Recombobulator
 
 		void RemovePortals(SR1_File file, ImportFile importFile)
 		{
-			if (importFile.renovePortals != null && importFile.renovePortals.Length > 0)
+			if (importFile.removePortals != null && importFile.removePortals.Length > 0)
 			{
 				SR1Structures.Level level = (SR1Structures.Level)file._Structures[0];
 				SR1Structures.Terrain terrain =
@@ -941,7 +982,7 @@ namespace Recombobulator
 
 				foreach (SR1Structures.StreamUnitPortal portal in portalList.portals)
 				{
-					if (!Array.Exists(importFile.renovePortals, x => x == portal.tolevelname.ToString()))
+					if (!Array.Exists(importFile.removePortals, x => x == portal.tolevelname.ToString()))
 					{
 						continue;
 					}
