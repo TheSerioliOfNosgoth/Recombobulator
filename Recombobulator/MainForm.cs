@@ -830,19 +830,19 @@ namespace Recombobulator
 				importFiles.Add(new ImportFile { importName = "undrct5", isLevel = true, replaceObjects = replaceUCObjects });
 				importFiles.Add(new ImportFile { importName = "undrct8", isLevel = true });
 				importFiles.Add(new ImportFile { importName = "undrct9", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "undrct10", isLevel = true, removePortals = new string[] { "undrct11,1" } });
+				importFiles.Add(new ImportFile { importName = "undrct10", isLevel = true });
 				importFiles.Add(new ImportFile { importName = "undrct11", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "undrct12", isLevel = true, removePortals = new string[] { "undrct11,1" }, replaceObjects = replaceUCObjects });
+				importFiles.Add(new ImportFile { importName = "undrct12", isLevel = true, replaceObjects = replaceUCObjects });
 				importFiles.Add(new ImportFile { importName = "undrct15", isLevel = true });
 				importFiles.Add(new ImportFile { importName = "undrct16", isLevel = true });
 				importFiles.Add(new ImportFile { importName = "undrct17", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "undrct20", isLevel = true, removePortals = new string[] { "undrct3,1" } });
-				importFiles.Add(new ImportFile { importName = "undrct21", isLevel = true, removePortals = new string[] { "undrct5,1" } });
+				importFiles.Add(new ImportFile { importName = "undrct20", isLevel = true });
+				importFiles.Add(new ImportFile { importName = "undrct21", isLevel = true });
 				importFiles.Add(new ImportFile { importName = "undrct22", isLevel = true });
 				importFiles.Add(new ImportFile { importName = "undrct23", isLevel = true });
-				//importFiles.Add(new ImportFile { importName = "lantm", isLevel = false });
-				//importFiles.Add(new ImportFile { importName = "bwall", isLevel = false });
-				//importFiles.Add(new ImportFile { importName = "swall", isLevel = false });
+				importFiles.Add(new ImportFile { importName = "lantrn", isLevel = false });
+				importFiles.Add(new ImportFile { importName = "bwall", isLevel = false });
+				importFiles.Add(new ImportFile { importName = "swall", isLevel = false });
 				//importFiles.Add(new ImportFile { importName = "undblk", isLevel = false });
 
 				List<ReplacePortal> replacePortals = new List<ReplacePortal>();
