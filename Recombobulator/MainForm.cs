@@ -843,7 +843,7 @@ namespace Recombobulator
 				importFiles.Add(new ImportFile { importName = "lantrn", isLevel = false });
 				importFiles.Add(new ImportFile { importName = "bwall", isLevel = false });
 				importFiles.Add(new ImportFile { importName = "swall", isLevel = false });
-				//importFiles.Add(new ImportFile { importName = "undblk", isLevel = false });
+				//importFiles.Add(new ImportFile { importName = "undblk", isLevel = false }); // Can't convert. Replace with pshblk.
 
 				List<ReplacePortal> replacePortals = new List<ReplacePortal>();
 				replacePortals.Add(new ReplacePortal { fromSignal = "city8,2", toSignal = "city17,1" });
@@ -854,7 +854,7 @@ namespace Recombobulator
 					string importParentFolder = dialog.SelectedPath;
 					string importPath = importFile.isLevel ?
 						Path.Combine(importParentFolder, "kain2\\area", importFolderName, "bin", importFile.importName + ".drm") :
-						Path.Combine(importParentFolder, "kain2\\object", importFolderName, "bin", importFile.importName + ".drm");
+						Path.Combine(importParentFolder, "kain2\\object", importFolderName, importFile.importName + ".drm");
 
 					if (!File.Exists(importPath))
 					{
