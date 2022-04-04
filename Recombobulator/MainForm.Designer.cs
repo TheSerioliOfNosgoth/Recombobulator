@@ -40,6 +40,7 @@
             this.openProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addToProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.scriptedImportsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.compileProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.testExportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.bulkTestingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -61,7 +62,9 @@
             this.testResults = new System.Windows.Forms.TextBox();
             this.projectContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.editPortalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.runScriptToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.importUndercityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.importSmokestackToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.importRetreatToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._mainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pcmFileTreeListView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcmFileSplitContainer)).BeginInit();
@@ -97,7 +100,7 @@
             this.openProjectToolStripMenuItem,
             this.openFileToolStripMenuItem,
             this.addToProjectToolStripMenuItem,
-            this.runScriptToolStripMenuItem,
+            this.scriptedImportsToolStripMenuItem,
             this.compileProjectToolStripMenuItem,
             this.testExportToolStripMenuItem,
             this.bulkTestingToolStripMenuItem,
@@ -135,13 +138,24 @@
             this.addToProjectToolStripMenuItem.Text = "Add To Project...";
             this.addToProjectToolStripMenuItem.Click += new System.EventHandler(this.AddToProjectToolStripMenuItem_Click);
             // 
+            // scriptedImportsToolStripMenuItem
+            // 
+            this.scriptedImportsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.importUndercityToolStripMenuItem,
+            this.importSmokestackToolStripMenuItem,
+            this.importRetreatToolStripMenuItem});
+            this.scriptedImportsToolStripMenuItem.Enabled = false;
+            this.scriptedImportsToolStripMenuItem.Name = "scriptedImportsToolStripMenuItem";
+            this.scriptedImportsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.scriptedImportsToolStripMenuItem.Text = "Scripted Imports";
+            // 
             // compileProjectToolStripMenuItem
             // 
             this.compileProjectToolStripMenuItem.Enabled = false;
             this.compileProjectToolStripMenuItem.Name = "compileProjectToolStripMenuItem";
             this.compileProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.compileProjectToolStripMenuItem.Text = "Compile Project...";
-            this.compileProjectToolStripMenuItem.Click += new System.EventHandler(this.compileProjectToolStripMenuItem_Click);
+            this.compileProjectToolStripMenuItem.Click += new System.EventHandler(this.CompileProjectToolStripMenuItem_Click);
             // 
             // testExportToolStripMenuItem
             // 
@@ -374,15 +388,28 @@
             this.editPortalToolStripMenuItem.Name = "editPortalToolStripMenuItem";
             this.editPortalToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
             this.editPortalToolStripMenuItem.Text = "Edit Portal...";
-            this.editPortalToolStripMenuItem.Click += new System.EventHandler(this.editPortalToolStripMenuItem_Click);
+            this.editPortalToolStripMenuItem.Click += new System.EventHandler(this.EditPortalToolStripMenuItem_Click);
             // 
-            // runScriptToolStripMenuItem
+            // importUndercityToolStripMenuItem
             // 
-            this.runScriptToolStripMenuItem.Enabled = false;
-            this.runScriptToolStripMenuItem.Name = "runScriptToolStripMenuItem";
-            this.runScriptToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.runScriptToolStripMenuItem.Text = "Run Script...";
-            this.runScriptToolStripMenuItem.Click += new System.EventHandler(this.RunScriptToolStripMenuItem_Click);
+            this.importUndercityToolStripMenuItem.Name = "importUndercityToolStripMenuItem";
+            this.importUndercityToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
+            this.importUndercityToolStripMenuItem.Text = "Import Undercity...";
+            this.importUndercityToolStripMenuItem.Click += new System.EventHandler(this.ImportUndercityToolStripMenuItem_Click);
+            // 
+            // importSmokestackToolStripMenuItem
+            // 
+            this.importSmokestackToolStripMenuItem.Name = "importSmokestackToolStripMenuItem";
+            this.importSmokestackToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
+            this.importSmokestackToolStripMenuItem.Text = "Import Smokestack...";
+            this.importSmokestackToolStripMenuItem.Click += new System.EventHandler(this.ImportSmokestackToolStripMenuItem_Click);
+            // 
+            // importRetreatToolStripMenuItem
+            // 
+            this.importRetreatToolStripMenuItem.Name = "importRetreatToolStripMenuItem";
+            this.importRetreatToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
+            this.importRetreatToolStripMenuItem.Text = "Import Retreat...";
+            this.importRetreatToolStripMenuItem.Click += new System.EventHandler(this.ImportRetreatToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -451,7 +478,10 @@
 		private System.Windows.Forms.TextBox projectTextBox;
 		private System.Windows.Forms.ContextMenuStrip projectContextMenu;
 		private System.Windows.Forms.ToolStripMenuItem editPortalToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem runScriptToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem scriptedImportsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem importUndercityToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem importSmokestackToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem importRetreatToolStripMenuItem;
     }
 }
 
