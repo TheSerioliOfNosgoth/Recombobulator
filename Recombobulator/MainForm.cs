@@ -258,7 +258,7 @@ namespace Recombobulator
 			dialog.ShowNewFolderButton = false;
 
 			string recentFolder = Properties.Settings.Default.RecentFolder;
-			if (recentFolder != null && System.IO.Directory.Exists(recentFolder))
+			if (recentFolder != null && Directory.Exists(recentFolder))
 			{
 				dialog.SelectedPath = recentFolder;
 			}
@@ -284,7 +284,7 @@ namespace Recombobulator
 			dialog.ShowNewFolderButton = false;
 
 			string recentFolder = Properties.Settings.Default.RecentFolder;
-			if (recentFolder != null && System.IO.Directory.Exists(recentFolder))
+			if (recentFolder != null && Directory.Exists(recentFolder))
 			{
 				dialog.SelectedPath = recentFolder;
 			}
@@ -474,6 +474,56 @@ namespace Recombobulator
 			progressThread.Start();
 		}
 
+		private void BeginScriptedImport()
+		{
+			if (_progressWindow != null)
+			{
+				_progressWindow.Dispose();
+			}
+			_progressWindow = new ProgressWindow();
+			_progressWindow.Title = "Importing...";
+			_progressWindow.SetMessage("");
+			//_progressWindow.Icon = this.Icon;
+			_progressWindow.Owner = this;
+			_progressWindow.TopLevel = true;
+			_progressWindow.ShowInTaskbar = false;
+			this.Enabled = false;
+			_progressWindow.Show();
+		}
+
+		private void EndScriptedImport()
+		{
+			projectTreeView.Nodes.Clear();
+
+			if (_repository != null)
+			{
+				TreeNode levelsNode = projectTreeView.Nodes.Add("Levels", "Levels");
+				foreach (Level level in _repository.Levels.Levels)
+				{
+					TreeNode node = new TreeNode();
+					node.Text = level.UnitName;
+					node.Tag = level;
+					levelsNode.Nodes.Add(node);
+				}
+
+				TreeNode objectsNode = projectTreeView.Nodes.Add("Objects", "Objects");
+				foreach (SR1Repository.Object obj in _repository.Objects.Objects)
+				{
+					TreeNode node = new TreeNode();
+					node.Text = obj.ObjectName;
+					node.Tag = obj;
+					objectsNode.Nodes.Add(node);
+				}
+
+				projectTreeView.Sort();
+				displayModeTabs.SelectedTab = projectTab;
+			}
+
+			Enabled = true;
+			_progressWindow.Hide();
+			_progressWindow.Dispose();
+		}
+
 		private void NewProjectToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			FolderBrowserDialog folderDialog = new FolderBrowserDialog();
@@ -501,8 +551,8 @@ namespace Recombobulator
 			Thread loadingThread = new Thread((() =>
 			{
 				repository.UnpackRepository();
-
 				_repository = repository;
+
 				Invoke(new MethodInvoker(EndUnpacking));
 			}));
 
@@ -615,8 +665,8 @@ namespace Recombobulator
 			Thread loadingThread = new Thread((() =>
 			{
 				repository.PackRepository();
-
 				_repository = repository;
+
 				Invoke(new MethodInvoker(EndPacking));
 			}));
 
@@ -791,181 +841,69 @@ namespace Recombobulator
 			public string toSignal;
 		}
 
-		private void runScriptToolStripMenuItem_Click(object sender, EventArgs e)
+		private void RunScriptToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			FolderBrowserDialog dialog = new FolderBrowserDialog();
 			dialog.Description = "Select root folder.";
 			dialog.ShowNewFolderButton = false;
 
 			string recentFolder = Properties.Settings.Default.RecentFolder;
-			if (recentFolder != null && System.IO.Directory.Exists(recentFolder))
+			if (recentFolder != null && Directory.Exists(recentFolder))
 			{
 				dialog.SelectedPath = recentFolder;
 			}
 
-			if (dialog.ShowDialog() == DialogResult.OK)
+			if (dialog.ShowDialog() != DialogResult.OK)
 			{
-				Properties.Settings.Default.RecentFolder = dialog.SelectedPath;
-				Properties.Settings.Default.Save();
+				return;
+			}
 
-				List<ImportFile> importFiles = new List<ImportFile>();
-				importFiles.Add(new ImportFile { importName = "retreat1", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "retreat2", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "retreat3", isLevel = true });
+			Properties.Settings.Default.RecentFolder = dialog.SelectedPath;
+			Properties.Settings.Default.Save();
 
-				importFiles.Add(new ImportFile { importName = "city9", exportName = "city17", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "city10", exportName = "city18", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "city11", exportName = "city22", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "city12", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "city16", isLevel = true/*, removePortals = new string[] { "undrct1,90" }*/ });
+			Invoke(new MethodInvoker(BeginScriptedImport));
 
-				ReplaceObject replaceUndblk = new ReplaceObject { oldObject = "undblk", newObject = "pshblk" };
-				ReplaceObject replaceDumbub = new ReplaceObject { oldObject = "dumbub", newObject = "pshblk" };
-				ReplaceObject[] replaceUCObjects = new ReplaceObject[] { replaceUndblk, replaceDumbub };
+			int filesRead = 0;
+			int filesToRead = 0;
+			string recentMessage = "";
 
-				importFiles.Add(new ImportFile { importName = "undrct1", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "undrct2", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "undrct3", isLevel = true, replaceObjects = replaceUCObjects });
-				importFiles.Add(new ImportFile { importName = "undrct4", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "undrct5", isLevel = true, replaceObjects = replaceUCObjects });
-				importFiles.Add(new ImportFile { importName = "undrct8", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "undrct9", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "undrct10", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "undrct11", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "undrct12", isLevel = true, replaceObjects = replaceUCObjects });
-				importFiles.Add(new ImportFile { importName = "undrct15", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "undrct16", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "undrct17", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "undrct20", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "undrct21", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "undrct22", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "undrct23", isLevel = true });
-				importFiles.Add(new ImportFile { importName = "lantrn", isLevel = false });
-				importFiles.Add(new ImportFile { importName = "bwall", isLevel = false });
-				importFiles.Add(new ImportFile { importName = "swall", isLevel = false });
-				//importFiles.Add(new ImportFile { importName = "undblk", isLevel = false }); // Can't convert. Replace with pshblk.
+			Thread importThread = new Thread((() =>
+			{
+				ImportFromScript(dialog.SelectedPath, ref filesRead, ref filesToRead, ref recentMessage);
 
-				List<ReplacePortal> replacePortals = new List<ReplacePortal>();
-				replacePortals.Add(new ReplacePortal { fromSignal = "city8,2", toSignal = "city17,1" });
+				Invoke(new MethodInvoker(EndScriptedImport));
+			}));
 
-				foreach (ImportFile importFile in importFiles)
+			importThread.Name = "ScriptedImportThread";
+			importThread.SetApartmentState(ApartmentState.STA);
+			importThread.Start();
+			//loadingThread.Join();
+
+			Thread progressThread = new Thread((() =>
+			{
+				do
 				{
-					string importFolderName = importFile.importName.TrimEnd("0123456789".ToCharArray());
-					string importParentFolder = dialog.SelectedPath;
-					string importPath = importFile.isLevel ?
-						Path.Combine(importParentFolder, "kain2\\area", importFolderName, "bin", importFile.importName + ".drm") :
-						Path.Combine(importParentFolder, "kain2\\object", importFolderName, importFile.importName + ".drm");
-
-					if (!File.Exists(importPath))
+					lock (recentMessage)
 					{
-						continue;
+						_progressWindow.SetMessage(recentMessage);
 					}
 
-					SR1_File file = new SR1_File();
-					file.Import(importPath);
-
-					string exportName = (importFile.exportName != null) ? importFile.exportName : importFile.importName;
-					string exportPath = importFile.isLevel ?
-						_repository.MakeLevelFilePath(exportName, true) :
-						_repository.MakeObjectFilePath(exportName, true);
-					string relativeExportPath = importFile.isLevel ?
-						_repository.MakeLevelFilePath(exportName) :
-						_repository.MakeObjectFilePath(exportName);
-
-					uint fileHash = Repository.GetSR1HashName(exportPath);
-					if (_repository.Assets.Assets.Find(x => x.FileHash == fileHash) != null)
+					if (filesToRead > 0)
 					{
-						continue;
-					}
-
-					TexSet textureSet = null;
-
-					if (importFile.textureSet != null)
-					{
-						textureSet = _repository.TextureSets.TexSets.Find(x => x.Name == importFile.textureSet);
-					}
-
-					if (textureSet == null)
-					{
-						textureSet = ImportTextures(exportName, importPath);
-					}
-
-					SR1_File.MigrateFlags migrateFlags = SR1_File.MigrateFlags.None;
-
-					SR1_File.Overrides overrides = new SR1_File.Overrides();
-					overrides.NewName = exportName;
-					overrides.NewTextureIDs = textureSet.TextureIDs;
-
-					object newObject = null;
-					string category = null;
-
-					if (importFile.isLevel)
-					{
-						migrateFlags |= SR1_File.MigrateFlags.RemoveEvents;
-						migrateFlags |= SR1_File.MigrateFlags.RemoveVertexMorphs;
-
-						overrides.NewStreamUnitID = 0;
-						_repository.FindAvailableStreamUnitID(ref overrides.NewStreamUnitID);
-
-						overrides.NewIntroIDs = new int[file._IntroIDs.Count];
-						_repository.FindAvailableIntroIDs(ref overrides.NewIntroIDs);
-
-						SR1Structures.Level level = (SR1Structures.Level)file._Structures[0];
-						uint sourceVersion = level.versionNumber.Value;
-
-						//overrides.NewObjectNames.Add("priests", "witch");
-
-						if (importFile.replaceObjects != null)
-						{
-							foreach (ReplaceObject replaceObject in importFile.replaceObjects)
-                            {
-								overrides.NewObjectNames.Add(replaceObject.oldObject, replaceObject.newObject);
-                            }
-						}
-
-						RemovePortals(file, importFile);
-						file.Export(exportPath, SR1_File.Version.Retail_PC, migrateFlags, overrides);
-
-						string sourceUnitName = level.Name;
-						newObject = _repository.AddNewLevel(exportName, sourceUnitName, sourceVersion, textureSet.Name);
-						category = "Levels";
+						_progressWindow.SetProgress((100 * filesRead) / filesToRead);
 					}
 					else
 					{
-						file.Export(exportPath, SR1_File.Version.Retail_PC, migrateFlags, overrides);
-						newObject = _repository.AddNewObject(exportName, textureSet.Name);
-						category = "Objects";
+						_progressWindow.SetProgress(0);
 					}
-
-					if (newObject != null && category != null)
-					{
-						TreeNode[] nodes = projectTreeView.Nodes.Find(category, false);
-						if (nodes.Length > 0 && nodes[0] != null)
-						{
-							TreeNode node = new TreeNode();
-							node.Text = exportName;
-							node.Tag = newObject;
-							nodes[0].Nodes.Add(node);
-							projectTreeView.Sort();
-						}
-					}
-
-					_repository.AddNewAsset(relativeExportPath);
+					Thread.Sleep(20);
 				}
+				while (importThread.IsAlive);
+			}));
 
-				foreach (ReplacePortal replacePortal in replacePortals)
-				{
-					string[] fromPortal = replacePortal.fromSignal.Split(',');
-					string[] toPortal = replacePortal.toSignal.Split(',');
-					string fromUnit = fromPortal[0];
-					string toUnit = toPortal[0];
-					int.TryParse(fromPortal[1], out int fromSignal);
-					int.TryParse(toPortal[1], out int toSignal);
-					_repository.EditPortal(fromUnit, toUnit, fromSignal, toSignal);
-				}
-			}
-
-			_repository.SaveRepository();
+			progressThread.Name = "ProgressThread";
+			progressThread.SetApartmentState(ApartmentState.STA);
+			progressThread.Start();
 		}
 
 		void RemovePortals(SR1_File file, ImportFile importFile)
@@ -1005,6 +943,168 @@ namespace Recombobulator
 					}
 				}
 			}
+		}
+
+		void ImportFromScript(string importFolder, ref int filesRead, ref int filesToRead, ref string recentMessage)
+		{
+			Interlocked.Exchange(ref filesRead, 0);
+			Interlocked.Exchange(ref filesToRead, 0);
+
+			List<ImportFile> importFiles = new List<ImportFile>();
+			importFiles.Add(new ImportFile { importName = "retreat1", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "retreat2", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "retreat3", isLevel = true });
+
+			importFiles.Add(new ImportFile { importName = "city9", exportName = "city17", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "city10", exportName = "city18", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "city11", exportName = "city22", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "city12", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "city16", isLevel = true/*, removePortals = new string[] { "undrct1,90" }*/ });
+
+			ReplaceObject replaceUndblk = new ReplaceObject { oldObject = "undblk", newObject = "pshblk" };
+			ReplaceObject replaceDumbub = new ReplaceObject { oldObject = "dumbub", newObject = "pshblk" };
+			ReplaceObject[] replaceUCObjects = new ReplaceObject[] { replaceUndblk, replaceDumbub };
+
+			importFiles.Add(new ImportFile { importName = "undrct1", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct2", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct3", isLevel = true, replaceObjects = replaceUCObjects });
+			importFiles.Add(new ImportFile { importName = "undrct4", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct5", isLevel = true, replaceObjects = replaceUCObjects });
+			importFiles.Add(new ImportFile { importName = "undrct8", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct9", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct10", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct11", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct12", isLevel = true, replaceObjects = replaceUCObjects });
+			importFiles.Add(new ImportFile { importName = "undrct15", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct16", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct17", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct20", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct21", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct22", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct23", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lantrn", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "bwall", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "swall", isLevel = false });
+			//importFiles.Add(new ImportFile { importName = "undblk", isLevel = false }); // Can't convert. Replace with pshblk.
+
+			List<ReplacePortal> replacePortals = new List<ReplacePortal>();
+			replacePortals.Add(new ReplacePortal { fromSignal = "city8,2", toSignal = "city17,1" });
+
+			filesToRead = importFiles.Count;
+
+			foreach (ImportFile importFile in importFiles)
+			{
+				string importFolderName = importFile.importName.TrimEnd("0123456789".ToCharArray());
+				string importParentFolder = importFolder;
+				string importPath = importFile.isLevel ?
+					Path.Combine(importParentFolder, "kain2\\area", importFolderName, "bin", importFile.importName + ".drm") :
+					Path.Combine(importParentFolder, "kain2\\object", importFolderName, importFile.importName + ".drm");
+				string relativeImportPath = importFile.isLevel ?
+					Path.Combine("kain2\\area", importFolderName, "bin", importFile.importName + ".drm") :
+					Path.Combine("kain2\\object", importFolderName, importFile.importName + ".drm");
+
+				Interlocked.Exchange(ref recentMessage, (string)relativeImportPath.Clone());
+
+				if (!File.Exists(importPath))
+				{
+					Interlocked.Increment(ref filesRead);
+					continue;
+				}
+
+				SR1_File file = new SR1_File();
+				file.Import(importPath);
+
+				string exportName = (importFile.exportName != null) ? importFile.exportName : importFile.importName;
+				string exportPath = importFile.isLevel ?
+					_repository.MakeLevelFilePath(exportName, true) :
+					_repository.MakeObjectFilePath(exportName, true);
+				string relativeExportPath = importFile.isLevel ?
+					_repository.MakeLevelFilePath(exportName) :
+					_repository.MakeObjectFilePath(exportName);
+
+				uint fileHash = Repository.GetSR1HashName(exportPath);
+				if (_repository.Assets.Assets.Find(x => x.FileHash == fileHash) != null)
+				{
+					Interlocked.Increment(ref filesRead);
+					continue;
+				}
+
+				TexSet textureSet = null;
+
+				if (importFile.textureSet != null)
+				{
+					textureSet = _repository.TextureSets.TexSets.Find(x => x.Name == importFile.textureSet);
+				}
+
+				if (textureSet == null)
+				{
+					textureSet = ImportTextures(exportName, importPath);
+				}
+
+				SR1_File.MigrateFlags migrateFlags = SR1_File.MigrateFlags.None;
+
+				SR1_File.Overrides overrides = new SR1_File.Overrides();
+				overrides.NewName = exportName;
+				overrides.NewTextureIDs = textureSet.TextureIDs;
+
+				object newObject = null;
+				string category = null;
+
+				if (importFile.isLevel)
+				{
+					migrateFlags |= SR1_File.MigrateFlags.RemoveEvents;
+					migrateFlags |= SR1_File.MigrateFlags.RemoveVertexMorphs;
+
+					overrides.NewStreamUnitID = 0;
+					_repository.FindAvailableStreamUnitID(ref overrides.NewStreamUnitID);
+
+					overrides.NewIntroIDs = new int[file._IntroIDs.Count];
+					_repository.FindAvailableIntroIDs(ref overrides.NewIntroIDs);
+
+					SR1Structures.Level level = (SR1Structures.Level)file._Structures[0];
+					uint sourceVersion = level.versionNumber.Value;
+
+					//overrides.NewObjectNames.Add("priests", "witch");
+
+					if (importFile.replaceObjects != null)
+					{
+						foreach (ReplaceObject replaceObject in importFile.replaceObjects)
+						{
+							overrides.NewObjectNames.Add(replaceObject.oldObject, replaceObject.newObject);
+						}
+					}
+
+					RemovePortals(file, importFile);
+					file.Export(exportPath, SR1_File.Version.Retail_PC, migrateFlags, overrides);
+
+					string sourceUnitName = level.Name;
+					newObject = _repository.AddNewLevel(exportName, sourceUnitName, sourceVersion, textureSet.Name);
+					category = "Levels";
+				}
+				else
+				{
+					file.Export(exportPath, SR1_File.Version.Retail_PC, migrateFlags, overrides);
+					newObject = _repository.AddNewObject(exportName, textureSet.Name);
+					category = "Objects";
+				}
+
+				_repository.AddNewAsset(relativeExportPath);
+
+				Interlocked.Increment(ref filesRead);
+			}
+
+			foreach (ReplacePortal replacePortal in replacePortals)
+			{
+				string[] fromPortal = replacePortal.fromSignal.Split(',');
+				string[] toPortal = replacePortal.toSignal.Split(',');
+				string fromUnit = fromPortal[0];
+				string toUnit = toPortal[0];
+				int.TryParse(fromPortal[1], out int fromSignal);
+				int.TryParse(toPortal[1], out int toSignal);
+				_repository.EditPortal(fromUnit, toUnit, fromSignal, toSignal);
+			}
+
+			_repository.SaveRepository();
 		}
 
 		TexSet ImportTextures(string textureSetName, string filePath)

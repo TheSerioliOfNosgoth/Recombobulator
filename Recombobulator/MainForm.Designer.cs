@@ -382,7 +382,7 @@
             this.runScriptToolStripMenuItem.Name = "runScriptToolStripMenuItem";
             this.runScriptToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.runScriptToolStripMenuItem.Text = "Run Script...";
-            this.runScriptToolStripMenuItem.Click += new System.EventHandler(this.runScriptToolStripMenuItem_Click);
+            this.runScriptToolStripMenuItem.Click += new System.EventHandler(this.RunScriptToolStripMenuItem_Click);
             // 
             // MainForm
             // 

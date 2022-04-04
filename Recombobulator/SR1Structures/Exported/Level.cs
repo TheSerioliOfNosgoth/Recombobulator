@@ -522,6 +522,14 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
+			if (file._Version <= SR1_File.Version.Feb16 && targetVersion >= SR1_File.Version.Retail_PC)
+			{
+				if (Name == "undrct20" || Name == "undrct2")
+				{
+					unitFlags.Value = 0;
+				}
+			}
+
 			/*if (Name == "city12")
 			{
 				SR1_StructureSeries<MultiSignal> multiSignals =
