@@ -1242,10 +1242,22 @@ namespace Recombobulator
 			importFiles.Add(new ImportFile { importName = "mrlock3", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "mrlock8", exportName = "mrlock18", isLevel = true });
 
-			importFiles.Add(new ImportFile { importName = "lair9", isLevel = true, removePortals = new string[] { "lair7,13", "lair21,39", "lair17,49", "lair6,11", "lair16,47", "lair20,37" } });
+			importFiles.Add(new ImportFile { importName = "lair5", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair6", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair7", isLevel = true });
+
+			importFiles.Add(new ImportFile { importName = "lair15", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair16", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair17", isLevel = true });
+
+			importFiles.Add(new ImportFile { importName = "lair19", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair20", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair21", isLevel = true });
+
+			importFiles.Add(new ImportFile { importName = "lair9", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lair31", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lair30", isLevel = true });
-			importFiles.Add(new ImportFile { importName = "lair2", isLevel = true, removePortals = new string[] { "lair23,2", "lair5,6", "lair24,16", "lair25,22", "lair26,24", "lair27,30", "lair19,32", "lair15,42", "lair28,63", "lair32,50" } });
+			importFiles.Add(new ImportFile { importName = "lair2", isLevel = true, removePortals = new string[] { "lair23,2", "lair24,16", "lair25,22", "lair26,24", "lair27,30", "lair15,42", "lair28,63", "lair32,50" } });
 
 			importFiles.Add(new ImportFile { importName = "hitme", isLevel = false }); // Check this one. Looks glitchy.
 			importFiles.Add(new ImportFile { importName = "ispirit", isLevel = false });
@@ -1258,6 +1270,8 @@ namespace Recombobulator
 			importFiles.Add(new ImportFile { importName = "ldoora", isLevel = false });
 			importFiles.Add(new ImportFile { importName = "ldoorb", isLevel = false });
 			importFiles.Add(new ImportFile { importName = "ldoore", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "dndoor", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "lrdial", isLevel = false });
 
 			List<ReplacePortal> replacePortals = importScript.ReplacePortals;
 			replacePortals.Add(new ReplacePortal { fromSignal = "hubb3,2", toSignal = "mrlock15,1" });
