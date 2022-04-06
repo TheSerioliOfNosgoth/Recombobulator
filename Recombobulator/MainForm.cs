@@ -1269,10 +1269,16 @@ namespace Recombobulator
 			importFiles.Add(new ImportFile { importName = "lair25", isLevel = true });
 			//importFiles.Add(new ImportFile { importName = "mrlock9", isLevel = true });
 
+			importFiles.Add(new ImportFile { importName = "lair26", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair13", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair10", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair14", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair27", isLevel = true });
+
 			importFiles.Add(new ImportFile { importName = "lair9", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lair31", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lair30", isLevel = true });
-			importFiles.Add(new ImportFile { importName = "lair2", isLevel = true, removePortals = new string[] { "lair26,24", "lair27,30", "lair15,42", "lair32,50" } });
+			importFiles.Add(new ImportFile { importName = "lair2", isLevel = true, removePortals = new string[] { "lair15,42", "lair32,50" } });
 
 			importFiles.Add(new ImportFile { importName = "hitme", isLevel = false }); // Check this one. Looks glitchy.
 			importFiles.Add(new ImportFile { importName = "ispirit", isLevel = false });
@@ -1289,6 +1295,7 @@ namespace Recombobulator
 			importFiles.Add(new ImportFile { importName = "lrdial", isLevel = false });
 			importFiles.Add(new ImportFile { importName = "steam", isLevel = false });
 			importFiles.Add(new ImportFile { importName = "lairdr", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "moregg", isLevel = false });
 
 			List<ReplacePortal> replacePortals = importScript.ReplacePortals;
 			replacePortals.Add(new ReplacePortal { fromSignal = "hubb3,2", toSignal = "mrlock15,1" });
