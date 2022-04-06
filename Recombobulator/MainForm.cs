@@ -1275,10 +1275,15 @@ namespace Recombobulator
 			importFiles.Add(new ImportFile { importName = "lair14", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lair27", isLevel = true });
 
+			//importFiles.Add(new ImportFile { importName = "lair32", isLevel = true });
+			//importFiles.Add(new ImportFile { importName = "lair33", isLevel = true });
+			//importFiles.Add(new ImportFile { importName = "lair34", isLevel = true });
+			//importFiles.Add(new ImportFile { importName = "lair35", isLevel = true });
+
 			importFiles.Add(new ImportFile { importName = "lair9", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lair31", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lair30", isLevel = true });
-			importFiles.Add(new ImportFile { importName = "lair2", isLevel = true, removePortals = new string[] { "lair15,42", "lair32,50" } });
+			importFiles.Add(new ImportFile { importName = "lair2", isLevel = true, removePortals = new string[] { "lair32,50" } });
 
 			importFiles.Add(new ImportFile { importName = "hitme", isLevel = false }); // Check this one. Looks glitchy.
 			importFiles.Add(new ImportFile { importName = "ispirit", isLevel = false });
