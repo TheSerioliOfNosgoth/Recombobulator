@@ -1262,10 +1262,17 @@ namespace Recombobulator
 			importFiles.Add(new ImportFile { importName = "lair29", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lair28", isLevel = true });
 
+			importFiles.Add(new ImportFile { importName = "lair24", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair11", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair4", isLevel = true, removePortals = new string[] { "mrlock9,9" } });
+			importFiles.Add(new ImportFile { importName = "lair12", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair25", isLevel = true });
+			//importFiles.Add(new ImportFile { importName = "mrlock9", isLevel = true });
+
 			importFiles.Add(new ImportFile { importName = "lair9", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lair31", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lair30", isLevel = true });
-			importFiles.Add(new ImportFile { importName = "lair2", isLevel = true, removePortals = new string[] { "lair24,16", "lair25,22", "lair26,24", "lair27,30", "lair15,42", "lair32,50" } });
+			importFiles.Add(new ImportFile { importName = "lair2", isLevel = true, removePortals = new string[] { "lair26,24", "lair27,30", "lair15,42", "lair32,50" } });
 
 			importFiles.Add(new ImportFile { importName = "hitme", isLevel = false }); // Check this one. Looks glitchy.
 			importFiles.Add(new ImportFile { importName = "ispirit", isLevel = false });
@@ -1281,6 +1288,7 @@ namespace Recombobulator
 			importFiles.Add(new ImportFile { importName = "dndoor", isLevel = false });
 			importFiles.Add(new ImportFile { importName = "lrdial", isLevel = false });
 			importFiles.Add(new ImportFile { importName = "steam", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "lairdr", isLevel = false });
 
 			List<ReplacePortal> replacePortals = importScript.ReplacePortals;
 			replacePortals.Add(new ReplacePortal { fromSignal = "hubb3,2", toSignal = "mrlock15,1" });
