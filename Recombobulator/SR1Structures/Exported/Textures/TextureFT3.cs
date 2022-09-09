@@ -7,10 +7,10 @@ namespace Recombobulator.SR1Structures
 	{
 		public readonly SR1_Primative<byte> u0 = new SR1_Primative<byte>();
 		public readonly SR1_Primative<byte> v0 = new SR1_Primative<byte>();
-		public readonly SR1_Primative<ushort> clut = new SR1_Primative<ushort>();
+		public readonly SR1_Primative<ushort> clut = new SR1_Primative<ushort>().ShowAsHex(true);
 		public readonly SR1_Primative<byte> u1 = new SR1_Primative<byte>();
 		public readonly SR1_Primative<byte> v1 = new SR1_Primative<byte>();
-		public readonly SR1_Primative<ushort> tpage = new SR1_Primative<ushort>();
+		public readonly SR1_Primative<ushort> tpage = new SR1_Primative<ushort>().ShowAsHex(true);
 		public readonly SR1_Primative<ushort> attr2 = new SR1_Primative<ushort>();
 		public readonly SR1_Primative<byte> u2 = new SR1_Primative<byte>();
 		public readonly SR1_Primative<byte> v2 = new SR1_Primative<byte>();
