@@ -87,8 +87,6 @@ namespace Recombobulator.SR1Structures
 						i++;
 					}
 				}
-
-				file._MigrationStructures.Add(Start, this);
 			}
 
 			for (int i = 0; i < _List.Count; i++)

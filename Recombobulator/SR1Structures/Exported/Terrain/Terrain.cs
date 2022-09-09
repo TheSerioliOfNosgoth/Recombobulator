@@ -316,7 +316,6 @@ namespace Recombobulator.SR1Structures
 
 				unknownPCList.Offset = position;
 				UnknownPCList newUnknownPCList = new UnknownPCList();
-				file._Structures.Add(position, newUnknownPCList);
 				file._MigrationStructures.Add(position, newUnknownPCList);
 			}
 

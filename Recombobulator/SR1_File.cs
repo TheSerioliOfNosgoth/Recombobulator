@@ -360,9 +360,32 @@ namespace Recombobulator
 
 			_Version = targetVersion;
 
-			foreach (KeyValuePair<uint, SR1_Structure> entry in _Structures)
+			var structureEnumerator = _Structures.GetEnumerator();
+			var migStructureEnumerator = _MigrationStructures.GetEnumerator();
+			SR1_Structure migStructure = migStructureEnumerator.MoveNext() ? migStructureEnumerator.Current.Value : null;
+			SR1_Structure extStructure = structureEnumerator.MoveNext() ? structureEnumerator.Current.Value : null;
+			while (migStructure != null || extStructure != null)
 			{
-				entry.Value.Write(dataWriter);
+				while (migStructure != null)
+				{
+					// If there is a pre-existing structure at/before the new structure's insert point,
+					// then break out and do that first.
+					// Given that some arrays use pointers to the end, it would be dangerous to insert new items
+					// before the next structure.
+					if (extStructure != null && extStructure.Start <= migStructureEnumerator.Current.Key)
+					{
+						break;
+					}
+
+					migStructure.Write(dataWriter);
+					migStructure = migStructureEnumerator.MoveNext() ? migStructureEnumerator.Current.Value : null;
+				}
+
+				if (extStructure != null)
+				{
+					extStructure.Write(dataWriter);
+					extStructure = structureEnumerator.MoveNext() ? structureEnumerator.Current.Value : null;
+				}
 			}
 
 			List<uint> sortedPrimativeKeys = new List<uint>(_Primatives.Keys);

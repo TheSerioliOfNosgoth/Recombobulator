@@ -243,7 +243,6 @@ namespace Recombobulator.SR1Structures
                     newBehaviors.idleList[2] = -1;
                     newBehaviors.idleList[3] = -1;
                     newBehaviors.idleList[4] = -1;
-                    file._Structures.Add(position, newBehaviors);
                     file._MigrationStructures.Add(position, newBehaviors);
                 }*/
 			}
