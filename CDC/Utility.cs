@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
+using System.Reflection;
 
 namespace CDC
 {
@@ -15,6 +14,8 @@ namespace CDC
 				return "";
 			}
 
+			 name = name.ToLower();
+
 			int index = name.IndexOfAny(new char[] { '\0' });
 			if (index >= 0)
 			{
@@ -22,6 +23,12 @@ namespace CDC
 			}
 
 			return name.Trim();
+		}
+
+		public static string CleanObjectName(string name)
+		{
+			string trimmedName = CleanName(name);
+			return trimmedName.TrimEnd(new char[] { '_' });
 		}
 
 		public static void FlipRedAndBlue(ref UInt32 colour)
@@ -89,6 +96,39 @@ namespace CDC
 			return fCalcValue;
 		}
 
+		public static float BizarreFloatToNormalFloat2(UInt16 usBizarreFloat)
+		{
+			UInt32 floatAsInt = ((UInt32)usBizarreFloat) << 16;
+			byte[] bytes = BitConverter.GetBytes(floatAsInt);
+			float result = BitConverter.ToSingle(bytes, 0);
+
+			return result;
+		}
+
+		public static float[] UInt32ARGBToFloatARGB(UInt32 argb)
+		{
+			float[] result = new float[4];
+
+			result[0] = (float)((argb & 0xFF000000) >> 24) / 255.0f;
+			result[1] = (float)((argb & 0x00FF0000) >> 16) / 255.0f;
+			result[2] = (float)((argb & 0x0000FF00) >> 8) / 255.0f;
+			result[3] = (float)((argb & 0x000000FF)) / 255.0f;
+
+			return result;
+		}
+
+		public static UInt32 FloatARGBToUInt32ARGB(float[] argb)
+		{
+			UInt32 result;
+
+			result = ((uint)(Math.Round(argb[0] * 255.0f))) << 24;
+			result |= ((uint)(Math.Round(argb[1] * 255.0f))) << 16;
+			result |= ((uint)(Math.Round(argb[2] * 255.0f))) << 8;
+			result |= ((uint)(Math.Round(argb[3] * 255.0f)));
+
+			return result;
+		}
+
 		public static float ClampToRange(float fValue, float fMin, float fMax)
 		{
 			if (fValue < fMin)
@@ -142,6 +182,51 @@ namespace CDC
 			}
 			xUV.v = ClampToRange(xUV.v + fOffsetAdjust, 0.0f, 255.0f);
 			//xUV.v = WraparoundUVValues(xUV.v + fOffsetAdjust, 0.0f, 255.0f);
+		}
+
+		public static string GetTextureFileLocation(CDC.Objects.ExportOptions options, string defaultTextureFileName, string modelFileName)
+		{
+			string result = "";
+			List<string> possibleLocations = new List<string>();
+			for (int i = 0; i < options.TextureFileLocations.Count; i++)
+			{
+				possibleLocations.Add(options.TextureFileLocations[i]);
+			}
+
+			List<string> searchDirectories = new List<string>();
+
+			string rootDirectory = Path.GetDirectoryName(modelFileName);
+			while (rootDirectory != null && rootDirectory != "")
+			{
+				string parentDirectory = Path.GetFileName(rootDirectory);
+				rootDirectory = Path.GetDirectoryName(rootDirectory);
+				if (parentDirectory == "kain2")
+				{
+					string outputDirectory = Path.Combine(rootDirectory, "output");
+					searchDirectories.Add(outputDirectory);
+					searchDirectories.Add(rootDirectory);
+				}
+			}
+
+			searchDirectories.Add(Path.GetDirectoryName(modelFileName));
+			searchDirectories.Add(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+
+			for (int i = 0; i < searchDirectories.Count; i++)
+			{
+				string textureFileName = Path.Combine(searchDirectories[i], defaultTextureFileName);
+				possibleLocations.Add(textureFileName);
+			}
+
+			for (int i = 0; i < possibleLocations.Count; i++)
+			{
+				if (System.IO.File.Exists(possibleLocations[i]))
+				{
+					result = possibleLocations[i];
+					Console.WriteLine(string.Format("Debug: using texture file '{0}'", result));
+					break;
+				}
+			}
+			return result;
 		}
 	}
 }

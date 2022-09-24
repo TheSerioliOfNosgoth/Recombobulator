@@ -10,11 +10,13 @@ namespace BenLincoln.TheLostWorlds.CDTextures
 	public enum TextureFileType
 	{
 		Unknown,
+		Gex3Playstation,
 		SoulReaverPlaystation,
 		SoulReaverPC,
 		SoulReaverDreamcast,
 		SoulReaver2Playstation2,
-		SoulReaver2PC
+		SoulReaver2PC,
+		TombRaiderPC
 	}
 
 	public abstract class TextureFile
@@ -196,6 +198,8 @@ namespace BenLincoln.TheLostWorlds.CDTextures
 
 			switch (fileExtension)
 			{
+				case ".drm":
+					return TextureFileType.TombRaiderPC;
 				case ".vrm":
 					// determine if PC / Playstation / etc
 					return VRMTextureFile.GetVRMType(path);

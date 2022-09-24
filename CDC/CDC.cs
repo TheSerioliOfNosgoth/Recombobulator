@@ -13,11 +13,13 @@ namespace CDC
 		Xbox
 	}
 
-	public enum Game
+	public enum Game : int
 	{
+		Gex,
 		SR1,
 		SR2,
-		Defiance
+		Defiance,
+		TRL
 	}
 
 	public enum Asset
@@ -71,6 +73,7 @@ namespace CDC
 		public UInt16 parentID1;        // ID of parent bone 1
 		public UInt16 parentID2;        // ID of parent bone 2
 		public UInt32 flags;            // Flags including which parent to use.
+		public float weight;
 	}
 
 	public struct Normal
@@ -107,8 +110,6 @@ namespace CDC
 		public Material material;     // The material used
 		public Vertex v1, v2, v3;     // Vertices for the polygon
 		public ushort CLUT;
-		public int paletteRow;          // The row of the pallete to use (PS1)
-		public int paletteColumn;       // The column of the pallet to use (PS1)
 		public int normal;
 		//public byte sr1Flags;           // flags value from Soul Reaver specifically
 		//public UInt16 sr1TextureFT3Attributes;
@@ -120,8 +121,39 @@ namespace CDC
 	public struct TreePolygon
 	{
 		public UInt32 textureID;
+		public UInt32 vbBaseOffset;
+
 		public UInt16 v1, v2, v3;
 		public bool useExtraGeometry;
+	}
+
+	public struct Intro
+	{
+		public string name;
+		public string fileName;
+		public int introNum;
+		public int uniqueID;
+		public int objectID;
+		public Vector position;
+		public Vector rotation;
+		public int modelIndex;
+		public int monsterAge;
+        public override string ToString()
+        {
+			return name;
+        }
+    }
+
+	public struct MonsterAttributes
+	{
+		public int numSubAttributes;
+		public MonsterSubAttributes[] subAttributes;
+	}
+
+	public struct MonsterSubAttributes
+	{
+		public uint dataStart;
+		public int modelNum;
 	}
 
 	public class Material
@@ -131,6 +163,7 @@ namespace CDC
 
 		public UInt16 ID;               // The ID of the material
 		public Boolean visible;         // Flag specifying if this material is visible
+		public int blendMode;           // The type of operation used to handle transparency
 		public Boolean textureUsed;     // Flag specifying if this material has a texture
 		public UInt16 textureID;        // ID of the texture file
 		public UInt16 texturePage;      // raw "tpage" value from the DRM
@@ -286,6 +319,7 @@ namespace CDC
 			Material clone = new Material();
 			clone.ID = ID;
 			clone.visible = visible;
+			clone.blendMode = blendMode;
 			clone.textureUsed = textureUsed;
 			clone.texturePage = texturePage;
 			clone.textureID = textureID;
@@ -349,7 +383,8 @@ namespace CDC
 				(material.BSPTreeRootFlagsEffective == this.material.BSPTreeRootFlagsEffective) &&
 				(material.BSPTreeParentNodeFlagsEffective == this.material.BSPTreeParentNodeFlagsEffective) &&
 				(material.BSPTreeLeafFlagsEffective == this.material.BSPTreeLeafFlagsEffective) &&
-				(material.UseAlphaMask == this.material.UseAlphaMask)
+				(material.UseAlphaMask == this.material.UseAlphaMask) &&
+				(material.blendMode == this.material.blendMode)
 				)
 			{
 				return this.material;
@@ -369,7 +404,8 @@ namespace CDC
 			//    (material.BSPTreeParentNodeFlags == this.material.BSPTreeParentNodeFlags) &&
 			//    (material.BSPTreeAllParentNodeFlagsORd == this.material.BSPTreeAllParentNodeFlagsORd) &&
 			//    (material.BSPTreeLeafFlags == this.material.BSPTreeLeafFlags) &&
-			//    (material.UseAlphaMask == this.material.UseAlphaMask)
+			//    (material.UseAlphaMask == this.material.UseAlphaMask) &&
+			//    (material.blendMode == this.material.blendMode)
 			//    )
 			//{
 			//    return this.material;

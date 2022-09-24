@@ -266,22 +266,66 @@ namespace CDC.Objects.Models
 
 		protected class SR2TriangleList
 		{
-			public Material m_xMaterial;
-			public UInt32 m_uPolygonCount;
-			public UInt32 m_uPolygonStart;
-			public UInt16 m_usGroupID;
-			public UInt32 m_uNext;
+			public Material material;
+			public UInt32 polygonCount;
+			public UInt32 polygonStart;
+			public UInt16 groupID;
+			public UInt32 next;
 		}
 
-		protected SR2Model(BinaryReader xReader, UInt32 uDataStart, UInt32 uModelData, String strModelName, Platform ePlatform, UInt32 uVersion) :
-			base(xReader, uDataStart, uModelData, strModelName, ePlatform, uVersion)
+		protected SR2Model(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt32 version) :
+			base(reader, dataStart, modelData, strModelName, ePlatform, version)
 		{
 		}
 
-		protected virtual void ReadData(BinaryReader xReader, CDC.Objects.ExportOptions options)
+		protected virtual void ReadData(BinaryReader reader, CDC.Objects.ExportOptions options)
 		{
-			// Get the normals
+			// Get the vertices
+			_geometry.Vertices = new Vertex[_vertexCount];
+			_geometry.PositionsRaw = new Vector[_vertexCount];
+			_geometry.PositionsPhys = new Vector[_vertexCount];
+			_geometry.PositionsAltPhys = new Vector[_vertexCount];
 			_geometry.Normals = new Vector[s_aiNormals.Length / 3];
+			_geometry.Colours = new UInt32[_vertexCount];
+			_geometry.ColoursAlt = new UInt32[_vertexCount];
+			_geometry.UVs = new UV[_vertexCount];
+			ReadVertices(reader, options);
+
+			// Get the polygons
+			_polygons = new Polygon[_polygonCount];
+			ReadPolygons(reader, options);
+
+			HandleDebugRendering(options);
+
+			// Generate the output
+			GenerateOutput();
+		}
+
+		protected virtual void ReadVertex(BinaryReader reader, int v, CDC.Objects.ExportOptions options)
+		{
+			_geometry.Vertices[v].positionID = v;
+
+			// Read the local coordinates
+			_geometry.PositionsRaw[v].x = (float)reader.ReadInt16();
+			_geometry.PositionsRaw[v].y = (float)reader.ReadInt16();
+			_geometry.PositionsRaw[v].z = (float)reader.ReadInt16();
+			reader.BaseStream.Position += 0x02;
+		}
+
+		protected virtual void ReadVertices(BinaryReader reader, CDC.Objects.ExportOptions options)
+		{
+			if (_vertexStart == 0 || _vertexCount == 0)
+			{
+				return;
+			}
+
+			reader.BaseStream.Position = _vertexStart;
+
+			for (int v = 0; v < _vertexCount; v++)
+			{
+				ReadVertex(reader, v, options);
+			}
+
 			for (int n = 0; n < _geometry.Normals.Length; n++)
 			{
 				// Are these wrong? Different on PC and PS2?
@@ -294,55 +338,10 @@ namespace CDC.Objects.Models
 				//_normals[n].z = ((float)s_aiNormals[n, 2] / 4096.0f);
 			}
 
-			// Get the vertices
-			_geometry.Vertices = new Vertex[_vertexCount];
-			_geometry.PositionsRaw = new Vector[_vertexCount];
-			_geometry.PositionsPhys = new Vector[_vertexCount];
-			_geometry.PositionsAltPhys = new Vector[_vertexCount];
-			_geometry.Colours = new UInt32[_vertexCount];
-			_geometry.ColoursAlt = new UInt32[_vertexCount];
-			_geometry.UVs = new UV[_vertexCount];
-			ReadVertices(xReader, options);
-
-			// Get the polygons
-			_polygons = new Polygon[_polygonCount];
-			ReadPolygons(xReader, options);
-
-			HandleDebugRendering(options);
-
-			// Generate the output
-			GenerateOutput();
-		}
-
-		protected virtual void ReadVertex(BinaryReader xReader, int v, CDC.Objects.ExportOptions options)
-		{
-			_geometry.Vertices[v].positionID = v;
-
-			// Read the local coordinates
-			_geometry.PositionsRaw[v].x = (float)xReader.ReadInt16();
-			_geometry.PositionsRaw[v].y = (float)xReader.ReadInt16();
-			_geometry.PositionsRaw[v].z = (float)xReader.ReadInt16();
-			xReader.BaseStream.Position += 0x02;
-		}
-
-		protected virtual void ReadVertices(BinaryReader xReader, CDC.Objects.ExportOptions options)
-		{
-			if (_vertexStart == 0 || _vertexCount == 0)
-			{
-				return;
-			}
-
-			xReader.BaseStream.Position = _vertexStart;
-
-			for (int v = 0; v < _vertexCount; v++)
-			{
-				ReadVertex(xReader, v, options);
-			}
-
 			return;
 		}
 
-		protected abstract void ReadPolygons(BinaryReader xReader, CDC.Objects.ExportOptions options);
+		protected abstract void ReadPolygons(BinaryReader reader, CDC.Objects.ExportOptions options);
 
 		protected virtual void GenerateOutput()
 		{

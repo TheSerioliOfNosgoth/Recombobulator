@@ -12,6 +12,6 @@ namespace SR1Repository
 
 		public string Name { get; set; } = "";
 
-		public ushort[] TextureIDs { get; set; } = new ushort[8];
+		public ushort[] TextureIDs { get; set; }
 	}
 }

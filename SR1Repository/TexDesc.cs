@@ -12,5 +12,6 @@ namespace SR1Repository
 		public int TextureIndex { get; set; } = 0;
 
 		public bool IsNew { get; set; } = false;
+		public ushort TPage { get; set; } = 0;
 	}
 }

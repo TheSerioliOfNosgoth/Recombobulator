@@ -61,7 +61,7 @@ namespace Recombobulator
 		public class Overrides
 		{
 			public string NewName;
-			public ushort[] NewTextureIDs;
+			public readonly Dictionary<ushort, ushort> NewTextureIDs = new Dictionary<ushort, ushort>();
 			public int NewStreamUnitID;
 			public int[] NewIntroIDs;
 			public readonly Dictionary<string, string> NewObjectNames = new Dictionary<string, string>();

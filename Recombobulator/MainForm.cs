@@ -8,7 +8,9 @@ using SR1Repository;
 using SRFile = CDC.Objects.SRFile;
 using SR1File = CDC.Objects.SR1File;
 using SRModel = CDC.Objects.Models.SRModel;
-using SR1PSTextureFile = BenLincoln.TheLostWorlds.CDTextures.SoulReaverPlaystationTextureFile;
+using SR1PSXTextureFile = BenLincoln.TheLostWorlds.CDTextures.SoulReaverPSXCRMTextureFile;
+using TPages = BenLincoln.TheLostWorlds.CDTextures.PSXTextureDictionary;
+using TextureTile = BenLincoln.TheLostWorlds.CDTextures.PSXTextureTile;
 
 namespace Recombobulator
 {
@@ -175,7 +177,10 @@ namespace Recombobulator
 
 					SR1_File.Overrides overrides = new SR1_File.Overrides();
 					overrides.NewName = fileName;
-					overrides.NewTextureIDs = textureSet.TextureIDs;
+					for (int t = 0; t < textureSet.TextureIDs.Length; t++)
+					{
+						overrides.NewTextureIDs.Add(_repository.Textures[textureSet.TextureIDs[t]].TPage, textureSet.TextureIDs[t]);
+					}
 
 					object newObject = null;
 					string category = null;
@@ -957,7 +962,14 @@ namespace Recombobulator
 
 				SR1_File.Overrides overrides = new SR1_File.Overrides();
 				overrides.NewName = exportName;
-				overrides.NewTextureIDs = textureSet.TextureIDs;
+
+				if (textureSet.TextureIDs != null)
+				{
+					for (int t = 0; t < textureSet.TextureIDs.Length; t++)
+					{
+						overrides.NewTextureIDs.Add(_repository.Textures[textureSet.TextureIDs[t]].TPage, textureSet.TextureIDs[t]);
+					}
+				}
 
 				object newObject = null;
 				string category = null;
@@ -1063,56 +1075,50 @@ namespace Recombobulator
 			TexSet textureSet = new TexSet();
 			textureSet.Name = textureSetName;
 			textureSet.Index = _repository.TextureSets.Count;
+			string textureFileName = Path.ChangeExtension(filePath, "crm");
+
+			if (!File.Exists(filePath))
+			{
+				return textureSet;
+			}
 
 			try
 			{
-
 				CDC.Objects.ExportOptions options = new CDC.Objects.ExportOptions();
-				SRFile srFile = new SR1File(filePath, options);
+				SRFile srFile = new SR1File(filePath, CDC.Platform.PSX, options);
+				TPages tPages = ((SR1File)srFile).TPages;
 
-				string textureFileName = Path.ChangeExtension(filePath, "crm");
-				SR1PSTextureFile textureFile = new SR1PSTextureFile(textureFileName);
-
-				uint polygonCountAllModels = 0;
-				foreach (SRModel srModel in srFile.Models)
-				{
-					polygonCountAllModels += srModel.PolygonCount;
-				}
-
-				SR1PSTextureFile.SoulReaverPlaystationPolygonTextureData[] polygons =
-					new SR1PSTextureFile.SoulReaverPlaystationPolygonTextureData[polygonCountAllModels];
-
-				int polygonNum = 0;
-				foreach (SRModel srModel in srFile.Models)
+				/*foreach (SRModel srModel in srFile.Models)
 				{
 					foreach (CDC.Polygon polygon in srModel.Polygons)
 					{
-						polygons[polygonNum].paletteColumn = polygon.paletteColumn;
-						polygons[polygonNum].paletteRow = polygon.paletteRow;
-						polygons[polygonNum].u = new int[3];
-						polygons[polygonNum].v = new int[3];
-						polygons[polygonNum].materialColour = polygon.colour;
+						TextureTile tile = new TextureTile()
+						{
+							textureID = polygon.material.textureID,
+							tPage = polygon.material.texturePage,
+							clut = polygon.material.clutValue,
+							textureUsed = polygon.material.textureUsed,
+							visible = polygon.material.visible,
+							u = new int[3],
+							v = new int[3],
+						};
 
-						polygons[polygonNum].u[0] = (int)(srModel.Geometry.UVs[polygon.v1.UVID].u * 255);
-						polygons[polygonNum].v[0] = (int)(srModel.Geometry.UVs[polygon.v1.UVID].v * 255);
-						polygons[polygonNum].u[1] = (int)(srModel.Geometry.UVs[polygon.v2.UVID].u * 255);
-						polygons[polygonNum].v[1] = (int)(srModel.Geometry.UVs[polygon.v2.UVID].v * 255);
-						polygons[polygonNum].u[2] = (int)(srModel.Geometry.UVs[polygon.v3.UVID].u * 255);
-						polygons[polygonNum].v[2] = (int)(srModel.Geometry.UVs[polygon.v3.UVID].v * 255);
+						tile.u[0] = (int)(srModel.Geometry.UVs[polygon.v1.UVID].u * 255);
+						tile.v[0] = (int)(srModel.Geometry.UVs[polygon.v1.UVID].v * 255);
+						tile.u[1] = (int)(srModel.Geometry.UVs[polygon.v2.UVID].u * 255);
+						tile.v[1] = (int)(srModel.Geometry.UVs[polygon.v2.UVID].v * 255);
+						tile.u[2] = (int)(srModel.Geometry.UVs[polygon.v3.UVID].u * 255);
+						tile.v[2] = (int)(srModel.Geometry.UVs[polygon.v3.UVID].v * 255);
 
-						polygons[polygonNum].textureID = polygon.material.textureID;
-						polygons[polygonNum].CLUT = polygon.material.clutValue;
-
-						polygons[polygonNum].textureUsed = polygon.material.textureUsed;
-						polygons[polygonNum].visible = polygon.material.visible;
-
-						polygonNum++;
+						tPages.AddTextureTile2(tile);
 					}
-				}
+				}*/
 
-				textureFile.BuildTexturesFromPolygonData(polygons, false, true, options);
+				SR1PSXTextureFile textureFile = new SR1PSXTextureFile(textureFileName);
+				textureFile.BuildTexturesFromPolygonData(tPages, false, true, options);
 
-				TexDesc[] textures = new TexDesc[8];
+				TexDesc[] textures = new TexDesc[textureFile.TextureCount];
+				textureSet.TextureIDs = new ushort[textureFile.TextureCount];
 
 				ushort textureIndex = (ushort)_repository.Textures.Count;
 				for (int t = 0; t < textures.Length; t++)
@@ -1135,6 +1141,7 @@ namespace Recombobulator
 						textures[t].TextureIndex = textureIndex + t;
 						textures[t].FilePath = _repository.MakeTextureFilePath(newTextureIndex);
 						textures[t].IsNew = true;
+						textures[t].TPage = tPages[t].tPage;
 
 						_repository.Textures.Add(textures[t]);
 
@@ -1153,7 +1160,9 @@ namespace Recombobulator
 		}
 
         private void ImportUndercityToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+		{
+			// LOAD_GetBigFileFileIndex for Error no. 357.
+
 			FolderBrowserDialog dialog = new FolderBrowserDialog();
 			dialog.Description = "Select root folder.";
 			dialog.ShowNewFolderButton = false;
@@ -1216,6 +1225,8 @@ namespace Recombobulator
 
         private void ImportSmokestackToolStripMenuItem_Click(object sender, EventArgs e)
         {
+			// LOAD_GetBigFileFileIndex for Error no. 357.
+
 			FolderBrowserDialog dialog = new FolderBrowserDialog();
 			dialog.Description = "Select root folder.";
 			dialog.ShowNewFolderButton = false;
@@ -1275,18 +1286,23 @@ namespace Recombobulator
 			importFiles.Add(new ImportFile { importName = "lair14", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lair27", isLevel = true });
 
-			//importFiles.Add(new ImportFile { importName = "lair32", isLevel = true });
-			//importFiles.Add(new ImportFile { importName = "lair33", isLevel = true });
-			//importFiles.Add(new ImportFile { importName = "lair34", isLevel = true });
+			// 04-02-1999 only.
+			//importFiles.Add(new ImportFile { importName = "lair8", isLevel = true });
+			//importFiles.Add(new ImportFile { importName = "lair18", isLevel = true });
+			//importFiles.Add(new ImportFile { importName = "lair22", isLevel = true });
+
+			importFiles.Add(new ImportFile { importName = "lair32", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair33", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair34", isLevel = true, removePortals = new string[] { "lair35,56" } });
 			//importFiles.Add(new ImportFile { importName = "lair35", isLevel = true });
 
 			importFiles.Add(new ImportFile { importName = "lair9", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lair31", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lair30", isLevel = true });
-			importFiles.Add(new ImportFile { importName = "lair2", isLevel = true, removePortals = new string[] { "lair32,50" } });
+			importFiles.Add(new ImportFile { importName = "lair2", isLevel = true, /*removePortals = new string[] { "lair32,50" }*/ });
 
-			importFiles.Add(new ImportFile { importName = "hitme", isLevel = false }); // Check this one. Looks glitchy.
-			importFiles.Add(new ImportFile { importName = "ispirit", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "hitme", isLevel = false }); // Check this one. Looks glitchy. No texture.
+			importFiles.Add(new ImportFile { importName = "ispirit", isLevel = false }); // Also glitchy.
 			importFiles.Add(new ImportFile { importName = "trifrca", isLevel = false });
 			importFiles.Add(new ImportFile { importName = "trifrcb", isLevel = false });
 			importFiles.Add(new ImportFile { importName = "trifrcc", isLevel = false });
@@ -1309,7 +1325,9 @@ namespace Recombobulator
 		}
 
         private void ImportRetreatToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+		{
+			// LOAD_GetBigFileFileIndex for Error no. 357.
+
 			FolderBrowserDialog dialog = new FolderBrowserDialog();
 			dialog.Description = "Select root folder.";
 			dialog.ShowNewFolderButton = false;

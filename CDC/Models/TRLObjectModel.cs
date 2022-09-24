@@ -4,11 +4,11 @@ using System.Collections.Generic;
 
 namespace CDC.Objects.Models
 {
-	public class DefianceObjectModel : DefianceModel
+	public class TRLObjectModel : TRLModel
 	{
 		protected UInt32 m_uColourStart;
 
-		protected DefianceObjectModel(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt32 version)
+		protected TRLObjectModel(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt32 version)
 			: base(reader, dataStart, modelData, strModelName, ePlatform, version)
 		{
 			reader.BaseStream.Position = _modelData + 0x04;
@@ -27,7 +27,7 @@ namespace CDC.Objects.Models
 			_polygonStart = 0; // _dataStart + reader.ReadUInt32();
 			reader.BaseStream.Position += 0x28;
 			_materialStart = _dataStart + reader.ReadUInt32();
-			reader.BaseStream.Position += 0x04;
+			reader.BaseStream.Position += 0x08;
 			//_materialStart = 0; // ^^Whatever that was, it's a dword and then an array of shorts. 
 			_materialCount = 0;
 			m_uColourStart = _dataStart + reader.ReadUInt32();
@@ -36,24 +36,27 @@ namespace CDC.Objects.Models
 			_trees = new Tree[_groupCount];
 		}
 
-		public static DefianceObjectModel Load(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt16 usIndex, UInt32 version, CDC.Objects.ExportOptions options)
+		public static TRLObjectModel Load(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt16 usIndex, UInt32 version, CDC.Objects.ExportOptions options)
 		{
 			reader.BaseStream.Position = modelData + (0x00000004 * usIndex);
 			modelData = dataStart + reader.ReadUInt32();
 			reader.BaseStream.Position = modelData;
-			DefianceObjectModel xModel = new DefianceObjectModel(reader, dataStart, modelData, strModelName, ePlatform, version);
+			TRLObjectModel xModel = new TRLObjectModel(reader, dataStart, modelData, strModelName, ePlatform, version);
 			xModel.ReadData(reader, options);
 			return xModel;
 		}
 
-		protected override void ReadTypeAVertex(BinaryReader reader, int v, CDC.Objects.ExportOptions options)
+		protected override void ReadVertex(BinaryReader reader, int v, CDC.Objects.ExportOptions options)
 		{
-			base.ReadTypeAVertex(reader, v, options);
+			base.ReadVertex(reader, v, options);
 
 			_geometry.PositionsPhys[v] = _geometry.PositionsRaw[v] * _vertexScale;
 			_geometry.PositionsAltPhys[v] = _geometry.PositionsPhys[v];
 
-			_geometry.Vertices[v].normalID = reader.ReadByte();
+			_geometry.Vertices[v].normalID = v;
+			_geometry.Normals[v].x = reader.ReadSByte() / 127.0f;
+			_geometry.Normals[v].y = reader.ReadSByte() / 127.0f;
+			_geometry.Normals[v].z = reader.ReadSByte() / 127.0f;
 			reader.BaseStream.Position += 0x01;
 
 			reader.BaseStream.Position += 0x02; // boneID
@@ -63,13 +66,13 @@ namespace CDC.Objects.Models
 			UInt16 vU = reader.ReadUInt16();
 			UInt16 vV = reader.ReadUInt16();
 
-			_geometry.UVs[v].u = Utility.BizarreFloatToNormalFloat(vU);
-			_geometry.UVs[v].v = Utility.BizarreFloatToNormalFloat(vV);
+			_geometry.UVs[v].u = Utility.BizarreFloatToNormalFloat2(vU);
+			_geometry.UVs[v].v = Utility.BizarreFloatToNormalFloat2(vV);
 		}
 
-		protected override void ReadTypeAVertices(BinaryReader reader, CDC.Objects.ExportOptions options)
+		protected override void ReadVertices(BinaryReader reader, CDC.Objects.ExportOptions options)
 		{
-			base.ReadTypeAVertices(reader, options);
+			base.ReadVertices(reader, options);
 
 			reader.BaseStream.Position = m_uColourStart;
 			for (UInt16 v = 0; v < _vertexCount; v++)
@@ -90,12 +93,15 @@ namespace CDC.Objects.Models
 			_bones = new Bone[_boneCount];
 			for (UInt16 b = 0; b < _boneCount; b++)
 			{
+				reader.BaseStream.Position += 0x20;
+
 				// Get the bone data
 				_bones[b].localPos.x = reader.ReadSingle();
 				_bones[b].localPos.y = reader.ReadSingle();
 				_bones[b].localPos.z = reader.ReadSingle();
 
-				float unknown = reader.ReadSingle();
+				reader.BaseStream.Position += 0x04;
+
 				_bones[b].flags = reader.ReadUInt32();
 
 				_bones[b].vFirst = reader.ReadUInt16();
@@ -173,15 +179,17 @@ namespace CDC.Objects.Models
 				return;
 			}
 
-			List<DefianceTriangleList> triangleListList = new List<DefianceTriangleList>();
+			List<TRLTriangleList> triangleListList = new List<TRLTriangleList>();
 			UInt32 materialPosition = _materialStart;
 			_groupCount = 0;
+
 			while (materialPosition != 0)
 			{
 				reader.BaseStream.Position = materialPosition;
-				DefianceTriangleList triangleList = new DefianceTriangleList();
+				TRLTriangleList triangleList = new TRLTriangleList();
 
-				if (ReadTriangleList(reader, ref triangleList)/* && triangleList.m_usGroupID == 0*/)
+				bool isVisible = (ReadTriangleList(reader, ref triangleList) /*&& triangleList.m_usGroupID == 0*/);
+				if (isVisible)
 				{
 					triangleListList.Add(triangleList);
 					_polygonCount += triangleList.polygonCount;
@@ -206,7 +214,7 @@ namespace CDC.Objects.Models
 				_trees[t] = new Tree();
 				_trees[t].mesh = new Mesh();
 
-				foreach (DefianceTriangleList triangleList in triangleListList)
+				foreach (TRLTriangleList triangleList in triangleListList)
 				{
 					if (t == (UInt32)triangleList.groupID)
 					{
@@ -222,7 +230,7 @@ namespace CDC.Objects.Models
 			for (UInt32 t = 0; t < _groupCount; t++)
 			{
 				UInt32 tp = 0;
-				foreach (DefianceTriangleList triangleList in triangleListList)
+				foreach (TRLTriangleList triangleList in triangleListList)
 				{
 					if (t != (UInt32)triangleList.groupID)
 					{
@@ -250,7 +258,7 @@ namespace CDC.Objects.Models
 
 			_polygons = new Polygon[_polygonCount];
 			UInt32 p = 0;
-			foreach (DefianceTriangleList triangleList in triangleListList)
+			foreach (TRLTriangleList triangleList in triangleListList)
 			{
 				reader.BaseStream.Position = triangleList.polygonStart;
 				for (int pl = 0; pl < triangleList.polygonCount; pl++)
@@ -264,7 +272,7 @@ namespace CDC.Objects.Models
 			}
 		}
 
-		protected virtual bool ReadTriangleList(BinaryReader reader, ref DefianceTriangleList triangleList)
+		protected virtual bool ReadTriangleList(BinaryReader reader, ref TRLTriangleList triangleList)
 		{
 			triangleList.polygonCount = (UInt32)reader.ReadUInt16() / 3;
 			triangleList.groupID = reader.ReadUInt16(); // Used by MON_SetAccessories and INSTANCE_UnhideAllDrawGroups
@@ -274,8 +282,8 @@ namespace CDC.Objects.Models
 			UInt32 xDWord0 = reader.ReadUInt32();
 			UInt32 xDWord1 = reader.ReadUInt32();
 			triangleList.material = new Material();
-			triangleList.material.visible = ((xWord1 & 0xFF00) == 0);
-			triangleList.material.textureID = (UInt16)(xWord0 & 0x0FFF);
+			triangleList.material.visible = true; // ((xWord1 & 0xFF00) == 0);
+			triangleList.material.textureID = (UInt16)(xWord0 & 0x1FFF);
 			triangleList.material.colour = 0xFFFFFFFF;
 			if (triangleList.material.textureID > 0)
 			{

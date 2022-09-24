@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using TPages = BenLincoln.TheLostWorlds.CDTextures.PSXTextureDictionary;
+using TextureTile = BenLincoln.TheLostWorlds.CDTextures.PSXTextureTile;
 
 namespace CDC.Objects.Models
 {
@@ -9,6 +10,7 @@ namespace CDC.Objects.Models
 		//public const uint TranslucentMaterial = 0xC0000000;
 		public const uint TransparentMaterial = 0x80000000;
 		//public const uint BarelyVisibleMaterial = 0x40000000;
+
 		#region Normals
 		protected static Int32[,] s_aiNormals =
 		{
@@ -259,12 +261,16 @@ namespace CDC.Objects.Models
 		};
 		#endregion
 
-		protected SR1Model(BinaryReader xReader, UInt32 uDataStart, UInt32 uModelData, String strModelName, Platform ePlatform, UInt32 uVersion) :
-			base(xReader, uDataStart, uModelData, strModelName, ePlatform, uVersion)
+		protected TPages _tPages;
+		protected bool readTextureFT3Attributes;
+
+		protected SR1Model(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt32 version, TPages tPages) :
+			base(reader, dataStart, modelData, strModelName, ePlatform, version)
 		{
+			_tPages = tPages;
 		}
 
-		protected virtual void ReadData(BinaryReader xReader, CDC.Objects.ExportOptions options)
+		protected virtual void ReadData(BinaryReader reader, ExportOptions options)
 		{
 			// Get the normals
 			_geometry.Normals = new Vector[s_aiNormals.Length / 3];
@@ -282,50 +288,48 @@ namespace CDC.Objects.Models
 			_geometry.PositionsAltPhys = new Vector[_vertexCount];
 			_geometry.Colours = new UInt32[_vertexCount];
 			_geometry.ColoursAlt = new UInt32[_vertexCount];
-			ReadVertices(xReader, options);
+			ReadVertices(reader, options);
 
 			// Get the polygons
 			_polygons = new Polygon[_polygonCount];
 			_geometry.UVs = new UV[_indexCount];
 			Console.WriteLine("\tDebug: reading polygons");
-			ReadPolygons(xReader, options);
+			ReadPolygons(reader, options);
 
 			// Generate the output
 			GenerateOutput();
 		}
 
-		protected virtual void ReadVertex(BinaryReader xReader, int v, CDC.Objects.ExportOptions options)
+		protected virtual void ReadVertex(BinaryReader reader, int v, ExportOptions options)
 		{
 			_geometry.Vertices[v].positionID = v;
 
 			// Read the local coordinates
-			_geometry.PositionsRaw[v].x = (float)xReader.ReadInt16();
-			_geometry.PositionsRaw[v].y = (float)xReader.ReadInt16();
-			_geometry.PositionsRaw[v].z = (float)xReader.ReadInt16();
+			_geometry.PositionsRaw[v].x = (float)reader.ReadInt16();
+			_geometry.PositionsRaw[v].y = (float)reader.ReadInt16();
+			_geometry.PositionsRaw[v].z = (float)reader.ReadInt16();
 		}
 
-		protected virtual void ReadVertices(BinaryReader xReader, CDC.Objects.ExportOptions options)
+		protected virtual void ReadVertices(BinaryReader reader, ExportOptions options)
 		{
 			if (_vertexStart == 0 || _vertexCount == 0)
 			{
 				return;
 			}
 
-			xReader.BaseStream.Position = _vertexStart;
+			reader.BaseStream.Position = _vertexStart;
 
 			for (int v = 0; v < _vertexCount; v++)
 			{
-				ReadVertex(xReader, v, options);
+				ReadVertex(reader, v, options);
 			}
 
 			return;
 		}
 
-		protected abstract void ReadPolygons(BinaryReader xReader, CDC.Objects.ExportOptions options);
+		protected abstract void ReadPolygons(BinaryReader reader, ExportOptions options);
 
-		protected abstract void HandleMaterialRead(BinaryReader xReader, int p, CDC.Objects.ExportOptions options, byte flags, UInt32 colourOrMaterialPosition);
-
-		protected virtual void HandlePolygonInfo(BinaryReader xReader, int p, CDC.Objects.ExportOptions options, byte flags, UInt32 colourOrMaterialPosition, bool forceTranslucent)
+		protected virtual void HandlePolygonInfo(BinaryReader reader, int p, ExportOptions options, byte flags, UInt32 colourOrMaterialPosition, bool forceTranslucent)
 		{
 			bool isTranslucent = false;
 			if (forceTranslucent)
@@ -369,7 +373,7 @@ namespace CDC.Objects.Models
 			if (options.SetAllPolygonColoursToValue)
 			{
 				//_polygons[p].material.colour |= 0x0000FF00;
-				_polygons[p].material.colour = SRFile.FloatARGBToUInt32ARGB(new float[] { options.PolygonColourAlpha, options.PolygonColourRed, options.PolygonColourGreen, options.PolygonColourBlue });
+				_polygons[p].material.colour = Utility.FloatARGBToUInt32ARGB(new float[] { options.PolygonColourAlpha, options.PolygonColourRed, options.PolygonColourGreen, options.PolygonColourBlue });
 				_polygons[p].colour = _polygons[p].material.colour;
 			}
 
@@ -421,7 +425,7 @@ namespace CDC.Objects.Models
 			//_polygons[p].sr1TextureFT3Attributes = 0;
 			if (_polygons[p].material.textureUsed)
 			{
-				HandleMaterialRead(xReader, p, options, flags, colourOrMaterialPosition);
+				ReadMaterial(reader, p, colourOrMaterialPosition, options);
 			}
 			else
 			{
@@ -495,9 +499,34 @@ namespace CDC.Objects.Models
 
 
 			Utility.FlipRedAndBlue(ref _polygons[p].material.colour);
+
+			if (_platform == Platform.PSX)
+			{
+				TextureTile tile = new TextureTile()
+				{
+					textureID = _polygons[p].material.textureID,
+					tPage = _polygons[p].material.texturePage,
+					clut = _polygons[p].material.clutValue,
+					textureUsed = _polygons[p].material.textureUsed,
+					visible = _polygons[p].material.visible,
+					u = new int[3],
+					v = new int[3],
+				};
+
+				Polygon polygon = _polygons[p];
+				tile.u[0] = (int)(Geometry.UVs[polygon.v1.UVID].u * 255);
+				tile.v[0] = (int)(Geometry.UVs[polygon.v1.UVID].v * 255);
+				tile.u[1] = (int)(Geometry.UVs[polygon.v2.UVID].u * 255);
+				tile.v[1] = (int)(Geometry.UVs[polygon.v2.UVID].v * 255);
+				tile.u[2] = (int)(Geometry.UVs[polygon.v3.UVID].u * 255);
+				tile.v[2] = (int)(Geometry.UVs[polygon.v3.UVID].v * 255);
+
+				_tPages.AddTextureTile2(tile);
+				_polygons[p].material.textureID = _tPages.AddTextureTile(tile);
+			}
 		}
 
-		protected virtual void ReadMaterial(BinaryReader xReader, int p, CDC.Objects.ExportOptions options, bool readTextureFT3Attributes)
+		protected virtual void ReadMaterial(BinaryReader reader, int p, UInt32 colourOrMaterialPosition, ExportOptions options)
 		{
 			int v1 = (p * 3) + 0;
 			int v2 = (p * 3) + 1;
@@ -519,67 +548,61 @@ namespace CDC.Objects.Models
 				// struct TextureFT3 
 
 				// unsigned char u0;
-				Byte v1U = xReader.ReadByte();
+				Byte v1U = reader.ReadByte();
 				// unsigned char v0;
-				Byte v1V = xReader.ReadByte();
+				Byte v1V = reader.ReadByte();
 
 				if (_platform == Platform.PSX)
 				{
-					// unsigned short clut;
-					ushort paletteVal = xReader.ReadUInt16();
-					ushort rowVal = (ushort)((ushort)(paletteVal << 2) >> 8);
-					ushort colVal = (ushort)((ushort)(paletteVal << 11) >> 11);
-					ushort clutWithoutRowOrColumn = (ushort)(paletteVal & 0xC0E0);
-					//Console.WriteLine(string.Format("Debug: rowVal is {0:X4}, colVal is {1:X4}, original clut value is {2:X4}, without row/col bits is {3:X4}", rowVal, colVal, paletteVal, clutWithoutRowOrColumn));
-					_polygons[p].material.clutValue = paletteVal;
-					_polygons[p].paletteColumn = colVal;
-					_polygons[p].paletteRow = rowVal;
+					_polygons[p].material.clutValue = reader.ReadUInt16();
 				}
 				else
 				{
 					// unsigned short tpage; ???
-					texturePageOffset = xReader.BaseStream.Position + 2048;
-					UInt16 texID = xReader.ReadUInt16();
+					texturePageOffset = reader.BaseStream.Position + 2048;
+					UInt16 texID = reader.ReadUInt16();
 					//Console.WriteLine(string.Format("Debug: texture ID is {0:X4}", texID));
 					_polygons[p].material.texturePage = texID;
 					_polygons[p].material.textureID = (UInt16)(texID & 0x07FF);
 				}
 
 				// unsigned char u1;
-				Byte v2U = xReader.ReadByte();
+				Byte v2U = reader.ReadByte();
 				// unsigned char v1;
-				Byte v2V = xReader.ReadByte();
+				Byte v2V = reader.ReadByte();
 
 				bool echoAttributes = false;
 				if (_platform == Platform.PSX)
 				{
-					// unsigned short tpage;
-					_polygons[p].material.texturePage = xReader.ReadUInt16();
-					_polygons[p].material.textureID = (UInt16)(((_polygons[p].material.texturePage & 0x07FF) - 8) % 8);
-
-					//if ((UInt16)(((_polygons[p].material.texturePage) - 8)) != _polygons[p].material.textureID)
-					//{
-					//    Console.WriteLine(string.Format("Debug: texture ID is {0:X4}, interpreting as {1:X4}", _polygons[p].material.texturePage, _polygons[p].material.textureID));
-					//    echoAttributes = true;
-					//}
+					_polygons[p].material.texturePage = reader.ReadUInt16();
 				}
 				else
 				{
-					textureVal2Offset = xReader.BaseStream.Position + 2048;
-					_polygons[p].material.textureAttributesA = xReader.ReadUInt16();
+					textureVal2Offset = reader.BaseStream.Position + 2048;
+					_polygons[p].material.textureAttributesA = reader.ReadUInt16();
+					if ((_polygons[p].material.textureAttributesA & 0x0020) != 0)
+					{
+						_polygons[p].material.blendMode = 1;
+					}
 				}
 
 				// unsigned char u2;
-				Byte v3U = xReader.ReadByte();
+				Byte v3U = reader.ReadByte();
 				// unsigned char v2;
-				Byte v3V = xReader.ReadByte();
+				Byte v3V = reader.ReadByte();
 
 				// unsigned short attr;
 				if (readTextureFT3Attributes)
 				{
-					materialAttributesOffset = xReader.BaseStream.Position + 2048;
-					_polygons[p].material.textureAttributes = xReader.ReadUInt16();
+					materialAttributesOffset = reader.BaseStream.Position + 2048;
+					_polygons[p].material.textureAttributes = reader.ReadUInt16();
+
+					if ((_polygons[p].material.textureAttributes & 0x0040) != 0)
+					{
+						_polygons[p].material.blendMode = 1;
+					}
 				}
+
 				//if (echoAttributes)
 				//{
 				//    Console.WriteLine(string.Format("Debug: sr1TextureFT3Attributes = {0:X4}", _polygons[p].sr1TextureFT3Attributes));
@@ -626,12 +649,12 @@ namespace CDC.Objects.Models
 			}
 			else
 			{
-				UInt16 v1U = xReader.ReadUInt16();
-				UInt16 v1V = xReader.ReadUInt16();
-				UInt16 v2U = xReader.ReadUInt16();
-				UInt16 v2V = xReader.ReadUInt16();
-				UInt16 v3U = xReader.ReadUInt16();
-				UInt16 v3V = xReader.ReadUInt16();
+				UInt16 v1U = reader.ReadUInt16();
+				UInt16 v1V = reader.ReadUInt16();
+				UInt16 v2U = reader.ReadUInt16();
+				UInt16 v2V = reader.ReadUInt16();
+				UInt16 v3U = reader.ReadUInt16();
+				UInt16 v3V = reader.ReadUInt16();
 
 				_geometry.UVs[v1].u = Utility.BizarreFloatToNormalFloat(v1U);
 				_geometry.UVs[v1].v = Utility.BizarreFloatToNormalFloat(v1V);
@@ -640,15 +663,15 @@ namespace CDC.Objects.Models
 				_geometry.UVs[v3].u = Utility.BizarreFloatToNormalFloat(v3U);
 				_geometry.UVs[v3].v = Utility.BizarreFloatToNormalFloat(v3V);
 
-				texturePageOffset = xReader.BaseStream.Position;
-				_polygons[p].material.texturePage = xReader.ReadUInt16();
+				texturePageOffset = reader.BaseStream.Position;
+				_polygons[p].material.texturePage = reader.ReadUInt16();
 				_polygons[p].material.textureID = (UInt16)((_polygons[p].material.texturePage & 0x07FF) - 1);
 				//_polygons[p].material.textureID = (UInt16)((_polygons[p].material.texturePage & 0x07FF));
 				//// unsigned short attr;
 				if (readTextureFT3Attributes)
 				{
-					materialAttributesOffset = xReader.BaseStream.Position + 2048;
-					_polygons[p].material.textureAttributes = xReader.ReadUInt16();
+					materialAttributesOffset = reader.BaseStream.Position + 2048;
+					_polygons[p].material.textureAttributes = reader.ReadUInt16();
 				}
 			}
 

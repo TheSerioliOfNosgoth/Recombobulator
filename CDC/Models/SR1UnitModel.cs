@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using TPages = BenLincoln.TheLostWorlds.CDTextures.PSXTextureDictionary;
 
 namespace CDC.Objects.Models
 {
@@ -11,55 +12,78 @@ namespace CDC.Objects.Models
 		protected UInt32 m_uSpectralVertexStart;
 		protected UInt32 m_uSpectralColourStart;
 
-		public SR1UnitModel(BinaryReader xReader, UInt32 uDataStart, UInt32 uModelData, String strModelName, Platform ePlatform, UInt32 uVersion)
-			: base(xReader, uDataStart, uModelData, strModelName, ePlatform, uVersion)
+		public SR1UnitModel(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt32 version, TPages tPages)
+			: base(reader, dataStart, modelData, strModelName, ePlatform, version, tPages)
 		{
+			readTextureFT3Attributes = true;
+
 			_modelTypePrefix = "a_";
 			// struct _Terrain
-			// Alpha 1999-02-16:
-			/*
-                long vplLength; // size=0, offset=0
-            	unsigned char *vpList; // size=0, offset=4
-	            long numIntros; // size=0, offset=8
-	            struct Intro *introList; // size=76, offset=12
-             */
 
-			// 1999-07-14
-			/*
-             	short UnitChangeFlags; // size=0, offset=0
-	            short spad; // size=0, offset=2
-	            long lpad2; // size=0, offset=4
-	            long numIntros; // size=0, offset=8
-	            struct Intro *introList; // size=76, offset=12
-             */
-			xReader.BaseStream.Position = _modelData + 0x10;
+			if (_version == SR1File.PROTO_19981025_VERSION)
+			{
+				reader.BaseStream.Position = _modelData;
+
+				_groupCount = 1;
+				m_uBspTreeCount = 1;
+				m_uBspTreeStart = reader.ReadUInt32();
+
+				reader.BaseStream.Position = _modelData + 0x1C;
+			}
+			else
+			{
+				// Alpha 1999-02-16:
+				/*
+                    long vplLength; // size=0, offset=0
+                    unsigned char *vpList; // size=0, offset=4
+                    long numIntros; // size=0, offset=8
+                    struct Intro *introList; // size=76, offset=12
+                 */
+
+				// 1999-07-14
+				/*
+                    short UnitChangeFlags; // size=0, offset=0
+                    short spad; // size=0, offset=2
+                    long lpad2; // size=0, offset=4
+                    long numIntros; // size=0, offset=8
+                    struct Intro *introList; // size=76, offset=12
+                 */
+
+				reader.BaseStream.Position = _modelData + 0x10;
+			}
 
 			// long numVertices;
-			_vertexCount = xReader.ReadUInt32();
+			_vertexCount = reader.ReadUInt32();
 			// long numFaces;
-			_polygonCount = xReader.ReadUInt32();
+			_polygonCount = reader.ReadUInt32();
 			// long numNormals; 
-			//xReader.BaseStream.Position += 0x04;
-			long numNormals = xReader.ReadUInt32();
+			//reader.BaseStream.Position += 0x04;
+			long numNormals = reader.ReadUInt32();
 			// struct _TVertex *vertexList;
-			_vertexStart = _dataStart + xReader.ReadUInt32();
+			_vertexStart = _dataStart + reader.ReadUInt32();
 			// struct _TFace *faceList; 
-			_polygonStart = _dataStart + xReader.ReadUInt32();
+			_polygonStart = _dataStart + reader.ReadUInt32();
 			// struct _Normal *normalList;
-			uint normalStart = xReader.ReadUInt32();
+			uint normalStart = reader.ReadUInt32();
 			// struct DrMoveAniTex *aniList;
-			uint drMoveAniTex = xReader.ReadUInt32();
+			uint drMoveAniTex = reader.ReadUInt32();
 			// 1999-02-16: struct _BSPNode *sbspRoot; // size=44, offset=44 
 			// 1999-07-14: long pad 
-			uint sbspRoot = xReader.ReadUInt32();
+			uint sbspRoot = reader.ReadUInt32();
 			// void *StreamUnits;
-			uint streamUnitStart = xReader.ReadUInt32();
+			uint streamUnitStart = reader.ReadUInt32();
+
+			if (_version == SR1File.PROTO_19981025_VERSION)
+			{
+				reader.BaseStream.Position += 0x04;
+			}
 
 			// struct TextureFT3 *StartTextureList;
-			_materialStart = _dataStart + xReader.ReadUInt32();
+			_materialStart = _dataStart + reader.ReadUInt32();
 			_materialCount = 0;
 
-			if (_version == SR1File.ALPHA_19990123_VERSION_1_X ||
+			if (_version == SR1File.PROTO_19981025_VERSION ||
+				_version == SR1File.ALPHA_19990123_VERSION_1_X ||
 				_version == SR1File.ALPHA_19990123_VERSION_1 ||
 				_version == SR1File.ALPHA_19990204_VERSION_2 ||
 				_version == SR1File.ALPHA_19990216_VERSION_3 ||
@@ -69,47 +93,50 @@ namespace CDC.Objects.Models
 				// struct _SBSPLeaf *sbspStartLeaves;
 				// struct _SBSPLeaf *sbspEndLeaves;
 
-				xReader.BaseStream.Position += 0x0C;
+				reader.BaseStream.Position += 0x0C;
 			}
 			else
 			{
 				// struct TextureFT3 *EndTextureList;
-				xReader.BaseStream.Position += 0x04;
+				reader.BaseStream.Position += 0x04;
 			}
 
-			// struct _MorphVertex *MorphDiffList;
-			m_uSpectralVertexStart = _dataStart + xReader.ReadUInt32();
-			// struct _MorphColor *MorphColorList;
-			m_uSpectralColourStart = _dataStart + xReader.ReadUInt32();
-			// long numBSPTrees
-			m_uBspTreeCount = xReader.ReadUInt32();
-			// struct BSPTree *BSPTreeArray;
-			m_uBspTreeStart = _dataStart + xReader.ReadUInt32();
-			_groupCount = m_uBspTreeCount;
-			// short *morphNormalIdx;
-			// struct _MultiSignal *signals;
+			if (_version != SR1File.PROTO_19981025_VERSION)
+			{
+				// struct _MorphVertex *MorphDiffList;
+				m_uSpectralVertexStart = _dataStart + reader.ReadUInt32();
+				// struct _MorphColor *MorphColorList;
+				m_uSpectralColourStart = _dataStart + reader.ReadUInt32();
+				// long numBSPTrees
+				m_uBspTreeCount = reader.ReadUInt32();
+				// struct BSPTree *BSPTreeArray;
+				m_uBspTreeStart = _dataStart + reader.ReadUInt32();
+				_groupCount = m_uBspTreeCount;
+				// short *morphNormalIdx;
+				// struct _MultiSignal *signals;
+			}
 
 			_trees = new Tree[_groupCount];
 		}
 
-		public static SR1UnitModel Load(BinaryReader xReader, UInt32 uDataStart, UInt32 uModelData, String strModelName, Platform ePlatform, UInt32 uVersion, CDC.Objects.ExportOptions options)
+		public static SR1UnitModel Load(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt32 version, TPages tPages, ExportOptions options)
 		{
-			SR1UnitModel xModel = new SR1UnitModel(xReader, uDataStart, uModelData, strModelName, ePlatform, uVersion);
-			xModel.ReadData(xReader, options);
+			SR1UnitModel xModel = new SR1UnitModel(reader, dataStart, modelData, strModelName, ePlatform, version, tPages);
+			xModel.ReadData(reader, options);
 			return xModel;
 		}
 
-		protected override void ReadVertex(BinaryReader xReader, int v, CDC.Objects.ExportOptions options)
+		protected override void ReadVertex(BinaryReader reader, int v, ExportOptions options)
 		{
-			base.ReadVertex(xReader, v, options);
+			base.ReadVertex(reader, v, options);
 
 			_geometry.PositionsPhys[v] = _geometry.PositionsRaw[v];
 			_geometry.PositionsAltPhys[v] = _geometry.PositionsPhys[v];
 
 			_geometry.Vertices[v].colourID = v;
 
-			xReader.BaseStream.Position += 2;
-			uint vColour = xReader.ReadUInt32() | 0xFF000000;
+			reader.BaseStream.Position += 2;
+			uint vColour = reader.ReadUInt32() | 0xFF000000;
 			if (options.IgnoreVertexColours)
 			{
 				_geometry.Colours[v] = 0xFFFFFFFF;
@@ -127,27 +154,27 @@ namespace CDC.Objects.Models
 			_geometry.ColoursAlt[v] = _geometry.Colours[v];
 		}
 
-		protected override void ReadVertices(BinaryReader xReader, CDC.Objects.ExportOptions options)
+		protected override void ReadVertices(BinaryReader reader, ExportOptions options)
 		{
-			base.ReadVertices(xReader, options);
+			base.ReadVertices(reader, options);
 
-			ReadSpectralData(xReader, options);
+			ReadSpectralData(reader, options);
 		}
 
-		protected virtual void ReadSpectralData(BinaryReader xReader, CDC.Objects.ExportOptions options)
+		protected virtual void ReadSpectralData(BinaryReader reader, ExportOptions options)
 		{
 			if (m_uSpectralColourStart != 0)
 			{
 				// Spectral Colours
-				xReader.BaseStream.Position = m_uSpectralColourStart;
+				reader.BaseStream.Position = m_uSpectralColourStart;
 				for (int v = 0; v < _vertexCount; v++)
 				{
-					if (xReader.BaseStream.Position >= xReader.BaseStream.Length)
+					if (reader.BaseStream.Position >= reader.BaseStream.Length)
 					{
 						Console.WriteLine(string.Format("Error: reached end of file after reading {0}/{1} Spectral colours", v + 1, _vertexCount));
 						break;
 					}
-					UInt32 uShiftColour = xReader.ReadUInt16();
+					UInt32 uShiftColour = reader.ReadUInt16();
 					UInt32 uAlpha = _geometry.ColoursAlt[v] & 0xFF000000;
 					UInt32 uRed = ((uShiftColour >> 0) & 0x1F) << 0x13;
 					UInt32 uGreen = ((uShiftColour >> 5) & 0x1F) << 0x0B;
@@ -159,62 +186,46 @@ namespace CDC.Objects.Models
 			if (m_uSpectralVertexStart != 0)
 			{
 				// Spectral Verticices
-				xReader.BaseStream.Position = m_uSpectralVertexStart + 0x06;
-				int sVertex = xReader.ReadInt16();
-				xReader.BaseStream.Position = m_uSpectralVertexStart;
+				reader.BaseStream.Position = m_uSpectralVertexStart + 0x06;
+				int sVertex = reader.ReadInt16();
+				reader.BaseStream.Position = m_uSpectralVertexStart;
 				int sVertexCount = 0;
 				while (sVertex != 0xFFFF)
 				{
-					if (xReader.BaseStream.Position >= xReader.BaseStream.Length)
+					if (reader.BaseStream.Position >= reader.BaseStream.Length)
 					{
 						Console.WriteLine(string.Format("Error: reached end of file after reading reading {0} Spectral vertices", sVertexCount));
 						break;
 					}
 					ShiftVertex xShiftVertex;
-					xShiftVertex.basePos.x = (float)xReader.ReadInt16();
-					xShiftVertex.basePos.y = (float)xReader.ReadInt16();
-					xShiftVertex.basePos.z = (float)xReader.ReadInt16();
-					sVertex = xReader.ReadUInt16();
+					xShiftVertex.basePos.x = (float)reader.ReadInt16();
+					xShiftVertex.basePos.y = (float)reader.ReadInt16();
+					xShiftVertex.basePos.z = (float)reader.ReadInt16();
+					sVertex = reader.ReadUInt16();
 
 					if (sVertex == 0xFFFF)
 					{
 						break;
 					}
 
-					xShiftVertex.offset.x = (float)xReader.ReadInt16();
-					xShiftVertex.offset.y = (float)xReader.ReadInt16();
-					xShiftVertex.offset.z = (float)xReader.ReadInt16();
+					xShiftVertex.offset.x = (float)reader.ReadInt16();
+					xShiftVertex.offset.y = (float)reader.ReadInt16();
+					xShiftVertex.offset.z = (float)reader.ReadInt16();
 					_geometry.PositionsAltPhys[sVertex] = xShiftVertex.offset + xShiftVertex.basePos;
 					sVertexCount++;
 				}
 			}
 		}
 
-		protected override void HandleMaterialRead(BinaryReader xReader, int p, CDC.Objects.ExportOptions options, byte flags, UInt32 colourOrMaterialPosition)
+		protected virtual void ReadPolygon(BinaryReader reader, int p, ExportOptions options)
 		{
-			// WIP
-			UInt32 uMaterialPosition = colourOrMaterialPosition + _materialStart;
-			if (_version == SR1File.RETAIL_VERSION &&
-				(((uMaterialPosition - _materialStart) % 0x0C) != 0) &&
-				 ((uMaterialPosition - _materialStart) % 0x14) == 0)
-			{
-				_platform = Platform.Dreamcast;
-			}
-
-			xReader.BaseStream.Position = uMaterialPosition;
-			ReadMaterial(xReader, p, options, true);
-			//_polygons[p].material.textureAttributes = _polygons[p].sr1TextureFT3Attributes;
-		}
-
-		protected virtual void ReadPolygon(BinaryReader xReader, int p, CDC.Objects.ExportOptions options)
-		{
-			UInt32 uPolygonPosition = (UInt32)xReader.BaseStream.Position;
+			UInt32 uPolygonPosition = (UInt32)reader.BaseStream.Position;
 			// struct _TFace
 
 			// struct _Face face; 
-			_polygons[p].v1 = _geometry.Vertices[xReader.ReadUInt16()];
-			_polygons[p].v2 = _geometry.Vertices[xReader.ReadUInt16()];
-			_polygons[p].v3 = _geometry.Vertices[xReader.ReadUInt16()];
+			_polygons[p].v1 = _geometry.Vertices[reader.ReadUInt16()];
+			_polygons[p].v2 = _geometry.Vertices[reader.ReadUInt16()];
+			_polygons[p].v3 = _geometry.Vertices[reader.ReadUInt16()];
 			_polygons[p].material = new Material();
 
 			// unless the user has explicitly requested distinct materials for each flag, remove use of anything ignored at this level
@@ -225,9 +236,10 @@ namespace CDC.Objects.Models
 			}
 
 
-			long flagOffset = xReader.BaseStream.Position + 2048;
+			long flagOffset = reader.BaseStream.Position + 2048;
 			// unsigned char attr;
-			byte flags = xReader.ReadByte();
+			byte flags = reader.ReadByte();
+
 			if (options.IgnorePolygonFlag2ForTerrain)
 			{
 				// ignore flag 0x02 for terrain (it means "this is the other half of a quad" or something similar)
@@ -237,26 +249,48 @@ namespace CDC.Objects.Models
 			//Console.WriteLine(string.Format("\t\t\tDebug: read Polygon flags: {0}", Convert.ToString(flags, 2).PadLeft(8, '0')));
 			//Console.WriteLine(string.Format("0x{0:X2} (@0x{1:X4}, D:{1}\t:::", flags, flagOffset));
 			// char sortPush;
-			byte sortPush = xReader.ReadByte();
+			byte sortPush = reader.ReadByte();
 			// unsigned short normal;
-			UInt16 polygonNormal = xReader.ReadUInt16();
+			UInt16 polygonNormal = reader.ReadUInt16();
 
 			_polygons[p].normal = polygonNormal;
 			_polygons[p].material.polygonFlags = flags;
 			_polygons[p].material.sortPush = sortPush;
 
-			// unsigned short textoff;
-			UInt16 uMaterialOffset = xReader.ReadUInt16();
-			//Console.WriteLine(string.Format("\t\t\tDebug: read textoff: 0x{0:X4}", uMaterialOffset));
-			//_polygons[p].material.textureUsed &= (Boolean)(uMaterialOffset != 0xFFFF);
+			UInt32 materialOffset;
+			if (_version == SR1File.PROTO_19981025_VERSION)
+			{
+				reader.BaseStream.Position += 2;
+				materialOffset = reader.ReadUInt32();
+
+				if (materialOffset >= _materialStart)
+				{
+					materialOffset -= _materialStart;
+				}
+				else
+				{
+					// What would this mean?
+					// It's not an offset in proto, so is there a real material is should point to?
+					materialOffset = 0xFFFFFFFF;
+				}
+			}
+			else
+			{
+				// unsigned short textoff;
+				materialOffset = reader.ReadUInt16();
+				//Console.WriteLine(string.Format("\t\t\tDebug: read textoff: 0x{0:X4}", materialOffset));
+				//_polygons[p].material.textureUsed &= (Boolean)(materialOffset != 0xFFFF && materialOffset != 0xFFFFFFFF);
+			}
 
 			bool isTranslucent = false;
 
 			_polygons[p].material.visible = true;
-			if (uMaterialOffset == 0xFFFF)
+
+			if (materialOffset == 0xFFFF || materialOffset == 0xFFFFFFFF)
 			{
 				_polygons[p].material.visible = false;
 			}
+
 			bool ignoreMaterial0 = false;
 			if (_version == SR1File.RETAIL_VERSION)
 			{
@@ -268,39 +302,47 @@ namespace CDC.Objects.Models
 			{
 				//ignoreMaterial0 = false;
 			}
+
 			if (ignoreMaterial0)
 			{
-				if (uMaterialOffset == 0x0000)
+				if (materialOffset == 0x00000000)
 				{
 					_polygons[p].material.visible = false;
 				}
 			}
+
 			if ((flags & 0x01) == 0x01)
 			{
 				//_polygons[p].material.visible = false;
 				//_polygons[p].material.textureUsed = false;
 			}
+
 			if (((flags & 0x02) == 0x02))
 			{
 			}
+
 			if ((flags & 0x04) == 0x04)
 			{
 				_polygons[p].material.visible = false;
 				//_polygons[p].material.textureUsed = false;
 			}
+
 			if (((flags & 0x08) == 0x08))
 			{
 				_polygons[p].material.emissivity = 1.0f;
 			}
+
 			if (((flags & 0x10) == 0x10))
 			{
 			}
+
 			// 20 is not used in any known version of the game
 			if ((flags & 0x20) == 0x20)
 			{
 				isTranslucent = true;
 				_polygons[p].material.opacity = CDC.Material.OPACITY_TRANSLUCENT;
 			}
+
 			if ((flags & 0x40) == 0x40)
 			{
 				//_polygons[p].material.visible = false;
@@ -317,6 +359,7 @@ namespace CDC.Objects.Models
 			{
 				_polygons[p].material.textureUsed = true;
 			}
+
 			//if (Platform == Platform.Dreamcast)
 			//{
 			//    _polygons[p].material.colour = 0xFFFFFFFF;
@@ -327,56 +370,70 @@ namespace CDC.Objects.Models
 			//    _polygons[p].colour = _polygons[p].material.colour;
 			//}
 
-			HandlePolygonInfo(xReader, p, options, flags, uMaterialOffset, isTranslucent);
+			HandlePolygonInfo(reader, p, options, flags, materialOffset, isTranslucent);
 
-			xReader.BaseStream.Position = uPolygonPosition + 0x0C;
+			if (_version == SR1File.PROTO_19981025_VERSION)
+			{
+				reader.BaseStream.Position = uPolygonPosition + 0x10;
+			}
+			else
+			{
+				reader.BaseStream.Position = uPolygonPosition + 0x0C;
+			}
 		}
 
-		protected override void ReadPolygons(BinaryReader xReader, CDC.Objects.ExportOptions options)
+		protected override void ReadPolygons(BinaryReader reader, ExportOptions options)
 		{
 			if (_polygonStart == 0 || _polygonCount == 0)
 			{
 				return;
 			}
 
-			xReader.BaseStream.Position = _polygonStart;
+			reader.BaseStream.Position = _polygonStart;
 
 			for (UInt16 p = 0; p < _polygonCount; p++)
 			{
 				//Console.WriteLine(string.Format("\t\tReading polygon {0}", p));
-				ReadPolygon(xReader, p, options);
+				ReadPolygon(reader, p, options);
 			}
 
 			List<Mesh> xMeshes = new List<Mesh>();
 			List<int> xMeshPositions = new List<int>();
 			List<UInt32> treePolygons = new List<UInt32>((Int32)_vertexCount * 3);
 
-			for (UInt32 t = 0; t < m_uBspTreeCount; t++)
+			if (_version == SR1File.PROTO_19981025_VERSION)
 			{
-				// struct BSPTree
-				xReader.BaseStream.Position = m_uBspTreeStart + (t * 0x24);
-				// struct _BSPNode *bspRoot;
-				UInt32 uDataPos = _dataStart + xReader.ReadUInt32();
-				// struct _BSPLeaf *startLeaves;
-				// struct _BSPLeaf *endLeaves; 
-				// struct _Position globalOffset;
-				xReader.BaseStream.Position += 0x12;
-				//short flags;
-				ushort rootTreeFlags = xReader.ReadUInt16();
-				//Console.WriteLine(string.Format("\t\t\t\t\tDebug: read BSP tree flags {0}", Convert.ToString(flags, 2).PadLeft(8, '0')));
-				bool drawTester = ((rootTreeFlags & 1) != 1);
-				// struct _Position localOffset;
-				xReader.BaseStream.Position += 0x06;
-				// short ID;
-				UInt16 usBspID = xReader.ReadUInt16();
-				// long splineID;
-				// struct _Instance *instanceSpline;
-				//if (_trees[t] == null)
-				//{
-				//    _trees[t] = new Tree();
-				//}
-				//_trees[t].sr1Flags = flags;
-				_trees[t] = ReadBSPTree(t, t.ToString(), xReader, treePolygons, uDataPos, _trees[t], xMeshes, xMeshPositions, 0, rootTreeFlags, 0, 0);
+				_trees[0] = ReadBSPTree(0, 0.ToString(), reader, treePolygons, m_uBspTreeStart, _trees[0], xMeshes, xMeshPositions, 0, 0, 0, 0);
+			}
+			else
+			{
+				for (UInt32 t = 0; t < m_uBspTreeCount; t++)
+				{
+					// struct BSPTree
+					reader.BaseStream.Position = m_uBspTreeStart + (t * 0x24);
+					// struct _BSPNode *bspRoot;
+					UInt32 uDataPos = _dataStart + reader.ReadUInt32();
+					// struct _BSPLeaf *startLeaves;
+					// struct _BSPLeaf *endLeaves; 
+					// struct _Position globalOffset;
+					reader.BaseStream.Position += 0x0E;
+					//short flags;
+					ushort rootTreeFlags = reader.ReadUInt16();
+					//Console.WriteLine(string.Format("\t\t\t\t\tDebug: read BSP tree flags {0}", Convert.ToString(flags, 2).PadLeft(8, '0')));
+					bool drawTester = ((rootTreeFlags & 1) != 1);
+					// struct _Position localOffset;
+					reader.BaseStream.Position += 0x06;
+					// short ID;
+					UInt16 usBspID = reader.ReadUInt16();
+					// long splineID;
+					// struct _Instance *instanceSpline;
+					//if (_trees[t] == null)
+					//{
+					//    _trees[t] = new Tree();
+					//}
+					//_trees[t].sr1Flags = flags;
+					_trees[t] = ReadBSPTree(t, t.ToString(), reader, treePolygons, uDataPos, _trees[t], xMeshes, xMeshPositions, 0, rootTreeFlags, 0, 0);
+				}
 			}
 
 			HandleDebugRendering(options);
@@ -414,7 +471,23 @@ namespace CDC.Objects.Models
 			}
 		}
 
-		protected virtual Tree ReadBSPTree(uint rootTreeNum, string treeNodeID, BinaryReader xReader, List<UInt32> treePolygons, UInt32 uDataPos, Tree xParentTree, List<Mesh> xMeshes,
+		protected override void ReadMaterial(BinaryReader reader, int p, UInt32 colourOrMaterialPosition, ExportOptions options)
+		{
+			// WIP
+			UInt32 materialPosition = colourOrMaterialPosition + _materialStart;
+			if (_version == SR1File.RETAIL_VERSION &&
+				(((materialPosition - _materialStart) % 0x0C) != 0) &&
+				 ((materialPosition - _materialStart) % 0x14) == 0)
+			{
+				_platform = Platform.Dreamcast;
+			}
+
+			reader.BaseStream.Position = materialPosition;
+			base.ReadMaterial(reader, p, colourOrMaterialPosition, options);
+			//_polygons[p].material.textureAttributes = _polygons[p].sr1TextureFT3Attributes;
+		}
+
+		protected virtual Tree ReadBSPTree(uint rootTreeNum, string treeNodeID, BinaryReader reader, List<UInt32> treePolygons, UInt32 uDataPos, Tree xParentTree, List<Mesh> xMeshes,
 			List<int> xMeshPositions, UInt32 uDepth, UInt16 treeRootFlags, UInt16 parentNodeFlags, UInt16 parentNodeFlagsORd)
 		{
 			if (uDataPos == 0)
@@ -422,8 +495,15 @@ namespace CDC.Objects.Models
 				return null;
 			}
 
-			xReader.BaseStream.Position = uDataPos + 0x0E;
-			bool isLeaf = ((xReader.ReadByte() & 0x02) == 0x02);
+			if (_version == SR1File.PROTO_19981025_VERSION)
+			{
+				reader.BaseStream.Position = uDataPos + 0x12;
+			}
+			else
+			{
+				reader.BaseStream.Position = uDataPos + 0x0E;
+			}
+			bool isLeaf = ((reader.ReadByte() & 0x02) == 0x02);
 			Int32 iSubTreeCount = 2;
 
 			Tree xTree = null;
@@ -454,36 +534,51 @@ namespace CDC.Objects.Models
 			{
 				xTree.isLeaf = true;
 
-				xReader.BaseStream.Position = uDataPos + 0x08;
-				ReadBSPLeaf(xReader, treePolygons, xMesh, treeRootFlags, parentNodeFlags, parentNodeFlagsORd, rootTreeNum, treeNodeID);
+				if (_version == SR1File.PROTO_19981025_VERSION)
+				{
+					reader.BaseStream.Position = uDataPos + 0x0C;
+				}
+				else
+				{
+					reader.BaseStream.Position = uDataPos + 0x08;
+				}
+
+				ReadBSPLeaf(reader, treePolygons, xMesh, treeRootFlags, parentNodeFlags, parentNodeFlagsORd, rootTreeNum, treeNodeID);
 			}
 			else
 			{
-				// xReader.BaseStream.Position = uDataPos + 0x14;
+				// reader.BaseStream.Position = uDataPos + 0x14;
 				// struct _BSPNode
 				// struct _Sphere_noSq sphere;
 				// short a;
 				// short b;
 				// short c;
-				xReader.BaseStream.Position = uDataPos + 0xE;
-				UInt16 nodeFlags = xReader.ReadUInt16();
+
+				if (_version == SR1File.PROTO_19981025_VERSION)
+				{
+					reader.BaseStream.Position = uDataPos + 0x12;
+				}
+				else
+				{
+					reader.BaseStream.Position = uDataPos + 0x0E;
+				}
+				UInt16 nodeFlags = reader.ReadUInt16();
 				UInt16 nodeFlagsORd = (UInt16)(parentNodeFlagsORd | nodeFlags);
 				//Console.WriteLine(string.Format("\t\t\t\t\tDebug: read BSP node flags {0}", Convert.ToString(nodeFlags, 2).PadLeft(8, '0')));
 				//xMesh.sr1BSPNodeFlags.Add(nodeFlags);
 				//long d;
-				xReader.BaseStream.Position += 4;
-
+				reader.BaseStream.Position += 4;
 				// void *front;
 				// void *back; 
 				UInt32[] auSubTreePositions = new UInt32[2];
 				for (Int32 s = 0; s < iSubTreeCount; s++)
 				{
-					auSubTreePositions[s] = xReader.ReadUInt32();
+					auSubTreePositions[s] = reader.ReadUInt32();
 				}
 
 				for (Int32 s = 0; s < iSubTreeCount; s++)
 				{
-					ReadBSPTree(rootTreeNum, string.Format("{0}-{1}", treeNodeID, s), xReader, treePolygons, auSubTreePositions[s], xTree, xMeshes, xMeshPositions, uDepth + 1, treeRootFlags, nodeFlags, nodeFlagsORd);
+					ReadBSPTree(rootTreeNum, string.Format("{0}-{1}", treeNodeID, s), reader, treePolygons, auSubTreePositions[s], xTree, xMeshes, xMeshPositions, uDepth + 1, treeRootFlags, nodeFlags, nodeFlagsORd);
 				}
 			}
 
@@ -499,16 +594,24 @@ namespace CDC.Objects.Models
 			return xTree;
 		}
 
-		protected virtual void ReadBSPLeaf(BinaryReader xReader, List<UInt32> treePolygons, Mesh xMesh, UInt16 baseTreeFlags, UInt16 parentNodeFlags, UInt16 allParentNodeFlagsORd, uint rootBSPTreeNum, string parentNodeID)
+		protected virtual void ReadBSPLeaf(BinaryReader reader, List<UInt32> treePolygons, Mesh xMesh, UInt16 baseTreeFlags, UInt16 parentNodeFlags, UInt16 allParentNodeFlagsORd, uint rootBSPTreeNum, string parentNodeID)
 		{
 			// struct _BSPLeaf 
 			// struct _TFace *faceList;
-			UInt32 polygonPos = _dataStart + xReader.ReadUInt32();
-			UInt32 polygonID = (polygonPos - _polygonStart) / 0x0C;
+			UInt32 polygonPos = _dataStart + reader.ReadUInt32();
+			UInt32 polygonID;
+			if (_version == SR1File.PROTO_19981025_VERSION)
+			{
+				polygonID = (polygonPos - _polygonStart) / 0x10;
+			}
+			else
+			{
+				polygonID = (polygonPos - _polygonStart) / 0x0C;
+			}
 			// short numFaces;
-			UInt16 polyCount = xReader.ReadUInt16();
+			UInt16 polyCount = reader.ReadUInt16();
 			// short flags; 
-			UInt16 flags = xReader.ReadUInt16();
+			UInt16 flags = reader.ReadUInt16();
 			//Console.WriteLine(string.Format("\t\t\t\t\tDebug: read BSP leaf flags {0}", Convert.ToString(flags, 2).PadLeft(8, '0')));
 			if (xMesh != null)
 			{
@@ -554,11 +657,21 @@ namespace CDC.Objects.Models
 				_polygons[polygonID + p].RootBSPTreeNumber = rootBSPTreeNum;
 				_polygons[polygonID + p].BSPNodeID = parentNodeID;
 
+				//BSP Tree material handling.
+				// 1 = Hidden?
+				// 2 = No collisions?
+				//if ((_polygons[polygonID + p].material.BSPTreeRootFlags & 0x3) == 0x01)
+				//{
+				// See EVENT_GetTGroupValue, WARPGATE_DrawWarpGateRim
+				//_polygons[polygonID + p].material.visible = false;
+				//_polygons[polygonID + p].material.textureUsed = false;
+				//}
+
 				//BSP Tree material handling
-				if ((_polygons[polygonID + p].material.BSPTreeParentNodeFlags & 0x1) != 0x1)
-				{
-					_polygons[polygonID + p].material.visible = false;
-				}
+				//if ((_polygons[polygonID + p].material.BSPTreeParentNodeFlags & 0x1) != 0x1)
+				//{
+				//_polygons[polygonID + p].material.visible = false;
+				//}
 
 				treePolygons.Add(polygonID + p);
 
