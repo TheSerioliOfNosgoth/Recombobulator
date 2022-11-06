@@ -18,6 +18,8 @@ namespace Recombobulator.SR1Structures
 		SR1_Primative<sbyte> sortPush = new SR1_Primative<sbyte>();
 		SR1_Primative<int> color = new SR1_Primative<int>();
 
+		public bool IsReferenced = false;
+
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
 			u0.Read(reader, this, "u0");
@@ -100,6 +102,13 @@ namespace Recombobulator.SR1Structures
 				}
 				pad.Value = 264;
 			}
+		}
+
+		public override string ToString()
+		{
+			string result = base.ToString();
+			result += "{ tpage = " + tpage + ", clut = " + clut + ", IsReferenced = " + IsReferenced.ToString() + " }";
+			return result;
 		}
 	}
 }

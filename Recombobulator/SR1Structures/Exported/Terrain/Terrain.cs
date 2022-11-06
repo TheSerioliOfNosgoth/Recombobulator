@@ -203,6 +203,7 @@ namespace Recombobulator.SR1Structures
 					if (textureIndex < textures.Count)
 					{
 						face.Texture = (TextureFT3)textures[textureIndex];
+						face.Texture.IsReferenced = true;
 					}
 				}
 			}

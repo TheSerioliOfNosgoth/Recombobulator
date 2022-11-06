@@ -125,9 +125,9 @@ namespace Recombobulator.SR1Structures
 
 				ReadReferences(reader, parent);
 			}
-			catch (Exception exception)
+			catch (Exception ex)
 			{
-				reader.LogError(GetTypeName(true) + " (0x" + Start.ToString("X8") + "):\r\n" + exception.Message);
+				reader.LogError(GetTypeName(true) + " (0x" + Start.ToString("X8") + "):\r\n" + ex.Message);
 			}
 
 			reader.BaseStream.Position = End;
@@ -167,9 +167,9 @@ namespace Recombobulator.SR1Structures
 				ReadMembers(reader, null);
 				End = (uint)reader.BaseStream.Position;
 			}
-			catch (Exception exception)
+			catch (Exception ex)
 			{
-				reader.LogError(exception.Message);
+				reader.LogError(ex.Message);
 			}
 
 			reader.BaseStream.Position = End;
@@ -258,9 +258,9 @@ namespace Recombobulator.SR1Structures
 					}
 				}
 			}
-			catch (Exception exception)
+			catch (Exception ex)
 			{
-				writer.LogError(exception.Message);
+				writer.LogError(ex.Message);
 			}
 
 			NewEnd = (uint)writer.BaseStream.Position;

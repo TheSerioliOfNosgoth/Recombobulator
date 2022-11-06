@@ -6,6 +6,21 @@ namespace CDC.Objects.Models
 {
 	public class SR1ObjectModel : SR1Model
 	{
+		enum PolygonFlags : byte
+		{
+			TextureUsed = 0x02,
+			Emissive = 0x08,
+			Hidden0 = 0x10,
+		}
+
+		enum TextureAttributes : ushort
+		{
+			AlphaMaskedTerrain = 0x0010,
+			TranslucentTerrain = 0x0040,
+			Translucent0 = 0x2000,
+			Emmisive = 0x8000,
+		}
+
 		public SR1ObjectModel(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt32 version, TPages tPages)
 			: base(reader, dataStart, modelData, strModelName, ePlatform, version, tPages)
 		{
@@ -125,138 +140,118 @@ namespace CDC.Objects.Models
 			return;
 		}
 
-		//protected virtual void ReadPolygon(BinaryReader reader, int p, ExportOptions options)
-		//{
-		//    UInt32 uPolygonPosition = (UInt32)reader.BaseStream.Position;
-		//    // struct _MFace
-
-		//    // struct _Face face
-		//    _polygons[p].v1 = _vertices[reader.ReadUInt16()];
-		//    _polygons[p].v2 = _vertices[reader.ReadUInt16()];
-		//    _polygons[p].v3 = _vertices[reader.ReadUInt16()];
-
-		//    _polygons[p].material = new Material();
-		//    _polygons[p].material.visible = true;
-
-		//    _polygons[p].material.textureUsed = (Boolean)(((int)reader.ReadUInt16() & 0x0200) != 0);
-
-		//    //// unsigned char normal
-		//    //byte polygonNormal = reader.ReadByte();
-
-		//    //// unsigned char flags
-		//    //byte flags = reader.ReadByte();
-
-		//    //_polygons[p].material.textureUsed = true;
-
-
-		//    if (_polygons[p].material.textureUsed)
-		//    {
-		//        // WIP
-		//        UInt32 materialPosition = _dataStart + reader.ReadUInt32();
-		//        if ((((materialPosition - _materialStart) % 0x10) != 0) &&
-		//             ((materialPosition - _materialStart) % 0x18) == 0)
-		//        {
-		//            _platform = Platform.Dreamcast;
-		//        }
-
-		//        reader.BaseStream.Position = materialPosition;
-		//        ReadMaterial(reader, p, options);
-
-		//        if (_platform == Platform.Dreamcast)
-		//        {
-		//            reader.BaseStream.Position += 0x06;
-		//        }
-		//        else
-		//        {
-		//            reader.BaseStream.Position += 0x02;
-		//        }
-
-		//        _polygons[p].material.colour = reader.ReadUInt32();
-		//        //_polygons[p].material.colour |= 0xFF000000;   //2019-12-22
-
-		//    }
-		//    else
-		//    {
-		//        _polygons[p].material.colour = reader.ReadUInt32() | 0xFF000000;
-		//    }
-
-		//    Utility.FlipRedAndBlue(ref _polygons[p].material.colour);
-
-		//    reader.BaseStream.Position = uPolygonPosition + 0x0C;
-		//}
-
-		protected virtual void ReadPolygon(BinaryReader reader, int p, ExportOptions options)
+		protected override void ReadPolygon(BinaryReader reader, int p, ExportOptions options)
 		{
-			UInt32 uPolygonPosition = (UInt32)reader.BaseStream.Position;
+			uint polygonPosition = (uint)reader.BaseStream.Position;
+
 			// struct _MFace
+			#region Read _MFace
 
 			// struct _Face face
-			_polygons[p].v1 = _geometry.Vertices[reader.ReadUInt16()];
-			_polygons[p].v2 = _geometry.Vertices[reader.ReadUInt16()];
-			_polygons[p].v3 = _geometry.Vertices[reader.ReadUInt16()];
+			int v1 = reader.ReadUInt16();
+			int v2 = reader.ReadUInt16();
+			int v3 = reader.ReadUInt16();
 
-			_polygons[p].material = new Material();
-			_polygons[p].material.visible = true;
-
-			//// unsigned char normal
-			byte polygonNormal = reader.ReadByte();
-
-			//// unsigned char flags
-			long flagOffset = reader.BaseStream.Position + 2048;
+			// unsigned char normal
+			byte normal = reader.ReadByte();
+			// unsigned char flags
 			byte flags = reader.ReadByte();
-			//Console.WriteLine(string.Format("0x{0:X2} (@0x{1:X4}, D:{1}\t:::", flags, flagOffset));
-
-			_polygons[p].material.polygonFlags = flags;
-			_polygons[p].material.textureUsed = false;
-
-			if (((flags & 0x01) == 0x01))
-			{
-			}
-
-			if (((flags & 0x02) == 0x02))
-			{
-				_polygons[p].material.textureUsed = true;
-			}
-
-			if (((flags & 0x04) == 0x04))
-			{
-			}
-
-			if (((flags & 0x08) == 0x08))
-			{
-				_polygons[p].material.emissivity = 1.0f;
-			}
-
-			if (((flags & 0x10) == 0x10))
-			{
-				_polygons[p].material.visible = false;
-			}
-
-			// 20 is not used in any known version of the game
-			if (((flags & 0x40) == 0x40))
-			{
-			}
-			// 80 is not used in any known version of the game
-
 			// long color;
-			UInt32 colourOrMaterialPosition = reader.ReadUInt32();
-			if (_polygons[p].material.textureUsed)
+			uint color = reader.ReadUInt32();
+
+			#endregion
+
+			Material material = new Material();
+			material.visible = true;
+			material.textureUsed = false;
+			material.isTranslucent = false;
+			material.isEmissive = false;
+			material.UseAlphaMask = true;
+			material.polygonFlags = flags;
+			material.sortPush = 0;
+			material.colour = color;
+
+			_polygons[p].material = material;
+			_polygons[p].materialOffset = color;
+			_polygons[p].v1 = _geometry.Vertices[v1];
+			_polygons[p].v2 = _geometry.Vertices[v2];
+			_polygons[p].v3 = _geometry.Vertices[v3];
+			_polygons[p].normal = normal;
+
+			// Unless the user has explicitly requested distinct materials for each flag, remove use of anything ignored at this level
+			if (!options.DistinctMaterialsForAllFlags)
 			{
-				// this seems to be what the game does
-				_polygons[p].material.colour = colourOrMaterialPosition | 0xFF000000;
-				_polygons[p].colour = _polygons[p].material.colour;
+				material.polygonFlagsUsedMask &= (byte)(PolygonFlags.TextureUsed | PolygonFlags.Emissive | PolygonFlags.Hidden0);
 			}
-			else
+
+			reader.BaseStream.Position = polygonPosition + 0x0C;
+		}
+
+		protected override void ProcessPolygon(int p, ExportOptions options)
+		{
+			ref Polygon polygon = ref _polygons[p];
+			ref Material material = ref polygon.material;
+
+			if ((material.polygonFlags & (byte)PolygonFlags.TextureUsed) != 0)
 			{
-				_polygons[p].material.colour = colourOrMaterialPosition | 0xFF000000;
-				_polygons[p].colour = _polygons[p].material.colour;
+				material.textureUsed = true;
 			}
 
-			_polygons[p].material.UseAlphaMask = true;
+			if ((material.polygonFlags & (byte)PolygonFlags.Emissive) != 0)
+			{
+				material.isEmissive = true;
+			}
 
-			HandlePolygonInfo(reader, p, options, flags, colourOrMaterialPosition, false);
+			if ((material.polygonFlags & (byte)PolygonFlags.Hidden0) != 0)
+			{
+				material.visible = false;
+			}
 
-			reader.BaseStream.Position = uPolygonPosition + 0x0C;
+			// alphamasked terrain
+			if ((material.textureAttributes & (ushort)TextureAttributes.AlphaMaskedTerrain) != 0)
+			{
+				material.UseAlphaMask = true;
+			}
+
+			// translucent terrain, e.g. water, glass
+			if ((material.textureAttributes & (ushort)TextureAttributes.TranslucentTerrain) != 0)
+			{
+				material.isTranslucent = true;
+			}
+
+			if ((material.textureAttributes & (ushort)TextureAttributes.Translucent0) != 0)
+			{
+				material.isTranslucent = true;
+			}
+
+			// lighting effects? i.e. invisible, animated polygon that only affects vertex colours?
+			if ((material.textureAttributes & (ushort)TextureAttributes.Emmisive) != 0)
+			{
+				material.isEmissive = true;
+			}
+
+			if (material.isTranslucent)
+			{
+				material.opacity = CDC.Material.OPACITY_TRANSLUCENT;
+			}
+
+			if (material.isEmissive)
+			{
+				material.emissivity = 1.0f;
+			}
+
+			if (!material.textureUsed)
+			{
+				polygon.materialOffset = 0xFFFFFFFF;
+			}
+
+			if (!material.visible)
+			{
+				material.textureUsed = false;
+			}
+
+			Utility.FlipRedAndBlue(ref material.colour);
+			material.colour |= 0xFF000000;
 		}
 
 		protected override void ReadPolygons(BinaryReader reader, ExportOptions options)
@@ -273,32 +268,7 @@ namespace CDC.Objects.Models
 				ReadPolygon(reader, p, options);
 			}
 
-			HandleDebugRendering(options);
-
-			MaterialList xMaterialsList = null;
-
-			for (UInt16 p = 0; p < _polygonCount; p++)
-			{
-				if (xMaterialsList == null)
-				{
-					xMaterialsList = new MaterialList(_polygons[p].material);
-					_materialsList.Add(_polygons[p].material);
-				}
-				else
-				{
-					Material newMaterial = xMaterialsList.AddToList(_polygons[p].material);
-					if (_polygons[p].material != newMaterial)
-					{
-						_polygons[p].material = newMaterial;
-					}
-					else
-					{
-						_materialsList.Add(_polygons[p].material);
-					}
-				}
-			}
-
-			_materialCount = (UInt32)_materialsList.Count;
+			ProcessPolygons(reader, options);
 
 			for (UInt32 t = 0; t < _groupCount; t++)
 			{
@@ -319,10 +289,17 @@ namespace CDC.Objects.Models
 			}
 		}
 
-		protected override void ReadMaterial(BinaryReader reader, int p, UInt32 colourOrMaterialPosition, ExportOptions options)
+		protected override void ReadMaterial(BinaryReader reader, int p, ExportOptions options)
 		{
-			// WIP
-			UInt32 materialPosition = _dataStart + colourOrMaterialPosition;
+			ref Polygon polygon = ref _polygons[p];
+			ref Material material = ref polygon.material;
+
+			if (!material.textureUsed)
+			{
+				return;
+			}
+
+			UInt32 materialPosition = _dataStart + polygon.materialOffset;
 			if ((((materialPosition - _materialStart) % 0x10) != 0) &&
 				 ((materialPosition - _materialStart) % 0x18) == 0)
 			{
@@ -330,7 +307,7 @@ namespace CDC.Objects.Models
 			}
 
 			reader.BaseStream.Position = materialPosition;
-			base.ReadMaterial(reader, p, colourOrMaterialPosition, options);
+			base.ReadMaterial(reader, p, options);
 
 			if (_platform == Platform.Dreamcast)
 			{
@@ -341,8 +318,9 @@ namespace CDC.Objects.Models
 				reader.BaseStream.Position += 0x02;
 			}
 
-			_polygons[p].material.colour = reader.ReadUInt32();
-			//_polygons[p].material.colour |= 0xFF000000;   //2019-12-22
+			material.colour = reader.ReadUInt32();
+			Utility.FlipRedAndBlue(ref material.colour);
+			material.colour |= 0xFF000000;
 		}
 	}
 }

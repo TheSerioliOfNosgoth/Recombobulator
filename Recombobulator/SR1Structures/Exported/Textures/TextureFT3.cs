@@ -17,6 +17,8 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_Primative<ushort> attr = new SR1_Primative<ushort>();
 		public readonly SR1_Primative<int> color = new SR1_Primative<int>();
 
+		public bool IsReferenced = false;
+
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
 			u0.Read(reader, this, "u0");
@@ -102,6 +104,11 @@ namespace Recombobulator.SR1Structures
 						tpage.Value |= 0x4000;
 						attr2.Value |= 0x0060;
 					}
+					else
+					{
+						tpage.Value &= unchecked((ushort)~0x4000);
+						attr2.Value &= unchecked((ushort)~0x0060);
+					}
 				}
 				else
 				{
@@ -110,10 +117,22 @@ namespace Recombobulator.SR1Structures
 						tpage.Value |= 0x4000;
 						attr2.Value |= 0x0060;
 					}
+					else
+					{
+						tpage.Value &= unchecked((ushort)~0x4000);
+						attr2.Value &= unchecked((ushort)~0x0060);
+					}
 				}
 
 				//attr.Value &= ~0x0040;
 			}
+		}
+
+		public override string ToString()
+		{
+			string result = base.ToString();
+			result += "{ tpage = " + tpage + ", clut = " + clut + ", IsReferenced = " + IsReferenced.ToString() + " }";
+			return result;
 		}
 	}
 }

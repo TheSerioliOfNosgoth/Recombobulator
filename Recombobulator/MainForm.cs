@@ -90,7 +90,7 @@ namespace Recombobulator
 					testExportToolStripMenuItem.Enabled = _fileLoaded;
 					addToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
 				}
-				catch (Exception exception)
+				catch (Exception ex)
 				{
 
 				}
@@ -111,7 +111,7 @@ namespace Recombobulator
 					dialog.FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), Path.GetFileName(_file._FilePath));
 					_file.Export(dialog.FileName);
 				}
-				catch (Exception exception)
+				catch (Exception ex)
 				{
 
 				}
@@ -247,7 +247,7 @@ namespace Recombobulator
 					_repository.AddNewAsset(addFileDialog.RelativePath);
 					_repository.SaveRepository();
 				}
-				catch (Exception exception)
+				catch (Exception ex)
 				{
 
 				}
@@ -1151,7 +1151,7 @@ namespace Recombobulator
 
 				_repository.TextureSets.Add(textureSet);
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
 
 			}
