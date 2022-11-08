@@ -17,7 +17,8 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_Primative<ushort> attr = new SR1_Primative<ushort>();
 		public readonly SR1_Primative<int> color = new SR1_Primative<int>();
 
-		public bool IsReferenced = false;
+		public int NumReferences = 0;
+		public bool HasTranslucentPolygon = false;
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
@@ -99,39 +100,51 @@ namespace Recombobulator.SR1Structures
 
 				if (file._Version < SR1_File.Version.May12)
 				{
-					if ((attr.Value & 0x0010) != 0)
+					if ((migrateFlags & SR1_File.MigrateFlags.ForceWaterTranslucent) != 0 && HasTranslucentPolygon)
 					{
 						tpage.Value |= 0x4000;
 						attr2.Value |= 0x0060;
 					}
-					else
+
+					if ((attr.Value & 0x0010) != 0)
 					{
-						tpage.Value &= unchecked((ushort)~0x4000);
-						attr2.Value &= unchecked((ushort)~0x0060);
+						tpage.Value |= 0x2000; // UseAlphaMask
 					}
+
+					// Alpha builds:
+					// - UseAlphaMask is in TextureFT3.attr // See bridges and chains in undrct 1.
+					// - Water is in TFace.attr. Looks like 0x08. // See undrct 1, 20, 21.
+					// - Doublesided is in TFace.attr. Looks like 0x10. // See chains in undrct 1, 20, 21.
+					// - Phasethrough is in TextureFT3.attr. Looks like 0x1000. // pillars 8 and city 9.
+					// - Climbable walls. Looks like 0x0200. // See city 2.
+					// - Burn in sunlight and set on fire are in BSPTree.flags. // See train 9.
+
+					attr.Value &= unchecked((ushort)0x1000);
+					//attr.Value |= 0x0001; // DoubleSided?
 				}
 				else
 				{
-					if ((attr.Value & 0x0040) != 0)
+					if ((migrateFlags & SR1_File.MigrateFlags.ForceWaterTranslucent) != 0 && HasTranslucentPolygon)
 					{
 						tpage.Value |= 0x4000;
 						attr2.Value |= 0x0060;
 					}
-					else
-					{
-						tpage.Value &= unchecked((ushort)~0x4000);
-						attr2.Value &= unchecked((ushort)~0x0060);
-					}
-				}
 
-				//attr.Value &= ~0x0040;
+					if ((attr.Value & 0x0040) != 0)
+					{
+						tpage.Value |= 0x2000; // UseAlphaMask
+					}
+
+					attr.Value &= unchecked((ushort)0x1000);
+					//attr.Value |= 0x0001; // DoubleSided?
+				}
 			}
 		}
 
 		public override string ToString()
 		{
 			string result = base.ToString();
-			result += "{ tpage = " + tpage + ", clut = " + clut + ", IsReferenced = " + IsReferenced.ToString() + " }";
+			result += "{ tpage = " + tpage + ", clut = " + clut + ", NumReferences = " + NumReferences.ToString() + " }";
 			return result;
 		}
 	}

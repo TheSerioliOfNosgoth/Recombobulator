@@ -60,7 +60,7 @@ namespace Recombobulator.SR1Structures
 
 			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
 			{
-				// Burn in sunlight.
+				// Burn in sunlight. Set on fire.
 				// The 0x0040 seems right, but not sure about the 0x0002.
 				if ((flags.Value & 0x0002) != 0)
 				{

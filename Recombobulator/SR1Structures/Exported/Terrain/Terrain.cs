@@ -77,10 +77,9 @@ namespace Recombobulator.SR1Structures
 				new SR1_StructureArray<TVertex>(numVertices.Value).ReadFromPointer(reader, vertexList);
 			}
 
-			SR1_StructureArray<TFace> faces = new SR1_StructureArray<TFace>(0);
+			SR1_StructureArray<TFace> faces = new SR1_StructureArray<TFace>(numFaces.Value);
 			if (numFaces.Value > 0)
 			{
-				faces = new SR1_StructureArray<TFace>(numFaces.Value);
 				faces.ReadFromPointer(reader, faceList);
 			}
 
@@ -203,7 +202,11 @@ namespace Recombobulator.SR1Structures
 					if (textureIndex < textures.Count)
 					{
 						face.Texture = (TextureFT3)textures[textureIndex];
-						face.Texture.IsReferenced = true;
+						face.Texture.NumReferences++;
+						if ((face.attr.Value & 0x08) != 0)
+						{
+							face.Texture.HasTranslucentPolygon = true;
+						}
 					}
 				}
 			}
@@ -318,32 +321,6 @@ namespace Recombobulator.SR1Structures
 				unknownPCList.Offset = position;
 				UnknownPCList newUnknownPCList = new UnknownPCList();
 				file._MigrationStructures.Add(position, newUnknownPCList);
-			}
-
-			if ((migrateFlags & SR1_File.MigrateFlags.ForceWaterTranslucent) != 0)
-			{
-				if (numFaces.Value > 0 && faceList.Offset != 0 && file._Structures.ContainsKey(faceList.Offset) &&
-					StartTextureList.Offset != 0 && file._Structures.ContainsKey(StartTextureList.Offset))
-				{
-					SR1_Structure facesStruct = file._Structures[faceList.Offset];
-					SR1_Structure texturesStruct = file._Structures[StartTextureList.Offset];
-
-					if (facesStruct.GetType() == typeof(SR1_StructureArray<TFace>) &&
-						texturesStruct.GetType() == typeof(SR1_StructureSeries<TextureFT3>))
-					{
-						SR1_StructureArray<TFace> faces = (SR1_StructureArray<TFace>)facesStruct;
-						SR1_StructureSeries<TextureFT3> textures = (SR1_StructureSeries<TextureFT3>)texturesStruct;
-						foreach (TFace face in faces)
-						{
-							if (!face.IsInSignalGroup && (face.attr.Value & 0x08) != 0)
-							{
-								int textureSize = file._Version < SR1_File.Version.May12 ? 16 : 12;
-								TextureFT3 texture = (TextureFT3)textures[face.textoff.Value / textureSize];
-								texture.attr.Value |= 0x0010;
-							}
-						}
-					}
-				}
 			}
 		}
 	}

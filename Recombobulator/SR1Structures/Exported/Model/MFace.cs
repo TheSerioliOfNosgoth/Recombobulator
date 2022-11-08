@@ -5,12 +5,14 @@ namespace Recombobulator.SR1Structures
 {
 	class MFace : SR1_Structure
 	{
-		Face face = new Face();
-		SR1_Primative<byte> normal = new SR1_Primative<byte>();
-		SR1_Primative<byte> flags = new SR1_Primative<byte>();
+		public readonly Face face = new Face();
+		public readonly SR1_Primative<byte> normal = new SR1_Primative<byte>();
+		public readonly SR1_Primative<byte> flags = new SR1_Primative<byte>();
 		// TextureMT3 pointer if 2nd bit is set in flags, otherwise color.
-		SR1_Pointer<TextureMT3> texture = new SR1_Pointer<TextureMT3>();
-		SR1_Primative<int> color = new SR1_Primative<int>();
+		public readonly SR1_Pointer<TextureMT3> texture = new SR1_Pointer<TextureMT3>();
+		public readonly SR1_Primative<int> color = new SR1_Primative<int>();
+
+		public TextureMT3 Texture = null;
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{

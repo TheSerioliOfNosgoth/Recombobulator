@@ -836,6 +836,7 @@ namespace Recombobulator
 			public string exportName;
 			public string textureSet;
 			public bool isLevel;
+			public bool forceWaterTransparent;
 			public string[] removePortals;
 			public ReplaceObject[] replaceObjects;
 		};
@@ -978,6 +979,10 @@ namespace Recombobulator
 				{
 					migrateFlags |= SR1_File.MigrateFlags.RemoveEvents;
 					migrateFlags |= SR1_File.MigrateFlags.RemoveVertexMorphs;
+					//if (importFile.forceWaterTransparent)
+					{
+						migrateFlags |= SR1_File.MigrateFlags.ForceWaterTranslucent;
+					}
 
 					overrides.NewStreamUnitID = 0;
 					_repository.FindAvailableStreamUnitID(ref overrides.NewStreamUnitID);

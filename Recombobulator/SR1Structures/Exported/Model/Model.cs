@@ -49,16 +49,35 @@ namespace Recombobulator.SR1Structures
 		{
 			new SR1_StructureArray<MVertex>(numVertices.Value).ReadFromPointer(reader, vertexList);
 			SR1_Structure normalsStruct = new SR1_StructureArray<SVectorNoPad>(numNormals.Value).ReadFromPointer(reader, normalList);
-			new SR1_StructureArray<MFace>(numFaces.Value).ReadFromPointer(reader, faceList);
 			new SR1_StructureArray<Segment>(numSegments.Value).ReadFromPointer(reader, segmentList);
 			new AniTex().ReadFromPointer(reader, aniTextures);
-			new SR1_StructureSeries<TextureMT3>((int)(endTextures.Offset - startTextures.Offset)).ReadFromPointer(reader, startTextures);
 
 			// This needs to be at the end so that other structures can be checked for first.
 			// The padding was causing issues when it was at the very end of the file.
 			if (normalsStruct.End != reader.BaseStream.Length && !reader.File._Structures.ContainsKey(normalsStruct.End))
 			{
 				new SR1_PrimativeArray<byte>(0).SetPadding(4).ReadOrphan(reader, normalsStruct.End);
+			}
+
+			SR1_StructureArray<MFace> faces = new SR1_StructureArray<MFace>(numFaces.Value);
+			faces.ReadFromPointer(reader, faceList);
+			SR1_StructureSeries<TextureMT3> textures = new SR1_StructureSeries<TextureMT3>((int)(endTextures.Offset - startTextures.Offset));
+			textures.ReadFromPointer(reader, startTextures);
+
+			foreach (MFace face in faces)
+			{
+				uint texturePosition = face.texture.Offset;
+				if (texturePosition != 0)
+				{
+					uint textureSize = 16;
+					if (texturePosition >= startTextures.Offset && texturePosition <= (endTextures.Offset - textureSize))
+					{
+						uint textureOffset = texturePosition - startTextures.Offset;
+						int textureIndex = (int)(textureOffset / textureSize);
+						face.Texture = (TextureMT3)textures[textureIndex];
+						face.Texture.NumReferences++;
+					}
+				}
 			}
 		}
 
