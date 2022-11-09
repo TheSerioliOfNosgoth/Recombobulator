@@ -444,7 +444,7 @@ namespace SR1Repository
 			foreach (Portal fromPortal in level.Portals.Portals)
 			{
 				fromPortal.OldDestVersion = sourceVersion;
-				Level targetLevel = _levels.Levels.Find(x => x.SourceUnitName == fromPortal.OldDestUnitName && x.SourceVersion == fromPortal.OldDestVersion);
+				Level targetLevel = _levels.Levels.Find(x => x.SourceUnitName == fromPortal.OldDestUnitName.ToLower() && x.SourceVersion == fromPortal.OldDestVersion);
 				if (targetLevel != null)
 				{
 					fromPortal.DestUnitName = targetLevel.UnitName;
@@ -452,7 +452,7 @@ namespace SR1Repository
 
 					foreach (Portal toPortal in targetLevel.Portals.Portals)
 					{
-						if (toPortal.OldDestUnitName == level.SourceUnitName &&
+						if (toPortal.OldDestUnitName.ToLower() == level.SourceUnitName &&
 							toPortal.OldDestVersion == level.SourceVersion)
 						{
 							toPortal.DestUnitName = level.UnitName;

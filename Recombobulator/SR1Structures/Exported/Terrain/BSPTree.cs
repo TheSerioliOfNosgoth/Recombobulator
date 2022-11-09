@@ -60,6 +60,12 @@ namespace Recombobulator.SR1Structures
 
 			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
 			{
+				// Open doors to mrlock13
+				if (file._Structures[0].Name == "mrlock6" && ID.Value == 4 || ID.Value == 5 || ID.Value == 6 || ID.Value == 7 || ID.Value == 9)
+				{
+					flags.Value |= 0x0003; // Invisible and no collision.
+				}
+
 				// Burn in sunlight. Set on fire.
 				// The 0x0040 seems right, but not sure about the 0x0002.
 				if ((flags.Value & 0x0002) != 0)

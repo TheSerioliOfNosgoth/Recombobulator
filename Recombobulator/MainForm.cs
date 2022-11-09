@@ -1280,10 +1280,9 @@ namespace Recombobulator
 
 			importFiles.Add(new ImportFile { importName = "lair24", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lair11", isLevel = true });
-			importFiles.Add(new ImportFile { importName = "lair4", isLevel = true, removePortals = new string[] { "mrlock9,9" } });
+			importFiles.Add(new ImportFile { importName = "lair4", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lair12", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lair25", isLevel = true });
-			//importFiles.Add(new ImportFile { importName = "mrlock9", isLevel = true });
 
 			importFiles.Add(new ImportFile { importName = "lair26", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lair13", isLevel = true });
@@ -1305,6 +1304,15 @@ namespace Recombobulator
 			importFiles.Add(new ImportFile { importName = "lair31", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lair30", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lair2", isLevel = true, /*removePortals = new string[] { "lair32,50" }*/ });
+
+			importFiles.Add(new ImportFile { importName = "mrlock4", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock5", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock6", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock9", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock10", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock11", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock12", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock13", isLevel = true });
 
 			importFiles.Add(new ImportFile { importName = "hitme", isLevel = false }); // Check this one. Looks glitchy. No texture.
 			importFiles.Add(new ImportFile { importName = "ispirit", isLevel = false }); // Also glitchy.
@@ -1361,5 +1369,43 @@ namespace Recombobulator
 
 			DoScriptedImport(dialog.SelectedPath, importScript);
 		}
-    }
+
+		private void ImportOraclesCaveToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			// LOAD_GetBigFileFileIndex for Error no. 357.
+
+			FolderBrowserDialog dialog = new FolderBrowserDialog();
+			dialog.Description = "Select root folder.";
+			dialog.ShowNewFolderButton = false;
+
+			string recentFolder = Properties.Settings.Default.RecentFolder;
+			if (recentFolder != null && Directory.Exists(recentFolder))
+			{
+				dialog.SelectedPath = recentFolder;
+			}
+
+			if (dialog.ShowDialog() != DialogResult.OK)
+			{
+				return;
+			}
+
+			Properties.Settings.Default.RecentFolder = dialog.SelectedPath;
+			Properties.Settings.Default.Save();
+
+			ImportScript importScript = new ImportScript();
+
+			List<ImportFile> importFiles = importScript.ImportFiles;
+
+			importFiles.Add(new ImportFile { importName = "mrlock4", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock5", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock6", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock9", isLevel = true, removePortals = new string[] { "Lair4,8" } });
+			importFiles.Add(new ImportFile { importName = "mrlock10", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock11", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock12", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock13", isLevel = true });
+
+			DoScriptedImport(dialog.SelectedPath, importScript);
+		}
+	}
 }
