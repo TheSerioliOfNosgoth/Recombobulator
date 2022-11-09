@@ -66,6 +66,22 @@ namespace Recombobulator.SR1Structures
 					flags.Value |= 0x0003; // Invisible and no collision.
 				}
 
+				// Open doors to mrlock13
+				if (file._Structures[0].Name == "nightb5")
+				{
+					// Open doors to adda1
+					if (ID.Value == 3 || ID.Value == 4)
+					{
+						flags.Value |= 0x0003; // Invisible and no collision.
+					}
+
+					// Clise doors to adda1
+					if (ID.Value == 5 || ID.Value == 6)
+					{
+						flags.Value &= ~0x0003; // Invisible and no collision.
+					}
+				}
+
 				// Burn in sunlight. Set on fire.
 				// The 0x0040 seems right, but not sure about the 0x0002.
 				if ((flags.Value & 0x0002) != 0)

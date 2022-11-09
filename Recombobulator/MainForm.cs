@@ -1396,14 +1396,27 @@ namespace Recombobulator
 
 			List<ImportFile> importFiles = importScript.ImportFiles;
 
-			importFiles.Add(new ImportFile { importName = "mrlock4", isLevel = true });
-			importFiles.Add(new ImportFile { importName = "mrlock5", isLevel = true });
-			importFiles.Add(new ImportFile { importName = "mrlock6", isLevel = true });
-			importFiles.Add(new ImportFile { importName = "mrlock9", isLevel = true, removePortals = new string[] { "Lair4,8" } });
-			importFiles.Add(new ImportFile { importName = "mrlock10", isLevel = true });
-			importFiles.Add(new ImportFile { importName = "mrlock11", isLevel = true });
-			importFiles.Add(new ImportFile { importName = "mrlock12", isLevel = true });
-			importFiles.Add(new ImportFile { importName = "mrlock13", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "nightb5", exportName = "nightb12", isLevel = true, removePortals = new string[] { "nightb7,41" } });
+			//importFiles.Add(new ImportFile { importName = "nightb7", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "adda1", isLevel = true, /*removePortals = new string[] { "nightb5,50" }*/ });
+			importFiles.Add(new ImportFile { importName = "adda2", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "oracle2", exportName = "oracle25", isLevel = true });
+
+			// Retail
+			// oracle2,5 - oracle23,6
+			// oracle2,3 - oracle3,4
+			// oracle2,53 - mrlock14,99
+			// oracle2,24 - oracle4,1
+
+			// Feb 16
+			// oracle2,5 - oracle1,6
+			// oracle2,3 - oracle3,4
+			// oracle2,53 - adda1,52
+
+			List<ReplacePortal> replacePortals = importScript.ReplacePortals;
+			replacePortals.Add(new ReplacePortal { fromSignal = "oracle23,6", toSignal = "oracle25,5" });
+			replacePortals.Add(new ReplacePortal { fromSignal = "oracle3,4", toSignal = "oracle25,3" });
+			replacePortals.Add(new ReplacePortal { fromSignal = "nightb4,81", toSignal = "nightb12,80" });
 
 			DoScriptedImport(dialog.SelectedPath, importScript);
 		}
