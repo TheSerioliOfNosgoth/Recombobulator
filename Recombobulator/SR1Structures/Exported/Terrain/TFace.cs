@@ -75,6 +75,11 @@ namespace Recombobulator.SR1Structures
 				{
 					// Looks like there are other things triggered besides portals/signals.
 					removeSignal |= (attr.Value != 0x44);
+
+					if (file._Structures[0].Name == "adda1" && MultiSignal != null && MultiSignal.signalNum.Value == 51)
+					{
+						normal.Value = 1448; // 1466
+					}
 				}
 				else
 				{
