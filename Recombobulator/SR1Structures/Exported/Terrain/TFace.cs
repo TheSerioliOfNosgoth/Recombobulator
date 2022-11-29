@@ -78,6 +78,9 @@ namespace Recombobulator.SR1Structures
 
 					if (file._Structures[0].Name == "adda1" && MultiSignal != null && MultiSignal.signalNum.Value == 51)
 					{
+						// On PC, nop 004ABBBA to make it draw the adjacent area without the camera being inside it.
+						// This makes it behave as if STREAM_GetClipRect returned true.
+
 						normal.Value = 1448; // 1466
 					}
 				}

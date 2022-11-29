@@ -443,7 +443,10 @@ namespace SR1Repository
 
 			foreach (Portal fromPortal in level.Portals.Portals)
 			{
+				// On converting from an earlier version, this will have been overwritten with the latest.
+				// It's supposed to be the original version, so reset it here.
 				fromPortal.OldDestVersion = sourceVersion;
+
 				Level targetLevel = _levels.Levels.Find(x => x.SourceUnitName == fromPortal.OldDestUnitName.ToLower() && x.SourceVersion == fromPortal.OldDestVersion);
 				if (targetLevel != null)
 				{
@@ -452,8 +455,9 @@ namespace SR1Repository
 
 					foreach (Portal toPortal in targetLevel.Portals.Portals)
 					{
-						if (toPortal.OldDestUnitName.ToLower() == level.SourceUnitName &&
-							toPortal.OldDestVersion == level.SourceVersion)
+						if (toPortal.OldDestVersion == level.SourceVersion &&
+							toPortal.OldDestUnitName.ToLower() == level.SourceUnitName &&
+							toPortal.OldDestSignalID == fromPortal.SignalID)
 						{
 							toPortal.DestUnitName = level.UnitName;
 							toPortal.DestUnitID = level.StreamUnitID;
@@ -535,16 +539,27 @@ namespace SR1Repository
 						string destSignal = portalString.Substring(portalString.IndexOf(',') + 1);
 						int signalID = reader.ReadInt32();
 						int streamUnitID = reader.ReadInt32();
+
 						Portal portal = new Portal();
+
 						portal.SignalID = signalID;
+
 						portal.DestUnitName = destUnit;
+						portal.OldDestUnitName = destUnit;
+
 						portal.DestUnitID = streamUnitID;
+						portal.OldDestUnitID = streamUnitID;
+
 						if (Int32.TryParse(destSignal, out int destSignalID))
 						{
 							portal.DestSignalID = destSignalID;
+							portal.OldDestSignalID = destSignalID;
 						}
-						portal.OldDestUnitName = destUnit;
+
+						// If this level was in the project to begin with, the source version is the value that was read from the file.
+						// Otherwise it needs to be reset after this function returns.
 						portal.OldDestVersion = level.SourceVersion;
+
 						level.Portals.Add(portal);
 						reader.BaseStream.Position += 0x44;
 					}
