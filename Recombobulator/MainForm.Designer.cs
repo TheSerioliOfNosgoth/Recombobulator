@@ -44,6 +44,7 @@
 			this.importUndercityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.importSmokestackToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.importRetreatToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.importOraclesCaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.compileProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.testExportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.bulkTestingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -65,7 +66,7 @@
 			this.testResults = new System.Windows.Forms.TextBox();
 			this.projectContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.editPortalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.importOraclesCaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.importAllCutAreasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this._mainMenu.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pcmFileTreeListView)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.pcmFileSplitContainer)).BeginInit();
@@ -145,7 +146,8 @@
             this.importUndercityToolStripMenuItem,
             this.importSmokestackToolStripMenuItem,
             this.importRetreatToolStripMenuItem,
-            this.importOraclesCaveToolStripMenuItem});
+            this.importOraclesCaveToolStripMenuItem,
+            this.importAllCutAreasToolStripMenuItem});
 			this.scriptedImportsToolStripMenuItem.Enabled = false;
 			this.scriptedImportsToolStripMenuItem.Name = "scriptedImportsToolStripMenuItem";
 			this.scriptedImportsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
@@ -171,6 +173,13 @@
 			this.importRetreatToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
 			this.importRetreatToolStripMenuItem.Text = "Import Retreat...";
 			this.importRetreatToolStripMenuItem.Click += new System.EventHandler(this.ImportRetreatToolStripMenuItem_Click);
+			// 
+			// importOraclesCaveToolStripMenuItem
+			// 
+			this.importOraclesCaveToolStripMenuItem.Name = "importOraclesCaveToolStripMenuItem";
+			this.importOraclesCaveToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
+			this.importOraclesCaveToolStripMenuItem.Text = "Import Oracle\'s Cave...";
+			this.importOraclesCaveToolStripMenuItem.Click += new System.EventHandler(this.ImportOraclesCaveToolStripMenuItem_Click);
 			// 
 			// compileProjectToolStripMenuItem
 			// 
@@ -413,12 +422,12 @@
 			this.editPortalToolStripMenuItem.Text = "Edit Portal...";
 			this.editPortalToolStripMenuItem.Click += new System.EventHandler(this.EditPortalToolStripMenuItem_Click);
 			// 
-			// importOraclesCaveToolStripMenuItem
+			// importAllCutAreasToolStripMenuItem
 			// 
-			this.importOraclesCaveToolStripMenuItem.Name = "importOraclesCaveToolStripMenuItem";
-			this.importOraclesCaveToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
-			this.importOraclesCaveToolStripMenuItem.Text = "Import Oracle\'s Cave...";
-			this.importOraclesCaveToolStripMenuItem.Click += new System.EventHandler(this.ImportOraclesCaveToolStripMenuItem_Click);
+			this.importAllCutAreasToolStripMenuItem.Name = "importAllCutAreasToolStripMenuItem";
+			this.importAllCutAreasToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
+			this.importAllCutAreasToolStripMenuItem.Text = "Import All Cut Areas...";
+			this.importAllCutAreasToolStripMenuItem.Click += new System.EventHandler(this.importAllCutAreasToolStripMenuItem_Click);
 			// 
 			// MainForm
 			// 
@@ -492,6 +501,7 @@
         private System.Windows.Forms.ToolStripMenuItem importSmokestackToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem importRetreatToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem importOraclesCaveToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem importAllCutAreasToolStripMenuItem;
 	}
 }
 

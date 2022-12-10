@@ -1,11 +1,10 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using CDC.Objects.Models;
 
-namespace CDC.Objects
+namespace CDC
 {
-	public class TRLFile : SRFile
+	public class TRLFile : DataFile
 	{
 		enum SectionType
 		{
@@ -36,13 +35,13 @@ namespace CDC.Objects
 		Int16[] _objectIDs;
 		SortedList<int, string> _objectNamesList = new SortedList<int, string>();
 
-		public TRLFile(String dataFile, Platform platform, ExportOptions options)
-			: base(dataFile, Game.TRL, platform, options)
+		public TRLFile(String dataFileName, Platform platform, ExportOptions options)
+			: base(dataFileName, Game.TRL, platform, options)
 		{
 		}
 
-		public TRLFile(String dataFile, String objectListFile, Platform platform, ExportOptions options)
-			: base(dataFile, Game.Defiance, platform, options)
+		public TRLFile(String dataFileName, String objectListFile, Platform platform, ExportOptions options)
+			: base(dataFileName, Game.Defiance, platform, options)
 		{
 			LoadObjectList(objectListFile);
 		}
@@ -83,29 +82,122 @@ namespace CDC.Objects
 			_modelStart = _dataStart + reader.ReadUInt32();
 			_animStart = 0; //_dataStart + reader.ReadUInt32();
 
-			_models = new TRLModel[_modelCount];
+			_models = new IModel[_modelCount];
 			for (UInt16 m = 0; m < _modelCount; m++)
 			{
-				_models[m] = TRLObjectModel.Load(reader, _dataStart, _modelStart, _name, _platform, m, _version, options);
+				reader.BaseStream.Position = _modelStart + (m * 4);
+				uint modelData = _dataStart + reader.ReadUInt32();
+				reader.BaseStream.Position = modelData;
+
+				string modelName = _name + "-" + m.ToString();
+				TRLObjectModel model = new TRLObjectModel(reader, this, _dataStart, modelData, modelName, _platform, _version);
+				model.ReadData(reader, options);
+				_models[m] = model;
 			}
 		}
 
 		protected override void ReadUnitData(BinaryReader reader, ExportOptions options)
 		{
-			// Adjacent units are seperate from portals.
-			// There can be multiple portals to the same unit.
 			// Portals
-			/*UInt32 m_uConnectionData = _dataStart + reader.ReadUInt32(); // Same as m_uModelData?
-			reader.BaseStream.Position = m_uConnectionData + 0x10;
-			portalCount = reader.ReadUInt32();
+			reader.BaseStream.Position = _dataStart;
+			UInt32 terrainData = _dataStart + reader.ReadUInt32(); // Same as _modelData?
+			reader.BaseStream.Position = terrainData + 0x0C;
+			_portalCount = reader.ReadUInt32();
 			reader.BaseStream.Position = _dataStart + reader.ReadUInt32();
-			_portalNames = new String[portalCount];
-			for (int i = 0; i < portalCount; i++)
+			_portals = new Portal[_portalCount];
+			for (int i = 0; i < _portalCount; i++)
 			{
-				String strUnitName = new String(reader.ReadChars(16));
-				_portalNames[i] = Utility.CleanName(strUnitName);
-				reader.BaseStream.Position += 0x90;
-			}*/
+				Portal portal = new Portal();
+				portal.toLevelName = new String(reader.ReadChars(30));
+				portal.toLevelName = Utility.CleanName(portal.toLevelName);
+				short toSignalID = reader.ReadInt16();
+				portal.toLevelName += "," + toSignalID;
+				portal.mSignalID = reader.ReadInt16();
+				reader.BaseStream.Position += 0x02; // streamID
+				reader.BaseStream.Position += 0x04; // closeVertList
+				reader.BaseStream.Position += 0x04; // activeDist
+				reader.BaseStream.Position += 0x04; // toStreamUnit
+				portal.min.x = reader.ReadSingle();
+				portal.min.y = reader.ReadSingle();
+				portal.min.z = reader.ReadSingle();
+				reader.BaseStream.Position += 0x04;
+				portal.max.x = reader.ReadSingle();
+				portal.max.y = reader.ReadSingle();
+				portal.max.z = reader.ReadSingle();
+				reader.BaseStream.Position += 0x04;
+
+				Vector q0 = new Vector
+				{
+					x = reader.ReadSingle(),
+					y = reader.ReadSingle(),
+					z = reader.ReadSingle(),
+				};
+
+				reader.BaseStream.Position += 0x04;
+
+				Vector q1 = new Vector
+				{
+					x = reader.ReadSingle(),
+					y = reader.ReadSingle(),
+					z = reader.ReadSingle(),
+				};
+
+				reader.BaseStream.Position += 0x04;
+
+				Vector q2 = new Vector
+				{
+					x = reader.ReadSingle(),
+					y = reader.ReadSingle(),
+					z = reader.ReadSingle(),
+				};
+
+				reader.BaseStream.Position += 0x04;
+
+				Vector q3 = new Vector
+				{
+					x = reader.ReadSingle(),
+					y = reader.ReadSingle(),
+					z = reader.ReadSingle(),
+				};
+
+				reader.BaseStream.Position += 0x04;
+
+				portal.quad = new Vector[4] { q0, q1, q2, q3 };
+
+				reader.BaseStream.Position += 0x10; // normal
+
+				_portals[i] = portal;
+			}
+
+			// BGObjects
+			reader.BaseStream.Position = terrainData + 0x30;
+			_bgObjectCount = reader.ReadUInt32();
+			_bgObjectStart = reader.ReadUInt32();
+
+			// BGInstances
+			reader.BaseStream.Position = terrainData + 0x28;
+			_bgInstanceCount = reader.ReadUInt32();
+			_bgInstanceStart = reader.ReadUInt32();
+
+			_bgInstances = new BGInstance[_bgInstanceCount];
+			for (int i = 0; i < _bgInstanceCount; i++)
+			{
+				reader.BaseStream.Position = _bgInstanceStart + (0xF0 * i);
+
+				_bgInstances[i].matrix = new Matrix()
+				{
+					v0 = new Vector4 { x = reader.ReadSingle(), y = reader.ReadSingle(), z = reader.ReadSingle(), w = reader.ReadSingle() },
+					v1 = new Vector4 { x = reader.ReadSingle(), y = reader.ReadSingle(), z = reader.ReadSingle(), w = reader.ReadSingle() },
+					v2 = new Vector4 { x = reader.ReadSingle(), y = reader.ReadSingle(), z = reader.ReadSingle(), w = reader.ReadSingle() },
+					v3 = new Vector4 { x = reader.ReadSingle(), y = reader.ReadSingle(), z = reader.ReadSingle(), w = reader.ReadSingle() },
+				};
+				reader.BaseStream.Position += 0x80;
+				_bgInstances[i].bgObject = reader.ReadUInt32();
+				reader.BaseStream.Position += 0x10;
+				_bgInstances[i].id = reader.ReadUInt16();
+				_bgInstances[i].modelIndex = (int)(_bgInstances[i].bgObject - _bgObjectStart) / 0x60;
+				_bgInstances[i].name = "bgInstance(" + _bgInstances[i].modelIndex + ")-" + _bgInstances[i].id;
+			}
 
 			// Intros
 			reader.BaseStream.Position = _dataStart + 0x74;
@@ -168,21 +260,47 @@ namespace CDC.Objects
 			}
 			//}
 
-			// Model data
-			_modelCount = 1;
-			_models = new TRLModel[_modelCount];
-			reader.BaseStream.Position = _dataStart;
-			UInt32 m_uModelData = _dataStart + reader.ReadUInt32();
+			_modelStart = _dataStart;
+			_modelCount = (ushort)(1 + _portalCount + _bgObjectCount);
+			_models = new IModel[_modelCount];
+			reader.BaseStream.Position = _modelStart;
+			uint modelData = _dataStart + reader.ReadUInt32();
 
-			// Material data
-			Console.WriteLine("Debug: reading area model 0");
-			_models[0] = TRLUnitModel.Load(reader, _dataStart, m_uModelData, _name, _platform, _version, options);
+			TRLUnitModel terrainModel = new TRLUnitModel(reader, this, _dataStart, modelData, _name, _platform, _version);
+			terrainModel.ReadData(reader, options);
+			_models[0] = terrainModel;
 
-			//if (m_axModels[0].Platform == Platform.Dreamcast ||
-			//    m_axModels[1].Platform == Platform.Dreamcast)
-			//{
-			//    _platform = Platform.Dreamcast;
-			//}
+			int modelIndex = 1;
+			foreach (Portal portal in _portals)
+			{
+				PortalModel portalModel = new PortalModel(
+					this,
+					"portal-" + _name + "," + portal.mSignalID + "-" + portal.toLevelName,
+					_platform,
+					portal.min,
+					portal.max,
+					portal.quad
+				);
+				_models[modelIndex++] = portalModel;
+			}
+
+			uint bgObjectData = _bgObjectStart;
+			for (int i = 0; i < _bgObjectCount; i++)
+			{
+				TRLBGObjectModel bgObjectModel = new TRLBGObjectModel(
+					reader,
+					this,
+					_dataStart,
+					bgObjectData,
+					"bgobject-" + i,
+					_platform,
+					_version
+				);
+
+				bgObjectModel.ReadData(reader, options);
+				_models[modelIndex++] = bgObjectModel;
+				bgObjectData += 0x60;
+			}
 		}
 
 		protected override void ResolvePointers(BinaryReader reader, BinaryWriter writer)

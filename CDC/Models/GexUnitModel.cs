@@ -3,24 +3,24 @@ using System.IO;
 using System.Collections.Generic;
 using TPages = BenLincoln.TheLostWorlds.CDTextures.PSXTextureDictionary;
 
-namespace CDC.Objects.Models
+namespace CDC
 {
 	public class GexUnitModel : GexModel
 	{
-		protected UInt32 m_uBspTreeCount;
-		protected UInt32 m_uBspTreeStart;
+		protected UInt32 _bspTreeCount;
+		protected UInt32 _bspTreeStart;
 		protected UInt32 _vertexColourCount;
 		protected UInt32 _vertexColourStart;
 		protected UInt32 _polygonEnd;
 
-		public GexUnitModel(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt32 version, TPages tPages)
-			: base(reader, dataStart, modelData, strModelName, ePlatform, version, tPages)
+		public GexUnitModel(BinaryReader reader, DataFile dataFile, UInt32 dataStart, UInt32 modelData, String modelName, Platform ePlatform, UInt32 version, TPages tPages)
+			: base(reader, dataFile, dataStart, modelData, modelName, ePlatform, version, tPages)
 		{
 			reader.BaseStream.Position = _modelData;
 
-			m_uBspTreeCount = 1;
-			m_uBspTreeStart = reader.ReadUInt32();
-			_groupCount = m_uBspTreeCount;
+			_bspTreeCount = 1;
+			_bspTreeStart = reader.ReadUInt32();
+			_groupCount = _bspTreeCount;
 
 			reader.BaseStream.Position += 0x14;
 			_vertexCount = reader.ReadUInt32();
@@ -38,14 +38,7 @@ namespace CDC.Objects.Models
 			_trees = new Tree[_groupCount];
 		}
 
-		public static GexUnitModel Load(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt32 version, TPages tPages, CDC.Objects.ExportOptions options)
-		{
-			GexUnitModel xModel = new GexUnitModel(reader, dataStart, modelData, strModelName, ePlatform, version, tPages);
-			xModel.ReadData(reader, options);
-			return xModel;
-		}
-
-		protected override void ReadData(BinaryReader reader, CDC.Objects.ExportOptions options)
+		public override void ReadData(BinaryReader reader, ExportOptions options)
 		{
 			// Get the normals
 			_geometry.Normals = new Vector[s_aiNormals.Length / 3];
@@ -75,7 +68,7 @@ namespace CDC.Objects.Models
 			GenerateOutput();
 		}
 
-		protected override void ReadVertex(BinaryReader reader, int v, CDC.Objects.ExportOptions options)
+		protected override void ReadVertex(BinaryReader reader, int v, ExportOptions options)
 		{
 			base.ReadVertex(reader, v, options);
 
@@ -85,12 +78,12 @@ namespace CDC.Objects.Models
 			_geometry.Vertices[v].colourID = reader.ReadUInt16();
 		}
 
-		protected override void ReadVertices(BinaryReader reader, CDC.Objects.ExportOptions options)
+		protected override void ReadVertices(BinaryReader reader, ExportOptions options)
 		{
 			base.ReadVertices(reader, options);
 		}
 
-		protected void ReadVertexColours(BinaryReader reader, CDC.Objects.ExportOptions options)
+		protected void ReadVertexColours(BinaryReader reader, ExportOptions options)
 		{
 			if (_vertexColourStart == 0 || _vertexColourCount == 0)
 			{
@@ -119,7 +112,7 @@ namespace CDC.Objects.Models
 			return;
 		}
 
-		protected virtual void ReadPolygon(BinaryReader reader, int p, CDC.Objects.ExportOptions options)
+		protected virtual void ReadPolygon(BinaryReader reader, int p, ExportOptions options)
 		{
 			UInt32 uPolygonPosition = (UInt32)reader.BaseStream.Position;
 
@@ -187,7 +180,7 @@ namespace CDC.Objects.Models
 			}
 		}
 
-		protected override void ReadPolygons(BinaryReader reader, CDC.Objects.ExportOptions options)
+		protected override void ReadPolygons(BinaryReader reader, ExportOptions options)
 		{
 			if (_polygonStart == 0 || _polygonCount == 0)
 			{
@@ -205,7 +198,7 @@ namespace CDC.Objects.Models
 			List<int> xMeshPositions = new List<int>();
 			List<UInt32> treePolygons = new List<UInt32>((Int32)_vertexCount * 3);
 
-			_trees[0] = ReadBSPTree(reader, treePolygons, m_uBspTreeStart, _trees[0], xMeshes, xMeshPositions, 0);
+			_trees[0] = ReadBSPTree(reader, treePolygons, _bspTreeStart, _trees[0], xMeshes, xMeshPositions, 0);
 
 			ProcessPolygons(options);
 

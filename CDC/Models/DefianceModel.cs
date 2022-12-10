@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace CDC.Objects.Models
+namespace CDC
 {
-	public abstract class DefianceModel : SRModel
+	public abstract class DefianceModel : Model
 	{
 		#region Normals
 		protected static float[,] s_aiNormals =
@@ -264,8 +264,45 @@ namespace CDC.Objects.Models
 		};
 		#endregion
 
+		protected DataFile _dataFile;
+		protected string _name;
+		protected string _modelTypePrefix;
+		protected uint _version;
+		protected Platform _platform;
+		protected uint _dataStart;
+		protected uint _modelData;
+		protected uint _vertexCount;
+		protected uint _vertexStart;
+		protected uint _polygonCount;
+		protected uint _polygonStart;
+		protected uint _boneCount;
+		protected uint _boneStart;
+		protected uint _groupCount;
+		protected uint _materialCount;
+		protected uint _materialStart;
+		protected uint _indexCount { get { return 3 * _polygonCount; } }
+		// Vertices are scaled before any bones are applied.
+		// Scaling afterwards will break the characters.
+		protected Vector _vertexScale;
+		protected Geometry _geometry;
+		protected Geometry _extraGeometry;
+		protected Polygon[] _polygons;
+		protected Bone[] _bones;
+		protected Tree[] _trees;
+		protected Material[] _materials;
+		protected List<Material> _materialsList;
 		protected UInt32 _extraVertexCount;
 		protected UInt32 _extraVertexStart;
+
+		public override string Name { get { return _name; } }
+		public override string ModelTypePrefix { get { return _modelTypePrefix; } }
+		public override Polygon[] Polygons { get { return _polygons; } }
+		public override Geometry Geometry { get { return _geometry; } }
+		public override Geometry ExtraGeometry { get { return _extraGeometry; } }
+		public override Bone[] Bones { get { return _bones; } }
+		public override Tree[] Groups { get { return _trees; } }
+		public override Material[] Materials { get { return _materials; } }
+		public override Platform Platform { get { return _platform; } }
 
 		protected class DefianceTriangleList
 		{
@@ -276,12 +313,28 @@ namespace CDC.Objects.Models
 			public UInt32 next;
 		}
 
-		protected DefianceModel(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt32 version) :
-			base(reader, dataStart, modelData, strModelName, ePlatform, version)
+		protected DefianceModel(BinaryReader reader, DataFile dataFile, UInt32 dataStart, UInt32 modelData, String modelName, Platform ePlatform, UInt32 version)
 		{
+			_dataFile = dataFile;
+			_name = modelName;
+			_modelTypePrefix = "";
+			_platform = ePlatform;
+			_version = version;
+			_dataStart = dataStart;
+			_modelData = modelData;
+			_vertexCount = 0;
+			_vertexStart = 0;
+			_polygonCount = 0;
+			_polygonStart = 0;
+			_vertexScale.x = 1.0f;
+			_vertexScale.y = 1.0f;
+			_vertexScale.z = 1.0f;
+			_geometry = new Geometry();
+			_extraGeometry = new Geometry();
+			_materialsList = new List<Material>();
 		}
 
-		protected virtual void ReadData(BinaryReader reader, CDC.Objects.ExportOptions options)
+		public virtual void ReadData(BinaryReader reader, ExportOptions options)
 		{
 			// Get the vertices
 			_geometry.Vertices = new Vertex[_vertexCount];
@@ -309,16 +362,16 @@ namespace CDC.Objects.Models
 			_polygons = new Polygon[_polygonCount];
 			ReadPolygons(reader, options);
 
-			for (UInt16 p = 0; p < _polygonCount; p++)
+			for (uint p = 0; p < _polygonCount; p++)
 			{
-				HandleDebugRendering(p, options);
+				HandleDebugRendering((int)p, options);
 			}
 
 			// Generate the output
 			GenerateOutput();
 		}
 
-		protected virtual void ReadTypeAVertex(BinaryReader reader, int v, CDC.Objects.ExportOptions options)
+		protected virtual void ReadTypeAVertex(BinaryReader reader, int v, ExportOptions options)
 		{
 			_geometry.Vertices[v].positionID = v;
 
@@ -329,7 +382,7 @@ namespace CDC.Objects.Models
 			reader.BaseStream.Position += 0x02;
 		}
 
-		protected virtual void ReadTypeAVertices(BinaryReader reader, CDC.Objects.ExportOptions options)
+		protected virtual void ReadTypeAVertices(BinaryReader reader, ExportOptions options)
 		{
 			if (_vertexStart == 0 || _vertexCount == 0)
 			{
@@ -353,7 +406,7 @@ namespace CDC.Objects.Models
 			return;
 		}
 
-		protected virtual void ReadTypeBVertex(BinaryReader reader, int v, CDC.Objects.ExportOptions options)
+		protected virtual void ReadTypeBVertex(BinaryReader reader, int v, ExportOptions options)
 		{
 			_extraGeometry.Vertices[v].positionID = v;
 
@@ -364,7 +417,7 @@ namespace CDC.Objects.Models
 			reader.BaseStream.Position += 0x02;
 		}
 
-		protected virtual void ReadTypeBVertices(BinaryReader reader, CDC.Objects.ExportOptions options)
+		protected virtual void ReadTypeBVertices(BinaryReader reader, ExportOptions options)
 		{
 			if (_extraVertexStart == 0 || _extraVertexCount == 0)
 			{
@@ -388,13 +441,13 @@ namespace CDC.Objects.Models
 			return;
 		}
 
-		protected abstract void ReadPolygons(BinaryReader reader, CDC.Objects.ExportOptions options);
+		protected abstract void ReadPolygons(BinaryReader reader, ExportOptions options);
 
 		protected virtual void GenerateOutput()
 		{
 			// Make the vertices unique
 			_geometry.Vertices = new Vertex[_indexCount];
-			for (UInt32 p = 0; p < _polygonCount; p++)
+			for (uint p = 0; p < _polygonCount; p++)
 			{
 				_geometry.Vertices[(3 * p) + 0] = _polygons[p].v1;
 				_geometry.Vertices[(3 * p) + 1] = _polygons[p].v2;
@@ -413,6 +466,21 @@ namespace CDC.Objects.Models
 			}
 
 			return;
+		}
+
+		public override string GetTextureName(int materialIndex, ExportOptions options)
+		{
+			string textureName = "";
+			if (materialIndex >= 0 && materialIndex < _materials.Length)
+			{
+				Material material = _materials[materialIndex];
+				if (material.textureUsed)
+				{
+					textureName = Utility.GetPS2TextureName(_dataFile.Name, material.textureID);
+				}
+			}
+
+			return textureName;
 		}
 	}
 }

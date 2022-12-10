@@ -1,11 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Collections.Generic;
 using TPages = BenLincoln.TheLostWorlds.CDTextures.PSXTextureDictionary;
 using TextureTile = BenLincoln.TheLostWorlds.CDTextures.PSXTextureTile;
 
-namespace CDC.Objects.Models
+namespace CDC
 {
-	public abstract class GexModel : SRModel
+	public abstract class GexModel : Model
 	{
 		#region Normals
 		protected static Int32[,] s_aiNormals =
@@ -257,15 +258,68 @@ namespace CDC.Objects.Models
 		};
 		#endregion
 
+		protected DataFile _dataFile;
+		protected string _name;
+		protected string _modelTypePrefix;
+		protected uint _version;
+		protected Platform _platform;
+		protected uint _dataStart;
+		protected uint _modelData;
+		protected uint _vertexCount;
+		protected uint _vertexStart;
+		protected uint _polygonCount;
+		protected uint _polygonStart;
+		protected uint _boneCount;
+		protected uint _boneStart;
+		protected uint _groupCount;
+		protected uint _materialCount;
+		protected uint _materialStart;
+		protected uint _indexCount { get { return 3 * _polygonCount; } }
+		// Vertices are scaled before any bones are applied.
+		// Scaling afterwards will break the characters.
+		protected Vector _vertexScale;
+		protected Geometry _geometry;
+		protected Geometry _extraGeometry;
+		protected Polygon[] _polygons;
+		protected Bone[] _bones;
+		protected Tree[] _trees;
+		protected Material[] _materials;
+		protected List<Material> _materialsList;
 		protected TPages _tPages;
 
-		protected GexModel(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt32 version, TPages tPages) :
-			base(reader, dataStart, modelData, strModelName, ePlatform, version)
+		public override string Name { get { return _name; } }
+		public override string ModelTypePrefix { get { return _modelTypePrefix; } }
+		public override Polygon[] Polygons { get { return _polygons; } }
+		public override Geometry Geometry { get { return _geometry; } }
+		public override Geometry ExtraGeometry { get { return _extraGeometry; } }
+		public override Bone[] Bones { get { return _bones; } }
+		public override Tree[] Groups { get { return _trees; } }
+		public override Material[] Materials { get { return _materials; } }
+		public override Platform Platform { get { return _platform; } }
+
+		protected GexModel(BinaryReader reader, DataFile dataFile, UInt32 dataStart, UInt32 modelData, String modelName, Platform ePlatform, UInt32 version, TPages tPages)
 		{
+			_dataFile = dataFile;
+			_name = modelName;
+			_modelTypePrefix = "";
+			_platform = ePlatform;
+			_version = version;
+			_dataStart = dataStart;
+			_modelData = modelData;
+			_vertexCount = 0;
+			_vertexStart = 0;
+			_polygonCount = 0;
+			_polygonStart = 0;
+			_vertexScale.x = 1.0f;
+			_vertexScale.y = 1.0f;
+			_vertexScale.z = 1.0f;
+			_geometry = new Geometry();
+			_extraGeometry = new Geometry();
+			_materialsList = new List<Material>();
 			_tPages = tPages;
 		}
 
-		protected virtual void ReadData(BinaryReader reader, CDC.Objects.ExportOptions options)
+		public virtual void ReadData(BinaryReader reader, ExportOptions options)
 		{
 			// Get the normals
 			_geometry.Normals = new Vector[s_aiNormals.Length / 3];
@@ -294,7 +348,7 @@ namespace CDC.Objects.Models
 			GenerateOutput();
 		}
 
-		protected virtual void ReadVertex(BinaryReader reader, int v, CDC.Objects.ExportOptions options)
+		protected virtual void ReadVertex(BinaryReader reader, int v, ExportOptions options)
 		{
 			_geometry.Vertices[v].positionID = v;
 
@@ -304,7 +358,7 @@ namespace CDC.Objects.Models
 			_geometry.PositionsRaw[v].z = (float)reader.ReadInt16();
 		}
 
-		protected virtual void ReadVertices(BinaryReader reader, CDC.Objects.ExportOptions options)
+		protected virtual void ReadVertices(BinaryReader reader, ExportOptions options)
 		{
 			if (_vertexStart == 0 || _vertexCount == 0)
 			{
@@ -321,9 +375,9 @@ namespace CDC.Objects.Models
 			return;
 		}
 
-		protected abstract void ReadPolygons(BinaryReader reader, CDC.Objects.ExportOptions options);
+		protected abstract void ReadPolygons(BinaryReader reader, ExportOptions options);
 
-		protected virtual void ReadMaterial(BinaryReader reader, int p, CDC.Objects.ExportOptions options)
+		protected virtual void ReadMaterial(BinaryReader reader, int p, ExportOptions options)
 		{
 			int v1 = (p * 3) + 0;
 			int v2 = (p * 3) + 1;
@@ -376,7 +430,7 @@ namespace CDC.Objects.Models
 		{
 			// Make the vertices unique
 			_geometry.Vertices = new Vertex[_indexCount];
-			for (UInt32 p = 0; p < _polygonCount; p++)
+			for (uint p = 0; p < _polygonCount; p++)
 			{
 				_geometry.Vertices[(3 * p) + 0] = _polygons[p].v1;
 				_geometry.Vertices[(3 * p) + 1] = _polygons[p].v2;
@@ -397,13 +451,13 @@ namespace CDC.Objects.Models
 			return;
 		}
 
-		protected void ProcessPolygons(CDC.Objects.ExportOptions options)
+		protected void ProcessPolygons(ExportOptions options)
 		{
 			MaterialList materialList = null;
 
-			for (UInt16 p = 0; p < _polygonCount; p++)
+			for (uint p = 0; p < _polygonCount; p++)
 			{
-				HandleDebugRendering(p, options);
+				HandleDebugRendering((int)p, options);
 
 				if (materialList == null)
 				{
@@ -425,6 +479,28 @@ namespace CDC.Objects.Models
 			}
 
 			_materialCount = (UInt32)_materialsList.Count;
+		}
+
+		public override string GetTextureName(int materialIndex, ExportOptions options)
+		{
+			string textureName = "";
+			if (materialIndex >= 0 && materialIndex < _materials.Length)
+			{
+				Material material = _materials[materialIndex];
+				if (material.textureUsed)
+				{
+					if (options.UseEachUniqueTextureCLUTVariation)
+					{
+						textureName = Utility.GetPlayStationTextureNameWithCLUT(_dataFile.Name, material.textureID, material.clutValue);
+					}
+					else
+					{
+						textureName = Utility.GetPlayStationTextureNameDefault(_dataFile.Name, material.textureID);
+					}
+				}
+			}
+
+			return textureName;
 		}
 	}
 }

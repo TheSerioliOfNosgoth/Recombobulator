@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using TPages = BenLincoln.TheLostWorlds.CDTextures.PSXTextureDictionary;
 
-namespace CDC.Objects.Models
+namespace CDC
 {
 	public class SR1ObjectModel : SR1Model
 	{
@@ -21,8 +21,8 @@ namespace CDC.Objects.Models
 			Emmisive = 0x8000,
 		}
 
-		public SR1ObjectModel(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt32 version, TPages tPages)
-			: base(reader, dataStart, modelData, strModelName, ePlatform, version, tPages)
+		public SR1ObjectModel(BinaryReader reader, DataFile dataFile, UInt32 dataStart, UInt32 modelData, String modelName, Platform ePlatform, UInt32 version, TPages tPages)
+			: base(reader, dataFile, dataStart, modelData, modelName, ePlatform, version, tPages)
 		{
 			readTextureFT3Attributes = false;
 
@@ -44,22 +44,6 @@ namespace CDC.Objects.Models
 			_groupCount = 1;
 
 			_trees = new Tree[_groupCount];
-		}
-
-		public static SR1ObjectModel Load(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt16 usIndex, UInt32 version, TPages tPages, ExportOptions options)
-		{
-			long newPosition = modelData + (0x00000004 * usIndex);
-			if ((newPosition < 0) || (newPosition > reader.BaseStream.Length))
-			{
-				Console.WriteLine(string.Format("Error: attempt to read a model with usIndex {0} from a stream with length {1}", usIndex, reader.BaseStream.Length));
-				return null;
-			}
-			reader.BaseStream.Position = newPosition;
-			modelData = dataStart + reader.ReadUInt32();
-			reader.BaseStream.Position = modelData;
-			SR1ObjectModel xModel = new SR1ObjectModel(reader, dataStart, modelData, strModelName, ePlatform, version, tPages);
-			xModel.ReadData(reader, options);
-			return xModel;
 		}
 
 		protected override void ReadVertex(BinaryReader reader, int v, ExportOptions options)

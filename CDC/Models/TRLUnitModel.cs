@@ -2,22 +2,22 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
-namespace CDC.Objects.Models
+namespace CDC
 {
 	public class TRLUnitModel : TRLModel
 	{
-		protected UInt32 m_uOctTreeCount;
-		protected UInt32 m_uOctTreeStart;
+		protected UInt32 _octTreeCount;
+		protected UInt32 _octTreeStart;
 
-		protected TRLUnitModel(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt32 version)
-			: base(reader, dataStart, modelData, strModelName, ePlatform, version)
+		public TRLUnitModel(BinaryReader reader, DataFile dataFile, UInt32 dataStart, UInt32 modelData, String modelName, Platform ePlatform, UInt32 version)
+			: base(reader, dataFile, dataStart, modelData, modelName, ePlatform, version)
 		{
 			// reader.BaseStream.Position += 0x08;
 			// _introCount = reader.ReadUInt32();
 			// _introStart = _dataStart + reader.ReadUInt32();
 			reader.BaseStream.Position = _modelData + 0x14;
-			m_uOctTreeCount = reader.ReadUInt32();
-			m_uOctTreeStart = _dataStart + reader.ReadUInt32();
+			_octTreeCount = reader.ReadUInt32();
+			_octTreeStart = _dataStart + reader.ReadUInt32();
 			reader.BaseStream.Position = _modelData + 0x44;
 			_vertexStart = _dataStart + reader.ReadUInt32();
 			reader.BaseStream.Position = _modelData + 0x54;
@@ -26,19 +26,12 @@ namespace CDC.Objects.Models
 			_polygonStart = 0;
 			_materialStart = 0;
 			_materialCount = 0;
-			_groupCount = m_uOctTreeCount;
+			_groupCount = _octTreeCount;
 
 			_trees = new Tree[_groupCount];
 		}
 
-		public static TRLUnitModel Load(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt32 version, CDC.Objects.ExportOptions options)
-		{
-			TRLUnitModel xModel = new TRLUnitModel(reader, dataStart, modelData, strModelName, ePlatform, version);
-			xModel.ReadData(reader, options);
-			return xModel;
-		}
-
-		protected override void ReadVertex(BinaryReader reader, int v, CDC.Objects.ExportOptions options)
+		protected override void ReadVertex(BinaryReader reader, int v, ExportOptions options)
 		{
 			base.ReadVertex(reader, v, options);
 
@@ -72,12 +65,12 @@ namespace CDC.Objects.Models
 			reader.BaseStream.Position += 0x04;
 		}
 
-		protected override void ReadVertices(BinaryReader reader, CDC.Objects.ExportOptions options)
+		protected override void ReadVertices(BinaryReader reader, ExportOptions options)
 		{
 			base.ReadVertices(reader, options);
 		}
 
-		protected override void ReadPolygons(BinaryReader reader, CDC.Objects.ExportOptions options)
+		protected override void ReadPolygons(BinaryReader reader, ExportOptions options)
 		{
 			Material xMaterial = new Material();
 			xMaterial.textureID = 0;
@@ -88,11 +81,16 @@ namespace CDC.Objects.Models
 			List<int> xMeshPositions = new List<int>();
 			List<TreePolygon> treePolygons = new List<TreePolygon>((Int32)_vertexCount * 3);
 
-			for (UInt32 t = 0; t < m_uOctTreeCount; t++)
+			for (UInt32 t = 0; t < _octTreeCount; t++)
 			{
-				reader.BaseStream.Position = m_uOctTreeStart + (t * 0xB0);
+				reader.BaseStream.Position = _octTreeStart + (t * 0xB0);
 
-				reader.BaseStream.Position += 0x24;
+				Vector globalOffset = new Vector();
+				globalOffset.x = reader.ReadSingle();
+				globalOffset.y = reader.ReadSingle();
+				globalOffset.z = reader.ReadSingle();
+
+				reader.BaseStream.Position += 0x18;
 				UInt32 uOctID = reader.ReadUInt32();
 				reader.BaseStream.Position += 0x1C;
 				UInt32 uDataPos = reader.ReadUInt32();
@@ -111,6 +109,11 @@ namespace CDC.Objects.Models
 				}
 
 				_trees[t] = ReadOctTree(reader, treePolygons, uDataPos, _trees[t], xMeshes, xMeshPositions, 0, materials);
+
+				if (_trees[t] != null)
+				{
+					_trees[t].globalOffset = globalOffset;
+				}
 			}
 
 			_polygonCount = (UInt32)treePolygons.Count;

@@ -2,12 +2,12 @@ using System;
 using System.IO;
 using TPages = BenLincoln.TheLostWorlds.CDTextures.PSXTextureDictionary;
 
-namespace CDC.Objects.Models
+namespace CDC
 {
 	public class GexObjectModel : GexModel
 	{
-		public GexObjectModel(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt32 version, TPages tPages)
-			: base(reader, dataStart, modelData, strModelName, ePlatform, version, tPages)
+		public GexObjectModel(BinaryReader reader, DataFile dataFile, UInt32 dataStart, UInt32 modelData, String modelName, Platform ePlatform, UInt32 version, TPages tPages)
+			: base(reader, dataFile, dataStart, modelData, modelName, ePlatform, version, tPages)
 		{
 			reader.BaseStream.Position = _modelData;
 			_vertexCount = reader.ReadUInt16();
@@ -29,17 +29,7 @@ namespace CDC.Objects.Models
 			_trees = new Tree[_groupCount];
 		}
 
-		public static GexObjectModel Load(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt16 usIndex, UInt32 version, TPages tPages, CDC.Objects.ExportOptions options)
-		{
-			reader.BaseStream.Position = modelData + (0x00000004 * usIndex);
-			modelData = reader.ReadUInt32();
-			reader.BaseStream.Position = modelData;
-			GexObjectModel xModel = new GexObjectModel(reader, dataStart, modelData, strModelName, ePlatform, version, tPages);
-			xModel.ReadData(reader, options);
-			return xModel;
-		}
-
-		protected override void ReadVertex(BinaryReader reader, int v, CDC.Objects.ExportOptions options)
+		protected override void ReadVertex(BinaryReader reader, int v, ExportOptions options)
 		{
 			base.ReadVertex(reader, v, options);
 
@@ -49,7 +39,7 @@ namespace CDC.Objects.Models
 			_geometry.Vertices[v].normalID = reader.ReadUInt16();
 		}
 
-		protected override void ReadVertices(BinaryReader reader, CDC.Objects.ExportOptions options)
+		protected override void ReadVertices(BinaryReader reader, ExportOptions options)
 		{
 			base.ReadVertices(reader, options);
 
@@ -109,7 +99,7 @@ namespace CDC.Objects.Models
 			return;
 		}
 
-		protected virtual void ReadPolygon(BinaryReader reader, int p, CDC.Objects.ExportOptions options)
+		protected virtual void ReadPolygon(BinaryReader reader, int p, ExportOptions options)
 		{
 			UInt32 uPolygonPosition = (UInt32)reader.BaseStream.Position;
 
@@ -149,7 +139,7 @@ namespace CDC.Objects.Models
 			reader.BaseStream.Position = uPolygonPosition + 0x0C;
 		}
 
-		protected override void ReadPolygons(BinaryReader reader, CDC.Objects.ExportOptions options)
+		protected override void ReadPolygons(BinaryReader reader, ExportOptions options)
 		{
 			if (_polygonStart == 0 || _polygonCount == 0)
 			{

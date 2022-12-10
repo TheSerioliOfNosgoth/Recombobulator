@@ -2,17 +2,17 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
-namespace CDC.Objects.Models
+namespace CDC
 {
 	public class SR2UnitModel : SR2Model
 	{
-		protected UInt32 m_uOctTreeCount;
-		protected UInt32 m_uOctTreeStart;
-		protected UInt32 m_uSpectralVertexStart;
-		protected UInt32 m_uSpectralColourStart;
+		protected UInt32 _octTreeCount;
+		protected UInt32 _octTreeStart;
+		protected UInt32 _spectralVertexStart;
+		protected UInt32 _spectralColourStart;
 
-		protected SR2UnitModel(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt32 version)
-			: base(reader, dataStart, modelData, strModelName, ePlatform, version)
+		public SR2UnitModel(BinaryReader reader, DataFile dataFile, UInt32 dataStart, UInt32 modelData, String modelName, Platform ePlatform, UInt32 version)
+			: base(reader, dataFile, dataStart, modelData, modelName, ePlatform, version)
 		{
 			reader.BaseStream.Position = _modelData + 0x0C;
 			_vertexCount = reader.ReadUInt32();
@@ -21,26 +21,19 @@ namespace CDC.Objects.Models
 			_vertexStart = _dataStart + reader.ReadUInt32();
 			_polygonStart = 0; // _dataStart + reader.ReadUInt32();
 			reader.BaseStream.Position += 0x18;
-			m_uSpectralVertexStart = _dataStart + reader.ReadUInt32();
-			reader.BaseStream.Position += 0x04; // m_uMaterialColourStart
-			m_uSpectralColourStart = _dataStart + reader.ReadUInt32();
+			_spectralVertexStart = _dataStart + reader.ReadUInt32();
+			reader.BaseStream.Position += 0x04; // _materialColourStart
+			_spectralColourStart = _dataStart + reader.ReadUInt32();
 			_materialStart = 0;
 			_materialCount = 0;
-			m_uOctTreeCount = reader.ReadUInt32();
-			m_uOctTreeStart = _dataStart + reader.ReadUInt32();
-			_groupCount = m_uOctTreeCount;
+			_octTreeCount = reader.ReadUInt32();
+			_octTreeStart = _dataStart + reader.ReadUInt32();
+			_groupCount = _octTreeCount;
 
 			_trees = new Tree[_groupCount];
 		}
 
-		public static SR2UnitModel Load(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt32 version, CDC.Objects.ExportOptions options)
-		{
-			SR2UnitModel xModel = new SR2UnitModel(reader, dataStart, modelData, strModelName, ePlatform, version);
-			xModel.ReadData(reader, options);
-			return xModel;
-		}
-
-		protected override void ReadVertex(BinaryReader reader, int v, CDC.Objects.ExportOptions options)
+		protected override void ReadVertex(BinaryReader reader, int v, ExportOptions options)
 		{
 			base.ReadVertex(reader, v, options);
 
@@ -70,19 +63,19 @@ namespace CDC.Objects.Models
 			_geometry.UVs[v].v = Utility.BizarreFloatToNormalFloat(vV);
 		}
 
-		protected override void ReadVertices(BinaryReader reader, CDC.Objects.ExportOptions options)
+		protected override void ReadVertices(BinaryReader reader, ExportOptions options)
 		{
 			base.ReadVertices(reader, options);
 
 			ReadSpectralData(reader, options);
 		}
 
-		protected virtual void ReadSpectralData(BinaryReader reader, CDC.Objects.ExportOptions options)
+		protected virtual void ReadSpectralData(BinaryReader reader, ExportOptions options)
 		{
-			if (m_uSpectralColourStart != 0)
+			if (_spectralColourStart != 0)
 			{
 				// Spectral Colours
-				reader.BaseStream.Position = m_uSpectralColourStart;
+				reader.BaseStream.Position = _spectralColourStart;
 				for (int v = 0; v < _vertexCount; v++)
 				{
 					UInt32 uShiftColour = reader.ReadUInt32();
@@ -99,12 +92,12 @@ namespace CDC.Objects.Models
 				}
 			}
 
-			if (m_uSpectralVertexStart != 0)
+			if (_spectralVertexStart != 0)
 			{
 				// Spectral vertices
 				reader.BaseStream.Position = _modelData + 0x2C;
 				UInt32 uCurrentIndexPosition = reader.ReadUInt32();
-				UInt32 uCurrentSpectralVertex = m_uSpectralVertexStart;
+				UInt32 uCurrentSpectralVertex = _spectralVertexStart;
 				while (true)
 				{
 					reader.BaseStream.Position = uCurrentIndexPosition;
@@ -128,7 +121,7 @@ namespace CDC.Objects.Models
 			}
 		}
 
-		protected override void ReadPolygons(BinaryReader reader, CDC.Objects.ExportOptions options)
+		protected override void ReadPolygons(BinaryReader reader, ExportOptions options)
 		{
 			Material xMaterial = new Material();
 			xMaterial.textureID = 0;
@@ -139,12 +132,16 @@ namespace CDC.Objects.Models
 			List<int> xMeshPositions = new List<int>();
 			List<TreePolygon> treePolygons = new List<TreePolygon>((Int32)_vertexCount * 3);
 
-			for (UInt32 t = 0; t < m_uOctTreeCount; t++)
+			for (UInt32 t = 0; t < _octTreeCount; t++)
 			{
-				reader.BaseStream.Position = m_uOctTreeStart + (t * 0x60);
+				reader.BaseStream.Position = _octTreeStart + (t * 0x60);
 
-				reader.BaseStream.Position += 0x2C;
-				bool drawTester = ((reader.ReadUInt32() & 1) != 1);
+				Vector globalOffset = new Vector();
+				globalOffset.x = reader.ReadSingle();
+				globalOffset.y = reader.ReadSingle();
+				globalOffset.z = reader.ReadSingle();
+
+				reader.BaseStream.Position += 0x24;
 				UInt32 uOctID = reader.ReadUInt32();
 				reader.BaseStream.Position += 0x10;
 				UInt32 uDataPos = reader.ReadUInt32();
@@ -154,6 +151,11 @@ namespace CDC.Objects.Models
 				//UInt32 uIndexCount = reader.ReadUInt32();
 
 				_trees[t] = ReadOctTree(reader, treePolygons, uDataPos, _trees[t], xMeshes, xMeshPositions, 0, uStartIndex);
+
+				if (_trees[t] != null)
+				{
+					_trees[t].globalOffset = globalOffset;
+				}
 			}
 
 			_polygonCount = (UInt32)treePolygons.Count;

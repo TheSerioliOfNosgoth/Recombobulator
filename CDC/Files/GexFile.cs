@@ -1,12 +1,11 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using CDC.Objects.Models;
 using TPages = BenLincoln.TheLostWorlds.CDTextures.PSXTextureDictionary;
 
-namespace CDC.Objects
+namespace CDC
 {
-	public class GexFile : SRFile
+	public class GexFile : DataFile
 	{
 		public const UInt32 RETAIL_VERSION = 0x00000002;
 
@@ -15,8 +14,8 @@ namespace CDC.Objects
 		protected TPages _tPages = new TPages(0x001F | 0x0010 | 0x0800 | 0x0080, 0x003F | 0xFFC0);
 		public TPages TPages { get { return _tPages; } }
 
-		protected SRFile[] _objects;
-		public SRFile[] Objects { get { return _objects; } }
+		protected DataFile[] _objects;
+		public DataFile[] Objects { get { return _objects; } }
 
 		protected GexFile(String name, ExportOptions options, BinaryReader reader)
 		{
@@ -28,8 +27,8 @@ namespace CDC.Objects
 			ReadObjectData(reader, options);
 		}
 
-		public GexFile(String dataFile, Platform platform, ExportOptions options)
-			: base(dataFile, Game.Gex, platform, options)
+		public GexFile(String dataFileName, Platform platform, ExportOptions options)
+			: base(dataFileName, Game.Gex, platform, options)
 		{
 		}
 
@@ -54,11 +53,17 @@ namespace CDC.Objects
 			_modelStart = reader.ReadUInt32();
 			_animStart = reader.ReadUInt32();
 
-			_models = new GexModel[_modelCount];
+			_models = new IModel[_modelCount];
 			for (UInt16 m = 0; m < _modelCount; m++)
 			{
-				Console.WriteLine(string.Format("Debug: reading object model {0} / {1}", m, (_modelCount - 1)));
-				_models[m] = GexObjectModel.Load(reader, _dataStart, _modelStart, _name, _platform, m, _version, _tPages, options);
+				reader.BaseStream.Position = _modelStart + (m * 4);
+				uint modelData = reader.ReadUInt32();
+				reader.BaseStream.Position = modelData;
+
+				string modelName = _name + "-" + m.ToString();
+				GexObjectModel model = new GexObjectModel(reader, this, _dataStart, modelData, modelName, _platform, _version, _tPages);
+				model.ReadData(reader, options);
+				_models[m] = model;
 			}
 		}
 
@@ -86,7 +91,7 @@ namespace CDC.Objects
 			_objectNameStart = reader.ReadUInt32();
 			reader.BaseStream.Position = _objectNameStart;
 			List<string> objectNames = new List<string>();
-			List<SRFile> objectList = new List<SRFile>();
+			List<DataFile> objectList = new List<DataFile>();
 			while (true)
 			{
 				UInt32 objectAddress = reader.ReadUInt32();
@@ -150,17 +155,16 @@ namespace CDC.Objects
 				_platform = Platform.PSX;
 			}
 
-			// Model data
 			reader.BaseStream.Position = _dataStart;
 			_modelCount = 1;
 			_modelStart = _dataStart;
-			_models = new GexModel[_modelCount];
+			_models = new IModel[_modelCount];
 			reader.BaseStream.Position = _modelStart;
-			UInt32 m_uModelData = reader.ReadUInt32();
+			uint modelData = reader.ReadUInt32();
 
-			// Material data
-			Console.WriteLine("Debug: reading area model 0");
-			_models[0] = GexUnitModel.Load(reader, _dataStart, m_uModelData, _name, _platform, _version, _tPages, options);
+			GexUnitModel model = new GexUnitModel(reader, this, _dataStart, modelData, _name, _platform, _version, _tPages);
+			model.ReadData(reader, options);
+			_models[0] = model;
 		}
 
 		protected override void ResolvePointers(BinaryReader reader, BinaryWriter writer)

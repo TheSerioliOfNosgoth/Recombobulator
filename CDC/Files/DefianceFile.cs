@@ -1,22 +1,21 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using CDC.Objects.Models;
 
-namespace CDC.Objects
+namespace CDC
 {
-	public class DefianceFile : SRFile
+	public class DefianceFile : DataFile
 	{
 		Int16[] _objectIDs;
 		SortedList<int, string> _objectNamesList = new SortedList<int, string>();
 
-		public DefianceFile(String dataFile, Platform platform, ExportOptions options)
-			: base(dataFile, Game.Defiance, platform, options)
+		public DefianceFile(String dataFileName, Platform platform, ExportOptions options)
+			: base(dataFileName, Game.Defiance, platform, options)
 		{
 		}
 
-		public DefianceFile(String dataFile, String objectListFile, Platform platform, ExportOptions options)
-			: base(dataFile, Game.Defiance, platform, options)
+		public DefianceFile(String dataFileName, String objectListFile, Platform platform, ExportOptions options)
+			: base(dataFileName, Game.Defiance, platform, options)
 		{
 			LoadObjectList(objectListFile);
 		}
@@ -48,7 +47,6 @@ namespace CDC.Objects
 			}
 			//}
 
-			// Model data
 			reader.BaseStream.Position = _dataStart + 0x00000028;
 			_modelCount = reader.ReadUInt16();
 			_modelCount = 1; // There are multiple models, but Defiance might have too many. Override for now.
@@ -57,29 +55,89 @@ namespace CDC.Objects
 			_modelStart = _dataStart + reader.ReadUInt32();
 			_animStart = 0; //_dataStart + reader.ReadUInt32();
 
-			_models = new DefianceModel[_modelCount];
+			_models = new IModel[_modelCount];
 			for (UInt16 m = 0; m < _modelCount; m++)
 			{
-				_models[m] = DefianceObjectModel.Load(reader, _dataStart, _modelStart, _name, _platform, m, _version, options);
+				reader.BaseStream.Position = _modelStart + (m * 4);
+				uint modelData = _dataStart + reader.ReadUInt32();
+				reader.BaseStream.Position = modelData;
+
+				string modelName = _name + "-" + m.ToString();
+				DefianceObjectModel model = new DefianceObjectModel(reader, this, _dataStart, modelData, modelName, _platform, _version);
+				model.ReadData(reader, options);
+				_models[m] = model;
 			}
 		}
 
 		protected override void ReadUnitData(BinaryReader reader, ExportOptions options)
 		{
-			// Adjacent units are seperate from portals.
-			// There can be multiple portals to the same unit.
 			// Portals
 			reader.BaseStream.Position = _dataStart + 0x10;
-			UInt32 m_uConnectionData = _dataStart + reader.ReadUInt32(); // Same as m_uModelData?
-			reader.BaseStream.Position = m_uConnectionData + 0x24;
-			portalCount = reader.ReadUInt32();
+			UInt32 terrainData = _dataStart + reader.ReadUInt32(); // Same as _modelData?
+			reader.BaseStream.Position = terrainData + 0x24;
+			_portalCount = reader.ReadUInt32();
 			reader.BaseStream.Position = _dataStart + reader.ReadUInt32();
-			_portalNames = new String[portalCount];
-			for (int i = 0; i < portalCount; i++)
+			_portals = new Portal[_portalCount];
+			for (int i = 0; i < _portalCount; i++)
 			{
-				String strUnitName = new String(reader.ReadChars(16));
-				_portalNames[i] = Utility.CleanName(strUnitName);
-				reader.BaseStream.Position += 0x90;
+				Portal portal = new Portal();
+				portal.toLevelName = new String(reader.ReadChars(32));
+				portal.toLevelName = Utility.CleanName(portal.toLevelName);
+				portal.mSignalID = reader.ReadInt16();
+				reader.BaseStream.Position += 0x02; // streamID/closeVertList?
+				reader.BaseStream.Position += 0x04; // streamID/closeVertList?
+				reader.BaseStream.Position += 0x04; // activeDistance
+				reader.BaseStream.Position += 0x04; // toStreamUnit
+				portal.min.x = reader.ReadSingle();
+				portal.min.y = reader.ReadSingle();
+				portal.min.z = reader.ReadSingle();
+				reader.BaseStream.Position += 0x04;
+				portal.max.x = reader.ReadSingle();
+				portal.max.y = reader.ReadSingle();
+				portal.max.z = reader.ReadSingle();
+				reader.BaseStream.Position += 0x04;
+
+				Vector q0 = new Vector
+				{
+					x = reader.ReadSingle(),
+					y = reader.ReadSingle(),
+					z = reader.ReadSingle(),
+				};
+
+				reader.BaseStream.Position += 0x04;
+
+				Vector q1 = new Vector
+				{
+					x = reader.ReadSingle(),
+					y = reader.ReadSingle(),
+					z = reader.ReadSingle(),
+				};
+
+				reader.BaseStream.Position += 0x04;
+
+				Vector q2 = new Vector
+				{
+					x = reader.ReadSingle(),
+					y = reader.ReadSingle(),
+					z = reader.ReadSingle(),
+				};
+
+				reader.BaseStream.Position += 0x04;
+
+				Vector q3 = new Vector
+				{
+					x = reader.ReadSingle(),
+					y = reader.ReadSingle(),
+					z = reader.ReadSingle(),
+				};
+
+				reader.BaseStream.Position += 0x04;
+
+				portal.quad = new Vector[4] { q0, q1, q2, q3 };
+
+				reader.BaseStream.Position += 0x10; // normal
+
+				_portals[i] = portal;
 			}
 
             // Intros
@@ -143,23 +201,29 @@ namespace CDC.Objects
 			}
 			//}
 
-			// Model data
-			reader.BaseStream.Position = _dataStart + 0x10;
-			_modelCount = 1;
 			_modelStart = _dataStart + 0x10;
-			_models = new DefianceModel[_modelCount];
+			_modelCount = (ushort)(1 + _portalCount);
+			_models = new IModel[_modelCount];
 			reader.BaseStream.Position = _modelStart;
-			UInt32 m_uModelData = _dataStart + reader.ReadUInt32();
+			uint modelData = _dataStart + reader.ReadUInt32();
 
-			// Material data
-			Console.WriteLine("Debug: reading area model 0");
-			_models[0] = DefianceUnitModel.Load(reader, _dataStart, m_uModelData, _name, _platform, _version, options);
+			DefianceUnitModel terrainModel = new DefianceUnitModel(reader, this, _dataStart, modelData, _name, _platform, _version);
+			terrainModel.ReadData(reader, options);
+			_models[0] = terrainModel;
 
-			//if (m_axModels[0].Platform == Platform.Dreamcast ||
-			//    m_axModels[1].Platform == Platform.Dreamcast)
-			//{
-			//    _platform = Platform.Dreamcast;
-			//}
+			int modelIndex = 1;
+			foreach (Portal portal in _portals)
+			{
+				PortalModel portalModel = new PortalModel(
+					this,
+					"portal-" + _name + "," + portal.mSignalID + "-" + portal.toLevelName,
+					_platform,
+					portal.min,
+					portal.max,
+					portal.quad
+				);
+				_models[modelIndex++] = portalModel;
+			}
 		}
 
 		protected override void ResolvePointers(BinaryReader reader, BinaryWriter writer)

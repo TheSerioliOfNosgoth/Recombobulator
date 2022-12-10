@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using CDC.Objects.Models;
 
-namespace CDC.Objects
+namespace CDC
 {
 	public enum RenderMode
 	{
 		Standard,
 		NoTextures,
-		Wireframe,  // not implemented
+		Wireframe,
 		PointCloud, // not implemented
 		DebugPolygonFlags1,
 		DebugPolygonFlags2,
@@ -158,7 +157,7 @@ namespace CDC.Objects
 		}
 	}
 
-	public abstract class SRFile
+	public abstract class DataFile
 	{
 		public const string TextureExtension = ".png";
 		public const float ExportSizeMultiplier = 0.001f;
@@ -169,16 +168,21 @@ namespace CDC.Objects
 		protected UInt16 _modelCount;
 		protected UInt16 _animCount;
 		protected UInt32 _modelStart;
-		protected SRModel[] _models;
+		protected IModel[] _models;
 		protected UInt32 _animStart;
 		protected UInt32 _introCount;
 		protected UInt32 _introStart;
 		protected Intro[] _intros;
 		protected UInt32 _objectNameStart;
+		protected UInt32 _bgObjectCount;
+		protected UInt32 _bgObjectStart;
+		protected UInt32 _bgInstanceCount;
+		protected UInt32 _bgInstanceStart;
+		protected BGInstance[] _bgInstances;
 		protected String[] _objectNames;
-		protected UInt32 portalCount;
-		protected UInt32 _connectedUnitStart;
-		protected String[] _portalNames;
+		protected UInt32 _portalCount;
+		protected UInt32 _portalStart;
+		protected Portal[] _portals;
 		protected Game _game;
 		protected Asset _asset;
 		protected Platform _platform;
@@ -187,33 +191,35 @@ namespace CDC.Objects
 		public UInt32 Version { get { return _version; } }
 		public UInt16 ModelCount { get { return _modelCount; } }
 		public UInt16 AnimCount { get { return _animCount; } }
-		public SRModel[] Models { get { return _models; } }
+		public IModel[] Models { get { return _models; } }
 		public UInt32 IntroCount { get { return _introCount; } }
 		public Intro[] Intros { get { return _intros; } }
 		public String[] ObjectNames { get { return _objectNames; } }
-		public UInt32 ConectedUnitCount { get { return portalCount; } }
-		public String[] ConnectedUnit { get { return _portalNames; } }
+		public UInt32 BGInstanceCount { get { return _bgInstanceCount; } }
+		public BGInstance[] BGInstances { get { return _bgInstances; } }
+		public UInt32 PortalCount { get { return _portalCount; } }
+		public Portal[] Portals { get { return _portals; } }
 		public Game Game { get { return _game; } }
 		public Asset Asset { get { return _asset; } }
 		public Platform Platform { get { return _platform; } }
 
 		public static StreamWriter LogFile;
 
-		protected SRFile()
+		protected DataFile()
 		{
 
 		}
 
-		protected SRFile(String dataFile, Game game, Platform platform, ExportOptions options)
+		protected DataFile(String dataFileName, Game game, Platform platform, ExportOptions options)
 		{
-			_name = Path.GetFileNameWithoutExtension(dataFile);
+			_name = Path.GetFileNameWithoutExtension(dataFileName);
 			_game = game;
 			_platform = platform;
 
 			//String strDebugFileName = Path.GetDirectoryName(strFileName) + "\\" + Path.GetFileNameWithoutExtension(strFileName) + "-Debug.txt";
 			//LogFile = File.CreateText(strDebugFileName);
 
-			FileStream file = new FileStream(dataFile, FileMode.Open, FileAccess.Read);
+			FileStream file = new FileStream(dataFileName, FileMode.Open, FileAccess.Read);
 			BinaryReader reader = new BinaryReader(file, System.Text.Encoding.ASCII);
 			MemoryStream stream = new MemoryStream((int)file.Length);
 			BinaryWriter writer = new BinaryWriter(stream, System.Text.Encoding.ASCII);
@@ -246,51 +252,51 @@ namespace CDC.Objects
 
 		protected abstract void ResolvePointers(BinaryReader reader, BinaryWriter writer);
 
-		public static SRFile Create(string dataFile, string objectListFile, Game game, Platform platform, ExportOptions options, int childIndex = -1)
+		public static DataFile Create(string dataFileName, string objectListFile, Game game, Platform platform, ExportOptions options, int childIndex = -1)
 		{
-			SRFile srFile;
+			DataFile dataFile;
 
 			try
 			{
 				if (game == Game.Gex)
 				{
-					GexFile gexFile = new GexFile(dataFile, platform, options);
+					GexFile gexFile = new GexFile(dataFileName, platform, options);
 					if (gexFile.Asset == Asset.Unit && childIndex >= 0)
 					{
-						srFile = gexFile.Objects[childIndex];
+						dataFile = gexFile.Objects[childIndex];
 					}
 					else
 					{
-						srFile = gexFile;
+						dataFile = gexFile;
 					}
 				}
 				else if (game == Game.SR1)
 				{
-					srFile = new SR1File(dataFile, platform, options);
+					dataFile = new SR1File(dataFileName, platform, options);
 				}
 				else if (game == Game.SR2)
 				{
-					srFile = new SR2File(dataFile, platform, options);
+					dataFile = new SR2File(dataFileName, platform, options);
 				}
 				else if (game == Game.Defiance)
 				{
-					srFile = new DefianceFile(dataFile, objectListFile, platform, options);
+					dataFile = new DefianceFile(dataFileName, objectListFile, platform, options);
 				}
 				else if (game == Game.TRL)
 				{
-					srFile = new TRLFile(dataFile, objectListFile, platform, options);
+					dataFile = new TRLFile(dataFileName, objectListFile, platform, options);
 				}
 				else
 				{
-					srFile = null;
+					dataFile = null;
 				}
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				srFile = null;
+				dataFile = null;
 			}
 
-			return srFile;
+			return dataFile;
 		}
 
 		public bool ExportToFile(String fileName, ExportOptions options)
@@ -308,7 +314,7 @@ namespace CDC.Objects
 				List<Assimp.Material> materials = new List<Assimp.Material>();
 				List<Assimp.Mesh> meshes = new List<Assimp.Mesh>();
 
-				SRModel model = Models[modelIndex];
+				IModel model = Models[modelIndex];
 
 				string modelName = name + "-" + modelIndex;
 				Console.WriteLine(string.Format("Debug: exporting model {0} / {1} ('{2}')", modelIndex, (ModelCount - 1), modelName));
@@ -326,7 +332,7 @@ namespace CDC.Objects
 
 				Assimp.Node modelNode = new Assimp.Node(modelName);
 
-				for (int groupIndex = 0; groupIndex < model.GroupCount; groupIndex++)
+				for (int groupIndex = 0; groupIndex < model.Groups.Length; groupIndex++)
 				{
 					Tree group = model.Groups[groupIndex];
 					if (group == null)
@@ -340,7 +346,7 @@ namespace CDC.Objects
 
 					string groupName = name + "-" + modelIndex + "-" + groupIndex;
 
-					Console.WriteLine(string.Format("\tDebug: exporting group {0} / {1} ('{2}'), mesh flags {3}", groupIndex, (model.GroupCount - 1), groupName, Convert.ToString(group.mesh.sr1BSPTreeFlags, 2).PadLeft(8, '0')));
+					Console.WriteLine(string.Format("\tDebug: exporting group {0} / {1} ('{2}'), mesh flags {3}", groupIndex, (model.Groups.Length - 1), groupName, Convert.ToString(group.mesh.sr1BSPTreeFlags, 2).PadLeft(8, '0')));
 					if (group.mesh.sr1BSPNodeFlags.Count > 0)
 					{
 						//Console.WriteLine(string.Format("\t\t\tDebug: BSP node flags for this mesh:"));
@@ -368,9 +374,9 @@ namespace CDC.Objects
 
 					Assimp.Node groupNode = new Assimp.Node(groupName);
 
-					for (int materialIndex = 0; materialIndex < model.MaterialCount; materialIndex++)
+					for (int materialIndex = 0; materialIndex < model.Materials.Length; materialIndex++)
 					{
-						Console.WriteLine(string.Format("\t\tDebug: exporting material {0} / {1}", materialIndex, (model.MaterialCount - 1)));
+						Console.WriteLine(string.Format("\t\tDebug: exporting material {0} / {1}", materialIndex, (model.Materials.Length - 1)));
 						int totalPolygonCount = (int)group.mesh.polygonCount;
 						List<int> polygonList = new List<int>();
 
@@ -542,13 +548,13 @@ namespace CDC.Objects
 			return true;
 		}
 
-		public UInt32 GetNumMaterials()
+		public int GetNumMaterials()
 		{
-			UInt32 numMaterials = 0;
+			int numMaterials = 0;
 
 			for (int modelIndex = 0; modelIndex < _models.Length; modelIndex++)
 			{
-				numMaterials += _models[modelIndex].MaterialCount;
+				numMaterials += _models[modelIndex].Materials.Length;
 			}
 
 			return numMaterials;
@@ -602,7 +608,7 @@ namespace CDC.Objects
 			return uv3D;
 		}
 
-		protected Assimp.Material GetAssimpMaterial(String name, SRModel model, int materialIndex, ExportOptions options)
+		protected Assimp.Material GetAssimpMaterial(String name, IModel model, int materialIndex, ExportOptions options)
 		{
 			Assimp.Material material = new Assimp.Material();
 

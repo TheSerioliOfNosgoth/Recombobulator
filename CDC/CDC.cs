@@ -65,6 +65,60 @@ namespace CDC
 		}
 	}
 
+	public struct Vector4
+	{
+		public float x, y, z, w;
+		public Vector4(float x, float y, float z, float w)
+		{
+			this.x = x;
+			this.y = y;
+			this.z = z;
+			this.w = w;
+		}
+		public static Vector4 operator *(Vector4 v1, Vector4 v2)
+		{
+			return new Vector4(
+				v1.x * v2.x,
+				v1.y * v2.y,
+				v1.z * v2.z,
+				v1.w * v2.w
+			);
+		}
+
+		public static Vector4 operator +(Vector4 v1, Vector4 v2)
+		{
+			return new Vector4(
+				v1.x + v2.x,
+				v1.y + v2.y,
+				v1.z + v2.z,
+				v1.w + v2.w
+			);
+		}
+
+		public static Vector4 operator *(Vector4 v, float f)
+		{
+			return new Vector4(
+				v.x *= f,
+				v.y *= f,
+				v.z *= f,
+				v.w *= f
+			);
+		}
+	}
+
+	public struct Matrix
+	{
+		public Vector4 v0, v1, v2, v3;
+
+		public Matrix(Vector4 v0, Vector4 v1, Vector4 v2, Vector4 v3)
+		{
+			this.v0 = v0;
+			this.v1 = v1;
+			this.v2 = v2;
+			this.v3 = v3;
+		}
+	}
+
 	public struct Bone
 	{
 		public ushort vFirst, vLast; // The ID of first and last effected vertex 
@@ -140,6 +194,26 @@ namespace CDC
 			return name;
         }
     }
+
+	public struct BGInstance
+	{
+		public ushort id;
+		public uint bgObject;
+		public Matrix matrix;
+		public int modelIndex;
+		public string name;
+	}
+
+	public struct Portal
+	{
+		public string toLevelName;
+		public int mSignalID;
+		public Vector min;
+		public Vector max;
+		public Vector[] t1;
+		public Vector[] t2;
+		public Vector[] quad;
+	}
 
 	public struct MonsterAttributes
 	{
@@ -441,6 +515,7 @@ namespace CDC
 		public Boolean isLeaf;
 		public Mesh mesh;
 		public ushort sr1Flags;
+		public Vector globalOffset = new Vector();
 	}
 
 	public class Mesh

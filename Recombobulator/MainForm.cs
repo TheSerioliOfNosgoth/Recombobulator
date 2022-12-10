@@ -5,12 +5,9 @@ using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using SR1Repository;
-using SRFile = CDC.Objects.SRFile;
-using SR1File = CDC.Objects.SR1File;
-using SRModel = CDC.Objects.Models.SRModel;
+using SR1File = CDC.SR1File;
 using SR1PSXTextureFile = BenLincoln.TheLostWorlds.CDTextures.SoulReaverPSXCRMTextureFile;
 using TPages = BenLincoln.TheLostWorlds.CDTextures.PSXTextureDictionary;
-using TextureTile = BenLincoln.TheLostWorlds.CDTextures.PSXTextureTile;
 
 namespace Recombobulator
 {
@@ -1089,35 +1086,9 @@ namespace Recombobulator
 
 			try
 			{
-				CDC.Objects.ExportOptions options = new CDC.Objects.ExportOptions();
-				SRFile srFile = new SR1File(filePath, CDC.Platform.PSX, options);
-				TPages tPages = ((SR1File)srFile).TPages;
-
-				/*foreach (SRModel srModel in srFile.Models)
-				{
-					foreach (CDC.Polygon polygon in srModel.Polygons)
-					{
-						TextureTile tile = new TextureTile()
-						{
-							textureID = polygon.material.textureID,
-							tPage = polygon.material.texturePage,
-							clut = polygon.material.clutValue,
-							textureUsed = polygon.material.textureUsed,
-							visible = polygon.material.visible,
-							u = new int[3],
-							v = new int[3],
-						};
-
-						tile.u[0] = (int)(srModel.Geometry.UVs[polygon.v1.UVID].u * 255);
-						tile.v[0] = (int)(srModel.Geometry.UVs[polygon.v1.UVID].v * 255);
-						tile.u[1] = (int)(srModel.Geometry.UVs[polygon.v2.UVID].u * 255);
-						tile.v[1] = (int)(srModel.Geometry.UVs[polygon.v2.UVID].v * 255);
-						tile.u[2] = (int)(srModel.Geometry.UVs[polygon.v3.UVID].u * 255);
-						tile.v[2] = (int)(srModel.Geometry.UVs[polygon.v3.UVID].v * 255);
-
-						tPages.AddTextureTile2(tile);
-					}
-				}*/
+				CDC.ExportOptions options = new CDC.ExportOptions();
+				SR1File sr1File = new SR1File(filePath, CDC.Platform.PSX, options);
+				TPages tPages = sr1File.TPages;
 
 				SR1PSXTextureFile textureFile = new SR1PSXTextureFile(textureFileName);
 				textureFile.BuildTexturesFromPolygonData(tPages, false, true, options);
@@ -1417,6 +1388,190 @@ namespace Recombobulator
 			replacePortals.Add(new ReplacePortal { fromSignal = "oracle23,6", toSignal = "oracle25,5" });
 			replacePortals.Add(new ReplacePortal { fromSignal = "oracle3,4", toSignal = "oracle25,3" });
 			replacePortals.Add(new ReplacePortal { fromSignal = "nightb4,81", toSignal = "nightb12,80" });
+
+			DoScriptedImport(dialog.SelectedPath, importScript);
+		}
+
+		private void importAllCutAreasToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			// LOAD_GetBigFileFileIndex for Error no. 357.
+
+			FolderBrowserDialog dialog = new FolderBrowserDialog();
+			dialog.Description = "Select root folder.";
+			dialog.ShowNewFolderButton = false;
+
+			string recentFolder = Properties.Settings.Default.RecentFolder;
+			if (recentFolder != null && Directory.Exists(recentFolder))
+			{
+				dialog.SelectedPath = recentFolder;
+			}
+
+			if (dialog.ShowDialog() != DialogResult.OK)
+			{
+				return;
+			}
+
+			Properties.Settings.Default.RecentFolder = dialog.SelectedPath;
+			Properties.Settings.Default.Save();
+
+			ImportScript importScript = new ImportScript();
+
+			List<ImportFile> importFiles = importScript.ImportFiles;
+			List<ReplacePortal> replacePortals = importScript.ReplacePortals;
+
+			#region Undercity
+
+			importFiles.Add(new ImportFile { importName = "city9", exportName = "city17", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "city10", exportName = "city18", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "city11", exportName = "city22", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "city12", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "city16", isLevel = true/*, removePortals = new string[] { "undrct1,90" }*/ });
+
+			ReplaceObject replaceUndblk = new ReplaceObject { oldObject = "undblk", newObject = "pshblk" };
+			ReplaceObject replaceDumbub = new ReplaceObject { oldObject = "dumbub", newObject = "pshblk" };
+			ReplaceObject[] replaceUCObjects = new ReplaceObject[] { replaceUndblk, replaceDumbub };
+
+			importFiles.Add(new ImportFile { importName = "undrct1", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct2", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct3", isLevel = true, replaceObjects = replaceUCObjects });
+			importFiles.Add(new ImportFile { importName = "undrct4", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct5", isLevel = true, replaceObjects = replaceUCObjects });
+			importFiles.Add(new ImportFile { importName = "undrct8", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct9", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct10", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct11", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct12", isLevel = true, replaceObjects = replaceUCObjects });
+			importFiles.Add(new ImportFile { importName = "undrct15", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct16", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct17", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct20", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct21", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct22", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct23", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lantrn", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "bwall", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "swall", isLevel = false });
+			//importFiles.Add(new ImportFile { importName = "undblk", isLevel = false }); // Can't convert. Replace with pshblk.
+
+			replacePortals.Add(new ReplacePortal { fromSignal = "city8,2", toSignal = "city17,1" });
+
+			#endregion
+
+			#region Smokestack
+
+			importFiles.Add(new ImportFile { importName = "mrlock1", exportName = "mrlock15", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock7", exportName = "mrlock16", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock2", exportName = "mrlock17", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock3", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock8", exportName = "mrlock18", isLevel = true });
+
+			importFiles.Add(new ImportFile { importName = "lair5", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair6", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair7", isLevel = true });
+
+			importFiles.Add(new ImportFile { importName = "lair15", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair16", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair17", isLevel = true });
+
+			importFiles.Add(new ImportFile { importName = "lair19", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair20", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair21", isLevel = true });
+
+			importFiles.Add(new ImportFile { importName = "lair23", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair3", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair1", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair29", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair28", isLevel = true });
+
+			importFiles.Add(new ImportFile { importName = "lair24", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair11", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair4", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair12", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair25", isLevel = true });
+
+			importFiles.Add(new ImportFile { importName = "lair26", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair13", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair10", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair14", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair27", isLevel = true });
+
+			// 04-02-1999 only.
+			//importFiles.Add(new ImportFile { importName = "lair8", isLevel = true });
+			//importFiles.Add(new ImportFile { importName = "lair18", isLevel = true });
+			//importFiles.Add(new ImportFile { importName = "lair22", isLevel = true });
+
+			importFiles.Add(new ImportFile { importName = "lair32", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair33", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair34", isLevel = true, removePortals = new string[] { "lair35,56" } });
+			//importFiles.Add(new ImportFile { importName = "lair35", isLevel = true });
+
+			importFiles.Add(new ImportFile { importName = "lair9", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair31", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair30", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lair2", isLevel = true, /*removePortals = new string[] { "lair32,50" }*/ });
+
+			importFiles.Add(new ImportFile { importName = "mrlock4", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock5", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock6", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock9", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock10", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock11", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock12", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "mrlock13", isLevel = true });
+
+			importFiles.Add(new ImportFile { importName = "hitme", isLevel = false }); // Check this one. Looks glitchy. No texture.
+			importFiles.Add(new ImportFile { importName = "ispirit", isLevel = false }); // Also glitchy.
+			importFiles.Add(new ImportFile { importName = "trifrca", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "trifrcb", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "trifrcc", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "trifrcd", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "blade", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "bring", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "ldoora", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "ldoorb", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "ldoore", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "dndoor", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "lrdial", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "steam", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "lairdr", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "moregg", isLevel = false });
+
+			replacePortals.Add(new ReplacePortal { fromSignal = "hubb3,2", toSignal = "mrlock15,1" });
+
+			#endregion
+
+			#region Oracles's Cave
+
+			importFiles.Add(new ImportFile { importName = "nightb5", exportName = "nightb12", isLevel = true, removePortals = new string[] { "nightb7,41" } });
+			//importFiles.Add(new ImportFile { importName = "nightb7", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "adda1", isLevel = true, /*removePortals = new string[] { "nightb5,50" }*/ });
+			importFiles.Add(new ImportFile { importName = "adda2", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "oracle2", exportName = "oracle25", isLevel = true });
+
+			// Retail
+			// oracle2,5 - oracle23,6
+			// oracle2,3 - oracle3,4
+			// oracle2,53 - mrlock14,99
+			// oracle2,24 - oracle4,1
+
+			// Feb 16
+			// oracle2,5 - oracle1,6
+			// oracle2,3 - oracle3,4
+			// oracle2,53 - adda1,52
+
+			replacePortals.Add(new ReplacePortal { fromSignal = "oracle23,6", toSignal = "oracle25,5" });
+			replacePortals.Add(new ReplacePortal { fromSignal = "oracle3,4", toSignal = "oracle25,3" });
+			replacePortals.Add(new ReplacePortal { fromSignal = "nightb4,81", toSignal = "nightb12,80" });
+
+			#endregion
+
+			#region Mountain Retreat
+
+			importFiles.Add(new ImportFile { importName = "retreat1", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "retreat2", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "retreat3", isLevel = true });
+
+			#endregion
 
 			DoScriptedImport(dialog.SelectedPath, importScript);
 		}

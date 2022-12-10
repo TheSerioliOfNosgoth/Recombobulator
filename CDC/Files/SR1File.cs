@@ -1,18 +1,18 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using CDC.Objects.Models;
 using TPages = BenLincoln.TheLostWorlds.CDTextures.PSXTextureDictionary;
 
-namespace CDC.Objects
+namespace CDC
 {
-	public class SR1File : SRFile
+	public class SR1File : DataFile
 	{
 		public const UInt32 PROTO_19981025_VERSION = 0x00000000;
 		public const UInt32 ALPHA_19990123_VERSION_1_X = 0x3c204127;
 		public const UInt32 ALPHA_19990123_VERSION_1 = 0x3c204128;
 		public const UInt32 ALPHA_19990204_VERSION_2 = 0x3c204129;
 		public const UInt32 ALPHA_19990216_VERSION_3 = 0x3c204131;
+		public const UInt32 ALPHA_19990414_VERSION_4 = 0x3c204137;
 		public const UInt32 BETA_19990512_VERSION = 0x3c204139;
 		public const UInt32 RETAIL_VERSION = 0x3C20413B;
 
@@ -23,8 +23,8 @@ namespace CDC.Objects
 
 		public MonsterAttributes _monsterAttributes;
 
-		public SR1File(String dataFile, Platform platform, ExportOptions options)
-			: base(dataFile, Game.SR1, platform, options)
+		public SR1File(String dataFileName, Platform platform, ExportOptions options)
+			: base(dataFileName, Game.SR1, platform, options)
 		{
 		}
 
@@ -70,17 +70,33 @@ namespace CDC.Objects
 			_modelStart = _dataStart + reader.ReadUInt32();
 			_animStart = _dataStart + reader.ReadUInt32();
 
-			_models = new SR1Model[_modelCount];
+			_models = new IModel[_modelCount];
 			Platform ePlatform = _platform;
+
 			for (UInt16 m = 0; m < _modelCount; m++)
 			{
-				Console.WriteLine(string.Format("Debug: reading object model {0} / {1}", m, (_modelCount - 1)));
-				_models[m] = SR1ObjectModel.Load(reader, _dataStart, _modelStart, _name, _platform, m, _version, _tPages, options);
+				long modelPointer = _modelStart + (m * 4);
+				if (modelPointer < 0 || modelPointer > reader.BaseStream.Length)
+				{
+					Console.WriteLine(string.Format("Error: attempt to read a model with index {0} from a stream with length {1}", m, reader.BaseStream.Length));
+					continue;
+				}
+
+				reader.BaseStream.Position = modelPointer;
+				uint modelData = _dataStart + reader.ReadUInt32();
+				reader.BaseStream.Position = _modelStart;
+
+				string modelName = _name + "-" + m.ToString();
+				SR1ObjectModel model = new SR1ObjectModel(reader, this, _dataStart, modelData, modelName, _platform, _version, _tPages);
+				model.ReadData(reader, options);
+				_models[m] = model;
+
 				if ((_platform == Platform.None) && (_models[m].Platform == Platform.Dreamcast))
 				{
 					ePlatform = _models[m].Platform;
 				}
 			}
+
 			if (_platform == Platform.None)
 			{
 				_platform = ePlatform;
@@ -143,6 +159,16 @@ namespace CDC.Objects
 
 			if (!validVersion)
 			{
+				reader.BaseStream.Position = _dataStart + 0xE8;
+				_version = reader.ReadUInt32();
+				if (_version == ALPHA_19990414_VERSION_4)
+				{
+					validVersion = true;
+				}
+			}
+
+			if (!validVersion)
+			{
 				reader.BaseStream.Position = _dataStart + 0xE4;
 				_version = reader.ReadUInt32();
 				if (_version == ALPHA_19990216_VERSION_3)
@@ -178,37 +204,111 @@ namespace CDC.Objects
 				throw new Exception("Wrong version number for level x");
 			}
 
-			// Adjacent units are seperate from portals.
-			// There can be multiple portals to the same unit.
 			// Portals
 			reader.BaseStream.Position = _dataStart;
-			UInt32 m_uConnectionData = _dataStart + reader.ReadUInt32(); // Same as m_uModelData?
+			UInt32 terrainData = _dataStart + reader.ReadUInt32(); // Same as _modelData?
 
 			if (_version == PROTO_19981025_VERSION)
 			{
-				reader.BaseStream.Position = m_uConnectionData + 0x3C;
+				reader.BaseStream.Position = terrainData + 0x3C;
 			}
 			else
 			{
-				reader.BaseStream.Position = m_uConnectionData + 0x30;
+				reader.BaseStream.Position = terrainData + 0x30;
 			}
 
 			reader.BaseStream.Position = _dataStart + reader.ReadUInt32();
-			portalCount = reader.ReadUInt32();
-			_portalNames = new String[portalCount];
-			for (int i = 0; i < portalCount; i++)
+			_portalCount = reader.ReadUInt32();
+			_portals = new Portal[_portalCount];
+			for (int i = 0; i < _portalCount; i++)
 			{
-				String strUnitName = new String(reader.ReadChars(12));
-				_portalNames[i] = Utility.CleanName(strUnitName);
+				Portal portal = new Portal();
 
-				if (_version == PROTO_19981025_VERSION)
+				portal.toLevelName = new String(reader.ReadChars(16));
+				portal.toLevelName = Utility.CleanName(portal.toLevelName);
+				portal.mSignalID = reader.ReadInt32();
+
+				if (_version != PROTO_19981025_VERSION)
 				{
-					reader.BaseStream.Position += 0x4C;
+					reader.BaseStream.Position += 0x04; // streamID
 				}
-				else
+
+				portal.min.x = reader.ReadInt16();
+				portal.min.y = reader.ReadInt16();
+				portal.min.z = reader.ReadInt16();
+				reader.BaseStream.Position += 0x02; // flags
+				portal.max.x = reader.ReadInt16();
+				portal.max.y = reader.ReadInt16();
+				portal.max.z = reader.ReadInt16();
+				reader.BaseStream.Position += 0x02; // pad2
+				reader.BaseStream.Position += 0x04; // toStreamUnit
+
+				#region t1
+
+				Vector t10 = new Vector
 				{
-					reader.BaseStream.Position += 0x50;
-				}
+					x = reader.ReadInt16(),
+					y = reader.ReadInt16(),
+					z = reader.ReadInt16(),
+				};
+
+				reader.BaseStream.Position += 0x02;
+
+				Vector t11 = new Vector
+				{
+					x = reader.ReadInt16(),
+					y = reader.ReadInt16(),
+					z = reader.ReadInt16(),
+				};
+
+				reader.BaseStream.Position += 0x02;
+
+				Vector t12 = new Vector
+				{
+					x = reader.ReadInt16(),
+					y = reader.ReadInt16(),
+					z = reader.ReadInt16(),
+				};
+
+				reader.BaseStream.Position += 0x02;
+
+				#endregion
+
+				#region t2
+
+				Vector t20 = new Vector
+				{
+					x = reader.ReadInt16(),
+					y = reader.ReadInt16(),
+					z = reader.ReadInt16(),
+				};
+
+				reader.BaseStream.Position += 0x02;
+
+				Vector t21 = new Vector
+				{
+					x = reader.ReadInt16(),
+					y = reader.ReadInt16(),
+					z = reader.ReadInt16(),
+				};
+
+				reader.BaseStream.Position += 0x02;
+
+				Vector t22 = new Vector
+				{
+					x = reader.ReadInt16(),
+					y = reader.ReadInt16(),
+					z = reader.ReadInt16(),
+				};
+
+				reader.BaseStream.Position += 0x02;
+
+				#endregion
+
+				portal.t1 = new Vector[3] { t10, t11, t12 };
+				portal.t2 = new Vector[3] { t20, t21, t22 };
+
+				_portals[i] = portal;
 			}
 
 			// Intros
@@ -321,6 +421,7 @@ namespace CDC.Objects
 			{
 				reader.BaseStream.Position = _dataStart + 0x8C;
 			}
+
 			_objectNameStart = _dataStart + reader.ReadUInt32();
 			reader.BaseStream.Position = _objectNameStart;
 			List<String> objectNames = new List<String>();
@@ -358,6 +459,7 @@ namespace CDC.Objects
 			{
 				reader.BaseStream.Position = _dataStart + 0x98;
 			}
+
 			reader.BaseStream.Position = _dataStart + reader.ReadUInt32();
 			String strModelName = new String(reader.ReadChars(8));
 			_name = Utility.CleanName(strModelName);
@@ -368,7 +470,9 @@ namespace CDC.Objects
 				_version == ALPHA_19990123_VERSION_1_X ||
 				_version == ALPHA_19990123_VERSION_1 ||
 				_version == ALPHA_19990204_VERSION_2 ||
-				_version == ALPHA_19990216_VERSION_3)
+				_version == ALPHA_19990216_VERSION_3 ||
+				_version == ALPHA_19990414_VERSION_4 ||
+				_version == BETA_19990512_VERSION)
 			{
 				if (_platform == Platform.None)
 				{
@@ -394,34 +498,32 @@ namespace CDC.Objects
 				}
 			}
 
-			// Connected unit list. (unreferenced?)
-			//reader.BaseStream.Position = _dataStart + 0xC0;
-			//m_uConnectedUnitsStart = _dataStart + reader.ReadUInt32() + 0x08;
-			//reader.BaseStream.Position = m_uConnectedUnitsStart;
-			//reader.BaseStream.Position += 0x18;
-			//String strUnitName0 = new String(reader.ReadChars(16));
-			//strUnitName0 = strUnitName0.Substring(0, strUnitName0.IndexOf(','));
-			//reader.BaseStream.Position += 0x18;
-			//String strUnitName1 = new String(reader.ReadChars(16));
-			//strUnitName1 = strUnitName1.Substring(0, strUnitName1.IndexOf(','));
-			//reader.BaseStream.Position += 0x18;
-			//String strUnitName2 = new String(reader.ReadChars(16));
-			//strUnitName2 = strUnitName2.Substring(0, strUnitName2.IndexOf(','));
-
-			// Model data
-			reader.BaseStream.Position = _dataStart;
-			_modelCount = 1;
 			_modelStart = _dataStart;
-			_models = new SR1Model[_modelCount];
+			_modelCount = (ushort)(1 + _portalCount);
+			_models = new IModel[_modelCount];
 			reader.BaseStream.Position = _modelStart;
-			UInt32 m_uModelData = _dataStart + reader.ReadUInt32();
+			uint modelData = _dataStart + reader.ReadUInt32();
 
-			// Material data
-			Console.WriteLine("Debug: reading area model 0");
-			_models[0] = SR1UnitModel.Load(reader, _dataStart, m_uModelData, _name, _platform, _version, _tPages, options);
+			SR1UnitModel terrainModel = new SR1UnitModel(reader, this, _dataStart, modelData, _name, _platform, _version, _tPages);
+			terrainModel.ReadData(reader, options);
+			_models[0] = terrainModel;
 
-			//if (m_axModels[0].Platform == Platform.Dreamcast ||
-			//    m_axModels[1].Platform == Platform.Dreamcast)
+			int modelIndex = 1;
+			foreach (Portal portal in _portals)
+			{
+				PortalModel portalModel = new PortalModel(
+					this,
+					"portal-" + _name + "," + portal.mSignalID + "-" + portal.toLevelName,
+					_platform,
+					portal.min,
+					portal.max,
+					portal.t1,
+					portal.t2
+				);
+				_models[modelIndex++] = portalModel;
+			}
+
+			//if (_models[0].Platform == Platform.Dreamcast)
 			//{
 			//    _platform = Platform.Dreamcast;
 			//}

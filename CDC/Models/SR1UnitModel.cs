@@ -3,7 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using TPages = BenLincoln.TheLostWorlds.CDTextures.PSXTextureDictionary;
 
-namespace CDC.Objects.Models
+namespace CDC
 {
 	public class SR1UnitModel : SR1Model
 	{
@@ -23,13 +23,13 @@ namespace CDC.Objects.Models
 			Emmisive = 0x8000,
 		}
 
-		protected UInt32 _BspTreeCount;
-		protected UInt32 _BspTreeStart;
-		protected UInt32 _SpectralVertexStart;
-		protected UInt32 _SpectralColourStart;
+		protected UInt32 _bspTreeCount;
+		protected UInt32 _bspTreeStart;
+		protected UInt32 _spectralVertexStart;
+		protected UInt32 _spectralColourStart;
 
-		public SR1UnitModel(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt32 version, TPages tPages)
-			: base(reader, dataStart, modelData, strModelName, ePlatform, version, tPages)
+		public SR1UnitModel(BinaryReader reader, DataFile dataFile, UInt32 dataStart, UInt32 modelData, String modelName, Platform ePlatform, UInt32 version, TPages tPages)
+			: base(reader, dataFile, dataStart, modelData, modelName, ePlatform, version, tPages)
 		{
 			readTextureFT3Attributes = true;
 
@@ -41,8 +41,8 @@ namespace CDC.Objects.Models
 				reader.BaseStream.Position = _modelData;
 
 				_groupCount = 1;
-				_BspTreeCount = 1;
-				_BspTreeStart = reader.ReadUInt32();
+				_bspTreeCount = 1;
+				_bspTreeStart = reader.ReadUInt32();
 
 				reader.BaseStream.Position = _modelData + 0x1C;
 			}
@@ -103,6 +103,7 @@ namespace CDC.Objects.Models
 				_version == SR1File.ALPHA_19990123_VERSION_1 ||
 				_version == SR1File.ALPHA_19990204_VERSION_2 ||
 				_version == SR1File.ALPHA_19990216_VERSION_3 ||
+				_version == SR1File.ALPHA_19990414_VERSION_4 ||
 				_version == SR1File.BETA_19990512_VERSION)
 			{
 				// struct TextureFT3 *EndTextureList;
@@ -120,26 +121,19 @@ namespace CDC.Objects.Models
 			if (_version != SR1File.PROTO_19981025_VERSION)
 			{
 				// struct _MorphVertex *MorphDiffList;
-				_SpectralVertexStart = _dataStart + reader.ReadUInt32();
+				_spectralVertexStart = _dataStart + reader.ReadUInt32();
 				// struct _MorphColor *MorphColorList;
-				_SpectralColourStart = _dataStart + reader.ReadUInt32();
+				_spectralColourStart = _dataStart + reader.ReadUInt32();
 				// long numBSPTrees
-				_BspTreeCount = reader.ReadUInt32();
+				_bspTreeCount = reader.ReadUInt32();
 				// struct BSPTree *BSPTreeArray;
-				_BspTreeStart = _dataStart + reader.ReadUInt32();
-				_groupCount = _BspTreeCount;
+				_bspTreeStart = _dataStart + reader.ReadUInt32();
+				_groupCount = _bspTreeCount;
 				// short *morphNormalIdx;
 				// struct _MultiSignal *signals;
 			}
 
 			_trees = new Tree[_groupCount];
-		}
-
-		public static SR1UnitModel Load(BinaryReader reader, UInt32 dataStart, UInt32 modelData, String strModelName, Platform ePlatform, UInt32 version, TPages tPages, ExportOptions options)
-		{
-			SR1UnitModel xModel = new SR1UnitModel(reader, dataStart, modelData, strModelName, ePlatform, version, tPages);
-			xModel.ReadData(reader, options);
-			return xModel;
 		}
 
 		protected override void ReadVertex(BinaryReader reader, int v, ExportOptions options)
@@ -179,10 +173,10 @@ namespace CDC.Objects.Models
 
 		protected virtual void ReadSpectralData(BinaryReader reader, ExportOptions options)
 		{
-			if (_SpectralColourStart != 0)
+			if (_spectralColourStart != 0)
 			{
 				// Spectral Colours
-				reader.BaseStream.Position = _SpectralColourStart;
+				reader.BaseStream.Position = _spectralColourStart;
 				for (int v = 0; v < _vertexCount; v++)
 				{
 					if (reader.BaseStream.Position >= reader.BaseStream.Length)
@@ -199,12 +193,12 @@ namespace CDC.Objects.Models
 				}
 			}
 
-			if (_SpectralVertexStart != 0)
+			if (_spectralVertexStart != 0)
 			{
 				// Spectral Verticices
-				reader.BaseStream.Position = _SpectralVertexStart + 0x06;
+				reader.BaseStream.Position = _spectralVertexStart + 0x06;
 				int sVertex = reader.ReadInt16();
-				reader.BaseStream.Position = _SpectralVertexStart;
+				reader.BaseStream.Position = _spectralVertexStart;
 				int sVertexCount = 0;
 				while (sVertex != 0xFFFF)
 				{
@@ -416,24 +410,29 @@ namespace CDC.Objects.Models
 
 			if (_version == SR1File.PROTO_19981025_VERSION)
 			{
-				_trees[0] = ReadBSPTree(0, 0.ToString(), reader, treePolygons, _BspTreeStart, _trees[0], meshes, meshPositions, 0, 0, 0, 0);
+				_trees[0] = ReadBSPTree(0, 0.ToString(), reader, treePolygons, _bspTreeStart, _trees[0], meshes, meshPositions, 0, 0, 0, 0);
 			}
 			else
 			{
-				for (UInt32 t = 0; t < _BspTreeCount; t++)
+				for (UInt32 t = 0; t < _bspTreeCount; t++)
 				{
 					// struct BSPTree
-					reader.BaseStream.Position = _BspTreeStart + (t * 0x24);
+					reader.BaseStream.Position = _bspTreeStart + (t * 0x24);
 					// struct _BSPNode *bspRoot;
 					UInt32 uDataPos = _dataStart + reader.ReadUInt32();
 					// struct _BSPLeaf *startLeaves;
 					// struct _BSPLeaf *endLeaves; 
+					reader.BaseStream.Position += 0x08;
+
 					// struct _Position globalOffset;
-					reader.BaseStream.Position += 0x0E;
+					Vector globalOffset = new Vector();
+					globalOffset.x = (float)reader.ReadInt16();
+					globalOffset.y = (float)reader.ReadInt16();
+					globalOffset.z = (float)reader.ReadInt16();
+
 					//short flags;
 					ushort rootTreeFlags = reader.ReadUInt16();
 					//Console.WriteLine(string.Format("\t\t\t\t\tDebug: read BSP tree flags {0}", Convert.ToString(flags, 2).PadLeft(8, '0')));
-					bool drawTester = ((rootTreeFlags & 1) != 1);
 					// struct _Position localOffset;
 					reader.BaseStream.Position += 0x06;
 					// short ID;
@@ -441,6 +440,11 @@ namespace CDC.Objects.Models
 					// long splineID;
 					// struct _Instance *instanceSpline;
 					_trees[t] = ReadBSPTree(BspID, t.ToString(), reader, treePolygons, uDataPos, _trees[t], meshes, meshPositions, 0, rootTreeFlags, 0, 0);
+
+					if (_trees[t] != null)
+					{
+						_trees[t].globalOffset = globalOffset;
+					}
 				}
 			}
 
