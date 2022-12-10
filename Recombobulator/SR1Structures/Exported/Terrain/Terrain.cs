@@ -38,11 +38,11 @@ namespace Recombobulator.SR1Structures
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
-			UnitChangeFlags.Read(reader, this, "UnitChangeFlags", SR1_File.Version.May12, SR1_File.Version.Next);
-			spad.Read(reader, this, "spad", SR1_File.Version.May12, SR1_File.Version.Next);
-			lpad2.Read(reader, this, "lpad2", SR1_File.Version.May12, SR1_File.Version.Next);
-			vplLength.Read(reader, this, "vplLength", SR1_File.Version.Feb04, SR1_File.Version.May12);
-			vpList.Read(reader, this, "vpList", SR1_File.Version.Feb04, SR1_File.Version.May12);
+			UnitChangeFlags.Read(reader, this, "UnitChangeFlags", SR1_File.Version.Apr14, SR1_File.Version.Next);
+			spad.Read(reader, this, "spad", SR1_File.Version.Apr14, SR1_File.Version.Next);
+			lpad2.Read(reader, this, "lpad2", SR1_File.Version.Apr14, SR1_File.Version.Next);
+			vplLength.Read(reader, this, "vplLength", SR1_File.Version.Feb04, SR1_File.Version.Apr14);
+			vpList.Read(reader, this, "vpList", SR1_File.Version.Feb04, SR1_File.Version.Apr14);
 			numIntros.Read(reader, this, "numIntros");
 			introList.Read(reader, this, "introList");
 			numVertices.Read(reader, this, "numVertices");
@@ -135,7 +135,7 @@ namespace Recombobulator.SR1Structures
 
 			new SR1_StructureSeries<MorphVertex>((int)(MorphColorList.Offset - MorphDiffList.Offset)).ReadFromPointer(reader, MorphDiffList);
 
-			int morphColorPadding = (reader.File._Version >= SR1_File.Version.May12) ? 4 : 2;
+			int morphColorPadding = (reader.File._Version >= SR1_File.Version.Apr14) ? 4 : 2;
 			new SR1_StructureArray<MorphColor>(numVertices.Value).SetPadding(morphColorPadding).ReadFromPointer(reader, MorphColorList);
 
 			SR1_StructureArray<BSPTree> bspTrees = new SR1_StructureArray<BSPTree>(numBSPTrees.Value);
@@ -197,7 +197,7 @@ namespace Recombobulator.SR1Structures
 			{
 				if (!face.IsInSignalGroup)
 				{
-					int textureSize = (reader.File._Version >= SR1_File.Version.May12) ? 12 : 16;
+					int textureSize = (reader.File._Version >= SR1_File.Version.Apr14) ? 12 : 16;
 					int textureIndex = face.textoff.Value / textureSize;
 					if (textureIndex < textures.Count)
 					{
@@ -256,11 +256,11 @@ namespace Recombobulator.SR1Structures
 
 		public override void WriteMembers(SR1_Writer writer)
 		{
-			UnitChangeFlags.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
-			spad.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
-			lpad2.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
-			vplLength.Write(writer, SR1_File.Version.Feb04, SR1_File.Version.May12);
-			vpList.Write(writer, SR1_File.Version.Feb04, SR1_File.Version.May12);
+			UnitChangeFlags.Write(writer, SR1_File.Version.Apr14, SR1_File.Version.Next);
+			spad.Write(writer, SR1_File.Version.Apr14, SR1_File.Version.Next);
+			lpad2.Write(writer, SR1_File.Version.Apr14, SR1_File.Version.Next);
+			vplLength.Write(writer, SR1_File.Version.Feb04, SR1_File.Version.Apr14);
+			vpList.Write(writer, SR1_File.Version.Feb04, SR1_File.Version.Apr14);
 			numIntros.Write(writer);
 			introList.Write(writer);
 			numVertices.Write(writer);

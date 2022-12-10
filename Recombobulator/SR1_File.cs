@@ -12,6 +12,7 @@ namespace Recombobulator
 		public const UInt32 ALPHA_19990123_VERSION_1 = 0x3c204128;
 		public const UInt32 ALPHA_19990204_VERSION_2 = 0x3c204129;
 		public const UInt32 ALPHA_19990216_VERSION_3 = 0x3c204131;
+		public const UInt32 ALPHA_19990414_VERSION_4 = 0x3c204137;
 		public const UInt32 BETA_19990512_VERSION = 0x3c204139;
 		public const UInt32 RETAIL_VERSION = 0x3C20413B;
 
@@ -22,6 +23,7 @@ namespace Recombobulator
 			Alpha_1,
 			Feb04,
 			Feb16,
+			Apr14,
 			May12,
 			Jun01,
 			Jun10,
@@ -165,6 +167,18 @@ namespace Recombobulator
 					if (!validVersion && version == BETA_19990512_VERSION)
 					{
 						_Version = Version.May12;
+						validVersion = true;
+					}
+
+					if (!validVersion)
+					{
+						dataReader.BaseStream.Position = 0xE8;
+						version = dataReader.ReadUInt32();
+					}
+
+					if (!validVersion && version == ALPHA_19990414_VERSION_4)
+					{
+						_Version = Version.Apr14;
 						validVersion = true;
 					}
 
