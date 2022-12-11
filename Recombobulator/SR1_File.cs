@@ -290,6 +290,7 @@ namespace Recombobulator
 							dataReader.BaseStream.Position = 0x4C;
 							char[] objectName = dataReader.ReadChars(8);
 							string objectNameStr = new string(objectName);
+
 							if (objectNameStr == "particle")
 							{
 								dataReader.BaseStream.Position = 0x0424;
@@ -302,6 +303,24 @@ namespace Recombobulator
 									dataReader.ReadUInt32() == 0x00003EA0)
 								{
 									_Version = Version.May12;
+								}
+								else
+								{
+									_Version = Version.Jun01;
+								}
+
+								validVersion = true;
+							}
+							else if (objectNameStr == "force___")
+							{
+								dataReader.BaseStream.Position = 0x1730;
+								if (dataReader.ReadUInt16() == 0x2FDD &&
+									dataReader.ReadUInt16() == 0x0007 &&
+									dataReader.ReadUInt16() == 0xB00B &&
+									dataReader.ReadUInt16() == 0x8000 &&
+									dataReader.ReadUInt32() == 0x0000000C)
+								{
+									_Version = Version.Apr14;
 								}
 								else
 								{

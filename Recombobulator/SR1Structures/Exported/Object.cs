@@ -237,6 +237,12 @@ namespace Recombobulator.SR1Structures
 					((G2AnimKeylist_Type)keyLists[13]).OverridePadLength(8);
 				}
 
+				//if (reader.File._Version >= SR1_File.Version.Apr14 && reader.File._Version < SR1_File.Version.May12 &&
+				//	Name == "force___")
+				//{
+				///	((G2AnimKeylist_Type)keyLists[16]).OverridePadLength(18);
+				//}
+
 				keyLists.ReadFromPointer(reader, ((SR1_PointerArray<G2AnimKeylist_Type>)animListStruct)[0]);
 				AnimKeyListStart = keyLists.Start;
 

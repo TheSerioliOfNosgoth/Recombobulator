@@ -8,6 +8,7 @@ namespace Recombobulator.SR1Structures
 		SR1_Primative<int> Damage = new SR1_Primative<int>();
 		SR1_Primative<int> AltDamage = new SR1_Primative<int>();
 		SR1_Primative<short> knockBackDistance = new SR1_Primative<short>();
+		SR1_Primative<short> knockBackFramesA = new SR1_Primative<short>();
 		SR1_Primative<sbyte> knockBackFrames = new SR1_Primative<sbyte>();
 		SR1_Primative<sbyte> dropSound = new SR1_Primative<sbyte>();
 		SR1_Primative<sbyte> Class = new SR1_Primative<sbyte>();
@@ -20,8 +21,9 @@ namespace Recombobulator.SR1Structures
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
 			Damage.Read(reader, this, "Damage");
-			AltDamage.Read(reader, this, "AltDamage", SR1_File.Version.May12, SR1_File.Version.Next);
-			knockBackDistance.Read(reader, this, "knockBackDistance", SR1_File.Version.May12, SR1_File.Version.Next);
+			AltDamage.Read(reader, this, "AltDamage", SR1_File.Version.Apr14, SR1_File.Version.Next);
+			knockBackDistance.Read(reader, this, "knockBackDistance", SR1_File.Version.Apr14, SR1_File.Version.Next);
+			knockBackFramesA.Read(reader, this, "knockBackFrames", SR1_File.Version.Apr14, SR1_File.Version.May12);
 			knockBackFrames.Read(reader, this, "knockBackFrames", SR1_File.Version.May12, SR1_File.Version.Next);
 			dropSound.Read(reader, this, "dropSound", SR1_File.Version.May12, SR1_File.Version.Next);
 			Class.Read(reader, this, "Class");
@@ -29,7 +31,7 @@ namespace Recombobulator.SR1Structures
 			LeftHandSphere.Read(reader, this, "LeftHandSphere");
 			RightHandSphere.Read(reader, this, "RightHandSphere");
 			Light.Read(reader, this, "Light");
-			splinter.Read(reader, this, "splinter", SR1_File.Version.May12, SR1_File.Version.Next);
+			splinter.Read(reader, this, "splinter", SR1_File.Version.Apr14, SR1_File.Version.Next);
 		}
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
@@ -40,8 +42,9 @@ namespace Recombobulator.SR1Structures
 		public override void WriteMembers(SR1_Writer writer)
 		{
 			Damage.Write(writer);
-			AltDamage.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
-			knockBackDistance.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+			AltDamage.Write(writer, SR1_File.Version.Apr14, SR1_File.Version.Next);
+			knockBackDistance.Write(writer, SR1_File.Version.Apr14, SR1_File.Version.Next);
+			knockBackFramesA.Write(writer, SR1_File.Version.Apr14, SR1_File.Version.May12);
 			knockBackFrames.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
 			dropSound.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
 			Class.Write(writer);
@@ -49,7 +52,7 @@ namespace Recombobulator.SR1Structures
 			LeftHandSphere.Write(writer);
 			RightHandSphere.Write(writer);
 			Light.Write(writer);
-			splinter.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+			splinter.Write(writer, SR1_File.Version.Apr14, SR1_File.Version.Next);
 		}
 	}
 }

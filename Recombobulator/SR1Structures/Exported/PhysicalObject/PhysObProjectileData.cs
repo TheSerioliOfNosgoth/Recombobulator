@@ -17,10 +17,10 @@ namespace Recombobulator.SR1Structures
 		{
 			model.Read(reader, this, "model");
 			startAnim.Read(reader, this, "startAnim");
-			loopAnim.Read(reader, this, "loopAnim", SR1_File.Version.May12, SR1_File.Version.Next);
+			loopAnim.Read(reader, this, "loopAnim", SR1_File.Version.Apr14, SR1_File.Version.Next);
 			endAnim.Read(reader, this, "endAnim");
-			pad.Read(reader, this, "pad", SR1_File.Version.First, SR1_File.Version.May12);
-			flags.Read(reader, this, "flags", SR1_File.Version.May12, SR1_File.Version.Next);
+			pad.Read(reader, this, "pad", SR1_File.Version.First, SR1_File.Version.Apr14);
+			flags.Read(reader, this, "flags", SR1_File.Version.Apr14, SR1_File.Version.Next);
 			weapon.Read(reader, this, "weapon");
 		}
 
@@ -33,10 +33,10 @@ namespace Recombobulator.SR1Structures
 		{
 			model.Write(writer);
 			startAnim.Write(writer);
-			loopAnim.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+			loopAnim.Write(writer, SR1_File.Version.Apr14, SR1_File.Version.Next);
 			endAnim.Write(writer);
-			pad.Write(writer, SR1_File.Version.First, SR1_File.Version.May12);
-			flags.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+			pad.Write(writer, SR1_File.Version.First, SR1_File.Version.Apr14);
+			flags.Write(writer, SR1_File.Version.Apr14, SR1_File.Version.Next);
 			weapon.Write(writer);
 		}
 	}
