@@ -73,7 +73,7 @@ namespace Recombobulator.SR1Structures
 			effectList.Read(reader, this, "effectList");
 			relocList.Read(reader, this, "relocList");
 			relocModule.Read(reader, this, "relocModule");
-			vramSize.Read(reader, this, "vramSize", SR1_File.Version.May12, SR1_File.Version.Next);
+			vramSize.Read(reader, this, "vramSize", SR1_File.Version.Apr14, SR1_File.Version.Next);
 		}
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
@@ -328,7 +328,7 @@ namespace Recombobulator.SR1Structures
 			effectList.Write(writer);
 			relocList.Write(writer);
 			relocModule.Write(writer);
-			vramSize.Write(writer, SR1_File.Version.May12, SR1_File.Version.Next);
+			vramSize.Write(writer, SR1_File.Version.Apr14, SR1_File.Version.Next);
 		}
 
 		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
