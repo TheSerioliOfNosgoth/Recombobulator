@@ -41,10 +41,12 @@
 			this.openFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.addToProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.scriptedImportsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.importUndercityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.importUndercityFeb04ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.importUndercityFeb16ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.importSmokestackToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.importRetreatToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.importOraclesCaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.importAllCutAreasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.compileProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.testExportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.bulkTestingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -66,7 +68,6 @@
 			this.testResults = new System.Windows.Forms.TextBox();
 			this.projectContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.editPortalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.importAllCutAreasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this._mainMenu.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pcmFileTreeListView)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.pcmFileSplitContainer)).BeginInit();
@@ -143,7 +144,8 @@
 			// scriptedImportsToolStripMenuItem
 			// 
 			this.scriptedImportsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.importUndercityToolStripMenuItem,
+            this.importUndercityFeb04ToolStripMenuItem,
+            this.importUndercityFeb16ToolStripMenuItem,
             this.importSmokestackToolStripMenuItem,
             this.importRetreatToolStripMenuItem,
             this.importOraclesCaveToolStripMenuItem,
@@ -153,33 +155,47 @@
 			this.scriptedImportsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.scriptedImportsToolStripMenuItem.Text = "Scripted Imports";
 			// 
-			// importUndercityToolStripMenuItem
+			// importUndercityFeb04ToolStripMenuItem
 			// 
-			this.importUndercityToolStripMenuItem.Name = "importUndercityToolStripMenuItem";
-			this.importUndercityToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
-			this.importUndercityToolStripMenuItem.Text = "Import Undercity...";
-			this.importUndercityToolStripMenuItem.Click += new System.EventHandler(this.ImportUndercityToolStripMenuItem_Click);
+			this.importUndercityFeb04ToolStripMenuItem.Name = "importUndercityToolStripMenuItem";
+			this.importUndercityFeb04ToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
+			this.importUndercityFeb04ToolStripMenuItem.Text = "Import Undercity - Feb 04...";
+			this.importUndercityFeb04ToolStripMenuItem.Click += new System.EventHandler(this.ImportUndercityFeb04ToolStripMenuItem_Click);
+			// 
+			// importUndercityFeb16ToolStripMenuItem
+			// 
+			this.importUndercityFeb16ToolStripMenuItem.Name = "importUndercityFeb16ToolStripMenuItem";
+			this.importUndercityFeb16ToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
+			this.importUndercityFeb16ToolStripMenuItem.Text = "Import Undercity - Feb 16...";
+			this.importUndercityFeb16ToolStripMenuItem.Click += new System.EventHandler(this.importUndercityFeb16ToolStripMenuItem_Click);
 			// 
 			// importSmokestackToolStripMenuItem
 			// 
 			this.importSmokestackToolStripMenuItem.Name = "importSmokestackToolStripMenuItem";
-			this.importSmokestackToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
+			this.importSmokestackToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
 			this.importSmokestackToolStripMenuItem.Text = "Import Smokestack...";
 			this.importSmokestackToolStripMenuItem.Click += new System.EventHandler(this.ImportSmokestackToolStripMenuItem_Click);
 			// 
 			// importRetreatToolStripMenuItem
 			// 
 			this.importRetreatToolStripMenuItem.Name = "importRetreatToolStripMenuItem";
-			this.importRetreatToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
+			this.importRetreatToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
 			this.importRetreatToolStripMenuItem.Text = "Import Retreat...";
 			this.importRetreatToolStripMenuItem.Click += new System.EventHandler(this.ImportRetreatToolStripMenuItem_Click);
 			// 
 			// importOraclesCaveToolStripMenuItem
 			// 
 			this.importOraclesCaveToolStripMenuItem.Name = "importOraclesCaveToolStripMenuItem";
-			this.importOraclesCaveToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
+			this.importOraclesCaveToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
 			this.importOraclesCaveToolStripMenuItem.Text = "Import Oracle\'s Cave...";
 			this.importOraclesCaveToolStripMenuItem.Click += new System.EventHandler(this.ImportOraclesCaveToolStripMenuItem_Click);
+			// 
+			// importAllCutAreasToolStripMenuItem
+			// 
+			this.importAllCutAreasToolStripMenuItem.Name = "importAllCutAreasToolStripMenuItem";
+			this.importAllCutAreasToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
+			this.importAllCutAreasToolStripMenuItem.Text = "Import All Cut Areas...";
+			this.importAllCutAreasToolStripMenuItem.Click += new System.EventHandler(this.importAllCutAreasToolStripMenuItem_Click);
 			// 
 			// compileProjectToolStripMenuItem
 			// 
@@ -422,13 +438,6 @@
 			this.editPortalToolStripMenuItem.Text = "Edit Portal...";
 			this.editPortalToolStripMenuItem.Click += new System.EventHandler(this.EditPortalToolStripMenuItem_Click);
 			// 
-			// importAllCutAreasToolStripMenuItem
-			// 
-			this.importAllCutAreasToolStripMenuItem.Name = "importAllCutAreasToolStripMenuItem";
-			this.importAllCutAreasToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
-			this.importAllCutAreasToolStripMenuItem.Text = "Import All Cut Areas...";
-			this.importAllCutAreasToolStripMenuItem.Click += new System.EventHandler(this.importAllCutAreasToolStripMenuItem_Click);
-			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -497,11 +506,12 @@
 		private System.Windows.Forms.ContextMenuStrip projectContextMenu;
 		private System.Windows.Forms.ToolStripMenuItem editPortalToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem scriptedImportsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem importUndercityToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem importUndercityFeb04ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem importSmokestackToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem importRetreatToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem importOraclesCaveToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem importAllCutAreasToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem importUndercityFeb16ToolStripMenuItem;
 	}
 }
 

@@ -1135,7 +1135,7 @@ namespace Recombobulator
 			return textureSet;
 		}
 
-        private void ImportUndercityToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ImportUndercityFeb04ToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			// LOAD_GetBigFileFileIndex for Error no. 357.
 
@@ -1192,6 +1192,7 @@ namespace Recombobulator
 			importFiles.Add(new ImportFile { importName = "bwall", isLevel = false });
 			importFiles.Add(new ImportFile { importName = "swall", isLevel = false });
 			//importFiles.Add(new ImportFile { importName = "undblk", isLevel = false }); // Can't convert. Replace with pshblk.
+			//importFiles.Add(new ImportFile { importName = "dumbub", isLevel = false }); // Can't convert. Replace with pshblk.
 
 			List<ReplacePortal> replacePortals = importScript.ReplacePortals;
 			replacePortals.Add(new ReplacePortal { fromSignal = "city8,2", toSignal = "city17,1" });
@@ -1199,7 +1200,74 @@ namespace Recombobulator
 			DoScriptedImport(dialog.SelectedPath, importScript);
 		}
 
-        private void ImportSmokestackToolStripMenuItem_Click(object sender, EventArgs e)
+		private void importUndercityFeb16ToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			// LOAD_GetBigFileFileIndex for Error no. 357.
+
+			FolderBrowserDialog dialog = new FolderBrowserDialog();
+			dialog.Description = "Select root folder.";
+			dialog.ShowNewFolderButton = false;
+
+			string recentFolder = Properties.Settings.Default.RecentFolder;
+			if (recentFolder != null && Directory.Exists(recentFolder))
+			{
+				dialog.SelectedPath = recentFolder;
+			}
+
+			if (dialog.ShowDialog() != DialogResult.OK)
+			{
+				return;
+			}
+
+			Properties.Settings.Default.RecentFolder = dialog.SelectedPath;
+			Properties.Settings.Default.Save();
+
+			ImportScript importScript = new ImportScript();
+
+			List<ImportFile> importFiles = importScript.ImportFiles;
+
+			//importFiles.Add(new ImportFile { importName = "city9", exportName = "city17", isLevel = true });
+			//importFiles.Add(new ImportFile { importName = "city10", exportName = "city18", isLevel = true });
+			//importFiles.Add(new ImportFile { importName = "city11", exportName = "city22", isLevel = true });
+			//importFiles.Add(new ImportFile { importName = "city12", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "city16", isLevel = true, removePortals = new string[] { "city12,98" } });
+
+			ReplaceObject replaceUndblk = new ReplaceObject { oldObject = "undblk", newObject = "pshblk" };
+			ReplaceObject replaceDumbub = new ReplaceObject { oldObject = "dumbub", newObject = "pshblk" };
+			ReplaceObject replacePriests = new ReplaceObject { oldObject = "priests", newObject = "vlgra" };
+			ReplaceObject[] replaceUCObjects = new ReplaceObject[] { replaceUndblk, replaceDumbub, replacePriests };
+
+			importFiles.Add(new ImportFile { importName = "undrct1", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct2", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct3", isLevel = true, replaceObjects = replaceUCObjects });
+			importFiles.Add(new ImportFile { importName = "undrct4", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct5", isLevel = true, replaceObjects = replaceUCObjects });
+			importFiles.Add(new ImportFile { importName = "undrct8", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct9", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct10", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct11", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct12", isLevel = true, replaceObjects = replaceUCObjects });
+			importFiles.Add(new ImportFile { importName = "undrct15", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct16", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct17", isLevel = true, replaceObjects = replaceUCObjects });
+			importFiles.Add(new ImportFile { importName = "undrct20", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct21", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct22", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct23", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "lantrn", isLevel = false });
+			//importFiles.Add(new ImportFile { importName = "bwall", isLevel = false }); // Not needed in Feb 16.
+			//importFiles.Add(new ImportFile { importName = "swall", isLevel = false }); // Not needed in Feb 16.
+			//importFiles.Add(new ImportFile { importName = "undblk", isLevel = false }); // Can't convert. Replace with pshblk.
+			//importFiles.Add(new ImportFile { importName = "dumbub", isLevel = false }); // Can't convert. Replace with pshblk.
+			//importFiles.Add(new ImportFile { importName = "priests", isLevel = false }); // Can't convert. Replace with vlgra.
+
+			//List<ReplacePortal> replacePortals = importScript.ReplacePortals;
+			//replacePortals.Add(new ReplacePortal { fromSignal = "city8,2", toSignal = "city17,1" });
+
+			DoScriptedImport(dialog.SelectedPath, importScript);
+		}
+
+		private void ImportSmokestackToolStripMenuItem_Click(object sender, EventArgs e)
         {
 			// LOAD_GetBigFileFileIndex for Error no. 357.
 
