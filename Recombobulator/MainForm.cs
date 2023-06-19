@@ -1226,11 +1226,11 @@ namespace Recombobulator
 
 			List<ImportFile> importFiles = importScript.ImportFiles;
 
-			//importFiles.Add(new ImportFile { importName = "city9", exportName = "city17", isLevel = true });
-			//importFiles.Add(new ImportFile { importName = "city10", exportName = "city18", isLevel = true });
-			//importFiles.Add(new ImportFile { importName = "city11", exportName = "city22", isLevel = true });
-			//importFiles.Add(new ImportFile { importName = "city12", isLevel = true });
-			importFiles.Add(new ImportFile { importName = "city16", isLevel = true, removePortals = new string[] { "city12,98" } });
+			importFiles.Add(new ImportFile { importName = "city9", exportName = "city17", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "city10", exportName = "city18", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "city11", exportName = "city22", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "city12", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "city16", isLevel = true });
 
 			ReplaceObject replaceUndblk = new ReplaceObject { oldObject = "undblk", newObject = "pshblk" };
 			ReplaceObject replaceDumbub = new ReplaceObject { oldObject = "dumbub", newObject = "pshblk" };
@@ -1261,8 +1261,10 @@ namespace Recombobulator
 			//importFiles.Add(new ImportFile { importName = "dumbub", isLevel = false }); // Can't convert. Replace with pshblk.
 			//importFiles.Add(new ImportFile { importName = "priests", isLevel = false }); // Can't convert. Replace with vlgra.
 
-			//List<ReplacePortal> replacePortals = importScript.ReplacePortals;
-			//replacePortals.Add(new ReplacePortal { fromSignal = "city8,2", toSignal = "city17,1" });
+			List<ReplacePortal> replacePortals = importScript.ReplacePortals;
+			replacePortals.Add(new ReplacePortal { fromSignal = "city8,2", toSignal = "city17,1" });
+			replacePortals.Add(new ReplacePortal { fromSignal = "city12,1", toSignal = "city22,2" });
+			replacePortals.Add(new ReplacePortal { fromSignal = "city12,98", toSignal = "city16,97" });
 
 			DoScriptedImport(dialog.SelectedPath, importScript);
 		}
