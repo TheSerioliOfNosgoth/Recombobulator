@@ -1499,7 +1499,8 @@ namespace Recombobulator
 
 			ReplaceObject replaceUndblk = new ReplaceObject { oldObject = "undblk", newObject = "pshblk" };
 			ReplaceObject replaceDumbub = new ReplaceObject { oldObject = "dumbub", newObject = "pshblk" };
-			ReplaceObject[] replaceUCObjects = new ReplaceObject[] { replaceUndblk, replaceDumbub };
+			ReplaceObject replacePriests = new ReplaceObject { oldObject = "priests", newObject = "vlgra" };
+			ReplaceObject[] replaceUCObjects = new ReplaceObject[] { replaceUndblk, replaceDumbub, replacePriests };
 
 			importFiles.Add(new ImportFile { importName = "undrct1", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "undrct2", isLevel = true });
@@ -1513,17 +1514,21 @@ namespace Recombobulator
 			importFiles.Add(new ImportFile { importName = "undrct12", isLevel = true, replaceObjects = replaceUCObjects });
 			importFiles.Add(new ImportFile { importName = "undrct15", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "undrct16", isLevel = true });
-			importFiles.Add(new ImportFile { importName = "undrct17", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "undrct17", isLevel = true, replaceObjects = replaceUCObjects });
 			importFiles.Add(new ImportFile { importName = "undrct20", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "undrct21", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "undrct22", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "undrct23", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lantrn", isLevel = false });
-			importFiles.Add(new ImportFile { importName = "bwall", isLevel = false });
-			importFiles.Add(new ImportFile { importName = "swall", isLevel = false });
+			//importFiles.Add(new ImportFile { importName = "bwall", isLevel = false }); // Not needed in Feb 16.
+			//importFiles.Add(new ImportFile { importName = "swall", isLevel = false }); // Not needed in Feb 16.
 			//importFiles.Add(new ImportFile { importName = "undblk", isLevel = false }); // Can't convert. Replace with pshblk.
+			//importFiles.Add(new ImportFile { importName = "dumbub", isLevel = false }); // Can't convert. Replace with pshblk.
+			//importFiles.Add(new ImportFile { importName = "priests", isLevel = false }); // Can't convert. Replace with vlgra.
 
 			replacePortals.Add(new ReplacePortal { fromSignal = "city8,2", toSignal = "city17,1" });
+			replacePortals.Add(new ReplacePortal { fromSignal = "city12,1", toSignal = "city22,2" });
+			replacePortals.Add(new ReplacePortal { fromSignal = "city12,98", toSignal = "city16,97" });
 
 			#endregion
 
