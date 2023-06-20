@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Recombobulator.SR1Structures
@@ -82,6 +83,12 @@ namespace Recombobulator.SR1Structures
 						// This makes it behave as if STREAM_GetClipRect returned true.
 
 						normal.Value = 1448; // 1466
+					}
+
+					if (file._Structures[0].Name == "undrct15" && MultiSignal != null &&
+						(MultiSignal.signalNum.Value == 3 || MultiSignal.signalNum.Value == 4))
+					{
+						normal.Value = unchecked((ushort)(-(short)normal.Value));
 					}
 				}
 				else

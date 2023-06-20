@@ -70,6 +70,41 @@ namespace Recombobulator.SR1Structures
 			{
 				OmitFromMigration = true;
 			}
+
+			if (file._Version < SR1_File.Version.May12 && targetVersion >= SR1_File.Version.May12)
+			{
+				if (file._Structures[0].Name == "undrct15" && (MSignalID.Value == 3 || MSignalID.Value == 4))
+				{
+					SVector left = new SVector();
+					SVector right = new SVector();
+
+					left.x.Value = ((SVector)t1[1]).x.Value;
+					left.y.Value = ((SVector)t1[1]).y.Value;
+					left.z.Value = ((SVector)t1[1]).z.Value;
+					right.x.Value = ((SVector)t1[2]).x.Value;
+					right.y.Value = ((SVector)t1[2]).y.Value;
+					right.z.Value = ((SVector)t1[2]).z.Value;
+					((SVector)t1[1]).x.Value = right.x.Value;
+					((SVector)t1[1]).y.Value = right.y.Value;
+					((SVector)t1[1]).z.Value = right.z.Value;
+					((SVector)t1[2]).x.Value = left.x.Value;
+					((SVector)t1[2]).y.Value = left.y.Value;
+					((SVector)t1[2]).z.Value = left.z.Value;
+
+					left.x.Value = ((SVector)t2[1]).x.Value;
+					left.y.Value = ((SVector)t2[1]).y.Value;
+					left.z.Value = ((SVector)t2[1]).z.Value;
+					right.x.Value = ((SVector)t2[2]).x.Value;
+					right.y.Value = ((SVector)t2[2]).y.Value;
+					right.z.Value = ((SVector)t2[2]).z.Value;
+					((SVector)t2[1]).x.Value = right.x.Value;
+					((SVector)t2[1]).y.Value = right.y.Value;
+					((SVector)t2[1]).z.Value = right.z.Value;
+					((SVector)t2[2]).x.Value = left.x.Value;
+					((SVector)t2[2]).y.Value = left.y.Value;
+					((SVector)t2[2]).z.Value = left.z.Value;
+				}
+			}
 		}
 	}
 }
