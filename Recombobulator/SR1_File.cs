@@ -265,7 +265,7 @@ namespace Recombobulator
 					}
 					else
 					{
-						dataWriter.BaseStream.Position = 0x24;
+						dataReader.BaseStream.Position = 0x24;
 						uint namePos = dataReader.ReadUInt32();
 						if (namePos == 0x00000044)
 						{
@@ -314,7 +314,8 @@ namespace Recombobulator
 							else if (objectNameStr == "force___")
 							{
 								dataReader.BaseStream.Position = 0x1730;
-								if (dataReader.ReadUInt16() == 0x2FDD &&
+								if (dataReader.BaseStream.Length >= 0x173C &&
+                                    dataReader.ReadUInt16() == 0x2FDD &&
 									dataReader.ReadUInt16() == 0x0007 &&
 									dataReader.ReadUInt16() == 0xB00B &&
 									dataReader.ReadUInt16() == 0x8000 &&
