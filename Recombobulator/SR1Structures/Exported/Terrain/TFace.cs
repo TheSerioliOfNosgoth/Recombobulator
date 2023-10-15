@@ -77,7 +77,8 @@ namespace Recombobulator.SR1Structures
 					// Looks like there are other things triggered besides portals/signals.
 					removeSignal |= (attr.Value != 0x44);
 
-					if (file._Structures[0].Name == "adda1" && MultiSignal != null && MultiSignal.signalNum.Value == 51)
+					if (file._Version < SR1_File.Version.Apr14 &&
+                        file._Structures[0].Name == "adda1" && MultiSignal != null && MultiSignal.signalNum.Value == 51)
 					{
 						// On PC, nop 004ABBBA to make it draw the adjacent area without the camera being inside it.
 						// This makes it behave as if STREAM_GetClipRect returned true.
@@ -97,7 +98,10 @@ namespace Recombobulator.SR1Structures
 					// 0x08 is water?
 					// 0x46 lets portals work but not fully, however crashes forge 5.
 					// attr.Value = (byte)(attr.Value & 0x46);
-					textoff.Value = (ushort)((textoff.Value * 12) / 16);
+					if (file._Version < SR1_File.Version.Apr14 && targetVersion >= SR1_File.Version.Apr14)
+					{
+						textoff.Value = (ushort)((textoff.Value * 12) / 16);
+					}
 					//attr.Value = (byte)(attr.Value & 0x02); // 0x44 is used for signals. Renderable stuff too?
 				}
 			}

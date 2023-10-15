@@ -1102,7 +1102,7 @@ namespace Recombobulator
 					Bitmap bitmap;
 					if (t >= textureFile.TextureCount)
 					{
-						textureSet.TextureIDs[t] = textureIndex;
+						textureSet.TextureIDs[t] = 0;
 					}
 					else
 					{

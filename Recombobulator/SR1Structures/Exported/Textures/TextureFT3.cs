@@ -98,7 +98,7 @@ namespace Recombobulator.SR1Structures
 				}
 				attr2.Value = 0x0108;
 
-				if (file._Version < SR1_File.Version.May12)
+				if (file._Version < SR1_File.Version.Apr14)
 				{
 					if ((migrateFlags & SR1_File.MigrateFlags.ForceWaterTranslucent) != 0 && HasTranslucentPolygon)
 					{
