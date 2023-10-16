@@ -822,10 +822,10 @@ namespace Recombobulator
 		}
 
 		class ImportScript
-        {
+		{
 			public readonly List<ImportFile> ImportFiles = new List<ImportFile>();
 			public readonly List<ReplacePortal> ReplacePortals = new List<ReplacePortal>();
-        }
+		}
 
 		struct ImportFile
 		{
@@ -850,8 +850,8 @@ namespace Recombobulator
 			public string toSignal;
 		}
 
-        private void DoScriptedImport(string folderName, ImportScript importScript)
-        {
+		private void DoScriptedImport(string folderName, ImportScript importScript)
+		{
 			Invoke(new MethodInvoker(BeginScriptedImport));
 
 			int filesRead = 0;
@@ -1135,7 +1135,7 @@ namespace Recombobulator
 			return textureSet;
 		}
 
-        private void ImportUndercityFeb04ToolStripMenuItem_Click(object sender, EventArgs e)
+		private void ImportUndercityFeb04ToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			// LOAD_GetBigFileFileIndex for Error no. 357.
 
@@ -1270,7 +1270,7 @@ namespace Recombobulator
 		}
 
 		private void ImportSmokestackToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+		{
 			// LOAD_GetBigFileFileIndex for Error no. 357.
 
 			FolderBrowserDialog dialog = new FolderBrowserDialog();
@@ -1378,7 +1378,7 @@ namespace Recombobulator
 			DoScriptedImport(dialog.SelectedPath, importScript);
 		}
 
-        private void ImportRetreatToolStripMenuItem_Click(object sender, EventArgs e)
+		private void ImportRetreatToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			// LOAD_GetBigFileFileIndex for Error no. 357.
 
@@ -1459,7 +1459,11 @@ namespace Recombobulator
 			replacePortals.Add(new ReplacePortal { fromSignal = "oracle3,4", toSignal = "oracle25,3" });
 			replacePortals.Add(new ReplacePortal { fromSignal = "nightb4,81", toSignal = "nightb12,80" });
 
-			DoScriptedImport(dialog.SelectedPath, importScript);
+			replacePortals.Add(new ReplacePortal { fromSignal = "adda1,51", toSignal = "nightb12,50" });
+			replacePortals.Add(new ReplacePortal { fromSignal = "adda1,52", toSignal = "oracle25,53" });
+            replacePortals.Add(new ReplacePortal { fromSignal = "adda1,56", toSignal = "adda2,55" });
+
+            DoScriptedImport(dialog.SelectedPath, importScript);
 		}
 
 		private void importAllCutAreasToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1638,11 +1642,15 @@ namespace Recombobulator
 			replacePortals.Add(new ReplacePortal { fromSignal = "oracle3,4", toSignal = "oracle25,3" });
 			replacePortals.Add(new ReplacePortal { fromSignal = "nightb4,81", toSignal = "nightb12,80" });
 
-			#endregion
+			replacePortals.Add(new ReplacePortal { fromSignal = "adda1,51", toSignal = "nightb12,50" });
+			replacePortals.Add(new ReplacePortal { fromSignal = "adda1,52", toSignal = "oracle25,53" });
+            replacePortals.Add(new ReplacePortal { fromSignal = "adda1,56", toSignal = "adda2,55" });
 
-			#region Mountain Retreat
+            #endregion
 
-			importFiles.Add(new ImportFile { importName = "retreat1", isLevel = true });
+            #region Mountain Retreat
+
+            importFiles.Add(new ImportFile { importName = "retreat1", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "retreat2", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "retreat3", isLevel = true });
 
