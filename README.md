@@ -14,4 +14,4 @@ Note: You must obtain any required builds of Soul Reaver yourself, as I am unabl
 * Select Scripted Imports->Import All Deleted Areas..., then browse for where the Feb 16 build was extracted.
 * Wait for the import process to complete.
 * Select File->Compile and wait for Recombobulator to rebuild the new bigfile.dat and textures.big for the PC version.
-* Look in the folder you originally created for the project, and copy the bigfile.dat and textures.big from there back to Soul Reaver's install directory.
+* Look in the folder you originally created for the project, and copy the bigfile.dat and textures.big from there back to PC version of Soul Reaver's install directory.
