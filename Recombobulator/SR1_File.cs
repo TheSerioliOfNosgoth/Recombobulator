@@ -598,7 +598,8 @@ namespace Recombobulator
 			List<string> genericTunes = new List<string>();
 			List<string> monAttributes = new List<string>();
 			List<string> monFuncTables = new List<string>();
-			List<string> results = new List<string>();
+            List<string> weaponProperties = new List<string>();
+            List<string> results = new List<string>();
 			int numSucceeded = 0;
 			int numSkipped = 0;
 
@@ -649,7 +650,13 @@ namespace Recombobulator
 							{
 								PhysObPropertiesBase physOb = (PhysObPropertiesBase)data;
 								physObs.Add("\t" + cleanName + "\t{ oflags = " + obj.oflags.ToString() + ", oflags2 = " + obj.oflags2.ToString() + ", physOb.Properties.Type = " + physOb.Properties.ID.ToString() + " }");
-							}
+
+                                if (data is PhysObWeaponProperties)
+                                {
+                                    PhysObWeaponProperties physObWeaponProperties = (PhysObWeaponProperties)data;
+                                    weaponProperties.Add("\t" + cleanName + "\t{ class = " + physObWeaponProperties.WeaponAttributes.Class.ToString() + " }");
+                                }
+                            }
 							else if (data is GenericTune)
 							{
 								GenericTune genericTune = (GenericTune)data;
@@ -700,7 +707,9 @@ namespace Recombobulator
 				results.AddRange(genericTunes);
 				results.Add("\r\nMonsterAttibutes:");
 				results.AddRange(monAttributes);
-				results.Add("");
+                results.Add("\r\nWeaponProperties:");
+                results.AddRange(weaponProperties);
+                results.Add("");
 			}
 
 			if ((flags & TestFlags.ListRelocModules) != 0)

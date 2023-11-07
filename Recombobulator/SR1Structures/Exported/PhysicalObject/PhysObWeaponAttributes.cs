@@ -11,7 +11,7 @@ namespace Recombobulator.SR1Structures
 		SR1_Primative<short> knockBackFramesA = new SR1_Primative<short>();
 		SR1_Primative<sbyte> knockBackFrames = new SR1_Primative<sbyte>();
 		SR1_Primative<sbyte> dropSound = new SR1_Primative<sbyte>();
-		SR1_Primative<sbyte> Class = new SR1_Primative<sbyte>();
+		public readonly SR1_Primative<sbyte> Class = new SR1_Primative<sbyte>();
 		SR1_Primative<sbyte> ThrowSphere = new SR1_Primative<sbyte>();
 		SR1_Primative<sbyte> LeftHandSphere = new SR1_Primative<sbyte>();
 		SR1_Primative<sbyte> RightHandSphere = new SR1_Primative<sbyte>();

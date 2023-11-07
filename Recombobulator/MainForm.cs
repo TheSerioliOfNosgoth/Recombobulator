@@ -174,6 +174,7 @@ namespace Recombobulator
 
 					SR1_File.Overrides overrides = new SR1_File.Overrides();
 					overrides.NewName = fileName;
+
 					for (int t = 0; t < textureSet.TextureIDs.Length; t++)
 					{
 						overrides.NewTextureIDs.Add(_repository.Textures[textureSet.TextureIDs[t]].TPage, textureSet.TextureIDs[t]);
@@ -1079,8 +1080,9 @@ namespace Recombobulator
 			textureSet.Index = _repository.TextureSets.Count;
 			string textureFileName = Path.ChangeExtension(filePath, "crm");
 
-			if (!File.Exists(filePath))
+			if (!File.Exists(filePath) || !File.Exists(textureFileName))
 			{
+				textureSet.TextureIDs = new ushort[0];
 				return textureSet;
 			}
 

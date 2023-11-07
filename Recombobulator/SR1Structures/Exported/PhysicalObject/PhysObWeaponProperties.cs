@@ -5,7 +5,7 @@ namespace Recombobulator.SR1Structures
 {
 	class PhysObWeaponProperties : PhysObPropertiesBase
 	{
-		PhysObWeaponAttributes WeaponAttributes = new PhysObWeaponAttributes();
+		public readonly PhysObWeaponAttributes WeaponAttributes = new PhysObWeaponAttributes();
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{

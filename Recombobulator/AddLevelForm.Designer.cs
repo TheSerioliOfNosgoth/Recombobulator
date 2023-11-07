@@ -146,7 +146,6 @@
 			this.removeEventsCheckBox.AutoSize = true;
 			this.removeEventsCheckBox.Checked = true;
 			this.removeEventsCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.removeEventsCheckBox.Enabled = false;
 			this.removeEventsCheckBox.Location = new System.Drawing.Point(13, 314);
 			this.removeEventsCheckBox.Name = "removeEventsCheckBox";
 			this.removeEventsCheckBox.Size = new System.Drawing.Size(102, 17);
