@@ -11,7 +11,7 @@ Note: You must obtain any required builds of Soul Reaver yourself, as I am unabl
 * Copy kain2/areas/adda/adda1.drm and kain2/areas/adda1/adda1.crm from the April 14 build to the corresponding location in the Feb 16 build.
 * Launch Recombobulator and File->New Project, then browse for the folder above.
 * Wait for Recombobulator to extract all the files from the PC version of the game.
-* Select Scripted Imports->Import All Deleted Areas..., then browse for where the Feb 16 build was extracted.
+* Select Scripted Imports->Import All Cut Areas..., then browse for where the Feb 16 build was extracted.
 * Wait for the import process to complete.
-* Select File->Compile and wait for Recombobulator to rebuild the new bigfile.dat and textures.big for the PC version.
+* Select File->Compile Project... and wait for Recombobulator to rebuild the new bigfile.dat and textures.big for the PC version.
 * Look in the folder you originally created for the project, and copy the bigfile.dat and textures.big from the output folder back to PC version of Soul Reaver's install directory.
