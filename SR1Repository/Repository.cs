@@ -418,7 +418,7 @@ namespace SR1Repository
 			return obj;
 		}
 
-		public Level AddNewLevel(string unitName, string sourceUnitName, uint sourceVersion, string textureSet)
+		public Level AddNewLevel(string unitName, string sourceUnitName, int sourceUnitID, uint sourceVersion, string textureSet)
 		{
 			string fullPath = MakeLevelFilePath(unitName, true);
 			if (!File.Exists(fullPath))
@@ -439,6 +439,7 @@ namespace SR1Repository
 			uint dataStart = ((reader.ReadUInt32() >> 9) << 11) + 0x00000800;
 			ProcessLevel(level, reader, dataStart);
 			level.SourceUnitName = sourceUnitName;
+			level.SourceUnitID = sourceUnitID;
 			level.SourceVersion = sourceVersion;
 
 			foreach (Portal fromPortal in level.Portals.Portals)
@@ -451,7 +452,7 @@ namespace SR1Repository
 				if (targetLevel != null)
 				{
 					fromPortal.DestUnitName = targetLevel.UnitName;
-					fromPortal.DestUnitID = targetLevel.StreamUnitID;
+					fromPortal.DestUnitID = targetLevel.UnitID;
 
 					foreach (Portal toPortal in targetLevel.Portals.Portals)
 					{
@@ -460,7 +461,7 @@ namespace SR1Repository
 							toPortal.OldDestSignalID == fromPortal.SignalID)
 						{
 							toPortal.DestUnitName = level.UnitName;
-							toPortal.DestUnitID = level.StreamUnitID;
+							toPortal.DestUnitID = level.UnitID;
 							toPortal.DestSignalID = fromPortal.SignalID;
 						}
 					}
@@ -517,9 +518,10 @@ namespace SR1Repository
 			reader.BaseStream.Position = dataStart + 0x98;
 			reader.BaseStream.Position = dataStart + reader.ReadUInt32();
 			level.UnitName = CleanName(new string(reader.ReadChars(8)));
-			reader.BaseStream.Position = dataStart + 0xF8;
-			level.StreamUnitID = reader.ReadInt32();
 			level.SourceUnitName = level.UnitName;
+			reader.BaseStream.Position = dataStart + 0xF8;
+			level.UnitID = reader.ReadInt32();
+			level.SourceUnitID = level.UnitID;
 			reader.BaseStream.Position = dataStart + 0xF0;
 			level.SourceVersion = reader.ReadUInt32();
 			reader.BaseStream.Position = dataStart;
@@ -569,9 +571,9 @@ namespace SR1Repository
 			// There could be duplicate levels when unpacking. Read the data anyway for debugging.
 			if (_levels.Find(x => x.UnitName == level.UnitName) == null)
 			{
-				if (level.StreamUnitID >= _levels.NextAvailableID)
+				if (level.UnitID >= _levels.NextAvailableID)
 				{
-					_levels.NextAvailableID = level.StreamUnitID + 1;
+					_levels.NextAvailableID = level.UnitID + 1;
 				}
 
 				_levels.Add(level);
@@ -593,7 +595,7 @@ namespace SR1Repository
 				reader.BaseStream.Position = instanceStart + 0x4C * i;
 				intro.ObjectName = CleanName(new String(reader.ReadChars(16)));
 				intro.UnitName = level.UnitName;
-				intro.StreamUnitID = level.StreamUnitID;
+				intro.StreamUnitID = level.UnitID;
 				reader.BaseStream.Position += 4;
 				intro.IntroUniqueID = reader.ReadInt32();
 				intro.Rotation.X = reader.ReadInt16();
@@ -613,35 +615,51 @@ namespace SR1Repository
 			#endregion
 
 			#region Events
-			/*reader.BaseStream.Position = dataStart + 0xDC;
-            uint eventPointersOffset = reader.ReadUInt16();
-            reader.BaseStream.Position = dataStart + eventPointersOffset;
-            int numPuzzles = reader.ReadInt32();
-            for (int p = 0; p < numPuzzles; p++)
-            {
-                uint eventOffset = reader.ReadUInt32();
-                uint nextEventPointer = (uint)reader.BaseStream.Position;
+			reader.BaseStream.Position = dataStart + 0xDC;
+            uint eventPointersOffset = reader.ReadUInt32();
+			if (eventPointersOffset != 0)
+			{
+				reader.BaseStream.Position = dataStart + eventPointersOffset;
+				int numPuzzles = reader.ReadInt32();
+				for (int p = 0; p < numPuzzles; p++)
+				{
+					uint nextEventOffset = (uint)reader.BaseStream.Position + 0x04;
 
-                reader.BaseStream.Position = dataStart + eventOffset;
-                reader.BaseStream.Position += 0x02;
+					Event srEvent = new Event();
 
-                short numInstances = reader.ReadInt16();
-                reader.BaseStream.Position += 0x0C;
+					srEvent.EventOffset = reader.ReadUInt32();
+					reader.BaseStream.Position = dataStart + srEvent.EventOffset;
+					srEvent.EventNumber = reader.ReadInt16();
+					srEvent.NumInstances = reader.ReadInt16();
+                    reader.BaseStream.Position = dataStart + srEvent.EventOffset + 0x10;
+					srEvent.InstanceListOffset = reader.ReadUInt32();
+                    reader.BaseStream.Position = dataStart + srEvent.InstanceListOffset;
 
-                for (int i = 0; i < 0; i++)
-                {
-                    uint instanceOffset = reader.ReadUInt32();
-                    uint nextInstancePointer = (uint)reader.BaseStream.Position;
+                    for (int i = 0; i < srEvent.NumInstances; i++)
+                    {
+						uint nextInstanceOffset = (uint)reader.BaseStream.Position + 0x04;
 
-                    reader.BaseStream.Position = dataStart + instanceOffset;
-                    short eventType = reader.ReadInt16();
-                    // Do EventInstance stuff here.
+						EventInstance instance = new EventInstance();
+						
+						instance.EventInstanceOffset = reader.ReadUInt32();
+                        reader.BaseStream.Position = dataStart + instance.EventInstanceOffset;
+						instance.ID = reader.ReadInt16();
+						if (instance.ID == 1)
+						{
+							reader.BaseStream.Position += 0x02;
+							instance.UnitID = reader.ReadInt32();
+							instance.IntroID = reader.ReadInt32();
 
-                    reader.BaseStream.Position = nextInstancePointer;
-                }
+							srEvent.Instances.Add(instance);
+                        }
 
-                reader.BaseStream.Position = nextEventPointer;
-            }*/
+						reader.BaseStream.Position = nextInstanceOffset;
+                    }
+
+                    level.Events.Add(srEvent);
+					reader.BaseStream.Position = nextEventOffset;
+				}
+			}
 			#endregion
 		}
 
@@ -655,7 +673,7 @@ namespace SR1Repository
 				if (portal.SignalID == fromSignalID)
 				{
 					portal.DestUnitName = toLevel.UnitName;
-					portal.DestUnitID = toLevel.StreamUnitID;
+					portal.DestUnitID = toLevel.UnitID;
 					portal.DestSignalID = toSignalID;
 					UpdateLevelPortals(fromLevel);
 					break;
@@ -667,7 +685,7 @@ namespace SR1Repository
 				if (portal.SignalID == toSignalID)
 				{
 					portal.DestUnitName = fromLevel.UnitName;
-					portal.DestUnitID = fromLevel.StreamUnitID;
+					portal.DestUnitID = fromLevel.UnitID;
 					portal.DestSignalID = fromSignalID;
 					UpdateLevelPortals(toLevel);
 					break;
@@ -806,7 +824,7 @@ namespace SR1Repository
 
 		public bool FindAvailableStreamUnitID(ref int streamUnitID)
 		{
-			Comparer<Level> comparer = Comparer<Level>.Create((levelA, levelB) => levelA.StreamUnitID - levelB.StreamUnitID);
+			Comparer<Level> comparer = Comparer<Level>.Create((levelA, levelB) => levelA.UnitID - levelB.UnitID);
 			SortedSet<Level> sortedLevels = new SortedSet<Level>(comparer);
 			sortedLevels.UnionWith(Levels.Levels);
 
@@ -818,14 +836,14 @@ namespace SR1Repository
 					levelID++;
 				}
 
-				if (levelID < level.StreamUnitID)
+				if (levelID < level.UnitID)
 				{
 					streamUnitID = levelID;
 					break;
 				}
 
 				// Look one place ahead of the current level's ID for the next one.
-				levelID = level.StreamUnitID + 1;
+				levelID = level.UnitID + 1;
 			}
 
 			return true;

@@ -9,12 +9,15 @@ namespace SR1Repository
 	public class Level
 	{
 		public string UnitName { get; set; } = "";
-		public int StreamUnitID { get; set; } = 0;
+		public int UnitID { get; set; } = 0;
 		public bool IsNew { get; set; } = false;
 		public string SourceUnitName { get; set; } = "";
+		public int SourceUnitID { get; set; } = 0;
 		public uint SourceVersion { get; set; } = 0;
 
 		public PortalList Portals { get; set; } = new PortalList();
+
+		public EventList Events { get; set; } = new EventList();
 
 		public string TextureSet { get; set; } = "";
 	}

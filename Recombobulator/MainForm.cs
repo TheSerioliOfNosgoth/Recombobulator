@@ -219,7 +219,8 @@ namespace Recombobulator
 						_file.Export(addFileDialog.FullPath, SR1_File.Version.Retail_PC, migrateFlags, overrides);
 
 						string sourceUnitName = level.Name;
-						newObject = _repository.AddNewLevel(fileName, sourceUnitName, sourceVersion, textureSet.Name);
+						int sourceUnitID = level.streamUnitID.Value;
+						newObject = _repository.AddNewLevel(fileName, sourceUnitName, sourceUnitID, sourceVersion, textureSet.Name);
 						category = "Levels";
 					}
 					else
@@ -724,9 +725,10 @@ namespace Recombobulator
 
 				Level level = (Level)e.Node.Tag;
 				string text = "Unit Name: " + level.UnitName + "\r\n";
-				text += "Unit ID: " + level.StreamUnitID.ToString() + "\r\n";
+				text += "Unit ID: " + level.UnitID.ToString() + "\r\n";
 				text += "Source Unit Name: " + level.SourceUnitName + "\r\n";
-				text += "Source Version: 0x" + level.SourceVersion.ToString("X8") + "\r\n";
+                text += "Source Unit ID: " + level.SourceUnitID.ToString() + "\r\n";
+                text += "Source Version: 0x" + level.SourceVersion.ToString("X8") + "\r\n";
 				if (level.TextureSet != null && level.TextureSet != "")
 				{
 					text += "Texture Set (imported): " + level.TextureSet + "\r\n";
@@ -735,21 +737,22 @@ namespace Recombobulator
 				text += "Portals:\r\n";
 				foreach (Portal portal in level.Portals.Portals)
 				{
-					string newName = "missing";
+					string destUnitName = "missing";
 					if (portal.DestUnitName != null && portal.DestUnitName != "")
 					{
-						newName = portal.DestUnitName;
+						destUnitName = portal.DestUnitName;
 					}
 
-					int newID = portal.SignalID;
+					int signalID = portal.SignalID;
 
-					text += "\torigin { " + level.UnitName + ", " + newID + " }, destination { " + newName + ", " + portal.DestSignalID + " }, default { " + portal.OldDestUnitName + ", 0x" + portal.OldDestVersion.ToString("X8") + " }\r\n";
+					text += "\torigin { " + level.UnitName + ", " + signalID + " }, destination { " + destUnitName + ", " + portal.DestSignalID + " }, ";
+                    text += "old destination { " + portal.OldDestUnitName + ", " + portal.OldDestSignalID + ", 0x" + portal.OldDestVersion.ToString("X8") + " }\r\n";
 				}
 
 				text += "Intros:\r\n";
 				foreach (Intro intro in _repository.Intros.Intros)
 				{
-					if (intro.StreamUnitID == level.StreamUnitID)
+					if (intro.StreamUnitID == level.UnitID)
 					{
 						float rX = (intro.Rotation.X * 360) / 4096f;
 						float rY = (intro.Rotation.Y * 360) / 4096f;
@@ -759,6 +762,29 @@ namespace Recombobulator
 						text += ", position {" + intro.Position.X + ", " + intro.Position.Y + ", " + intro.Position.Z + " }";
 						text += ", rotation {" + rX + ", " + rY + ", " + rZ + " }\r\n";
 					}
+				}
+
+				text += "Events:\r\n";
+				int eventIndex = 0;
+				foreach(Event srEvent in level.Events.Events)
+				{
+					text += "\tevent " + srEvent.EventNumber.ToString() + "\r\n\t{\r\n";
+
+					int instanceIndex = 0;
+                    foreach (EventInstance instance in srEvent.Instances.Instances)
+                    {
+                        text += "\t\tinstamce " + instanceIndex.ToString() + " ";
+                        text += "{ Unit ID " + instance.UnitID.ToString();
+                        text += ", Intro ID " + instance.IntroID.ToString();
+                        //text += ", instance offset 0x" + instance.EventInstanceOffset.ToString("X8");
+						text += " },\r\n";
+
+						instanceIndex++;
+                    }
+
+					text += "\t},\r\n";
+
+                    eventIndex++;
 				}
 
 				projectTextBox.Text = text;
@@ -971,7 +997,6 @@ namespace Recombobulator
 				}
 
 				object newObject = null;
-				string category = null;
 
 				if (importFile.isLevel)
 				{
@@ -1005,14 +1030,13 @@ namespace Recombobulator
 					file.Export(exportPath, SR1_File.Version.Retail_PC, migrateFlags, overrides);
 
 					string sourceUnitName = level.Name;
-					newObject = _repository.AddNewLevel(exportName, sourceUnitName, sourceVersion, textureSet.Name);
-					category = "Levels";
+					int sourceUnitID = level.streamUnitID.Value;
+					newObject = _repository.AddNewLevel(exportName, sourceUnitName, sourceUnitID, sourceVersion, textureSet.Name);
 				}
 				else
 				{
 					file.Export(exportPath, SR1_File.Version.Retail_PC, migrateFlags, overrides);
 					newObject = _repository.AddNewObject(exportName, textureSet.Name);
-					category = "Objects";
 				}
 
 				_repository.AddNewAsset(relativeExportPath);

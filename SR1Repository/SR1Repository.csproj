@@ -72,8 +72,12 @@
   <ItemGroup>
     <Compile Include="AssetDesc.cs" />
     <Compile Include="AssetDescList.cs" />
+    <Compile Include="EventInstance.cs" />
+    <Compile Include="Event.cs" />
+    <Compile Include="EventInstanceList.cs" />
     <Compile Include="Intro.cs" />
     <Compile Include="IntroList.cs" />
+    <Compile Include="EventList.cs" />
     <Compile Include="Portal.cs" />
     <Compile Include="PortalList.cs" />
     <Compile Include="ListBase.cs" />
