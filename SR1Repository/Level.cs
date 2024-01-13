@@ -17,8 +17,6 @@ namespace SR1Repository
 
 		public PortalList Portals { get; set; } = new PortalList();
 
-		public EventList Events { get; set; } = new EventList();
-
 		public string TextureSet { get; set; } = "";
 	}
 }

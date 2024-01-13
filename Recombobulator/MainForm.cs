@@ -758,33 +758,43 @@ namespace Recombobulator
 						float rY = (intro.Rotation.Y * 360) / 4096f;
 						float rZ = (intro.Rotation.Z * 360) / 4096f;
 
-						text += "\t" + intro.ObjectName + " " + intro.IntroUniqueID;
-						text += ", position {" + intro.Position.X + ", " + intro.Position.Y + ", " + intro.Position.Z + " }";
-						text += ", rotation {" + rX + ", " + rY + ", " + rZ + " }\r\n";
+						text += "\t" + intro.ObjectName + " " + intro.IntroUniqueID + " ";
+						text += "{ position {" + intro.Position.X + ", " + intro.Position.Y + ", " + intro.Position.Z + " }";
+						text += ", rotation {" + rX + ", " + rY + ", " + rZ + " } }\r\n";
 					}
 				}
 
 				text += "Events:\r\n";
-				int eventIndex = 0;
-				foreach(Event srEvent in level.Events.Events)
+				foreach(Event srEvent in _repository.Events.Events)
 				{
-					text += "\tevent " + srEvent.EventNumber.ToString() + "\r\n\t{\r\n";
+					if (srEvent.StreamUnitID == level.UnitID)
+					{
+						text += "\tevent " + srEvent.EventNumber.ToString() + "\r\n\t{\r\n";
+						text += "\t\tinstances\r\n\t\t{\r\n";
 
-					int instanceIndex = 0;
-                    foreach (EventInstance instance in srEvent.Instances.Instances)
-                    {
-                        text += "\t\tinstamce " + instanceIndex.ToString() + " ";
-                        text += "{ Unit ID " + instance.UnitID.ToString();
-                        text += ", Intro ID " + instance.IntroID.ToString();
-                        //text += ", instance offset 0x" + instance.EventInstanceOffset.ToString("X8");
-						text += " },\r\n";
+						foreach (EventInstance instance in srEvent.Instances.Instances)
+						{
+							Intro intro = _repository.Intros.Find(x => x.IntroUniqueID == instance.IntroID);
 
-						instanceIndex++;
-                    }
+							if (intro != null)
+							{
+								text += "\t\t\t" + intro.ObjectName + " " + intro.IntroUniqueID;
+							}
+							else
+                            {
+								text += "\t\t\tmissing " + instance.IntroID;
+                            }
 
-					text += "\t},\r\n";
+							text += " { ";
+                            text += "unitName { " + intro.UnitName + " }, ";
+                            text += "unitID { " + instance.UnitID.ToString() + " }, ";
+                            text += "offset { 0x" + instance.EventInstanceOffset.ToString("X8") + " }";
+                            text += " }\r\n";
+                        }
 
-                    eventIndex++;
+						text += "\t\t}\r\n";
+						text += "\t}\r\n";
+					}
 				}
 
 				projectTextBox.Text = text;
