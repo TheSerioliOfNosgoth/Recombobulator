@@ -316,7 +316,7 @@ namespace Recombobulator.SR1Structures
 			}
 
 			// 8 mystery bytes after events. Mirror?
-			if (events != null && !reader.File._Structures.ContainsKey(events.End))
+			if (events.Start != 0 !reader.File._Structures.ContainsKey(events.End))
 			{
 				reader.BaseStream.Position = events.End;
 				new Mirror().Read(reader, null, "");
@@ -332,6 +332,12 @@ namespace Recombobulator.SR1Structures
 				reader.BaseStream.Position = reader.File._Structures[(uint)reader.BaseStream.Position].End;
 				int length = (int)objectNameListStruct.Start - (int)reader.BaseStream.Position;
 				new SR1_PrimativeArray<byte>(length).Read(reader, null, "");
+			}
+
+			if (reader.MultiSplineDictionary.Count > 0)
+			{
+                SR1_StructureArray<MultiSpline> multiSplines = new SR1_StructureArray<MultiSpline>(reader.MultiSplineDictionary.Count);
+                multiSplines.ReadFromPointer(reader, reader.MultiSplineDictionary.Values[0]);
 			}
 		}
 

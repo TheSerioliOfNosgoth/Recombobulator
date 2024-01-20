@@ -81,8 +81,11 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
-			new MultiSpline().ReadFromPointer(reader, multiSpline);
-		}
+            if (multiSpline.Offset != 0 && !reader.MultiSplineDictionary.ContainsKey(multiSpline.Offset))
+            {
+                reader.MultiSplineDictionary.Add(multiSpline.Offset, multiSpline);
+            }
+        }
 
 		public override void WriteMembers(SR1_Writer writer)
 		{
