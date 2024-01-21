@@ -316,7 +316,7 @@ namespace Recombobulator.SR1Structures
 			}
 
 			// 8 mystery bytes after events. Mirror?
-			if (events.Start != 0 !reader.File._Structures.ContainsKey(events.End))
+			if (events.Start != 0 && !reader.File._Structures.ContainsKey(events.End))
 			{
 				reader.BaseStream.Position = events.End;
 				new Mirror().Read(reader, null, "");

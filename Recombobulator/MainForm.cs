@@ -206,14 +206,19 @@ namespace Recombobulator
 							migrateFlags |= SR1_File.MigrateFlags.RemoveVertexMorphs;
 						}
 
+						SR1Structures.Level level = (SR1Structures.Level)_file._Structures[0];
+						uint sourceVersion = level.versionNumber.Value;
+
+						overrides.OldStreamUnitID = level.streamUnitID.Value;
 						overrides.NewStreamUnitID = 0;
 						_repository.FindAvailableStreamUnitID(ref overrides.NewStreamUnitID);
 
-						overrides.NewIntroIDs = new int[_file._IntroIDs.Count];
-						_repository.FindAvailableIntroIDs(ref overrides.NewIntroIDs);
-
-						SR1Structures.Level level = (SR1Structures.Level)_file._Structures[0];
-						uint sourceVersion = level.versionNumber.Value;
+						int[] newIntroIDs = new int[_file._IntroIDs.Count];
+                        _repository.FindAvailableIntroIDs(ref newIntroIDs);
+						for (int i = 0; i < newIntroIDs.Length; i++)
+						{
+                            overrides.NewIntroIDs.Add(_file._IntroIDs[i], newIntroIDs[i]);
+						}
 
 						//overrides.NewObjectNames.Add("priests", "witch");
 						_file.Export(addFileDialog.FullPath, SR1_File.Version.Retail_PC, migrateFlags, overrides);
@@ -1017,18 +1022,23 @@ namespace Recombobulator
 						migrateFlags |= SR1_File.MigrateFlags.ForceWaterTranslucent;
 					}
 
-					overrides.NewStreamUnitID = 0;
-					_repository.FindAvailableStreamUnitID(ref overrides.NewStreamUnitID);
+                    SR1Structures.Level level = (SR1Structures.Level)_file._Structures[0];
+                    uint sourceVersion = level.versionNumber.Value;
 
-					overrides.NewIntroIDs = new int[file._IntroIDs.Count];
-					_repository.FindAvailableIntroIDs(ref overrides.NewIntroIDs);
+                    overrides.OldStreamUnitID = level.streamUnitID.Value;
+                    overrides.NewStreamUnitID = 0;
+                    _repository.FindAvailableStreamUnitID(ref overrides.NewStreamUnitID);
 
-					SR1Structures.Level level = (SR1Structures.Level)file._Structures[0];
-					uint sourceVersion = level.versionNumber.Value;
+                    int[] newIntroIDs = new int[_file._IntroIDs.Count];
+                    _repository.FindAvailableIntroIDs(ref newIntroIDs);
+                    for (int i = 0; i < newIntroIDs.Length; i++)
+                    {
+                        overrides.NewIntroIDs.Add(_file._IntroIDs[i], newIntroIDs[i]);
+                    }
 
-					//overrides.NewObjectNames.Add("priests", "witch");
+                    //overrides.NewObjectNames.Add("priests", "witch");
 
-					if (importFile.replaceObjects != null)
+                    if (importFile.replaceObjects != null)
 					{
 						foreach (ReplaceObject replaceObject in importFile.replaceObjects)
 						{

@@ -29,5 +29,16 @@ namespace Recombobulator.SR1Structures
 			unitID.Write(writer);
 			vmoObjectName.Write(writer);
 		}
-	}
+
+        public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
+        {
+            base.MigrateVersion(file, targetVersion, migrateFlags);
+
+            if (unitID.Value == file._Overrides.OldStreamUnitID &&
+                file._Overrides.NewStreamUnitID != 0)
+            {
+                unitID.Value = file._Overrides.NewStreamUnitID;
+            }
+        }
+    }
 }

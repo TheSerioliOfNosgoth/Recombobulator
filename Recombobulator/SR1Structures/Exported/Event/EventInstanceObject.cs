@@ -47,9 +47,24 @@ namespace Recombobulator.SR1Structures
 			introUniqueID.Write(writer);
 			instance.Write(writer);
 			data.Write(writer);
-		}
+        }
+		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
+		{
+			base.MigrateVersion(file, targetVersion, migrateFlags);
 
-		public override string ToString()
+            if (unitID.Value == file._Overrides.OldStreamUnitID &&
+				file._Overrides.NewStreamUnitID != 0)
+            {
+                unitID.Value = file._Overrides.NewStreamUnitID;
+            }
+
+            if (file._Overrides.NewIntroIDs.TryGetValue(introUniqueID.Value, out int newIntroID))
+            {
+                introUniqueID.Value = newIntroID;
+            }
+        }
+
+        public override string ToString()
 		{
 			string result = base.ToString();
 
