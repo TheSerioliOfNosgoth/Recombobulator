@@ -781,17 +781,18 @@ namespace Recombobulator
 						{
 							Intro intro = _repository.Intros.Find(x => x.IntroUniqueID == instance.IntroID);
 
-							if (intro != null)
-							{
-								text += "\t\t\t" + intro.ObjectName + " " + intro.IntroUniqueID;
-							}
-							else
-                            {
-								text += "\t\t\tmissing " + instance.IntroID;
-                            }
+							string objectName = "missing " + instance.IntroID;
+                            string unitName = "missing";
 
+                            if (intro != null)
+							{
+								objectName = intro.ObjectName + " " + intro.IntroUniqueID;
+                                unitName = intro.UnitName;
+							}
+
+							text += "\t\t\t" + objectName;
 							text += " { ";
-                            text += "unitName { " + intro.UnitName + " }, ";
+                            text += "unitName { " + unitName + " }, ";
                             text += "unitID { " + instance.UnitID.ToString() + " }, ";
                             text += "offset { 0x" + instance.EventInstanceOffset.ToString("X8") + " }";
                             text += " }\r\n";
