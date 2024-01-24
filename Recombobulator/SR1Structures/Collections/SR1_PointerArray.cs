@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	abstract class SR1_PointerArray : SR1_StructureArrayBase<SR1_PointerBase>
+	public abstract class SR1_PointerArray : SR1_StructureArrayBase<SR1_PointerBase>
 	{
 		public SR1_PointerArray(params int[] dimensions)
 			: base(dimensions)
@@ -12,7 +12,7 @@ namespace Recombobulator.SR1Structures
 		}
 	}
 
-	class SR1_PointerArray<T> : SR1_PointerArray where T : SR1_Structure, new()
+	public class SR1_PointerArray<T> : SR1_PointerArray where T : SR1_Structure, new()
 	{
 		private bool _ShouldCreate = false;
 		private int _EntryPadding = 0;

@@ -25,8 +25,8 @@ namespace Recombobulator.SR1Structures
 		SR1_Primative<short> small_width = new SR1_Primative<short>();
 		SR1_Primative<short> sine_size = new SR1_Primative<short>();
 		SR1_Primative<short> variation = new SR1_Primative<short>();
-		SR1_Primative<int> color = new SR1_Primative<int>();
-		SR1_Primative<int> glow_color = new SR1_Primative<int>();
+		SR1_Primative<int> color = new SR1_Primative<int>().ShowAsHex(true);
+		SR1_Primative<int> glow_color = new SR1_Primative<int>().ShowAsHex(true);
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
@@ -116,6 +116,32 @@ namespace Recombobulator.SR1Structures
 				color.Write(writer);
 				glow_color.Write(writer);
 			}
+		}
+
+		public static void Copy(GenericLightningParams to, GenericLightningParams from)
+		{
+			to.type.Value = from.type.Value;
+			to.type_b.Value = from.type_b.Value;
+			to.use_child.Value = from.use_child.Value;
+			to.lifeTime.Value = from.lifeTime.Value;
+			to.deg.Value = from.deg.Value;
+			to.deg_inc.Value = from.deg_inc.Value;
+			Position.Copy(to.start_offset, from.start_offset);
+			to.startSeg.Value = from.startSeg.Value;
+			to.startSeg_b.Value = from.startSeg_b.Value;
+			to.endSeg.Value = from.endSeg.Value;
+			to.endSeg_b.Value = from.endSeg_b.Value;
+			Position.Copy(to.end_offset, from.end_offset);
+			to.matrixSeg.Value = from.matrixSeg.Value;
+			to.matrixSeg_b.Value = from.matrixSeg_b.Value;
+			to.segs.Value = from.segs.Value;
+			to.segs_b.Value = from.segs_b.Value;
+			to.width.Value = from.width.Value;
+			to.small_width.Value = from.small_width.Value;
+			to.sine_size.Value = from.sine_size.Value;
+			to.variation.Value = from.variation.Value;
+			to.color.Value = from.color.Value;
+			to.glow_color.Value = from.glow_color.Value;
 		}
 	}
 }

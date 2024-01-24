@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class MVertex : SR1_Structure
+	public class MVertex : SR1_Structure
 	{
 		Vertex vertex = new Vertex();
 		SR1_Primative<ushort> normal = new SR1_Primative<ushort>();

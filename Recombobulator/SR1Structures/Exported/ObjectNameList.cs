@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class ObjectNameList : SR1_Structure
+	public class ObjectNameList : SR1_Structure
 	{
 		List<SR1_String> _List = new List<SR1_String>();
 		SR1_PrimativePointer<char> listStart = new SR1_PrimativePointer<char>();

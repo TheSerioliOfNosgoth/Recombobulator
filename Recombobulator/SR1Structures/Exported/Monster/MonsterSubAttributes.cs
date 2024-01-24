@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class MonsterSubAttributes : SR1_Structure
+	public class MonsterSubAttributes : SR1_Structure
 	{
 		public readonly SR1_PrimativePointer<sbyte> animList = new SR1_PrimativePointer<sbyte>();
 		public readonly SR1_Pointer<MonsterSenses> senses = new SR1_Pointer<MonsterSenses>();

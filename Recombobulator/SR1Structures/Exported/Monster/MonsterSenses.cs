@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class MonsterSenses : SR1_Structure
+	public class MonsterSenses : SR1_Structure
 	{
 		SR1_Primative<short> sightArc = new SR1_Primative<short>();
 		SR1_Primative<short> sightRadius = new SR1_Primative<short>();

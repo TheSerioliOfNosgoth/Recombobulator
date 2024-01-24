@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class INICommand : SR1_Structure
+	public class INICommand : SR1_Structure
 	{
 		public readonly INICommandType command = new INICommandType();
 		SR1_Primative<short> numParameters = new SR1_Primative<short>();

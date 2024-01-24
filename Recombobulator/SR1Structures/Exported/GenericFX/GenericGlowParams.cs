@@ -102,5 +102,27 @@ namespace Recombobulator.SR1Structures
 				fadeout_time.Write(writer);
 			}
 		}
+
+		public static void Copy(GenericGlowParams to, GenericGlowParams from)
+		{
+			to.StartOnInit.Value = from.StartOnInit.Value;
+			to.StartOnInit_b.Value = from.StartOnInit_b.Value;
+			to.segment.Value = from.segment.Value;
+			to.segmentEnd.Value = from.segmentEnd.Value;
+			to.numSegments.Value = from.numSegments.Value;
+			to.numSegments_b.Value = from.numSegments_b.Value;
+			to.color_num.Value = from.color_num.Value;
+			to.use_child.Value = from.use_child.Value;
+			to.numColors.Value = from.numColors.Value;
+			to.numColors_b.Value = from.numColors_b.Value;
+			to.id.Value = from.id.Value;
+			to.id_b.Value = from.id_b.Value;
+			to.atuColorCycleRate.Value = from.atuColorCycleRate.Value;
+			to.width.Value = from.width.Value;
+			to.height.Value = from.height.Value;
+			to.lifetime.Value = from.lifetime.Value;
+			to.fadein_time.Value = from.fadein_time.Value;
+			to.fadeout_time.Value = from.fadeout_time.Value;
+		}
 	}
 }

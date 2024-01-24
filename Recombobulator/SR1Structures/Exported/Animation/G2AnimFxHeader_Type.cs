@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class G2AnimFxHeader_Type : SR1_Structure
+	public class G2AnimFxHeader_Type : SR1_Structure
 	{
 		public readonly SR1_Primative<byte> sizeAndSection = new SR1_Primative<byte>();
 		public readonly SR1_Primative<sbyte> type = new SR1_Primative<sbyte>();

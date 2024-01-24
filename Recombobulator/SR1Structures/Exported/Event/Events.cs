@@ -1,6 +1,6 @@
 ﻿namespace Recombobulator.SR1Structures
 {
-	class Events : SR1_Structure
+	public class Events : SR1_Structure
 	{
 		public SR1_StructureArray<Event> events = new SR1_StructureArray<Event>(0);
 		public EventPointers eventPointers = new EventPointers();

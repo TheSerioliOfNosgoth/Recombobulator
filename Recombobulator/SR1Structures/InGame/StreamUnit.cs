@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class StreamUnit : SR1_Structure
+	public class StreamUnit : SR1_Structure
 	{
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{

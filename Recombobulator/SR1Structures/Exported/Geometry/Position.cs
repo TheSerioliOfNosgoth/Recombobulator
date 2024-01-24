@@ -3,11 +3,11 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class Position : SR1_Structure
+	public class Position : SR1_Structure
 	{
-		SR1_Primative<short> x = new SR1_Primative<short>();
-		SR1_Primative<short> y = new SR1_Primative<short>();
-		SR1_Primative<short> z = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> x = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> y = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> z = new SR1_Primative<short>();
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
@@ -25,6 +25,18 @@ namespace Recombobulator.SR1Structures
 			x.Write(writer);
 			y.Write(writer);
 			z.Write(writer);
+		}
+
+		public static void Copy(Position to, Position from)
+		{
+			to.x.Value = from.x.Value;
+			to.y.Value = from.y.Value;
+			to.z.Value = from.z.Value;
+		}
+
+		public override string ToString()
+		{
+			return "{ x = " + x + ", y = " + y + ", z = " + z + " }";
 		}
 	}
 }

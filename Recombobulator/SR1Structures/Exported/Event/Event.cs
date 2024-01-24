@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class Event : SR1_Structure
+	public class Event : SR1_Structure
 	{
 		public SR1_Primative<short> eventNumber = new SR1_Primative<short>();
 		public SR1_Primative<short> numInstances = new SR1_Primative<short>();

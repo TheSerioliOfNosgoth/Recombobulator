@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class LightList : SR1_Structure
+	public class LightList : SR1_Structure
 	{
 		CVector ambient = new CVector();
 		SR1_Primative<int> numLightGroups = new SR1_Primative<int>();

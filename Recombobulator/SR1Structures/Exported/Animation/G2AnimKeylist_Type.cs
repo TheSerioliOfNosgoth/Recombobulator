@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class G2AnimKeylist_Type : SR1_Structure
+	public class G2AnimKeylist_Type : SR1_Structure
 	{
 		struct G2AnimSegKeyflagInfo_Type
 		{

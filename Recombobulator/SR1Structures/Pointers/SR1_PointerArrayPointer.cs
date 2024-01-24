@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class SR1_PointerArrayPointer<T> : SR1_PointerBase where T : SR1_Structure, new()
+	public class SR1_PointerArrayPointer<T> : SR1_PointerBase where T : SR1_Structure, new()
 	{
 		public override Type GetGenericType()
 		{

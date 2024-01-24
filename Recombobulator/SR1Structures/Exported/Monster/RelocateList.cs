@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class RelocateList : SR1_Structure
+	public class RelocateList : SR1_Structure
 	{
 		SR1_PrimativeArray<int> unknown = new SR1_PrimativeArray<int>();
 

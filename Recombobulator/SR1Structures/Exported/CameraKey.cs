@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class CameraKey : SR1_Structure
+	public class CameraKey : SR1_Structure
 	{
 		SR1_Primative<short> x = new SR1_Primative<short>();
 		SR1_Primative<short> y = new SR1_Primative<short>();

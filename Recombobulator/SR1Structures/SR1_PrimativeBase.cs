@@ -4,8 +4,10 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	abstract class SR1_PrimativeBase : SR1_Structure
+	public abstract class SR1_PrimativeBase : SR1_Structure
 	{
+		protected bool _showAsHex;
+
 		public virtual bool IsArray() { return false; }
 
 		protected override void Register(SR1_Writer writer)
@@ -19,6 +21,11 @@ namespace Recombobulator.SR1Structures
 			}
 
 			writer.File._Primatives.Add(Start, this);
+		}
+
+		public bool IsShowAsHex()
+		{
+			return _showAsHex;
 		}
 	}
 }

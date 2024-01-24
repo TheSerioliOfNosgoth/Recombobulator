@@ -5,7 +5,7 @@ using Recombobulator.SR1Structures;
 
 namespace Recombobulator
 {
-	class SR1_File
+	public class SR1_File
 	{
 		public const UInt32 PROTO_19981025_VERSION = 0x00000000;
 		public const UInt32 ALPHA_19990123_VERSION_1_X = 0x3c204127;
@@ -18,6 +18,8 @@ namespace Recombobulator
 
 		public enum Version
 		{
+			Detect = -1,
+			Detect_Retail_PC = -2,
 			First = 0,
 			Alpha_1_X,
 			Alpha_1,
@@ -38,7 +40,6 @@ namespace Recombobulator
 			None = 0,
 			LogErrors = 1,
 			LogScripts = 2,
-			DetectPCRetail = 4,
 		}
 
 		public enum MigrateFlags : int
@@ -107,17 +108,17 @@ namespace Recombobulator
 			_Overrides = null;
 		}
 
-		public void Import(string fileName, ImportFlags flags = ImportFlags.None | ImportFlags.DetectPCRetail)
+		public void Import(string fileName, ImportFlags flags = ImportFlags.None, Version forcedVersion = Version.Detect_Retail_PC)
 		{
 			_ImportFlags = flags;
 			_FilePath = fileName;
 
 			FileStream file = new FileStream(fileName, FileMode.Open, FileAccess.Read);
-			Import(file);
+			Import(file, forcedVersion);
 			file.Close();
 		}
 
-		private void Import(Stream inputStream)
+		private void Import(Stream inputStream, Version forcedVersion = Version.Detect)
 		{
 			Reset();
 
@@ -142,132 +143,55 @@ namespace Recombobulator
 
 			if (_IsLevel)
 			{
-				bool validVersion = false;
-
-				if (!validVersion && ((_ImportFlags & ImportFlags.DetectPCRetail) != 0))
+				if (forcedVersion == Version.Detect || forcedVersion == Version.Detect_Retail_PC)
 				{
-					dataReader.BaseStream.Position = 0x9C;
-					if (dataReader.ReadUInt64() == 0xFFFFFFFFFFFFFFFF)
+					bool validVersion = false;
+
+					if (!validVersion && forcedVersion == Version.Detect_Retail_PC)
 					{
-						_Version = Version.Retail_PC;
-						validVersion = true;
-					}
-				}
-
-				if (!validVersion)
-				{
-					dataReader.BaseStream.Position = 0xF0;
-					UInt32 version = dataReader.ReadUInt32();
-					if (!validVersion && version == RETAIL_VERSION)
-					{
-						_Version = Version.Jun01;
-						validVersion = true;
-					}
-
-					if (!validVersion && version == BETA_19990512_VERSION)
-					{
-						_Version = Version.May12;
-						validVersion = true;
-					}
-
-					if (!validVersion)
-					{
-						dataReader.BaseStream.Position = 0xE8;
-						version = dataReader.ReadUInt32();
-					}
-
-					if (!validVersion && version == ALPHA_19990414_VERSION_4)
-					{
-						_Version = Version.Apr14;
-						validVersion = true;
-					}
-
-					if (!validVersion)
-					{
-						dataReader.BaseStream.Position = 0xE4;
-						version = dataReader.ReadUInt32();
-					}
-
-					if (!validVersion && version == ALPHA_19990216_VERSION_3)
-					{
-						_Version = Version.Feb16;
-						validVersion = true;
-					}
-
-					if (!validVersion)
-					{
-						dataReader.BaseStream.Position = 0xE0;
-						version = dataReader.ReadUInt32();
-					}
-
-					if (!validVersion && version == ALPHA_19990204_VERSION_2)
-					{
-						_Version = Version.Feb04;
-						validVersion = true;
-					}
-				}
-
-				if (!validVersion)
-				{
-					_Version = Version.Jun01;
-					validVersion = true;
-				}
-
-				root = new SR1Structures.Level();
-			}
-			else
-			{
-				bool validVersion = false;
-
-				if (!validVersion)
-				{
-					dataReader.BaseStream.Position = 0x2C;
-					UInt32 oflags2 = dataReader.ReadUInt32();
-					if ((oflags2 & 0x00080000) != 0)
-					{
-						dataReader.BaseStream.Position = 0x1C;
-						UInt32 dataPos = dataReader.ReadUInt32();
-						if (dataPos != 0)
+						dataReader.BaseStream.Position = 0x9C;
+						if (dataReader.ReadUInt64() == 0xFFFFFFFFFFFFFFFF)
 						{
-							dataReader.BaseStream.Position = dataPos;
-							UInt32 magicNum = dataReader.ReadUInt32();
-							if (magicNum == 0xACE00065)
-							{
-								_Version = Version.Jul14;
-								validVersion = true;
-							}
-							else if (magicNum == 0xACE00064)
-							{
-								_Version = Version.Jun10;
-								validVersion = true;
-							}
-							else if (magicNum == 0xACE00063)
-							{
-								_Version = Version.Jun01;
-								validVersion = true;
-							}
-							else if (magicNum == 0xACE00062)
-							{
-								_Version = Version.May12;
-								validVersion = true;
-							}
-							else if (magicNum == 0xACE00060)
-							{
-								_Version = Version.Apr14;
-								validVersion = true;
-							}
-							else if (magicNum == 0xACE0005C)
-							{
-								_Version = Version.Feb16;
-								validVersion = true;
-							}
+							_Version = Version.Retail_PC;
+							validVersion = true;
 						}
 					}
-					else
+
+					if (!validVersion)
 					{
-						dataReader.BaseStream.Position = 0x24;
-						uint namePos = dataReader.ReadUInt32();
-						if (namePos == 0x00000044)
+						dataReader.BaseStream.Position = 0xF0;
+						UInt32 version = dataReader.ReadUInt32();
+						if (!validVersion && version == RETAIL_VERSION)
+						{
+							_Version = Version.Jun01;
+							validVersion = true;
+						}
+
+						if (!validVersion && version == BETA_19990512_VERSION)
+						{
+							_Version = Version.May12;
+							validVersion = true;
+						}
+
+						if (!validVersion)
+						{
+							dataReader.BaseStream.Position = 0xE8;
+							version = dataReader.ReadUInt32();
+						}
+
+						if (!validVersion && version == ALPHA_19990414_VERSION_4)
+						{
+							_Version = Version.Apr14;
+							validVersion = true;
+						}
+
+						if (!validVersion)
+						{
+							dataReader.BaseStream.Position = 0xE4;
+							version = dataReader.ReadUInt32();
+						}
+
+						if (!validVersion && version == ALPHA_19990216_VERSION_3)
 						{
 							_Version = Version.Feb16;
 							validVersion = true;
@@ -275,69 +199,160 @@ namespace Recombobulator
 
 						if (!validVersion)
 						{
-							dataReader.BaseStream.Position = 0x50;
-							char[] objectName = dataReader.ReadChars(8);
-							string objectNameStr = new string(objectName);
-							if (objectNameStr == "flamegs_")
+							dataReader.BaseStream.Position = 0xE0;
+							version = dataReader.ReadUInt32();
+						}
+
+						if (!validVersion && version == ALPHA_19990204_VERSION_2)
+						{
+							_Version = Version.Feb04;
+							validVersion = true;
+						}
+					}
+
+					if (!validVersion)
+					{
+						_Version = Version.Jun01;
+						validVersion = true;
+					}
+				}
+				else
+				{
+					_Version = forcedVersion;
+				}
+
+				root = new SR1Structures.Level();
+			}
+			else
+			{
+				if (forcedVersion == Version.Detect || forcedVersion == Version.Detect_Retail_PC)
+				{
+					bool validVersion = false;
+
+					if (!validVersion)
+					{
+						dataReader.BaseStream.Position = 0x2C;
+						UInt32 oflags2 = dataReader.ReadUInt32();
+						if ((oflags2 & 0x00080000) != 0)
+						{
+							dataReader.BaseStream.Position = 0x1C;
+							UInt32 dataPos = dataReader.ReadUInt32();
+							if (dataPos != 0)
+							{
+								dataReader.BaseStream.Position = dataPos;
+								UInt32 magicNum = dataReader.ReadUInt32();
+								if (magicNum == 0xACE00065)
+								{
+									_Version = Version.Jul14;
+									validVersion = true;
+								}
+								else if (magicNum == 0xACE00064)
+								{
+									_Version = Version.Jun10;
+									validVersion = true;
+								}
+								else if (magicNum == 0xACE00063)
+								{
+									_Version = Version.Jun01;
+									validVersion = true;
+								}
+								else if (magicNum == 0xACE00062)
+								{
+									_Version = Version.May12;
+									validVersion = true;
+								}
+								else if (magicNum == 0xACE00060)
+								{
+									_Version = Version.Apr14;
+									validVersion = true;
+								}
+								else if (magicNum == 0xACE0005C)
+								{
+									_Version = Version.Feb16;
+									validVersion = true;
+								}
+							}
+						}
+						else
+						{
+							dataReader.BaseStream.Position = 0x24;
+							uint namePos = dataReader.ReadUInt32();
+							if (namePos == 0x00000044)
 							{
 								_Version = Version.Feb16;
 								validVersion = true;
 							}
-						}
 
-						if (!validVersion)
-						{
-							dataReader.BaseStream.Position = 0x4C;
-							char[] objectName = dataReader.ReadChars(8);
-							string objectNameStr = new string(objectName);
-
-							if (objectNameStr == "particle")
+							if (!validVersion)
 							{
-								dataReader.BaseStream.Position = 0x0424;
-								if (dataReader.ReadUInt32() == 0x00000440 &&
-									dataReader.ReadUInt32() == 0x00003000 &&
-									dataReader.ReadUInt32() == 0x00003150 &&
-									dataReader.ReadUInt32() == 0x0000355C &&
-									dataReader.ReadUInt32() == 0x00003B60 &&
-									dataReader.ReadUInt32() == 0x00003EE8 &&
-									dataReader.ReadUInt32() == 0x00003EA0)
+								dataReader.BaseStream.Position = 0x50;
+								char[] objectName = dataReader.ReadChars(8);
+								string objectNameStr = new string(objectName);
+								if (objectNameStr == "flamegs_")
 								{
-									_Version = Version.May12;
+									_Version = Version.Feb16;
+									validVersion = true;
 								}
-								else
-								{
-									_Version = Version.Jun01;
-								}
-
-								validVersion = true;
 							}
-							else if (objectNameStr == "force___")
-							{
-								dataReader.BaseStream.Position = 0x1730;
-								if (dataReader.BaseStream.Length >= 0x173C &&
-                                    dataReader.ReadUInt16() == 0x2FDD &&
-									dataReader.ReadUInt16() == 0x0007 &&
-									dataReader.ReadUInt16() == 0xB00B &&
-									dataReader.ReadUInt16() == 0x8000 &&
-									dataReader.ReadUInt32() == 0x0000000C)
-								{
-									_Version = Version.Apr14;
-								}
-								else
-								{
-									_Version = Version.Jun01;
-								}
 
-								validVersion = true;
+							if (!validVersion)
+							{
+								dataReader.BaseStream.Position = 0x4C;
+								char[] objectName = dataReader.ReadChars(8);
+								string objectNameStr = new string(objectName);
+
+								if (objectNameStr == "particle")
+								{
+									dataReader.BaseStream.Position = 0x0424;
+									if (dataReader.ReadUInt32() == 0x00000440 &&
+										dataReader.ReadUInt32() == 0x00003000 &&
+										dataReader.ReadUInt32() == 0x00003150 &&
+										dataReader.ReadUInt32() == 0x0000355C &&
+										dataReader.ReadUInt32() == 0x00003B60 &&
+										dataReader.ReadUInt32() == 0x00003EE8 &&
+										dataReader.ReadUInt32() == 0x00003EA0)
+									{
+										_Version = Version.May12;
+									}
+									else
+									{
+										_Version = Version.Jun01;
+									}
+
+									validVersion = true;
+								}
+								else if (objectNameStr == "force___")
+								{
+									dataReader.BaseStream.Position = 0x1730;
+									if (dataReader.BaseStream.Length >= 0x173C &&
+										dataReader.ReadUInt16() == 0x2FDD &&
+										dataReader.ReadUInt16() == 0x0007 &&
+										dataReader.ReadUInt16() == 0xB00B &&
+										dataReader.ReadUInt16() == 0x8000 &&
+										dataReader.ReadUInt32() == 0x0000000C)
+									{
+										_Version = Version.Apr14;
+									}
+									else
+									{
+										_Version = Version.Jun01;
+									}
+
+									validVersion = true;
+								}
 							}
 						}
 					}
-				}
 
-				if (!validVersion)
+					if (!validVersion)
+					{
+						_Version = Version.Jun01;
+						validVersion = true;
+					}
+				}
+				else
 				{
-					_Version = Version.Jun01;
-					validVersion = true;
+					_Version = forcedVersion;
 				}
 
 				root = new SR1Structures.Object();
