@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class INICommandType : SR1_Primative<short>
+	public class INICommandType : SR1_Primative<short>
 	{
 		public INICommandType()
 			: base()

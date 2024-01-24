@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class SignalData : SR1_Structure
+	public class SignalData : SR1_Structure
 	{
 		// No members. This is just a base class.
 

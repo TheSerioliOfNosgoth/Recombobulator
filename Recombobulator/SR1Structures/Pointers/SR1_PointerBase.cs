@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	abstract class SR1_PointerBase : SR1_PrimativeBase
+	public abstract class SR1_PointerBase : SR1_PrimativeBase
 	{
 		public uint Offset { get; set; }
 

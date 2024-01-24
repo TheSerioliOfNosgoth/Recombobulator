@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class SVector : SR1_Structure
+	public class SVector : SR1_Structure
 	{
 		public readonly SR1_Primative<short> x = new SR1_Primative<short>();
 		public readonly SR1_Primative<short> y = new SR1_Primative<short>();
@@ -35,6 +35,13 @@ namespace Recombobulator.SR1Structures
 			y.Write(writer);
 			z.Write(writer);
 			pad.Write(writer);
+		}
+
+		public static void Copy(SVector to, SVector from)
+		{
+			to.x.Value = from.x.Value;
+			to.y.Value = from.y.Value;
+			to.z.Value = from.z.Value;
 		}
 
 		public override string ToString()

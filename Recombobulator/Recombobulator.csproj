@@ -84,6 +84,54 @@
     <Compile Include="EditPortalForm.Designer.cs">
       <DependentUpon>EditPortalForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ParticlePanels\EditPanelBase.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ParticlePanels\EditPanelBase.Designer.cs">
+      <DependentUpon>EditPanelBase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ParticlePanels\EditBlastRingsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ParticlePanels\EditBlastRingsPanel.Designer.cs">
+      <DependentUpon>EditBlastRingsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ParticlePanels\EditFlashesPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ParticlePanels\EditFlashesPanel.Designer.cs">
+      <DependentUpon>EditFlashesPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ParticlePanels\EditGlowsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ParticlePanels\EditGlowsPanel.Designer.cs">
+      <DependentUpon>EditGlowsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ParticlePanels\EditLightningsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ParticlePanels\EditLightningsPanel.Designer.cs">
+      <DependentUpon>EditLightningsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ParticlePanels\EditRibbonsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ParticlePanels\EditRibbonsPanel.Designer.cs">
+      <DependentUpon>EditRibbonsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ParticlePanels\EditParticlesPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ParticlePanels\EditParticlesPanel.Designer.cs">
+      <DependentUpon>EditParticlesPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ParticlePanels\MainParticlesPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ParticlePanels\MainParticlesPanel.Designer.cs">
+      <DependentUpon>MainParticlesPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="RenameForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -390,6 +438,30 @@
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ParticlePanels\EditPanelBase.resx">
+      <DependentUpon>EditPanelBase.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ParticlePanels\EditBlastRingsPanel.resx">
+      <DependentUpon>EditBlastRingsPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ParticlePanels\EditFlashesPanel.resx">
+      <DependentUpon>EditFlashesPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ParticlePanels\EditGlowsPanel.resx">
+      <DependentUpon>EditGlowsPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ParticlePanels\EditLightningsPanel.resx">
+      <DependentUpon>EditLightningsPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ParticlePanels\EditRibbonsPanel.resx">
+      <DependentUpon>EditRibbonsPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ParticlePanels\EditParticlesPanel.resx">
+      <DependentUpon>EditParticlesPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ParticlePanels\MainParticlesPanel.resx">
+      <DependentUpon>MainParticlesPanel.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="RenameForm.resx">
       <DependentUpon>RenameForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -446,5 +518,6 @@
   <ItemGroup>
     <Content Include="MindSymbol.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

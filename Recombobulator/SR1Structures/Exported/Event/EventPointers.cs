@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class EventPointers : SR1_Structure
+	public class EventPointers : SR1_Structure
 	{
 		public SR1_Primative<int> numPuzzles = new SR1_Primative<int>();
 		public SR1_PointerArray<Event> eventInstances = new SR1_PointerArray<Event>(0, false);

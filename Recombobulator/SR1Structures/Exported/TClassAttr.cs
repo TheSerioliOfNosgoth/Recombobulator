@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class TClassAttr : SR1_Structure
+	public class TClassAttr : SR1_Structure
 	{
 		SR1_Primative<short> flags = new SR1_Primative<short>();
 		SR1_Primative<ushort> sound = new SR1_Primative<ushort>();

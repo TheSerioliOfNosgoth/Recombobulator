@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class DrMoveAniTex : SR1_Structure
+	public class DrMoveAniTex : SR1_Structure
 	{
 		SR1_Primative<int> numAniTextures = new SR1_Primative<int>();
 		SR1_PointerArray<DrMoveAniTexDestInfo> aniTexInfo = new SR1_PointerArray<DrMoveAniTexDestInfo>(0, true);

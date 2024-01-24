@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class LightGroup : SR1_Structure
+	public class LightGroup : SR1_Structure
 	{
 		Matrix lightMatrix = new Matrix();
 		Matrix colorMatrix = new Matrix();

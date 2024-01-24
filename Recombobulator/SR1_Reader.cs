@@ -4,7 +4,7 @@ using Recombobulator.SR1Structures;
 
 namespace Recombobulator
 {
-	class SR1_Reader : BinaryReader
+	public class SR1_Reader : BinaryReader
 	{
 		public SR1_File File = null;
 		public Level Level = null;

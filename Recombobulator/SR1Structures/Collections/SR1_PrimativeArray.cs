@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class SR1_PrimativeArray<T> : SR1_PrimativeBase, IReadOnlyList<T> // where T : struct
+	public class SR1_PrimativeArray<T> : SR1_PrimativeBase, IReadOnlyList<T> // where T : struct
 	{
 		protected int[] _dimensions = null;
 		protected T[] _array = null;

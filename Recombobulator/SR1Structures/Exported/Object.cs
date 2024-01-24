@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class Object : SR1_Structure
+	public class Object : SR1_Structure
 	{
 		private enum ScriptType
 		{

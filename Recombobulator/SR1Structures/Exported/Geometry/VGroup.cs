@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class VGroup : SR1_Structure
+	public class VGroup : SR1_Structure
 	{
 		SR1_Primative<int> id = new SR1_Primative<int>();
 		SR1_Primative<int> numVertices = new SR1_Primative<int>();

@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace Recombobulator.SR1Structures
 {
-	abstract class SR1_Structure
+	public abstract class SR1_Structure
 	{
 		public uint Start { get; protected set; }
 		public uint NewStart { get; protected set; }
@@ -17,7 +17,7 @@ namespace Recombobulator.SR1Structures
 
 		public string Name { get; protected set; }
 
-		protected List<SR1_Structure> MembersRead = new List<SR1_Structure>();
+		public readonly List<SR1_Structure> MembersRead = new List<SR1_Structure>();
 
 		private byte[] _padding = null;
 

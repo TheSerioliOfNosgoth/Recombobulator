@@ -19,8 +19,8 @@ namespace Recombobulator.SR1Structures
 		SR1_Primative<short> ribbonLifeTime = new SR1_Primative<short>();
 		SR1_Primative<short> faceLifeTime = new SR1_Primative<short>();
 		SR1_Primative<short> startFadeValue = new SR1_Primative<short>();
-		SR1_Primative<int> startColor = new SR1_Primative<int>();
-		SR1_Primative<int> endColor = new SR1_Primative<int>();
+		SR1_Primative<int> startColor = new SR1_Primative<int>().ShowAsHex(true);
+		SR1_Primative<int> endColor = new SR1_Primative<int>().ShowAsHex(true);
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
@@ -86,6 +86,26 @@ namespace Recombobulator.SR1Structures
 				startColor.Write(writer);
 				endColor.Write(writer);
 			}
+		}
+
+		public static void Copy(GenericRibbonParams to, GenericRibbonParams from)
+		{
+			to.id.Value = from.id.Value;
+			to.id_b.Value = from.id_b.Value;
+			to.StartOnInit.Value = from.StartOnInit.Value;
+			to.StartOnInit_b.Value = from.StartOnInit_b.Value;
+			to.startSegment.Value = from.startSegment.Value;
+			to.startSegment_b.Value = from.startSegment_b.Value;
+			to.endSegment.Value = from.endSegment.Value;
+			to.endSegment_b.Value = from.endSegment_b.Value;
+			to.type.Value = from.type.Value;
+			to.type_b.Value = from.type_b.Value;
+			to.use_child.Value = from.use_child.Value;
+			to.ribbonLifeTime.Value = from.ribbonLifeTime.Value;
+			to.faceLifeTime.Value = from.faceLifeTime.Value;
+			to.startFadeValue.Value = from.startFadeValue.Value;
+			to.startColor.Value = from.startColor.Value;
+			to.endColor.Value = from.endColor.Value;
 		}
 	}
 }

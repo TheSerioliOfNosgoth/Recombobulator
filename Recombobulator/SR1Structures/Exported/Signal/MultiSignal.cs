@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class MultiSignal : SR1_Structure
+	public class MultiSignal : SR1_Structure
 	{
 		public readonly SR1_Primative<int> numSignals = new SR1_Primative<int>();
 		public readonly SR1_Primative<short> signalNum = new SR1_Primative<short>();

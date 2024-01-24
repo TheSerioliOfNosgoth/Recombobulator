@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class SFXMkr : SR1_Structure
+	public class SFXMkr : SR1_Structure
 	{
 		SR1_Pointer<SFXFileData> soundData = new SR1_Pointer<SFXFileData>();
 		SR1_Primative<int> uniqueID = new SR1_Primative<int>();

@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class TextureMT3 : SR1_Structure
+	public class TextureMT3 : SR1_Structure
 	{
 		SR1_Primative<byte> u0 = new SR1_Primative<byte>();
 		SR1_Primative<byte> v0 = new SR1_Primative<byte>();
