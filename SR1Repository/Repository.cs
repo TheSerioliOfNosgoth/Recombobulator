@@ -58,6 +58,7 @@ namespace SR1Repository
 		string _assetsFileName;
 		string _levelsFileName;
 		string _introsFileName;
+		string _eventsFileName;
 		string _objectsFileName;
 		string _clipsFileName;
 		string _allClipsFileName;
@@ -70,6 +71,7 @@ namespace SR1Repository
 		AssetDescList _assets;
 		LevelList _levels;
 		IntroList _intros;
+		EventList _events;
 		ObjectList _objects;
 		SFXClipList _sfxClips;
 		TexDescList _textures;
@@ -78,6 +80,7 @@ namespace SR1Repository
 		public AssetDescList Assets { get { return _assets; } }
 		public LevelList Levels { get { return _levels; } }
 		public IntroList Intros { get { return _intros; } }
+		public EventList Events { get { return _events; } }
 		public ObjectList Objects { get { return _objects; } }
 		public SFXClipList SFXClips { get { return _sfxClips; } }
 		public TexDescList Textures { get { return _textures; } }
@@ -101,7 +104,8 @@ namespace SR1Repository
 			_assetsFileName = Path.Combine(projectFolderName, "assets.json");
 			_levelsFileName = Path.Combine(projectFolderName, "levels.json");
 			_introsFileName = Path.Combine(projectFolderName, "intros.json");
-			_objectsFileName = Path.Combine(projectFolderName, "objects.json");
+            _eventsFileName = Path.Combine(projectFolderName, "events.json");
+            _objectsFileName = Path.Combine(projectFolderName, "objects.json");
 			_clipsFileName = Path.Combine(projectFolderName, "clips.json");
 			_allClipsFileName = Path.Combine(projectFolderName, "allSFX.pmf");
 			_texturesFileName = Path.Combine(projectFolderName, "textures.json");
@@ -418,7 +422,7 @@ namespace SR1Repository
 			return obj;
 		}
 
-		public Level AddNewLevel(string unitName, string sourceUnitName, uint sourceVersion, string textureSet)
+		public Level AddNewLevel(string unitName, string sourceUnitName, int sourceUnitID, uint sourceVersion, string textureSet)
 		{
 			string fullPath = MakeLevelFilePath(unitName, true);
 			if (!File.Exists(fullPath))
@@ -439,6 +443,7 @@ namespace SR1Repository
 			uint dataStart = ((reader.ReadUInt32() >> 9) << 11) + 0x00000800;
 			ProcessLevel(level, reader, dataStart);
 			level.SourceUnitName = sourceUnitName;
+			level.SourceUnitID = sourceUnitID;
 			level.SourceVersion = sourceVersion;
 
 			foreach (Portal fromPortal in level.Portals.Portals)
@@ -451,7 +456,7 @@ namespace SR1Repository
 				if (targetLevel != null)
 				{
 					fromPortal.DestUnitName = targetLevel.UnitName;
-					fromPortal.DestUnitID = targetLevel.StreamUnitID;
+					fromPortal.DestUnitID = targetLevel.UnitID;
 
 					foreach (Portal toPortal in targetLevel.Portals.Portals)
 					{
@@ -460,7 +465,7 @@ namespace SR1Repository
 							toPortal.OldDestSignalID == fromPortal.SignalID)
 						{
 							toPortal.DestUnitName = level.UnitName;
-							toPortal.DestUnitID = level.StreamUnitID;
+							toPortal.DestUnitID = level.UnitID;
 							toPortal.DestSignalID = fromPortal.SignalID;
 						}
 					}
@@ -517,9 +522,10 @@ namespace SR1Repository
 			reader.BaseStream.Position = dataStart + 0x98;
 			reader.BaseStream.Position = dataStart + reader.ReadUInt32();
 			level.UnitName = CleanName(new string(reader.ReadChars(8)));
-			reader.BaseStream.Position = dataStart + 0xF8;
-			level.StreamUnitID = reader.ReadInt32();
 			level.SourceUnitName = level.UnitName;
+			reader.BaseStream.Position = dataStart + 0xF8;
+			level.UnitID = reader.ReadInt32();
+			level.SourceUnitID = level.UnitID;
 			reader.BaseStream.Position = dataStart + 0xF0;
 			level.SourceVersion = reader.ReadUInt32();
 			reader.BaseStream.Position = dataStart;
@@ -569,9 +575,9 @@ namespace SR1Repository
 			// There could be duplicate levels when unpacking. Read the data anyway for debugging.
 			if (_levels.Find(x => x.UnitName == level.UnitName) == null)
 			{
-				if (level.StreamUnitID >= _levels.NextAvailableID)
+				if (level.UnitID >= _levels.NextAvailableID)
 				{
-					_levels.NextAvailableID = level.StreamUnitID + 1;
+					_levels.NextAvailableID = level.UnitID + 1;
 				}
 
 				_levels.Add(level);
@@ -593,7 +599,7 @@ namespace SR1Repository
 				reader.BaseStream.Position = instanceStart + 0x4C * i;
 				intro.ObjectName = CleanName(new String(reader.ReadChars(16)));
 				intro.UnitName = level.UnitName;
-				intro.StreamUnitID = level.StreamUnitID;
+				intro.StreamUnitID = level.UnitID;
 				reader.BaseStream.Position += 4;
 				intro.IntroUniqueID = reader.ReadInt32();
 				intro.Rotation.X = reader.ReadInt16();
@@ -613,35 +619,56 @@ namespace SR1Repository
 			#endregion
 
 			#region Events
-			/*reader.BaseStream.Position = dataStart + 0xDC;
-            uint eventPointersOffset = reader.ReadUInt16();
-            reader.BaseStream.Position = dataStart + eventPointersOffset;
-            int numPuzzles = reader.ReadInt32();
-            for (int p = 0; p < numPuzzles; p++)
-            {
-                uint eventOffset = reader.ReadUInt32();
-                uint nextEventPointer = (uint)reader.BaseStream.Position;
+			reader.BaseStream.Position = dataStart + 0xDC;
+            uint eventPointersOffset = reader.ReadUInt32();
+			if (eventPointersOffset != 0)
+			{
+				reader.BaseStream.Position = dataStart + eventPointersOffset;
+				int numPuzzles = reader.ReadInt32();
+				for (int p = 0; p < numPuzzles; p++)
+				{
+					uint nextEventOffset = (uint)reader.BaseStream.Position + 0x04;
 
-                reader.BaseStream.Position = dataStart + eventOffset;
-                reader.BaseStream.Position += 0x02;
+					Event srEvent = new Event();
+                    srEvent.UnitName = level.UnitName;
+                    srEvent.StreamUnitID = level.UnitID;
+                    srEvent.EventOffset = reader.ReadUInt32();
+					reader.BaseStream.Position = dataStart + srEvent.EventOffset;
+					srEvent.EventNumber = reader.ReadInt16();
+					srEvent.NumInstances = reader.ReadInt16();
+                    reader.BaseStream.Position = dataStart + srEvent.EventOffset + 0x10;
+					srEvent.InstanceListOffset = reader.ReadUInt32();
+                    reader.BaseStream.Position = dataStart + srEvent.InstanceListOffset;
 
-                short numInstances = reader.ReadInt16();
-                reader.BaseStream.Position += 0x0C;
+                    for (int i = 0; i < srEvent.NumInstances; i++)
+                    {
+						uint nextInstanceOffset = (uint)reader.BaseStream.Position + 0x04;
 
-                for (int i = 0; i < 0; i++)
-                {
-                    uint instanceOffset = reader.ReadUInt32();
-                    uint nextInstancePointer = (uint)reader.BaseStream.Position;
+						EventInstance instance = new EventInstance();
+						
+						instance.EventInstanceOffset = reader.ReadUInt32();
+                        reader.BaseStream.Position = dataStart + instance.EventInstanceOffset;
+						instance.ID = reader.ReadInt16();
+						if (instance.ID == 1)
+						{
+							reader.BaseStream.Position += 0x02;
+							instance.UnitID = reader.ReadInt32();
+							instance.IntroID = reader.ReadInt32();
 
-                    reader.BaseStream.Position = dataStart + instanceOffset;
-                    short eventType = reader.ReadInt16();
-                    // Do EventInstance stuff here.
+							srEvent.Instances.Add(instance);
+                        }
 
-                    reader.BaseStream.Position = nextInstancePointer;
-                }
+						reader.BaseStream.Position = nextInstanceOffset;
+                    }
 
-                reader.BaseStream.Position = nextEventPointer;
-            }*/
+					if (addingLevel)
+					{
+						Events.Add(srEvent);
+					}
+
+					reader.BaseStream.Position = nextEventOffset;
+				}
+			}
 			#endregion
 		}
 
@@ -655,7 +682,7 @@ namespace SR1Repository
 				if (portal.SignalID == fromSignalID)
 				{
 					portal.DestUnitName = toLevel.UnitName;
-					portal.DestUnitID = toLevel.StreamUnitID;
+					portal.DestUnitID = toLevel.UnitID;
 					portal.DestSignalID = toSignalID;
 					UpdateLevelPortals(fromLevel);
 					break;
@@ -667,7 +694,7 @@ namespace SR1Repository
 				if (portal.SignalID == toSignalID)
 				{
 					portal.DestUnitName = fromLevel.UnitName;
-					portal.DestUnitID = fromLevel.StreamUnitID;
+					portal.DestUnitID = fromLevel.UnitID;
 					portal.DestSignalID = fromSignalID;
 					UpdateLevelPortals(toLevel);
 					break;
@@ -806,7 +833,7 @@ namespace SR1Repository
 
 		public bool FindAvailableStreamUnitID(ref int streamUnitID)
 		{
-			Comparer<Level> comparer = Comparer<Level>.Create((levelA, levelB) => levelA.StreamUnitID - levelB.StreamUnitID);
+			Comparer<Level> comparer = Comparer<Level>.Create((levelA, levelB) => levelA.UnitID - levelB.UnitID);
 			SortedSet<Level> sortedLevels = new SortedSet<Level>(comparer);
 			sortedLevels.UnionWith(Levels.Levels);
 
@@ -818,14 +845,14 @@ namespace SR1Repository
 					levelID++;
 				}
 
-				if (levelID < level.StreamUnitID)
+				if (levelID < level.UnitID)
 				{
 					streamUnitID = levelID;
 					break;
 				}
 
 				// Look one place ahead of the current level's ID for the next one.
-				levelID = level.StreamUnitID + 1;
+				levelID = level.UnitID + 1;
 			}
 
 			return true;
@@ -929,9 +956,15 @@ namespace SR1Repository
 			{
 				Console.WriteLine("Error: Cannot find intro file \"" + _introsFileName + "\".");
 				return false;
-			}
+            }
 
-			if (!File.Exists(_objectsFileName))
+            if (!File.Exists(_eventsFileName))
+            {
+                Console.WriteLine("Error: Cannot find event file \"" + _eventsFileName + "\".");
+                return false;
+            }
+
+            if (!File.Exists(_objectsFileName))
 			{
 				Console.WriteLine("Error: Cannot find object file \"" + _objectsFileName + "\".");
 				return false;
@@ -966,7 +999,10 @@ namespace SR1Repository
 				string introsFileData = File.ReadAllText(_introsFileName, Encoding.ASCII);
 				_intros = (IntroList)JsonSerializer.Deserialize(introsFileData, typeof(IntroList));
 
-				string objectsFileData = File.ReadAllText(_objectsFileName, Encoding.ASCII);
+                string eventsFileData = File.ReadAllText(_eventsFileName, Encoding.ASCII);
+                _events = (EventList)JsonSerializer.Deserialize(eventsFileData, typeof(EventList));
+
+                string objectsFileData = File.ReadAllText(_objectsFileName, Encoding.ASCII);
 				_objects = (ObjectList)JsonSerializer.Deserialize(objectsFileData, typeof(ObjectList));
 
 				string clipsFileData = File.ReadAllText(_clipsFileName, Encoding.ASCII);
@@ -1022,10 +1058,13 @@ namespace SR1Repository
 				string levelsFileData = JsonSerializer.Serialize(_levels, new JsonSerializerOptions { WriteIndented = true });
 				File.WriteAllText(_levelsFileName, levelsFileData, Encoding.ASCII);
 
-				string introsFileData = JsonSerializer.Serialize(_intros, new JsonSerializerOptions { WriteIndented = true });
-				File.WriteAllText(_introsFileName, introsFileData, Encoding.ASCII);
+                string introsFileData = JsonSerializer.Serialize(_intros, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(_introsFileName, introsFileData, Encoding.ASCII);
 
-				string clipsFileData = JsonSerializer.Serialize(_sfxClips, new JsonSerializerOptions { WriteIndented = true });
+                string eventsFileData = JsonSerializer.Serialize(_events, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(_eventsFileName, eventsFileData, Encoding.ASCII);
+
+                string clipsFileData = JsonSerializer.Serialize(_sfxClips, new JsonSerializerOptions { WriteIndented = true });
 				File.WriteAllText(_clipsFileName, clipsFileData, Encoding.ASCII);
 
 				string objectsFileData = JsonSerializer.Serialize(_objects, new JsonSerializerOptions { WriteIndented = true });
@@ -1051,6 +1090,7 @@ namespace SR1Repository
 			_assets = null;
 			_levels = null;
 			_intros = null;
+			_events = null;
 			_objects = null;
 			_sfxClips = null;
 			_textures = null;
@@ -1081,6 +1121,7 @@ namespace SR1Repository
 				_assets = new AssetDescList();
 				_levels = new LevelList();
 				_intros = new IntroList();
+				_events = new EventList();
 				_objects = new ObjectList();
 				_sfxClips = new SFXClipList();
 				_textures = new TexDescList();
@@ -1240,8 +1281,9 @@ namespace SR1Repository
 				Console.WriteLine("Extracted " + _assets.Count.ToString() + " files from \"" + _sourceBigfileName + "\".");
 				Console.WriteLine("Extracted " + _textures.Count.ToString() + " files from \"" + _sourceTexturesFileName + "\".");
 				Console.WriteLine("Discovered " + _levels.Count + " unique levels.");
-				Console.WriteLine("Discovered " + _intros.Count + " unique intros.");
-				Console.WriteLine("Discovered " + _sfxClips.Count + " unique sfxClips.");
+                Console.WriteLine("Discovered " + _intros.Count + " unique intros.");
+                Console.WriteLine("Discovered " + _events.Count + " unique events.");
+                Console.WriteLine("Discovered " + _sfxClips.Count + " unique sfxClips.");
 				Console.WriteLine("Discovered " + _objects.Count + " unique objects.");
 			}
 			catch (Exception)

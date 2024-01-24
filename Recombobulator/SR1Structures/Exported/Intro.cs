@@ -81,8 +81,11 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
-			new MultiSpline().ReadFromPointer(reader, multiSpline);
-		}
+            if (multiSpline.Offset != 0 && !reader.MultiSplineDictionary.ContainsKey(multiSpline.Offset))
+            {
+                reader.MultiSplineDictionary.Add(multiSpline.Offset, multiSpline);
+            }
+        }
 
 		public override void WriteMembers(SR1_Writer writer)
 		{
@@ -111,10 +114,9 @@ namespace Recombobulator.SR1Structures
 
 			if (file._Version != targetVersion)
 			{
-				if (file._Overrides.NewIntroIDs != null)
+				if (file._Overrides.NewIntroIDs.TryGetValue(UniqueID.Value, out int newIntroID))
 				{
-					UniqueID.Value = file._Overrides.NewIntroIDs[file._Overrides.NextIntroID];
-					file._Overrides.NextIntroID++;
+					UniqueID.Value = newIntroID;
 				}
 
 				if (file._Overrides.NewObjectNames.ContainsKey(name.ToString()))
@@ -126,7 +128,7 @@ namespace Recombobulator.SR1Structures
 
 		public override string ToString()
 		{
-			return "{ name = \"" + name.ToString().Trim('\0') + "\", data = " + data.ToString() + " }";
+			return "{ name = \"" + name.ToString().Trim('\0') + "-" + UniqueID.ToString() + "\", data = " + data.ToString() + " }";
 		}
 	}
 }

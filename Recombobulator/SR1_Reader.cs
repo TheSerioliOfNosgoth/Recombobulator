@@ -26,6 +26,7 @@ namespace Recombobulator
 		public SortedList<uint, SR1_PointerArray<Intro>> IntroListDictionary { get; } = new SortedList<uint, SR1_PointerArray<Intro>>();
 		public SortedList<uint, SR1_PointerBase> EventList { get; } = new SortedList<uint, SR1_PointerBase>();
 		public ScriptParser ScriptParser { get; } = new ScriptParser();
+        public SortedList<uint, SR1_Pointer<MultiSpline>> MultiSplineDictionary { get; } = new SortedList<uint, SR1_Pointer<MultiSpline>>();
 
 		public SR1_Reader(SR1_File file, Stream input, System.Text.Encoding encoding, bool leaveOpen)
 			: base(input, encoding, leaveOpen)

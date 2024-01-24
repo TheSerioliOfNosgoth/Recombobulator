@@ -64,10 +64,10 @@ namespace Recombobulator
 		{
 			public string NewName;
 			public readonly Dictionary<ushort, ushort> NewTextureIDs = new Dictionary<ushort, ushort>();
+			public int OldStreamUnitID;
 			public int NewStreamUnitID;
-			public int[] NewIntroIDs;
+            public readonly Dictionary<int, int> NewIntroIDs = new Dictionary<int, int>();
 			public readonly Dictionary<string, string> NewObjectNames = new Dictionary<string, string>();
-			public int NextIntroID;
 		}
 
 		public string _FilePath { get; private set; } = "";

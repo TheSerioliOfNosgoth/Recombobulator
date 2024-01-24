@@ -206,20 +206,26 @@ namespace Recombobulator
 							migrateFlags |= SR1_File.MigrateFlags.RemoveVertexMorphs;
 						}
 
+						SR1Structures.Level level = (SR1Structures.Level)_file._Structures[0];
+						uint sourceVersion = level.versionNumber.Value;
+
+						overrides.OldStreamUnitID = level.streamUnitID.Value;
 						overrides.NewStreamUnitID = 0;
 						_repository.FindAvailableStreamUnitID(ref overrides.NewStreamUnitID);
 
-						overrides.NewIntroIDs = new int[_file._IntroIDs.Count];
-						_repository.FindAvailableIntroIDs(ref overrides.NewIntroIDs);
-
-						SR1Structures.Level level = (SR1Structures.Level)_file._Structures[0];
-						uint sourceVersion = level.versionNumber.Value;
+						int[] newIntroIDs = new int[_file._IntroIDs.Count];
+                        _repository.FindAvailableIntroIDs(ref newIntroIDs);
+						for (int i = 0; i < newIntroIDs.Length; i++)
+						{
+                            overrides.NewIntroIDs.Add(_file._IntroIDs[i], newIntroIDs[i]);
+						}
 
 						//overrides.NewObjectNames.Add("priests", "witch");
 						_file.Export(addFileDialog.FullPath, SR1_File.Version.Retail_PC, migrateFlags, overrides);
 
 						string sourceUnitName = level.Name;
-						newObject = _repository.AddNewLevel(fileName, sourceUnitName, sourceVersion, textureSet.Name);
+						int sourceUnitID = level.streamUnitID.Value;
+						newObject = _repository.AddNewLevel(fileName, sourceUnitName, sourceUnitID, sourceVersion, textureSet.Name);
 						category = "Levels";
 					}
 					else
@@ -724,9 +730,10 @@ namespace Recombobulator
 
 				Level level = (Level)e.Node.Tag;
 				string text = "Unit Name: " + level.UnitName + "\r\n";
-				text += "Unit ID: " + level.StreamUnitID.ToString() + "\r\n";
+				text += "Unit ID: " + level.UnitID.ToString() + "\r\n";
 				text += "Source Unit Name: " + level.SourceUnitName + "\r\n";
-				text += "Source Version: 0x" + level.SourceVersion.ToString("X8") + "\r\n";
+                text += "Source Unit ID: " + level.SourceUnitID.ToString() + "\r\n";
+                text += "Source Version: 0x" + level.SourceVersion.ToString("X8") + "\r\n";
 				if (level.TextureSet != null && level.TextureSet != "")
 				{
 					text += "Texture Set (imported): " + level.TextureSet + "\r\n";
@@ -735,29 +742,64 @@ namespace Recombobulator
 				text += "Portals:\r\n";
 				foreach (Portal portal in level.Portals.Portals)
 				{
-					string newName = "missing";
+					string destUnitName = "missing";
 					if (portal.DestUnitName != null && portal.DestUnitName != "")
 					{
-						newName = portal.DestUnitName;
+						destUnitName = portal.DestUnitName;
 					}
 
-					int newID = portal.SignalID;
+					int signalID = portal.SignalID;
 
-					text += "\torigin { " + level.UnitName + ", " + newID + " }, destination { " + newName + ", " + portal.DestSignalID + " }, default { " + portal.OldDestUnitName + ", 0x" + portal.OldDestVersion.ToString("X8") + " }\r\n";
+					text += "\torigin { " + level.UnitName + ", " + signalID + " }, destination { " + destUnitName + ", " + portal.DestSignalID + " }, ";
+                    text += "old destination { " + portal.OldDestUnitName + ", " + portal.OldDestSignalID + ", 0x" + portal.OldDestVersion.ToString("X8") + " }\r\n";
 				}
 
 				text += "Intros:\r\n";
 				foreach (Intro intro in _repository.Intros.Intros)
 				{
-					if (intro.StreamUnitID == level.StreamUnitID)
+					if (intro.StreamUnitID == level.UnitID)
 					{
 						float rX = (intro.Rotation.X * 360) / 4096f;
 						float rY = (intro.Rotation.Y * 360) / 4096f;
 						float rZ = (intro.Rotation.Z * 360) / 4096f;
 
-						text += "\t" + intro.ObjectName + " " + intro.IntroUniqueID;
-						text += ", position {" + intro.Position.X + ", " + intro.Position.Y + ", " + intro.Position.Z + " }";
-						text += ", rotation {" + rX + ", " + rY + ", " + rZ + " }\r\n";
+						text += "\t" + intro.ObjectName + " " + intro.IntroUniqueID + " ";
+						text += "{ position {" + intro.Position.X + ", " + intro.Position.Y + ", " + intro.Position.Z + " }";
+						text += ", rotation {" + rX + ", " + rY + ", " + rZ + " } }\r\n";
+					}
+				}
+
+				text += "Events:\r\n";
+				foreach(Event srEvent in _repository.Events.Events)
+				{
+					if (srEvent.StreamUnitID == level.UnitID)
+					{
+						text += "\tevent " + srEvent.EventNumber.ToString() + "\r\n\t{\r\n";
+						text += "\t\tinstances\r\n\t\t{\r\n";
+
+						foreach (EventInstance instance in srEvent.Instances.Instances)
+						{
+							Intro intro = _repository.Intros.Find(x => x.IntroUniqueID == instance.IntroID);
+
+							string objectName = "missing " + instance.IntroID;
+                            string unitName = "missing";
+
+                            if (intro != null)
+							{
+								objectName = intro.ObjectName + " " + intro.IntroUniqueID;
+                                unitName = intro.UnitName;
+							}
+
+							text += "\t\t\t" + objectName;
+							text += " { ";
+                            text += "unitName { " + unitName + " }, ";
+                            text += "unitID { " + instance.UnitID.ToString() + " }, ";
+                            text += "offset { 0x" + instance.EventInstanceOffset.ToString("X8") + " }";
+                            text += " }\r\n";
+                        }
+
+						text += "\t\t}\r\n";
+						text += "\t}\r\n";
 					}
 				}
 
@@ -971,7 +1013,6 @@ namespace Recombobulator
 				}
 
 				object newObject = null;
-				string category = null;
 
 				if (importFile.isLevel)
 				{
@@ -982,18 +1023,23 @@ namespace Recombobulator
 						migrateFlags |= SR1_File.MigrateFlags.ForceWaterTranslucent;
 					}
 
-					overrides.NewStreamUnitID = 0;
-					_repository.FindAvailableStreamUnitID(ref overrides.NewStreamUnitID);
+                    SR1Structures.Level level = (SR1Structures.Level)_file._Structures[0];
+                    uint sourceVersion = level.versionNumber.Value;
 
-					overrides.NewIntroIDs = new int[file._IntroIDs.Count];
-					_repository.FindAvailableIntroIDs(ref overrides.NewIntroIDs);
+                    overrides.OldStreamUnitID = level.streamUnitID.Value;
+                    overrides.NewStreamUnitID = 0;
+                    _repository.FindAvailableStreamUnitID(ref overrides.NewStreamUnitID);
 
-					SR1Structures.Level level = (SR1Structures.Level)file._Structures[0];
-					uint sourceVersion = level.versionNumber.Value;
+                    int[] newIntroIDs = new int[_file._IntroIDs.Count];
+                    _repository.FindAvailableIntroIDs(ref newIntroIDs);
+                    for (int i = 0; i < newIntroIDs.Length; i++)
+                    {
+                        overrides.NewIntroIDs.Add(_file._IntroIDs[i], newIntroIDs[i]);
+                    }
 
-					//overrides.NewObjectNames.Add("priests", "witch");
+                    //overrides.NewObjectNames.Add("priests", "witch");
 
-					if (importFile.replaceObjects != null)
+                    if (importFile.replaceObjects != null)
 					{
 						foreach (ReplaceObject replaceObject in importFile.replaceObjects)
 						{
@@ -1005,14 +1051,13 @@ namespace Recombobulator
 					file.Export(exportPath, SR1_File.Version.Retail_PC, migrateFlags, overrides);
 
 					string sourceUnitName = level.Name;
-					newObject = _repository.AddNewLevel(exportName, sourceUnitName, sourceVersion, textureSet.Name);
-					category = "Levels";
+					int sourceUnitID = level.streamUnitID.Value;
+					newObject = _repository.AddNewLevel(exportName, sourceUnitName, sourceUnitID, sourceVersion, textureSet.Name);
 				}
 				else
 				{
 					file.Export(exportPath, SR1_File.Version.Retail_PC, migrateFlags, overrides);
 					newObject = _repository.AddNewObject(exportName, textureSet.Name);
-					category = "Objects";
 				}
 
 				_repository.AddNewAsset(relativeExportPath);
