@@ -9,7 +9,7 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_Pointer<BSPLeaf> startLeaves = new SR1_Pointer<BSPLeaf>();
 		public readonly SR1_Pointer<BSPLeaf> endLeaves = new SR1_Pointer<BSPLeaf>();
 		public readonly Position globalOffset = new Position();
-		public readonly SR1_Primative<short> flags = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> flags = new SR1_Primative<short>().ShowAsHex(true);
 		public readonly Position localOffset = new Position();
 		public readonly SR1_Primative<short> ID = new SR1_Primative<short>();
 		public readonly SR1_Primative<int> splineID = new SR1_Primative<int>();
@@ -81,6 +81,18 @@ namespace Recombobulator.SR1Structures
 						flags.Value &= ~0x0003; // Invisible and no collision.
 					}
 				}
+
+				if (file._Structures[0].Name == "movie2")
+                {
+					if (ID.Value == 1 || ID.Value == 3 || ID.Value == 6)
+                    {
+                        flags.Value |= 0x0003; // Invisible and no collision.
+                    }
+					else if (ID.Value == 2 || ID.Value == 5)
+					{
+						flags.Value &= unchecked((short)0xFFFC); // Visible and collision.
+					}
+                }
 
 				// Burn in sunlight. Set on fire.
 				// The 0x0040 seems right, but not sure about the 0x0002.
