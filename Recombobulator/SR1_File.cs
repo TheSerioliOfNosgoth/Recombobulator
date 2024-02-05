@@ -261,6 +261,11 @@ namespace Recombobulator
 								_Version = Version.Feb16;
 								validVersion = true;
 							}
+							else if (magicNum == 0xACE0005B)
+							{
+								_Version = Version.Feb04;
+								validVersion = true;
+							}
 						}
 					}
 					else

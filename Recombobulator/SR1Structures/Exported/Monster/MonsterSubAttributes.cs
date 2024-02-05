@@ -72,7 +72,7 @@ namespace Recombobulator.SR1Structures
 			modelNum.Read(reader, this, "modelNum");
 			physAbility.Read(reader, this, "physAbility");
 			stunnable.Read(reader, this, "stunnable");
-			grabable.Read(reader, this, "grabable");
+			grabable.Read(reader, this, "grabable", SR1_File.Version.Feb16, SR1_File.Version.Next);
 			numSections.Read(reader, this, "numSections");
 			sectionEnd.Read(reader, this, "sectionEnd");
 			defPlayerAttitude.Read(reader, this, "defPlayerAttitude");
@@ -133,7 +133,7 @@ namespace Recombobulator.SR1Structures
 			modelNum.Write(writer);
 			physAbility.Write(writer);
 			stunnable.Write(writer);
-			grabable.Write(writer);
+			grabable.Write(writer, SR1_File.Version.Feb16, SR1_File.Version.Next);
 			numSections.Write(writer);
 			sectionEnd.Write(writer);
 			defPlayerAttitude.Write(writer);

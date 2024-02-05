@@ -181,6 +181,10 @@ namespace Recombobulator.SR1Structures
 					{
 						new PriestsTuneData().ReadFromPointer(reader, monAttributes.tunData);
 					}
+					else if (Name == "morboss_")
+					{
+						new MorBossTuneData().ReadFromPointer(reader, monAttributes.tunData);
+					}
 				}
 				else if (Name == "raziel__")
 				{

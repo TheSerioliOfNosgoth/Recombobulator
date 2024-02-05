@@ -1023,18 +1023,18 @@ namespace Recombobulator
 						migrateFlags |= SR1_File.MigrateFlags.ForceWaterTranslucent;
 					}
 
-                    SR1Structures.Level level = (SR1Structures.Level)_file._Structures[0];
+                    SR1Structures.Level level = (SR1Structures.Level)file._Structures[0];
                     uint sourceVersion = level.versionNumber.Value;
 
                     overrides.OldStreamUnitID = level.streamUnitID.Value;
                     overrides.NewStreamUnitID = 0;
                     _repository.FindAvailableStreamUnitID(ref overrides.NewStreamUnitID);
 
-                    int[] newIntroIDs = new int[_file._IntroIDs.Count];
+                    int[] newIntroIDs = new int[file._IntroIDs.Count];
                     _repository.FindAvailableIntroIDs(ref newIntroIDs);
                     for (int i = 0; i < newIntroIDs.Length; i++)
                     {
-                        overrides.NewIntroIDs.Add(_file._IntroIDs[i], newIntroIDs[i]);
+                        overrides.NewIntroIDs.Add(file._IntroIDs[i], newIntroIDs[i]);
                     }
 
                     //overrides.NewObjectNames.Add("priests", "witch");
@@ -1281,8 +1281,8 @@ namespace Recombobulator
 
 			ReplaceObject replaceUndblk = new ReplaceObject { oldObject = "undblk", newObject = "pshblk" };
 			ReplaceObject replaceDumbub = new ReplaceObject { oldObject = "dumbub", newObject = "pshblk" };
-			ReplaceObject replacePriests = new ReplaceObject { oldObject = "priests", newObject = "vlgra" };
-			ReplaceObject[] replaceUCObjects = new ReplaceObject[] { replaceUndblk, replaceDumbub, replacePriests };
+			// ReplaceObject replacePriests = new ReplaceObject { oldObject = "priests", newObject = "vlgra" };
+			ReplaceObject[] replaceUCObjects = new ReplaceObject[] { replaceUndblk, replaceDumbub/*, replacePriests*/ };
 
 			importFiles.Add(new ImportFile { importName = "undrct1", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "undrct2", isLevel = true });
@@ -1302,11 +1302,11 @@ namespace Recombobulator
 			importFiles.Add(new ImportFile { importName = "undrct22", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "undrct23", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lantrn", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "priests", isLevel = false });
 			//importFiles.Add(new ImportFile { importName = "bwall", isLevel = false }); // Not needed in Feb 16.
 			//importFiles.Add(new ImportFile { importName = "swall", isLevel = false }); // Not needed in Feb 16.
 			//importFiles.Add(new ImportFile { importName = "undblk", isLevel = false }); // Can't convert. Replace with pshblk.
 			//importFiles.Add(new ImportFile { importName = "dumbub", isLevel = false }); // Can't convert. Replace with pshblk.
-			//importFiles.Add(new ImportFile { importName = "priests", isLevel = false }); // Can't convert. Replace with vlgra.
 
 			List<ReplacePortal> replacePortals = importScript.ReplacePortals;
 			replacePortals.Add(new ReplacePortal { fromSignal = "city8,2", toSignal = "city17,1" });
@@ -1550,8 +1550,8 @@ namespace Recombobulator
 
 			ReplaceObject replaceUndblk = new ReplaceObject { oldObject = "undblk", newObject = "pshblk" };
 			ReplaceObject replaceDumbub = new ReplaceObject { oldObject = "dumbub", newObject = "pshblk" };
-			ReplaceObject replacePriests = new ReplaceObject { oldObject = "priests", newObject = "vlgra" };
-			ReplaceObject[] replaceUCObjects = new ReplaceObject[] { replaceUndblk, replaceDumbub, replacePriests };
+			//ReplaceObject replacePriests = new ReplaceObject { oldObject = "priests", newObject = "vlgra" };
+			ReplaceObject[] replaceUCObjects = new ReplaceObject[] { replaceUndblk, replaceDumbub/*, replacePriests*/ };
 
 			importFiles.Add(new ImportFile { importName = "undrct1", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "undrct2", isLevel = true });
@@ -1571,11 +1571,11 @@ namespace Recombobulator
 			importFiles.Add(new ImportFile { importName = "undrct22", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "undrct23", isLevel = true });
 			importFiles.Add(new ImportFile { importName = "lantrn", isLevel = false });
+			importFiles.Add(new ImportFile { importName = "priests", isLevel = false });
 			//importFiles.Add(new ImportFile { importName = "bwall", isLevel = false }); // Not needed in Feb 16.
 			//importFiles.Add(new ImportFile { importName = "swall", isLevel = false }); // Not needed in Feb 16.
 			//importFiles.Add(new ImportFile { importName = "undblk", isLevel = false }); // Can't convert. Replace with pshblk.
 			//importFiles.Add(new ImportFile { importName = "dumbub", isLevel = false }); // Can't convert. Replace with pshblk.
-			//importFiles.Add(new ImportFile { importName = "priests", isLevel = false }); // Can't convert. Replace with vlgra.
 
 			replacePortals.Add(new ReplacePortal { fromSignal = "city8,2", toSignal = "city17,1" });
 			replacePortals.Add(new ReplacePortal { fromSignal = "city12,1", toSignal = "city22,2" });

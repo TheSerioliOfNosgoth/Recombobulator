@@ -47,16 +47,29 @@ namespace Recombobulator.SR1Structures
 		}
 
 		public readonly SR1_Primative<byte> sectionCount = new SR1_Primative<byte>();
+		public readonly SR1_Primative<ushort> keyCount = new SR1_Primative<ushort>();
+		public readonly SR1_Primative<byte> timePerKeyA = new SR1_Primative<byte>();
+		public readonly SR1_Primative<short> timePerKey = new SR1_Primative<short>();
+		public readonly SR1_Primative<byte> skipFactor = new SR1_Primative<byte>();
+
 		public readonly SR1_Primative<byte> s0TailTime = new SR1_Primative<byte>();
 		public readonly SR1_Primative<byte> s1TailTime = new SR1_Primative<byte>();
 		public readonly SR1_Primative<byte> s2TailTime = new SR1_Primative<byte>();
-		public readonly SR1_Primative<ushort> keyCount = new SR1_Primative<ushort>();
 
-		public readonly SR1_Primative<short> timePerKey = new SR1_Primative<short>();
+		public readonly SR1_Primative<byte> pad00A = new SR1_Primative<byte>();
+		public readonly SR1_Primative<byte> pad01A = new SR1_Primative<byte>();
+		public readonly SR1_Primative<byte> pad02A = new SR1_Primative<byte>();
+		public readonly SR1_Primative<byte> droppedEndKeys = new SR1_Primative<byte>();
+		public readonly SR1_Primative<byte> pad10A = new SR1_Primative<byte>();
+		public readonly SR1_Primative<byte> pad11A = new SR1_Primative<byte>();
+		public readonly SR1_Primative<byte> pad12A = new SR1_Primative<byte>();
+
 		public readonly SR1_Primative<ushort> pad00 = new SR1_Primative<ushort>();
 		public readonly SR1_Primative<short> pad01 = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> pad02 = new SR1_Primative<short>();
 		public readonly SR1_Primative<ushort> pad10 = new SR1_Primative<ushort>();
 		public readonly SR1_Primative<short> pad11 = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> pad12 = new SR1_Primative<short>();
 		public readonly SR1_Pointer<G2AnimFxHeader_Type> fxList = new SR1_Pointer<G2AnimFxHeader_Type>();
 
 		SectionData sectionData = new SectionData();
@@ -76,11 +89,21 @@ namespace Recombobulator.SR1Structures
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
-			sectionCount.Read(reader, this, "sectionCount");
-			s0TailTime.Read(reader, this, "s0TailTime");
-			s1TailTime.Read(reader, this, "s1TailTime");
-			s2TailTime.Read(reader, this, "s2TailTime");
-			keyCount.Read(reader, this, "keyCount");
+			if (reader.File._Version >= SR1_File.Version.Feb16)
+			{
+				sectionCount.Read(reader, this, "sectionCount");
+				s0TailTime.Read(reader, this, "s0TailTime");
+				s1TailTime.Read(reader, this, "s1TailTime");
+				s2TailTime.Read(reader, this, "s2TailTime");
+				keyCount.Read(reader, this, "keyCount");
+			}
+			else
+			{
+				keyCount.Read(reader, this, "keyCount");
+				sectionCount.Read(reader, this, "sectionCount");
+				timePerKeyA.Read(reader, this, "timePerKey");
+				skipFactor.Read(reader, this, "skipFactor");
+			}
 
 			if (sectionCount.Value == 255)
 			{
@@ -91,12 +114,26 @@ namespace Recombobulator.SR1Structures
 			{
 				ReadSectionData(reader);
 
-				timePerKey.Read(reader, this, "timePerKey");
-				pad00.Read(reader, this, "pad00");
-				pad01.Read(reader, this, "pad01");
-				pad10.Read(reader, this, "pad10");
-				pad11.Read(reader, this, "pad11");
-				fxList.Read(reader, this, "fxList");
+				if (reader.File._Version >= SR1_File.Version.Feb16)
+				{
+					timePerKey.Read(reader, this, "timePerKey");
+					pad00.Read(reader, this, "pad00");
+					pad01.Read(reader, this, "pad01");
+					pad10.Read(reader, this, "pad10");
+					pad11.Read(reader, this, "pad11");
+					fxList.Read(reader, this, "fxList");
+				}
+				else
+				{
+					pad00A.Read(reader, this, "pad00");
+					pad01A.Read(reader, this, "pad01");
+					pad02A.Read(reader, this, "pad02");
+					droppedEndKeys.Read(reader, this, "droppedEndKeys");
+					pad10A.Read(reader, this, "pad10");
+					pad11A.Read(reader, this, "pad11");
+					pad12A.Read(reader, this, "pad12");
+					fxList.Read(reader, this, "fxList");
+				}
 
 				uint mod;
 				long segKeyList = 0;
@@ -171,11 +208,21 @@ namespace Recombobulator.SR1Structures
 
 		public override void WriteMembers(SR1_Writer writer)
 		{
-			sectionCount.Write(writer);
-			s0TailTime.Write(writer);
-			s1TailTime.Write(writer);
-			s2TailTime.Write(writer);
-			keyCount.Write(writer);
+			if (writer.File._Version >= SR1_File.Version.Feb16)
+			{
+				sectionCount.Write(writer);
+				s0TailTime.Write(writer);
+				s1TailTime.Write(writer);
+				s2TailTime.Write(writer);
+				keyCount.Write(writer);
+			}
+			else
+			{
+				keyCount.Write(writer);
+				sectionCount.Write(writer);
+				timePerKeyA.Write(writer);
+				skipFactor.Write(writer);
+			}
 
 			if (sectionCount.Value == 255)
 			{
@@ -183,12 +230,26 @@ namespace Recombobulator.SR1Structures
 			}
 			else
 			{
-				timePerKey.Write(writer);
-				pad00.Write(writer);
-				pad01.Write(writer);
-				pad10.Write(writer);
-				pad11.Write(writer);
-				fxList.Write(writer);
+				if (writer.File._Version >= SR1_File.Version.Feb16)
+				{
+					timePerKey.Write(writer);
+					pad00.Write(writer);
+					pad01.Write(writer);
+					pad10.Write(writer);
+					pad11.Write(writer);
+					fxList.Write(writer);
+				}
+				else
+				{
+					pad00A.Write(writer);
+					pad01A.Write(writer);
+					pad02A.Write(writer);
+					droppedEndKeys.Write(writer);
+					pad10A.Write(writer);
+					pad11A.Write(writer);
+					pad12A.Write(writer);
+					fxList.Write(writer);
+				}
 
 				if (sectionData.numSections > 0) channels[0].chanData.Write(writer);
 				if (sectionData.numSections > 1) channels[1].chanData.Write(writer);

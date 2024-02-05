@@ -75,12 +75,12 @@ namespace Recombobulator.SR1Structures
 			spineSegment.Read(reader, this, "spineSegment");
 			leftWeaponSegment.Read(reader, this, "leftWeaponSegment");
 			rightWeaponSegment.Read(reader, this, "rightWeaponSegment");
-			grabSegment.Read(reader, this, "grabSegment");
+			grabSegment.Read(reader, this, "grabSegment", SR1_File.Version.Feb16, SR1_File.Version.Next);
 			bloodImpaleFrame.Read(reader, this, "bloodImpaleFrame");
 			bloodConeFrame.Read(reader, this, "bloodConeFrame");
-			bruiseRed.Read(reader, this, "bruiseRed", SR1_File.Version.First, SR1_File.Version.Jun01);
-			bruiseGreen.Read(reader, this, "bruiseGreen", SR1_File.Version.First, SR1_File.Version.Jun01);
-			bruiseBlue.Read(reader, this, "bruiseBlue", SR1_File.Version.First, SR1_File.Version.Jun01);
+			bruiseRed.Read(reader, this, "bruiseRed", SR1_File.Version.Feb16, SR1_File.Version.Jun01);
+			bruiseGreen.Read(reader, this, "bruiseGreen", SR1_File.Version.Feb16, SR1_File.Version.Jun01);
+			bruiseBlue.Read(reader, this, "bruiseBlue", SR1_File.Version.Feb16, SR1_File.Version.Jun01);
 			numSubAttributes.Read(reader, this, "numSubAttributes");
 			numCombatAttributes.Read(reader, this, "numCombatAttributes");
 			numAttackAttributes.Read(reader, this, "numAttackAttributes");
@@ -186,12 +186,12 @@ namespace Recombobulator.SR1Structures
 			spineSegment.Write(writer);
 			leftWeaponSegment.Write(writer);
 			rightWeaponSegment.Write(writer);
-			grabSegment.Write(writer);
+			grabSegment.Write(writer, SR1_File.Version.Feb16, SR1_File.Version.Next);
 			bloodImpaleFrame.Write(writer);
 			bloodConeFrame.Write(writer);
-			bruiseRed.Write(writer, SR1_File.Version.First, SR1_File.Version.Jun01);
-			bruiseGreen.Write(writer, SR1_File.Version.First, SR1_File.Version.Jun01);
-			bruiseBlue.Write(writer, SR1_File.Version.First, SR1_File.Version.Jun01);
+			bruiseRed.Write(writer, SR1_File.Version.Feb16, SR1_File.Version.Jun01);
+			bruiseGreen.Write(writer, SR1_File.Version.Feb16, SR1_File.Version.Jun01);
+			bruiseBlue.Write(writer, SR1_File.Version.Feb16, SR1_File.Version.Jun01);
 			numSubAttributes.Write(writer);
 			numCombatAttributes.Write(writer);
 			numAttackAttributes.Write(writer);
@@ -218,16 +218,19 @@ namespace Recombobulator.SR1Structures
 			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
 			{
 				magicnum.Value = 0xACE00065;
-				//whatAmI.Value = 66;
 
-				if (tunData.Offset != 0)
-				{
-					file._Structures.Remove(tunData.Offset);
-					tunData.Offset = 0;
-				}
-
-				/*if (numBehaviors.Value == 0)
+				// For the priestess.
+				if (file._Structures[0].Name == "priests_")
                 {
+					// Not needed?
+					//if (tunData.Offset != 0)
+					//{
+					//	file._Structures.Remove(tunData.Offset);
+					//	tunData.Offset = 0;
+					//}
+
+					//whatAmI.Value = 66; // Not needed?
+
                     numBehaviors.Value = 2;
 
                     SR1_Structure lastStructure = file._Structures.Values[file._Structures.Count - 1];
@@ -244,7 +247,7 @@ namespace Recombobulator.SR1Structures
                     newBehaviors.idleList[3] = -1;
                     newBehaviors.idleList[4] = -1;
                     file._MigrationStructures.Add(position, newBehaviors);
-                }*/
+                }
 			}
 		}
 	}
