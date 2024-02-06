@@ -54,7 +54,8 @@ namespace Recombobulator.SR1Structures
 
 			// This needs to be at the end so that other structures can be checked for first.
 			// The padding was causing issues when it was at the very end of the file.
-			if (normalsStruct.End != reader.BaseStream.Length && !reader.File._Structures.ContainsKey(normalsStruct.End))
+			if (normalsStruct.End != startTextures.Offset &&
+				normalsStruct.End != reader.BaseStream.Length && !reader.File._Structures.ContainsKey(normalsStruct.End))
 			{
 				new SR1_PrimativeArray<byte>(0).SetPadding(4).ReadOrphan(reader, normalsStruct.End);
 			}
@@ -74,8 +75,12 @@ namespace Recombobulator.SR1Structures
 					{
 						uint textureOffset = texturePosition - startTextures.Offset;
 						int textureIndex = (int)(textureOffset / textureSize);
-						face.Texture = (TextureMT3)textures[textureIndex];
-						face.Texture.NumReferences++;
+
+						if (textures != null && textureIndex < textures.Count)
+						{
+							face.Texture = (TextureMT3)textures[textureIndex];
+							face.Texture.NumReferences++;
+						}
 					}
 				}
 			}
