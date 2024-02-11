@@ -7,7 +7,7 @@ namespace Recombobulator.SR1Structures
 	{
 		SR1_Primative<short> type = new SR1_Primative<short>();
 		SR1_Primative<short> timeToColor = new SR1_Primative<short>();
-		SR1_Primative<int> color = new SR1_Primative<int>();
+		SR1_Primative<int> color = new SR1_Primative<int>().ShowAsHex(true);
 		SR1_Primative<short> timeAtColor = new SR1_Primative<short>();
 		SR1_Primative<short> timeFromColor = new SR1_Primative<short>();
 
@@ -31,6 +31,15 @@ namespace Recombobulator.SR1Structures
 			color.Write(writer);
 			timeAtColor.Write(writer);
 			timeFromColor.Write(writer);
+		}
+
+		public static void Copy(GenericFlashParams to, GenericFlashParams from)
+		{
+			to.type.Value = from.type.Value;
+			to.timeToColor.Value = from.timeToColor.Value;
+			to.color.Value = from.color.Value;
+			to.timeAtColor.Value = from.timeAtColor.Value;
+			to.timeFromColor.Value = from.timeFromColor.Value;
 		}
 	}
 }

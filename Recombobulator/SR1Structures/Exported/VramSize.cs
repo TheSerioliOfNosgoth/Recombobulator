@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class VramSize : SR1_Structure
+	public class VramSize : SR1_Structure
 	{
 		public readonly SR1_Primative<short> x = new SR1_Primative<short>();
 		public readonly SR1_Primative<short> y = new SR1_Primative<short>();

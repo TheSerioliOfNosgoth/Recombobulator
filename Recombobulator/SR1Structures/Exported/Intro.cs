@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class Intro : SR1_Structure
+	public class Intro : SR1_Structure
 	{
 		public readonly SR1_String name = new SR1_String(16);
 		public readonly SR1_Primative<int> intronum = new SR1_Primative<int>();

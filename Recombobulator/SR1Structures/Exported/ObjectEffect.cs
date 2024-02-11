@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class ObjectEffect : SR1_Structure
+	public class ObjectEffect : SR1_Structure
 	{
 		SR1_Primative<byte> effectNumber = new SR1_Primative<byte>();
 		SR1_PrimativeArray<byte> modifierList = new SR1_PrimativeArray<byte>(3);

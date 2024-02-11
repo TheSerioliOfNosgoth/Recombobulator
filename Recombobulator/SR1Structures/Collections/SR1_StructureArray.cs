@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	abstract class SR1_StructureArray : SR1_StructureArrayBase<SR1_Structure>
+	public abstract class SR1_StructureArray : SR1_StructureArrayBase<SR1_Structure>
 	{
 		public SR1_StructureArray(params int[] dimensions)
 			: base(dimensions)
@@ -12,7 +12,7 @@ namespace Recombobulator.SR1Structures
 		}
 	}
 
-	class SR1_StructureArray<T> : SR1_StructureArray where T : SR1_Structure, new()
+	public class SR1_StructureArray<T> : SR1_StructureArray where T : SR1_Structure, new()
 	{
 		public SR1_StructureArray(params int[] dimensions)
 			: base(dimensions)

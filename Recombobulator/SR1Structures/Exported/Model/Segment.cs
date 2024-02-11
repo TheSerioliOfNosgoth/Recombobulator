@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class Segment : SR1_Structure
+	public class Segment : SR1_Structure
 	{
 		SR1_Primative<int> flags = new SR1_Primative<int>();
 		SR1_Primative<short> firstTri = new SR1_Primative<short>();

@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class MonsterAllegiances : SR1_Structure
+	public class MonsterAllegiances : SR1_Structure
 	{
 		SR1_Primative<uint> enemies = new SR1_Primative<uint>();
 		SR1_Primative<uint> allies = new SR1_Primative<uint>();

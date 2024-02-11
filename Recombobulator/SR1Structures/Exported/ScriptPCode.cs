@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class ScriptPCode : SR1_Structure
+	public class ScriptPCode : SR1_Structure
 	{
 		public SR1_Primative<ushort> sizeOfPcodeStream = new SR1_Primative<ushort>();
 		public SR1_Primative<ushort> conditionBits = new SR1_Primative<ushort>();

@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class Signal : SR1_Structure
+	public class Signal : SR1_Structure
 	{
 		public enum SignalTypeJun01
 		{

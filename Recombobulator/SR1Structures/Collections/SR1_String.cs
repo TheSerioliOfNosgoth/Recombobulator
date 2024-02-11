@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class SR1_String : SR1_PrimativeArray<char>
+	public class SR1_String : SR1_PrimativeArray<char>
 	{
 		bool _readMax = false;
 

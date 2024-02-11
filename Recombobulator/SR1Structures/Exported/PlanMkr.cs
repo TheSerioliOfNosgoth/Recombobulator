@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class PlanMkr : SR1_Structure
+	public class PlanMkr : SR1_Structure
 	{
 		Position pos = new Position();
 		SR1_Primative<short> id = new SR1_Primative<short>();

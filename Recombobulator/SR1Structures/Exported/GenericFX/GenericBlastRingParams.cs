@@ -27,8 +27,8 @@ namespace Recombobulator.SR1Structures
 		SR1_Primative<short> height2 = new SR1_Primative<short>();
 		SR1_Primative<short> height3 = new SR1_Primative<short>();
 		SR1_Primative<short> predator_offset = new SR1_Primative<short>();
-		SR1_Primative<int> startColor = new SR1_Primative<int>();
-		SR1_Primative<int> endColor = new SR1_Primative<int>();
+		SR1_Primative<int> startColor = new SR1_Primative<int>().ShowAsHex(true);
+		SR1_Primative<int> endColor = new SR1_Primative<int>().ShowAsHex(true);
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
@@ -130,6 +130,34 @@ namespace Recombobulator.SR1Structures
 				startColor.Write(writer);
 				endColor.Write(writer);
 			}
+		}
+
+		public static void Copy(GenericBlastRingParams to, GenericBlastRingParams from)
+		{
+			to.type.Value = from.type.Value;
+			to.type_b.Value = from.type_b.Value;
+			to.use_child.Value = from.use_child.Value;
+			to.lifeTime.Value = from.lifeTime.Value;
+			Position.Copy(to.offset, from.offset);
+			SVector.Copy(to.offset_b, from.offset_b);
+			to.matrixSeg.Value = from.matrixSeg.Value;
+			to.segment.Value = from.segment.Value;
+			to.segment_b.Value = from.segment_b.Value;
+			to.sortInWorld.Value = from.sortInWorld.Value;
+			to.sortInWorld_b.Value = from.sortInWorld_b.Value;
+			to.radius.Value = from.radius.Value;
+			to.size1.Value = from.size1.Value;
+			to.size2.Value = from.size2.Value;
+			to.endRadius.Value = from.endRadius.Value;
+			to.colorchange_radius.Value = from.colorchange_radius.Value;
+			to.vel.Value = from.vel.Value;
+			to.accl.Value = from.accl.Value;
+			to.height1.Value = from.height1.Value;
+			to.height2.Value = from.height2.Value;
+			to.height3.Value = from.height3.Value;
+			to.predator_offset.Value = from.predator_offset.Value;
+			to.startColor.Value = from.startColor.Value;
+			to.endColor.Value = from.endColor.Value;
 		}
 	}
 }

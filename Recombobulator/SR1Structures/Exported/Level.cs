@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class Level : SR1_Structure
+	public class Level : SR1_Structure
 	{
 		// Use      //.*\r?\n     to search and remove comments.
 

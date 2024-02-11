@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class MonsterCombatAttributes : SR1_Structure
+	public class MonsterCombatAttributes : SR1_Structure
 	{
 		SR1_Primative<short> stunTime = new SR1_Primative<short>();
 		SR1_Primative<short> damageTime = new SR1_Primative<short>();

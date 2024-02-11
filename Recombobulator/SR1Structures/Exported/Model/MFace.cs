@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class MFace : SR1_Structure
+	public class MFace : SR1_Structure
 	{
 		public readonly Face face = new Face();
 		public readonly SR1_Primative<byte> normal = new SR1_Primative<byte>();

@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class Model : SR1_Structure
+	public class Model : SR1_Structure
 	{
 		public readonly SR1_Primative<int> numVertices = new SR1_Primative<int>();
 		public readonly SR1_Pointer<MVertex> vertexList = new SR1_Pointer<MVertex>();

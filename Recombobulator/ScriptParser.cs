@@ -3,7 +3,7 @@ using Recombobulator.SR1Structures;
 
 namespace Recombobulator
 {
-	class ScriptParser
+	public class ScriptParser
 	{
 		enum ScriptType : sbyte
 		{

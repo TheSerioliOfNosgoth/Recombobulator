@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class SR1_StructureList<T> : SR1_Structure, IReadOnlyList<SR1_Structure> where T : SR1_Structure
+	public class SR1_StructureList<T> : SR1_Structure, IReadOnlyList<SR1_Structure> where T : SR1_Structure
 	{
 		protected List<SR1_Structure> _List = new List<SR1_Structure>();
 

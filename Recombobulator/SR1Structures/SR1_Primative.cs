@@ -4,9 +4,8 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class SR1_Primative<T> : SR1_PrimativeBase // where T : struct
+	public class SR1_Primative<T> : SR1_PrimativeBase // where T : struct
 	{
-		protected bool _showAsHex;
 
 		public T Value { get; set; }
 

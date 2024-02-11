@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class MultiSpline : SR1_Structure
+	public class MultiSpline : SR1_Structure
 	{
 		SR1_Pointer<Spline> positional = new SR1_Pointer<Spline>();
 		SR1_Pointer<RSpline> rotational = new SR1_Pointer<RSpline>();

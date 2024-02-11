@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class SpotLight : SR1_Structure
+	public class SpotLight : SR1_Structure
 	{
 		NodeType node = new NodeType();
 		SR1_Primative<byte> r = new SR1_Primative<byte>();

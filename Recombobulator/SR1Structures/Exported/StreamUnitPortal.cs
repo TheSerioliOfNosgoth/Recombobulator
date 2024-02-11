@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class StreamUnitPortal : SR1_Structure
+	public class StreamUnitPortal : SR1_Structure
 	{
 		public readonly SR1_String tolevelname = new SR1_String(16);
 		public readonly SR1_Primative<int> MSignalID = new SR1_Primative<int>();

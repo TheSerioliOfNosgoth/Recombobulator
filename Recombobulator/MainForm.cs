@@ -24,7 +24,7 @@ namespace Recombobulator
 			InitializeComponent();
 		}
 
-		private void OpenFileToolStripMenuItem_Click(object sender, EventArgs e)
+		private void OpenDataFileToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			OpenFileDialog dialog = new OpenFileDialog
 			{
@@ -85,7 +85,7 @@ namespace Recombobulator
 					_fileLoaded = true;
 
 					testExportToolStripMenuItem.Enabled = _fileLoaded;
-					addToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
+					addDataFileToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
 				}
 				catch (Exception ex)
 				{
@@ -115,7 +115,7 @@ namespace Recombobulator
 			}
 		}
 
-		private void AddToProjectToolStripMenuItem_Click(object sender, EventArgs e)
+		private void AddDataFileToProjectToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			string fileName = Path.GetFileNameWithoutExtension(_file._FilePath);
 
@@ -332,8 +332,8 @@ namespace Recombobulator
 			_progressWindow.ShowInTaskbar = false;
 			this.Enabled = false;
 
-			addToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
-			compileProjectToolStripMenuItem.Enabled = (_repository != null);
+			addDataFileToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
+            compileProjectToolStripMenuItem.Enabled = (_repository != null);
 			scriptedImportsToolStripMenuItem.Enabled = (_repository != null);
 			editPortalToolStripMenuItem.Enabled = false;
 
@@ -342,7 +342,7 @@ namespace Recombobulator
 
 		private void EndUnpacking()
 		{
-			addToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
+			addDataFileToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
 			compileProjectToolStripMenuItem.Enabled = (_repository != null);
 			scriptedImportsToolStripMenuItem.Enabled = (_repository != null);
 			editPortalToolStripMenuItem.Enabled = false;
@@ -617,7 +617,7 @@ namespace Recombobulator
 			Properties.Settings.Default.RecentFolder = folderDialog.SelectedPath;
 			Properties.Settings.Default.Save();
 
-			addToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
+			addDataFileToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
 			compileProjectToolStripMenuItem.Enabled = (_repository != null);
 			scriptedImportsToolStripMenuItem.Enabled = (_repository != null);
 			editPortalToolStripMenuItem.Enabled = false;
@@ -627,7 +627,7 @@ namespace Recombobulator
 			{
 				_repository = repository;
 
-				addToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
+				addDataFileToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
 				compileProjectToolStripMenuItem.Enabled = (_repository != null);
 				scriptedImportsToolStripMenuItem.Enabled = (_repository != null);
 				editPortalToolStripMenuItem.Enabled = false;
@@ -1704,6 +1704,90 @@ namespace Recombobulator
 			#endregion
 
 			DoScriptedImport(dialog.SelectedPath, importScript);
+		}
+
+		private void OpenParticlesPCFileToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			OpenFileDialog dialog = new OpenFileDialog
+			{
+				CheckFileExists = true,
+				CheckPathExists = true,
+				Filter =
+					"Soul Reaver Files|*.pcm;*.drm|" +
+					"All Files (*.*)|*.*",
+				DefaultExt = "pcm",
+				FilterIndex = 1
+			};
+
+			if (dialog.ShowDialog() == DialogResult.OK)
+			{
+				try
+				{
+					//string filePath = _repository.MakeObjectFilePath("particle", true);
+					particlesPanel.Open(dialog.FileName, dialog.FileName);
+				}
+				catch (Exception ex)
+				{
+
+				}
+
+				displayModeTabs.SelectedTab = particlesTab;
+				saveParticlesFileToolStripMenuItem.Enabled = true;
+			}
+		}
+
+		private void OpenParticlesPSXFileToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			OpenFileDialog dialog = new OpenFileDialog
+			{
+				CheckFileExists = true,
+				CheckPathExists = true,
+				Filter =
+					"Soul Reaver Files|*.pcm;*.drm|" +
+					"All Files (*.*)|*.*",
+				DefaultExt = "pcm",
+				FilterIndex = 1
+			};
+
+			if (dialog.ShowDialog() == DialogResult.OK)
+			{
+				try
+				{
+					//string filePath = _repository.MakeObjectFilePath("particle", true);
+					particlesPanel.Open(dialog.FileName, dialog.FileName);
+				}
+				catch (Exception ex)
+				{
+
+				}
+
+				displayModeTabs.SelectedTab = particlesTab;
+				saveParticlesFileToolStripMenuItem.Enabled = true;
+			}
+		}
+
+		private void SaveParticlesFileToolStripMenuItem_Click(object sender, System.EventArgs e)
+		{
+			SaveFileDialog dialog = new SaveFileDialog
+			{
+				CheckFileExists = true,
+				CheckPathExists = true,
+				Filter = "Soul Reaver Files|*.pcm;*.drm",
+				DefaultExt = "pcm",
+				FilterIndex = 1
+			};
+
+			if (dialog.ShowDialog() == DialogResult.OK)
+			{
+				try
+				{
+					particlesPanel.Save(dialog.FileName);
+				}
+				catch (Exception ex)
+				{
+
+				}
+			}
 		}
 	}
 }

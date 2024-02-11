@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class PhysObProperties : SR1_Structure
+	public class PhysObProperties : SR1_Structure
 	{
 		public readonly SR1_Primative<short> version = new SR1_Primative<short>().ShowAsHex(true);
 		public readonly SR1_Primative<short> family = new SR1_Primative<short>();

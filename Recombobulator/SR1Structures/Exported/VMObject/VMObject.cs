@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class VMObject : SR1_Structure
+	public class VMObject : SR1_Structure
 	{
 		SR1_Primative<ushort> flags = new SR1_Primative<ushort>();
 

@@ -4,7 +4,7 @@ using Recombobulator.SR1Structures;
 
 namespace Recombobulator
 {
-	class SR1_Writer : BinaryWriter
+	public class SR1_Writer : BinaryWriter
 	{
 		public SR1_File File = null;
 		public StringWriter Errors = new StringWriter();

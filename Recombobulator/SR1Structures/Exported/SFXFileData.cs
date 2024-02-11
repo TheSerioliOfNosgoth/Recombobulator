@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class SFXFileData : SR1_Structure
+	public class SFXFileData : SR1_Structure
 	{
 		SR1_Primative<ushort> type = new SR1_Primative<ushort>();
 		SR1_Primative<ushort> numSounds = new SR1_Primative<ushort>();
