@@ -870,16 +870,27 @@ namespace Recombobulator
 			public readonly List<ReplacePortal> ReplacePortals = new List<ReplacePortal>();
 		}
 
-		struct ImportFile
+		class ImportFile
 		{
-			public string importName;
-			public string exportName;
-			public string textureSet;
-			public bool isLevel;
-			public bool forceWaterTransparent;
-			public bool includeAniTextures;
-			public string[] removePortals;
-			public ReplaceObject[] replaceObjects;
+			public enum Flags : int
+			{
+				None = 0,
+				RemoveEvents = 1,
+				RemoveSignals = 2,
+				RemovePortals = 4,
+				RemoveVertexMorphs = 8,
+				RemoveAnimatedTextures = 16,
+				ForceWaterTranslucent = 32,
+				Default = RemoveEvents | RemoveAnimatedTextures | ForceWaterTranslucent,
+			}
+
+			public string importName = null;
+			public string exportName = null;
+			public string textureSet = null;
+			public bool isLevel = false;
+			public Flags flags = Flags.Default;
+			public string[] removePortals = null;
+			public ReplaceObject[] replaceObjects = null;
 		};
 
 		struct ReplaceObject
@@ -1017,14 +1028,22 @@ namespace Recombobulator
 
 				if (importFile.isLevel)
 				{
-					migrateFlags |= SR1_File.MigrateFlags.RemoveEvents;
+					if ((importFile.flags & ImportFile.Flags.RemoveSignals) != 0)
+					{
+						migrateFlags |= SR1_File.MigrateFlags.RemoveEvents;
+					}
 
-					if (!importFile.includeAniTextures)
+					if ((importFile.flags & ImportFile.Flags.RemoveVertexMorphs) != 0)
+					{
+						migrateFlags |= SR1_File.MigrateFlags.RemoveVertexMorphs;
+					}
+
+					if ((importFile.flags & ImportFile.Flags.RemoveAnimatedTextures) != 0)
 					{
 						migrateFlags |= SR1_File.MigrateFlags.RemoveAnimatedTextures;
 					}
 
-					// if (importFile.forceWaterTransparent)
+					if ((importFile.flags & ImportFile.Flags.ForceWaterTranslucent) != 0)
 					{
 						migrateFlags |= SR1_File.MigrateFlags.ForceWaterTranslucent;
 					}
@@ -1738,12 +1757,12 @@ namespace Recombobulator
 
 			List<ImportFile> importFiles = importScript.ImportFiles;
 
-			importFiles.Add(new ImportFile { importName = "movie1", isLevel = true });
-			importFiles.Add(new ImportFile { importName = "movie2", isLevel = true });
-			importFiles.Add(new ImportFile { importName = "movie3", isLevel = true });
-			importFiles.Add(new ImportFile { importName = "movie4", isLevel = true });
-			importFiles.Add(new ImportFile { importName = "movie5", isLevel = true });
-			importFiles.Add(new ImportFile { importName = "movie6", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "movie1", isLevel = true, flags = ImportFile.Flags.ForceWaterTranslucent });
+			importFiles.Add(new ImportFile { importName = "movie2", isLevel = true, flags = ImportFile.Flags.RemoveAnimatedTextures });
+			importFiles.Add(new ImportFile { importName = "movie3", isLevel = true, flags = ImportFile.Flags.RemoveAnimatedTextures });
+			importFiles.Add(new ImportFile { importName = "movie4", isLevel = true, flags = ImportFile.Flags.RemoveAnimatedTextures });
+			importFiles.Add(new ImportFile { importName = "movie5", isLevel = true, flags = ImportFile.Flags.RemoveAnimatedTextures });
+			importFiles.Add(new ImportFile { importName = "movie6", isLevel = true, flags = ImportFile.Flags.RemoveAnimatedTextures });
 			importFiles.Add(new ImportFile { importName = "prthstr", isLevel = false });
 
 			DoScriptedImport(dialog.SelectedPath, importScript);

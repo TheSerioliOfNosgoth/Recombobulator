@@ -8,7 +8,6 @@ namespace Recombobulator.SR1Structures
 	{
 		protected int[] _dimensions = null;
 		protected T[] _array = null;
-		protected bool _showAsHex;
 
 		public T this[int i] { get { return _array[i]; } set { _array[i] = value; } }
 		public int Count { get { return _array == null ? 0 : _array.Length; } }
