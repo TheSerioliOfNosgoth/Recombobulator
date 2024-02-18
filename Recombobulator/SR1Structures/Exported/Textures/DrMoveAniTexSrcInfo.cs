@@ -35,5 +35,32 @@ namespace Recombobulator.SR1Structures
 			tPageSrc.Write(writer, SR1_File.Version.Retail_PC, SR1_File.Version.Next);
 			pad.Write(writer, SR1_File.Version.Retail_PC, SR1_File.Version.Next);
 		}
+
+		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
+		{
+			base.MigrateVersion(file, targetVersion, migrateFlags);
+
+			/*if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
+			{
+				int tPageX = (pixSrcX.Value & 0x07c0) >> 6;
+				int tPageY = (pixSrcY.Value & 0x0100) >> 4 | (pixSrcY.Value & 0x0200) << 2;
+				ushort newTPageDst = (ushort)(tPageX | tPageY);
+
+				short newPixDstX = (short)((pixSrcX.Value & 0x7F) << 2);
+				short newPixDstY = (short)((pixSrcY.Value & 0xFF));
+
+				pixSrcX.Value = newPixDstX;
+				pixSrcY.Value = newPixDstY;
+
+				if (file._Overrides.NewTextureIDs.ContainsKey(newTPageDst))
+				{
+					tPageSrc.Value = unchecked((short)file._Overrides.NewTextureIDs[newTPageDst]);
+				}
+				else
+				{
+					tPageSrc.Value = -1;
+				}
+			}*/
+		}
 	}
 }
