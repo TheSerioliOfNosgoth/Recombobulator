@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 
 namespace Recombobulator.SR1Structures
@@ -27,8 +28,15 @@ namespace Recombobulator.SR1Structures
 		SR1_Primative<int> speed = new SR1_Primative<int>();
 		SR1_StructureArray<DrMoveAniTexSrcInfo> frame = new SR1_StructureArray<DrMoveAniTexSrcInfo>(0);
 
+		bool IsPSX = false;
+
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
+			if (reader.File._Version < SR1_File.Version.Retail_PC)
+			{
+				IsPSX = true;
+			}
+
 			pixDstX.Read(reader, this, "pixDstX");
 			pixDstY.Read(reader, this, "pixDstY");
 			pixW.Read(reader, this, "pixW");
@@ -99,16 +107,13 @@ namespace Recombobulator.SR1Structures
 		{
 			base.MigrateVersion(file, targetVersion, migrateFlags);
 
-			/*if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
+			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
 			{
-				int tPageX = (pixDstX.Value & 0x07c0) >> 6;
-				int tPageY = (pixDstY.Value & 0x0100) >> 4 | (pixDstY.Value & 0x0200) << 2;
-				ushort newTPageDst = (ushort)(tPageX | tPageY);
-
-				short newPixDstX = (short)((pixDstX.Value & 0x7F) << 2);
+				ushort newTPageDst = GetTPage();
+				short newPixDstX = (short)((pixDstX.Value & 0x3F) << 2);
 				short newPixDstY = (short)((pixDstY.Value & 0xFF));
 				short newPixW = (short)(pixW.Value << 2);
-				short newPixH = (short)(pixH.Value << 2);
+				short newPixH = (short)(pixH.Value);
 
 				pixDstX.Value = newPixDstX;
 				pixDstY.Value = newPixDstY;
@@ -123,7 +128,106 @@ namespace Recombobulator.SR1Structures
 				{
 					tPageDst.Value = -1;
 				}
-			}*/
+			}
+		}
+
+		public ushort GetTPage()
+		{
+			if (!IsPSX)
+			{
+				return (ushort)tPageDst.Value;
+			}
+
+			int tPageX = (pixDstX.Value & 0x07C0) >> 6; // 0x3ff in getTPage, but 0x07c0 in GET_TPAGE_X?
+			int tPageY = (pixDstY.Value & 0x0100) >> 4 | (pixDstY.Value & 0x0200) << 2;
+			ushort tPage = (ushort)(tPageX | tPageY);
+			return tPage;
+		}
+
+		public Rectangle GetRectangle()
+		{
+			short newPixDstX;
+			short newPixDstY;
+			short newPixW;
+			short newPixH;
+
+			if (IsPSX)
+			{
+				newPixDstX = (short)((pixDstX.Value & 0x3F) << 2);
+				newPixDstY = (short)((pixDstY.Value & 0xFF));
+				newPixW = (short)(pixW.Value << 2);
+				newPixH = (short)(pixH.Value);
+			}
+			else
+			{
+				newPixDstX = (short)((pixDstX.Value & 0xFF));
+				newPixDstY = (short)((pixDstY.Value & 0xFF));
+				newPixW = (short)(pixW.Value);
+				newPixH = (short)(pixH.Value);
+			}
+
+			Rectangle rectangle = new Rectangle
+			{
+				X = newPixDstX,
+				Y = newPixDstY,
+				Width = newPixW,
+				Height = newPixH
+			};
+
+			return rectangle;
+		}
+
+		public bool IsTextureAnimated(TextureFT3 texture)
+		{
+			if (texture == null)
+			{
+				return false;
+			}
+
+			ushort tPage = GetTPage();
+			ushort textureTPage = texture.tpage.Value;
+			ushort maskedTPage;
+			if (IsPSX)
+			{
+				maskedTPage = (ushort)(textureTPage & (0x001F | 0x0010 | 0x0800));
+			}
+			else
+			{
+				maskedTPage = (ushort)(textureTPage & 0x7FF);
+			}
+
+			if (maskedTPage != tPage)
+			{
+				return false;
+			}
+
+			Rectangle rectangle = GetRectangle();
+
+			if (!rectangle.Contains(texture.u0.Value, texture.v0.Value) ||
+				!rectangle.Contains(texture.u1.Value, texture.v1.Value) ||
+				!rectangle.Contains(texture.u2.Value, texture.v2.Value))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		public override string ToString()
+		{
+			string result = base.ToString();
+
+			ushort tPage = GetTPage();
+			Rectangle rectangle = GetRectangle();
+
+			result += "{ tpage = 0x" + tPage.ToString("X4"); // + ", clut = " + clut;
+			result += ", rectangle = ";
+			result += "{ X = " + rectangle.X;
+			result += ", Y = " + rectangle.Y;
+			result += ", W = " + rectangle.Width;
+			result += ", H = " + rectangle.Height + " } }";
+
+			return result;
 		}
 	}
 }

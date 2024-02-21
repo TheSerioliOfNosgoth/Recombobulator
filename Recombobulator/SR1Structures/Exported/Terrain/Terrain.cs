@@ -34,7 +34,7 @@ namespace Recombobulator.SR1Structures
 		SR1_Pointer<BSPTree> BSPTreeArray = new SR1_Pointer<BSPTree>();
 		SR1_PrimativePointer<ushort> morphNormalIdx = new SR1_PrimativePointer<ushort>(); // Not sure if array or pointer. One short, followed by ushort[numFaces]. Alternate TFace.Normal's?
 		public SR1_Pointer<MultiSignal> signals = new SR1_Pointer<MultiSignal>();
-		SR1_Pointer<UnknownPCList> unknownPCList = new SR1_Pointer<UnknownPCList>();
+		SR1_Pointer<TexAniAssocData> texAniAssocData = new SR1_Pointer<TexAniAssocData>();
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
@@ -65,7 +65,7 @@ namespace Recombobulator.SR1Structures
 			BSPTreeArray.Read(reader, this, "BSPTreeArray");
 			morphNormalIdx.Read(reader, this, "morphNormalIdx");
 			signals.Read(reader, this, "signals");
-			unknownPCList.Read(reader, this, "unknownPCList", SR1_File.Version.Retail_PC, SR1_File.Version.Next);
+			texAniAssocData.Read(reader, this, "texAniAssocData", SR1_File.Version.Retail_PC, SR1_File.Version.Next);
 		}
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
@@ -100,7 +100,8 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
-			new DrMoveAniTex().ReadFromPointer(reader, aniList);
+			DrMoveAniTex drMoveAniTex = new DrMoveAniTex();
+			drMoveAniTex.ReadFromPointer(reader, aniList);
 
 			if (reader.File._Version <= SR1_File.Version.May12)
 			{
@@ -213,9 +214,19 @@ namespace Recombobulator.SR1Structures
 
 			new SR1_PrimativeArray<ushort>(numFaces.Value).SetPadding(4).ReadFromPointer(reader, morphNormalIdx);
 
+			for (int t = 0; t < textures.Count; t++)
+			{
+				TextureFT3 texture = (TextureFT3)textures[t];
+				int aniTexIndex = drMoveAniTex.GetAnimatedTextureIndex(reader.File, texture);
+				if (aniTexIndex >= 0)
+				{
+					texture.AniTexIndex = aniTexIndex;
+				}
+			}
+
 			if (reader.File._Version == SR1_File.Version.Retail_PC)
 			{
-				new UnknownPCList().ReadFromPointer(reader, unknownPCList);
+				new TexAniAssocData().ReadFromPointer(reader, texAniAssocData);
 			}
 
 			if (reader.Level.Name == "cathy28")
@@ -283,7 +294,7 @@ namespace Recombobulator.SR1Structures
 			BSPTreeArray.Write(writer);
 			morphNormalIdx.Write(writer);
 			signals.Write(writer);
-			unknownPCList.Write(writer, SR1_File.Version.Retail_PC, SR1_File.Version.Next);
+			texAniAssocData.Write(writer, SR1_File.Version.Retail_PC, SR1_File.Version.Next);
 		}
 
 		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
@@ -308,19 +319,41 @@ namespace Recombobulator.SR1Structures
 
 			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
 			{
-				if (aniList.Offset != 0)
-				{
-					file._Structures.Remove(aniList.Offset);
-					aniList.Offset = 0;
-					EndTextureList.Offset = MorphDiffList.Offset;
-				}
-
 				SR1_Structure lastStructure = file._Structures.Values[file._Structures.Count - 1];
 				uint position = lastStructure.End;
 
-				unknownPCList.Offset = position;
-				UnknownPCList newUnknownPCList = new UnknownPCList();
-				file._MigrationStructures.Add(position, newUnknownPCList);
+				SR1_StructureSeries<TextureFT3> textures =
+					(SR1_StructureSeries<TextureFT3>)file._Structures[StartTextureList.Offset];
+				DrMoveAniTex drMoveAniTex = (DrMoveAniTex)file._Structures[aniList.Offset];
+				int numAniTextures = drMoveAniTex.numAniTextures.Value;
+				int numTextures = textures.Count;
+				List<int> entryList = new List<int>();
+
+				for (int a = 0; a < numAniTextures; a++)
+				{
+					int refCountIndex = entryList.Count;
+					int refCount = 0;
+					for (int t = 0; t < numTextures; t++)
+					{
+						TextureFT3 texture = (TextureFT3)textures[t];
+						if (texture.AniTexIndex == a)
+						{
+							if (refCount == 0)
+							{
+								entryList.Add(0);
+							}
+
+							refCount++;
+
+							entryList.Add(t);
+						}
+					}
+
+					entryList[refCountIndex] = refCount;
+				}
+
+				texAniAssocData.Offset = position;
+				file._MigrationStructures.Add(position, new TexAniAssocData(entryList));
 			}
 		}
 	}
