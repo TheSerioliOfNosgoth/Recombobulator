@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class TextureFT3 : SR1_Structure
+	public class TextureFT3 : SR1_Structure
 	{
 		public readonly SR1_Primative<byte> u0 = new SR1_Primative<byte>();
 		public readonly SR1_Primative<byte> v0 = new SR1_Primative<byte>();
@@ -11,17 +11,25 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_Primative<byte> u1 = new SR1_Primative<byte>();
 		public readonly SR1_Primative<byte> v1 = new SR1_Primative<byte>();
 		public readonly SR1_Primative<ushort> tpage = new SR1_Primative<ushort>().ShowAsHex(true);
-		public readonly SR1_Primative<ushort> attr2 = new SR1_Primative<ushort>();
+		public readonly SR1_Primative<ushort> attr2 = new SR1_Primative<ushort>().ShowAsHex(true);
 		public readonly SR1_Primative<byte> u2 = new SR1_Primative<byte>();
 		public readonly SR1_Primative<byte> v2 = new SR1_Primative<byte>();
-		public readonly SR1_Primative<ushort> attr = new SR1_Primative<ushort>();
-		public readonly SR1_Primative<int> color = new SR1_Primative<int>();
+		public readonly SR1_Primative<ushort> attr = new SR1_Primative<ushort>().ShowAsHex(true);
+		public readonly SR1_Primative<int> color = new SR1_Primative<int>().ShowAsHex(true);
 
 		public int NumReferences = 0;
+		public int AniTexIndex = -1;
 		public bool HasTranslucentPolygon = false;
+
+		bool IsPSX = false;
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
+			if (reader.File._Version < SR1_File.Version.Retail_PC)
+			{
+				IsPSX = true;
+			}
+
 			u0.Read(reader, this, "u0");
 			v0.Read(reader, this, "v0");
 
@@ -132,7 +140,15 @@ namespace Recombobulator.SR1Structures
 
 					if ((attr.Value & 0x0040) != 0)
 					{
-						tpage.Value |= 0x2000; // UseAlphaMask
+						if (file._Structures[0].Name == "movie1")
+						{
+							tpage.Value |= 0x4000;
+							attr2.Value |= 0x0060;
+						}
+						else
+						{
+							tpage.Value |= 0x2000; // UseAlphaMask
+						}
 					}
 
 					attr.Value &= unchecked((ushort)0x1000);
@@ -144,7 +160,18 @@ namespace Recombobulator.SR1Structures
 		public override string ToString()
 		{
 			string result = base.ToString();
-			result += "{ tpage = " + tpage + ", clut = " + clut + ", NumReferences = " + NumReferences.ToString() + " }";
+			ushort maskedTPage;
+			if (IsPSX)
+			{
+				maskedTPage = (ushort)(tpage.Value & (0x001F | 0x0010 | 0x0800));
+			}
+			else
+			{
+				maskedTPage = (ushort)(tpage.Value & 0x7FF);
+			}
+			result += "{ tpage = " + tpage + ", maskedTPage = 0x" + maskedTPage.ToString("X4") + ", clut = " + clut;
+			result += ", attr = " + attr.ToString() + ", attr2 = " + attr2.ToString();
+			result += ", aniTexIndex = " + AniTexIndex.ToString() + ", NumReferences = " + NumReferences.ToString() + " }";
 			return result;
 		}
 	}

@@ -295,7 +295,7 @@
     <Compile Include="SR1Structures\Exported\ObjectSound\ObjectEventSound.cs" />
     <Compile Include="SR1Structures\Exported\ObjectSound\ObjectOneShotSound.cs" />
     <Compile Include="SR1Structures\Exported\ObjectSound\ObjectSound.cs" />
-    <Compile Include="SR1Structures\Exported\UnknownPCList.cs" />
+    <Compile Include="SR1Structures\Exported\TexAniAssocData.cs" />
     <Compile Include="SR1Structures\Exported\SFXFileDataList.cs" />
     <Compile Include="SR1Structures\Exported\SFXFileData.cs" />
     <Compile Include="SR1Structures\Exported\Spline\MultiSpline.cs" />

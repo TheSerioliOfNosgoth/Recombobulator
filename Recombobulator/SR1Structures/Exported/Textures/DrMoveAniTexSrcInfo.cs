@@ -12,8 +12,15 @@ namespace Recombobulator.SR1Structures
 		SR1_Primative<short> tPageSrc = new SR1_Primative<short>();
 		SR1_Primative<short> pad = new SR1_Primative<short>();
 
+		bool IsPSX = false;
+
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
+			if (reader.File._Version < SR1_File.Version.Retail_PC)
+			{
+				IsPSX = true;
+			}
+
 			pixSrcX.Read(reader, this, "pixSrcX");
 			pixSrcY.Read(reader, this, "pixSrcY");
 			clutSrcX.Read(reader, this, "clutSrcX", SR1_File.Version.First, SR1_File.Version.Retail_PC);
@@ -40,13 +47,10 @@ namespace Recombobulator.SR1Structures
 		{
 			base.MigrateVersion(file, targetVersion, migrateFlags);
 
-			/*if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
+			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
 			{
-				int tPageX = (pixSrcX.Value & 0x07c0) >> 6;
-				int tPageY = (pixSrcY.Value & 0x0100) >> 4 | (pixSrcY.Value & 0x0200) << 2;
-				ushort newTPageDst = (ushort)(tPageX | tPageY);
-
-				short newPixDstX = (short)((pixSrcX.Value & 0x7F) << 2);
+				ushort newTPageDst = GetTPage();
+				short newPixDstX = (short)((pixSrcX.Value & 0x3F) << 2);
 				short newPixDstY = (short)((pixSrcY.Value & 0xFF));
 
 				pixSrcX.Value = newPixDstX;
@@ -60,7 +64,20 @@ namespace Recombobulator.SR1Structures
 				{
 					tPageSrc.Value = -1;
 				}
-			}*/
+			}
+		}
+
+		public ushort GetTPage()
+		{
+			if (!IsPSX)
+			{
+				return (ushort)tPageSrc.Value;
+			}
+
+			int tPageX = (pixSrcX.Value & 0x07C0) >> 6; // 0x3ff in getTPage, but 0x07c0 in GET_TPAGE_X?
+			int tPageY = (pixSrcY.Value & 0x0100) >> 4 | (pixSrcY.Value & 0x0200) << 2;
+			ushort tPage = (ushort)(tPageX | tPageY);
+			return tPage;
 		}
 	}
 }
