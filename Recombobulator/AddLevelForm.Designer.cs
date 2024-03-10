@@ -40,7 +40,7 @@
 			this.requiredObjectsLabel = new System.Windows.Forms.Label();
 			this.removeEventsCheckBox = new System.Windows.Forms.CheckBox();
 			this.removePortalsCheckBox = new System.Windows.Forms.CheckBox();
-			this.removeVMOsCheckBox = new System.Windows.Forms.CheckBox();
+			this.removeAniTexCheckBox = new System.Windows.Forms.CheckBox();
 			this.removeSignalsCheckBox = new System.Windows.Forms.CheckBox();
 			this.renameButton = new System.Windows.Forms.Button();
 			this.portalListLabel = new System.Windows.Forms.Label();
@@ -166,15 +166,15 @@
 			// 
 			// removeVMOsCheckBox
 			// 
-			this.removeVMOsCheckBox.AutoSize = true;
-			this.removeVMOsCheckBox.Checked = true;
-			this.removeVMOsCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.removeVMOsCheckBox.Location = new System.Drawing.Point(13, 337);
-			this.removeVMOsCheckBox.Name = "removeVMOsCheckBox";
-			this.removeVMOsCheckBox.Size = new System.Drawing.Size(171, 17);
-			this.removeVMOsCheckBox.TabIndex = 13;
-			this.removeVMOsCheckBox.Text = "Remove Vertex Morph Objects";
-			this.removeVMOsCheckBox.UseVisualStyleBackColor = true;
+			this.removeAniTexCheckBox.AutoSize = true;
+			this.removeAniTexCheckBox.Checked = true;
+			this.removeAniTexCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.removeAniTexCheckBox.Location = new System.Drawing.Point(13, 337);
+			this.removeAniTexCheckBox.Name = "removeAniTexCheckBox";
+			this.removeAniTexCheckBox.Size = new System.Drawing.Size(171, 17);
+			this.removeAniTexCheckBox.TabIndex = 13;
+			this.removeAniTexCheckBox.Text = "Remove Animated Textures";
+			this.removeAniTexCheckBox.UseVisualStyleBackColor = true;
 			// 
 			// removeSignalsCheckBox
 			// 
@@ -216,7 +216,7 @@
 			this.Controls.Add(this.portalListLabel);
 			this.Controls.Add(this.renameButton);
 			this.Controls.Add(this.removeSignalsCheckBox);
-			this.Controls.Add(this.removeVMOsCheckBox);
+			this.Controls.Add(this.removeAniTexCheckBox);
 			this.Controls.Add(this.removeEventsCheckBox);
 			this.Controls.Add(this.removePortalsCheckBox);
 			this.Controls.Add(this.requiredObjectList);
@@ -255,7 +255,7 @@
 		private System.Windows.Forms.Label requiredObjectsLabel;
 		private System.Windows.Forms.CheckBox removeEventsCheckBox;
 		private System.Windows.Forms.CheckBox removePortalsCheckBox;
-		private System.Windows.Forms.CheckBox removeVMOsCheckBox;
+		private System.Windows.Forms.CheckBox removeAniTexCheckBox;
 		private System.Windows.Forms.CheckBox removeSignalsCheckBox;
 		private System.Windows.Forms.Button renameButton;
 		private System.Windows.Forms.Label portalListLabel;

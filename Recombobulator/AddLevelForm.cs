@@ -15,7 +15,7 @@ namespace Recombobulator
 
 		public bool RemoveEvents { get { return removeEventsCheckBox.Checked; } }
 
-		public bool RemoveVMOs { get { return removeVMOsCheckBox.Checked; } }
+		public bool RemoveAnimatedTextures { get { return removeAniTexCheckBox.Checked; } }
 
 		SR1Structures.SR1_StructureSeries<SR1Structures.MultiSignal> _multiSignals = null;
 		SR1Structures.StreamUnitPortalList _portalList = null;

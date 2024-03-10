@@ -32,6 +32,17 @@ namespace Recombobulator.SR1Structures
 		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
 		{
 			base.MigrateVersion(file, targetVersion, migrateFlags);
+
+			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
+			{
+				if ((migrateFlags & SR1_File.MigrateFlags.RemoveAnimatedTextures) != 0)
+				{
+					foreach (SR1_PointerBase aniTexDestInfoPointer in aniTexInfo)
+					{
+						file._Structures.Remove(aniTexDestInfoPointer.Offset);
+					}
+				}
+			}
 		}
 
 		public int GetAnimatedTextureIndex(SR1_File file, TextureFT3 texture)

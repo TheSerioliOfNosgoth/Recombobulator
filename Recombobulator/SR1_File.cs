@@ -49,7 +49,8 @@ namespace Recombobulator
 			RemoveSignals = 2,
 			RemovePortals = 4,
 			RemoveVertexMorphs = 8,
-			ForceWaterTranslucent = 16,
+			RemoveAnimatedTextures = 16,
+			ForceWaterTranslucent = 32,
 		}
 
 		public enum TestFlags : int

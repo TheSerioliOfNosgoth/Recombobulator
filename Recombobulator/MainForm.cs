@@ -201,9 +201,9 @@ namespace Recombobulator
 							migrateFlags |= SR1_File.MigrateFlags.RemoveEvents;
 						}
 
-						if (addLevelDialog.RemoveVMOs)
+						if (addLevelDialog.RemoveAnimatedTextures)
 						{
-							migrateFlags |= SR1_File.MigrateFlags.RemoveVertexMorphs;
+							migrateFlags |= SR1_File.MigrateFlags.RemoveAnimatedTextures;
 						}
 
 						SR1Structures.Level level = (SR1Structures.Level)_file._Structures[0];
@@ -877,6 +877,7 @@ namespace Recombobulator
 			public string textureSet;
 			public bool isLevel;
 			public bool forceWaterTransparent;
+			public bool includeAniTextures;
 			public string[] removePortals;
 			public ReplaceObject[] replaceObjects;
 		};
@@ -1017,8 +1018,13 @@ namespace Recombobulator
 				if (importFile.isLevel)
 				{
 					migrateFlags |= SR1_File.MigrateFlags.RemoveEvents;
-					migrateFlags |= SR1_File.MigrateFlags.RemoveVertexMorphs;
-					//if (importFile.forceWaterTransparent)
+
+					if (!importFile.includeAniTextures)
+					{
+						migrateFlags |= SR1_File.MigrateFlags.RemoveAnimatedTextures;
+					}
+
+					// if (importFile.forceWaterTransparent)
 					{
 						migrateFlags |= SR1_File.MigrateFlags.ForceWaterTranslucent;
 					}
