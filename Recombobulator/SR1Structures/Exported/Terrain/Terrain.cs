@@ -319,40 +319,46 @@ namespace Recombobulator.SR1Structures
 
 			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
 			{
-				if ((migrateFlags & SR1_File.MigrateFlags.RemoveAnimatedTextures) != 0)
+				if ((migrateFlags & SR1_File.MigrateFlags.RemoveAnimatedTextures) != 0 &&
+					aniList.Offset != 0)
 				{
 					SR1_Structure lastStructure = file._Structures.Values[file._Structures.Count - 1];
 
 					uint position = lastStructure.End;
 
+					List<int> entryList = new List<int>();
+
 					SR1_StructureSeries<TextureFT3> textures =
 						(SR1_StructureSeries<TextureFT3>)file._Structures[StartTextureList.Offset];
 					DrMoveAniTex drMoveAniTex = (DrMoveAniTex)file._Structures[aniList.Offset];
-					int numAniTextures = drMoveAniTex.numAniTextures.Value;
-					int numTextures = textures.Count;
-					List<int> entryList = new List<int>();
 
-					for (int a = 0; a < numAniTextures; a++)
+					if (textures != null && drMoveAniTex != null)
 					{
-						int refCountIndex = entryList.Count;
-						int refCount = 0;
-						for (int t = 0; t < numTextures; t++)
+						int numAniTextures = drMoveAniTex.numAniTextures.Value;
+						int numTextures = textures.Count;
+
+						for (int a = 0; a < numAniTextures; a++)
 						{
-							TextureFT3 texture = (TextureFT3)textures[t];
-							if (texture.AniTexIndex == a)
+							int refCountIndex = entryList.Count;
+							int refCount = 0;
+							for (int t = 0; t < numTextures; t++)
 							{
-								if (refCount == 0)
+								TextureFT3 texture = (TextureFT3)textures[t];
+								if (texture.AniTexIndex == a)
 								{
-									entryList.Add(0);
+									if (refCount == 0)
+									{
+										entryList.Add(0);
+									}
+
+									refCount++;
+
+									entryList.Add(t);
 								}
-
-								refCount++;
-
-								entryList.Add(t);
 							}
-						}
 
-						entryList[refCountIndex] = refCount;
+							entryList[refCountIndex] = refCount;
+						}
 					}
 
 					texAniAssocData.Offset = position;
