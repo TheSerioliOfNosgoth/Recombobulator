@@ -319,7 +319,7 @@ namespace Recombobulator.SR1Structures
 
 			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
 			{
-				if ((migrateFlags & SR1_File.MigrateFlags.RemoveAnimatedTextures) != 0 &&
+				if ((migrateFlags & SR1_File.MigrateFlags.RemoveAnimatedTextures) == 0 &&
 					aniList.Offset != 0)
 				{
 					SR1_Structure lastStructure = file._Structures.Values[file._Structures.Count - 1];

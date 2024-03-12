@@ -897,6 +897,13 @@ namespace SR1Repository
 				introID = intro.IntroUniqueID + 1;
 			}
 
+			while (numFound < introIDs.Length)
+			{
+				introIDs[numFound] = introID;
+				introID++;
+				numFound++;
+			}
+
 			return true;
 		}
 

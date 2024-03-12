@@ -1028,7 +1028,7 @@ namespace Recombobulator
 
 				if (importFile.isLevel)
 				{
-					if ((importFile.flags & ImportFile.Flags.RemoveSignals) != 0)
+					if ((importFile.flags & ImportFile.Flags.RemoveEvents) != 0)
 					{
 						migrateFlags |= SR1_File.MigrateFlags.RemoveEvents;
 					}
