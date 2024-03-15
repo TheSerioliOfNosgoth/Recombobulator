@@ -1253,7 +1253,7 @@ namespace Recombobulator
 			DoScriptedImport(dialog.SelectedPath, importScript);
 		}
 
-		private void importUndercityFeb16ToolStripMenuItem_Click(object sender, EventArgs e)
+		private void ImportUndercityFeb16ToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			// LOAD_GetBigFileFileIndex for Error no. 357.
 
@@ -1519,7 +1519,7 @@ namespace Recombobulator
             DoScriptedImport(dialog.SelectedPath, importScript);
 		}
 
-		private void importAllCutAreasToolStripMenuItem_Click(object sender, EventArgs e)
+		private void ImportAllCutAreasToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			// LOAD_GetBigFileFileIndex for Error no. 357.
 
@@ -1708,6 +1708,43 @@ namespace Recombobulator
 			importFiles.Add(new ImportFile { importName = "retreat3", isLevel = true });
 
 			#endregion
+
+			DoScriptedImport(dialog.SelectedPath, importScript);
+		}
+
+		private void ImportMovieRoomsToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			// LOAD_GetBigFileFileIndex for Error no. 357.
+
+			FolderBrowserDialog dialog = new FolderBrowserDialog();
+			dialog.Description = "Select root folder.";
+			dialog.ShowNewFolderButton = false;
+
+			string recentFolder = Properties.Settings.Default.RecentFolder;
+			if (recentFolder != null && Directory.Exists(recentFolder))
+			{
+				dialog.SelectedPath = recentFolder;
+			}
+
+			if (dialog.ShowDialog() != DialogResult.OK)
+			{
+				return;
+			}
+
+			Properties.Settings.Default.RecentFolder = dialog.SelectedPath;
+			Properties.Settings.Default.Save();
+
+			ImportScript importScript = new ImportScript();
+
+			List<ImportFile> importFiles = importScript.ImportFiles;
+
+			importFiles.Add(new ImportFile { importName = "movie1", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "movie2", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "movie3", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "movie4", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "movie5", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "movie6", isLevel = true });
+			importFiles.Add(new ImportFile { importName = "prthstr", isLevel = false });
 
 			DoScriptedImport(dialog.SelectedPath, importScript);
 		}

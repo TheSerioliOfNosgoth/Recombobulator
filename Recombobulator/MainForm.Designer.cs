@@ -43,6 +43,7 @@
 			this.addDataFileToProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.particlesFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openParticlesPCFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.openParticlesPSXFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.saveParticlesFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.scriptedImportsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.importUndercityFeb04ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -74,7 +75,7 @@
 			this.particlesPanel = new Recombobulator.ParticlePanels.MainParticlesPanel();
 			this.projectContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.editPortalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.openParticlesPSXFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.importMovieRoomsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this._mainMenu.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pcmFileTreeListView)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.pcmFileSplitContainer)).BeginInit();
@@ -97,7 +98,7 @@
 			// _mainMenu
 			// 
 			this._mainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.fileToolStripMenuItem});
+            this.fileToolStripMenuItem});
 			this._mainMenu.Location = new System.Drawing.Point(0, 0);
 			this._mainMenu.Name = "_mainMenu";
 			this._mainMenu.Size = new System.Drawing.Size(800, 24);
@@ -107,15 +108,15 @@
 			// fileToolStripMenuItem
 			// 
 			this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.newProjectToolStripMenuItem,
-			this.openProjectToolStripMenuItem,
-			this.dataFileToolStripMenuItem,
-			this.particlesFileToolStripMenuItem,
-			this.scriptedImportsToolStripMenuItem,
-			this.compileProjectToolStripMenuItem,
-			this.testExportToolStripMenuItem,
-			this.bulkTestingToolStripMenuItem,
-			this.exitToolStripMenuItem});
+            this.newProjectToolStripMenuItem,
+            this.openProjectToolStripMenuItem,
+            this.dataFileToolStripMenuItem,
+            this.particlesFileToolStripMenuItem,
+            this.scriptedImportsToolStripMenuItem,
+            this.compileProjectToolStripMenuItem,
+            this.testExportToolStripMenuItem,
+            this.bulkTestingToolStripMenuItem,
+            this.exitToolStripMenuItem});
 			this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
 			this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
 			this.fileToolStripMenuItem.Text = "File";
@@ -137,8 +138,8 @@
 			// dataFileToolStripMenuItem
 			// 
 			this.dataFileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.openDataFileToolStripMenuItem,
-			this.addDataFileToProjectToolStripMenuItem});
+            this.openDataFileToolStripMenuItem,
+            this.addDataFileToProjectToolStripMenuItem});
 			this.dataFileToolStripMenuItem.Name = "dataFileToolStripMenuItem";
 			this.dataFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.dataFileToolStripMenuItem.Text = "Data File";
@@ -161,9 +162,9 @@
 			// particlesFileToolStripMenuItem
 			// 
 			this.particlesFileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.openParticlesPCFileToolStripMenuItem,
-			this.openParticlesPSXFileToolStripMenuItem,
-			this.saveParticlesFileToolStripMenuItem});
+            this.openParticlesPCFileToolStripMenuItem,
+            this.openParticlesPSXFileToolStripMenuItem,
+            this.saveParticlesFileToolStripMenuItem});
 			this.particlesFileToolStripMenuItem.Name = "particlesFileToolStripMenuItem";
 			this.particlesFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.particlesFileToolStripMenuItem.Text = "Particles File";
@@ -171,27 +172,35 @@
 			// openParticlesPCFileToolStripMenuItem
 			// 
 			this.openParticlesPCFileToolStripMenuItem.Name = "openParticlesPCFileToolStripMenuItem";
-			this.openParticlesPCFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.openParticlesPCFileToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
 			this.openParticlesPCFileToolStripMenuItem.Text = "Open PC...";
 			this.openParticlesPCFileToolStripMenuItem.Click += new System.EventHandler(this.OpenParticlesPCFileToolStripMenuItem_Click);
+			// 
+			// openParticlesPSXFileToolStripMenuItem
+			// 
+			this.openParticlesPSXFileToolStripMenuItem.Name = "openParticlesPSXFileToolStripMenuItem";
+			this.openParticlesPSXFileToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+			this.openParticlesPSXFileToolStripMenuItem.Text = "Open PSX...";
+			this.openParticlesPSXFileToolStripMenuItem.Click += new System.EventHandler(this.OpenParticlesPSXFileToolStripMenuItem_Click);
 			// 
 			// saveParticlesFileToolStripMenuItem
 			// 
 			this.saveParticlesFileToolStripMenuItem.Enabled = false;
 			this.saveParticlesFileToolStripMenuItem.Name = "saveParticlesFileToolStripMenuItem";
-			this.saveParticlesFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.saveParticlesFileToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
 			this.saveParticlesFileToolStripMenuItem.Text = "Save...";
 			this.saveParticlesFileToolStripMenuItem.Click += new System.EventHandler(this.SaveParticlesFileToolStripMenuItem_Click);
 			// 
 			// scriptedImportsToolStripMenuItem
 			// 
 			this.scriptedImportsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.importUndercityFeb04ToolStripMenuItem,
-			this.importUndercityFeb16ToolStripMenuItem,
-			this.importSmokestackToolStripMenuItem,
-			this.importRetreatToolStripMenuItem,
-			this.importOraclesCaveToolStripMenuItem,
-			this.importAllCutAreasToolStripMenuItem});
+            this.importUndercityFeb04ToolStripMenuItem,
+            this.importUndercityFeb16ToolStripMenuItem,
+            this.importSmokestackToolStripMenuItem,
+            this.importRetreatToolStripMenuItem,
+            this.importOraclesCaveToolStripMenuItem,
+            this.importAllCutAreasToolStripMenuItem,
+            this.importMovieRoomsToolStripMenuItem});
 			this.scriptedImportsToolStripMenuItem.Enabled = false;
 			this.scriptedImportsToolStripMenuItem.Name = "scriptedImportsToolStripMenuItem";
 			this.scriptedImportsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
@@ -209,7 +218,7 @@
 			this.importUndercityFeb16ToolStripMenuItem.Name = "importUndercityFeb16ToolStripMenuItem";
 			this.importUndercityFeb16ToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
 			this.importUndercityFeb16ToolStripMenuItem.Text = "Import Undercity - Feb 16...";
-			this.importUndercityFeb16ToolStripMenuItem.Click += new System.EventHandler(this.importUndercityFeb16ToolStripMenuItem_Click);
+			this.importUndercityFeb16ToolStripMenuItem.Click += new System.EventHandler(this.ImportUndercityFeb16ToolStripMenuItem_Click);
 			// 
 			// importSmokestackToolStripMenuItem
 			// 
@@ -237,7 +246,7 @@
 			this.importAllCutAreasToolStripMenuItem.Name = "importAllCutAreasToolStripMenuItem";
 			this.importAllCutAreasToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
 			this.importAllCutAreasToolStripMenuItem.Text = "Import All Cut Areas...";
-			this.importAllCutAreasToolStripMenuItem.Click += new System.EventHandler(this.importAllCutAreasToolStripMenuItem_Click);
+			this.importAllCutAreasToolStripMenuItem.Click += new System.EventHandler(this.ImportAllCutAreasToolStripMenuItem_Click);
 			// 
 			// compileProjectToolStripMenuItem
 			// 
@@ -258,8 +267,8 @@
 			// bulkTestingToolStripMenuItem
 			// 
 			this.bulkTestingToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.detailedExportToolStripMenuItem,
-			this.briefExportToolStripMenuItem});
+            this.detailedExportToolStripMenuItem,
+            this.briefExportToolStripMenuItem});
 			this.bulkTestingToolStripMenuItem.Name = "bulkTestingToolStripMenuItem";
 			this.bulkTestingToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.bulkTestingToolStripMenuItem.Text = "Bulk Testing";
@@ -301,10 +310,10 @@
 			treeListColumn4.HeaderFormat.BackColor = System.Drawing.SystemColors.ButtonFace;
 			treeListColumn4.Width = 50;
 			this.pcmFileTreeListView.Columns.AddRange(new TreeList.TreeListColumn[] {
-			treeListColumn1,
-			treeListColumn2,
-			treeListColumn3,
-			treeListColumn4});
+            treeListColumn1,
+            treeListColumn2,
+            treeListColumn3,
+            treeListColumn4});
 			this.pcmFileTreeListView.Cursor = System.Windows.Forms.Cursors.Arrow;
 			this.pcmFileTreeListView.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.pcmFileTreeListView.Images = null;
@@ -487,7 +496,7 @@
 			// projectContextMenu
 			// 
 			this.projectContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.editPortalToolStripMenuItem});
+            this.editPortalToolStripMenuItem});
 			this.projectContextMenu.Name = "projectContextMenu";
 			this.projectContextMenu.Size = new System.Drawing.Size(138, 26);
 			// 
@@ -499,12 +508,12 @@
 			this.editPortalToolStripMenuItem.Text = "Edit Portal...";
 			this.editPortalToolStripMenuItem.Click += new System.EventHandler(this.EditPortalToolStripMenuItem_Click);
 			// 
-			// openParticlesPSXFileToolStripMenuItem
+			// importMovieRoomsToolStripMenuItem
 			// 
-			this.openParticlesPSXFileToolStripMenuItem.Name = "openParticlesPSXFileToolStripMenuItem";
-			this.openParticlesPSXFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-			this.openParticlesPSXFileToolStripMenuItem.Text = "Open PSX...";
-			this.openParticlesPSXFileToolStripMenuItem.Click += new System.EventHandler(this.OpenParticlesPSXFileToolStripMenuItem_Click);
+			this.importMovieRoomsToolStripMenuItem.Name = "importMovieRoomsToolStripMenuItem";
+			this.importMovieRoomsToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
+			this.importMovieRoomsToolStripMenuItem.Text = "Import Movie Rooms...";
+			this.importMovieRoomsToolStripMenuItem.Click += new System.EventHandler(this.ImportMovieRoomsToolStripMenuItem_Click);
 			// 
 			// MainForm
 			// 
@@ -588,6 +597,7 @@
 		private System.Windows.Forms.ToolStripMenuItem openParticlesPCFileToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem saveParticlesFileToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem openParticlesPSXFileToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem importMovieRoomsToolStripMenuItem;
 	}
 }
 
