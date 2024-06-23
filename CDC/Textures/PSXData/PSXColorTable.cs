@@ -32,7 +32,7 @@ namespace BenLincoln.TheLostWorlds.CDTextures
 
 			X = (clut << 4) & 0x03F0; // 0x003F << 4 = 0x03F0
 			Y = (clut >> 6) & 0x03FF; // 0xFFC0 >> 6 = 0x03FF
-			X %= 512;
+			X %= 512; // _TotalWidth of PSXTextureFile?
 			X += width - xShift;
 			X %= width;
 			colors = new Color[256];
