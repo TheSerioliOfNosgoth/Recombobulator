@@ -1851,5 +1851,61 @@ namespace Recombobulator
 				}
 			}
 		}
+
+		private void OpenObjectPCFileToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			OpenFileDialog dialog = new OpenFileDialog
+			{
+				CheckFileExists = true,
+				CheckPathExists = true,
+				Filter =
+					"Soul Reaver Files|*.pcm;*.drm|" +
+					"All Files (*.*)|*.*",
+				DefaultExt = "pcm",
+				FilterIndex = 1
+			};
+
+			if (dialog.ShowDialog() == DialogResult.OK)
+			{
+				try
+				{
+					objectsPanel.Open(dialog.FileName, dialog.FileName);
+				}
+				catch (Exception ex)
+				{
+
+				}
+
+				displayModeTabs.SelectedTab = objectsTab;
+			}
+		}
+
+		private void OpenObjectPSXToolStripMenuItem_Click(object sender, System.EventArgs e)
+		{
+			OpenFileDialog dialog = new OpenFileDialog
+			{
+				CheckFileExists = true,
+				CheckPathExists = true,
+				Filter =
+					"Soul Reaver Files|*.pcm;*.drm|" +
+					"All Files (*.*)|*.*",
+				DefaultExt = "pcm",
+				FilterIndex = 1
+			};
+
+			if (dialog.ShowDialog() == DialogResult.OK)
+			{
+				try
+				{
+					objectsPanel.Open(dialog.FileName, dialog.FileName);
+				}
+				catch (Exception ex)
+				{
+
+				}
+
+				displayModeTabs.SelectedTab = objectsTab;
+			}
+		}
 	}
 }
