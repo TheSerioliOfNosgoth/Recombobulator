@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-			this.backPamel.SuspendLayout();
+			this.backPanel.SuspendLayout();
 			this.toolBoxPanel.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -70,7 +70,7 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Name = "EditGlowsPanel";
-			this.backPamel.ResumeLayout(false);
+			this.backPanel.ResumeLayout(false);
 			this.toolBoxPanel.ResumeLayout(false);
 			this.toolBoxPanel.PerformLayout();
 			this.ResumeLayout(false);

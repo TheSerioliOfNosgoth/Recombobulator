@@ -84,6 +84,18 @@
     <Compile Include="EditPortalForm.Designer.cs">
       <DependentUpon>EditPortalForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ObjectPanels\EditTextureMT3sPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ObjectPanels\EditTextureMT3sPanel.Designer.cs">
+      <DependentUpon>EditTextureMT3sPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ObjectPanels\MainObjectPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ObjectPanels\MainObjectPanel.designer.cs">
+      <DependentUpon>MainObjectPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="ParticlePanels\EditPanelBase.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -437,6 +449,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ObjectPanels\MainObjectPanel.resx">
+      <DependentUpon>MainObjectPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ParticlePanels\EditPanelBase.resx">
       <DependentUpon>EditPanelBase.cs</DependentUpon>

@@ -30,7 +30,7 @@
         {
 			this.glowColorBox = new System.Windows.Forms.PictureBox();
 			this.colorBox = new System.Windows.Forms.PictureBox();
-			this.backPamel.SuspendLayout();
+			this.backPanel.SuspendLayout();
 			this.particlesPanel.SuspendLayout();
 			this.toolBoxPanel.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.glowColorBox)).BeginInit();
@@ -102,7 +102,7 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Name = "EditLightningsPanel";
-			this.backPamel.ResumeLayout(false);
+			this.backPanel.ResumeLayout(false);
 			this.particlesPanel.ResumeLayout(false);
 			this.toolBoxPanel.ResumeLayout(false);
 			this.toolBoxPanel.PerformLayout();

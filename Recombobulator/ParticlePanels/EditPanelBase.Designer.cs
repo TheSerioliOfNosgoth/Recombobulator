@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-			this.backPamel = new System.Windows.Forms.Panel();
+			this.backPanel = new System.Windows.Forms.Panel();
 			this.particlesPanel = new System.Windows.Forms.Panel();
 			this.fieldsPanel = new System.Windows.Forms.TableLayoutPanel();
 			this.toolBoxPanel = new System.Windows.Forms.Panel();
@@ -40,20 +40,20 @@
 			this.copyButton = new System.Windows.Forms.Button();
 			this.insertButton = new System.Windows.Forms.Button();
 			this.removeButton = new System.Windows.Forms.Button();
-			this.backPamel.SuspendLayout();
+			this.backPanel.SuspendLayout();
 			this.toolBoxPanel.SuspendLayout();
 			this.SuspendLayout();
 			// 
-			// backPamel
+			// backPanel
 			// 
-			this.backPamel.AutoScroll = true;
-			this.backPamel.Controls.Add(this.particlesPanel);
-			this.backPamel.Controls.Add(this.fieldsPanel);
-			this.backPamel.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.backPamel.Location = new System.Drawing.Point(0, 60);
-			this.backPamel.Name = "backPamel";
-			this.backPamel.Size = new System.Drawing.Size(515, 440);
-			this.backPamel.TabIndex = 15;
+			this.backPanel.AutoScroll = true;
+			this.backPanel.Controls.Add(this.particlesPanel);
+			this.backPanel.Controls.Add(this.fieldsPanel);
+			this.backPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.backPanel.Location = new System.Drawing.Point(0, 60);
+			this.backPanel.Name = "backPanel";
+			this.backPanel.Size = new System.Drawing.Size(515, 440);
+			this.backPanel.TabIndex = 15;
 			// 
 			// particlesPanel
 			// 
@@ -173,12 +173,12 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this.backPamel);
+			this.Controls.Add(this.backPanel);
 			this.Controls.Add(this.toolBoxPanel);
 			this.Margin = new System.Windows.Forms.Padding(0);
 			this.Name = "EditPanelBase";
 			this.Size = new System.Drawing.Size(515, 500);
-			this.backPamel.ResumeLayout(false);
+			this.backPanel.ResumeLayout(false);
 			this.toolBoxPanel.ResumeLayout(false);
 			this.toolBoxPanel.PerformLayout();
 			this.ResumeLayout(false);
@@ -187,7 +187,7 @@
 
         #endregion
 
-        protected System.Windows.Forms.Panel backPamel;
+        protected System.Windows.Forms.Panel backPanel;
         protected System.Windows.Forms.Panel particlesPanel;
         protected System.Windows.Forms.TableLayoutPanel fieldsPanel;
         protected System.Windows.Forms.Panel toolBoxPanel;

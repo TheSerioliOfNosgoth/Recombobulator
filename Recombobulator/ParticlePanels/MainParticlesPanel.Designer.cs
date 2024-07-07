@@ -30,7 +30,7 @@
 		{
 			this.splitContainer = new System.Windows.Forms.SplitContainer();
 			this.categoriesTreeView = new System.Windows.Forms.TreeView();
-			this.backPamel = new System.Windows.Forms.Panel();
+			this.backPanel = new System.Windows.Forms.Panel();
 			this.editFlashesPanel = new Recombobulator.ParticlePanels.EditFlashesPanel();
 			this.editBlastRingsPanel = new Recombobulator.ParticlePanels.EditBlastRingsPanel();
 			this.editLightningsPanel = new Recombobulator.ParticlePanels.EditLightningsPanel();
@@ -41,7 +41,7 @@
 			this.splitContainer.Panel1.SuspendLayout();
 			this.splitContainer.Panel2.SuspendLayout();
 			this.splitContainer.SuspendLayout();
-			this.backPamel.SuspendLayout();
+			this.backPanel.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// splitContainer
@@ -56,7 +56,7 @@
 			// 
 			// splitContainer.Panel2
 			// 
-			this.splitContainer.Panel2.Controls.Add(this.backPamel);
+			this.splitContainer.Panel2.Controls.Add(this.backPanel);
 			this.splitContainer.Size = new System.Drawing.Size(700, 489);
 			this.splitContainer.SplitterDistance = 129;
 			this.splitContainer.TabIndex = 1;
@@ -70,20 +70,20 @@
 			this.categoriesTreeView.TabIndex = 0;
 			this.categoriesTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.categoriesTreeView_AfterSelect);
 			// 
-			// backPamel
+			// backPanel
 			// 
-			this.backPamel.AutoScroll = true;
-			this.backPamel.Controls.Add(this.editFlashesPanel);
-			this.backPamel.Controls.Add(this.editBlastRingsPanel);
-			this.backPamel.Controls.Add(this.editLightningsPanel);
-			this.backPamel.Controls.Add(this.editGlowsPanel);
-			this.backPamel.Controls.Add(this.editRibbonsPanel);
-			this.backPamel.Controls.Add(this.editParticlesPanel);
-			this.backPamel.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.backPamel.Location = new System.Drawing.Point(0, 0);
-			this.backPamel.Name = "backPamel";
-			this.backPamel.Size = new System.Drawing.Size(567, 489);
-			this.backPamel.TabIndex = 13;
+			this.backPanel.AutoScroll = true;
+			this.backPanel.Controls.Add(this.editFlashesPanel);
+			this.backPanel.Controls.Add(this.editBlastRingsPanel);
+			this.backPanel.Controls.Add(this.editLightningsPanel);
+			this.backPanel.Controls.Add(this.editGlowsPanel);
+			this.backPanel.Controls.Add(this.editRibbonsPanel);
+			this.backPanel.Controls.Add(this.editParticlesPanel);
+			this.backPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.backPanel.Location = new System.Drawing.Point(0, 0);
+			this.backPanel.Name = "backPanel";
+			this.backPanel.Size = new System.Drawing.Size(567, 489);
+			this.backPanel.TabIndex = 13;
 			// 
 			// editFlashesPanel
 			// 
@@ -162,7 +162,7 @@
 			this.splitContainer.Panel2.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
 			this.splitContainer.ResumeLayout(false);
-			this.backPamel.ResumeLayout(false);
+			this.backPanel.ResumeLayout(false);
 			this.ResumeLayout(false);
 
 		}
@@ -171,7 +171,7 @@
 
 		private System.Windows.Forms.SplitContainer splitContainer;
 		private System.Windows.Forms.TreeView categoriesTreeView;
-		private System.Windows.Forms.Panel backPamel;
+		private System.Windows.Forms.Panel backPanel;
 		private EditParticlesPanel editParticlesPanel;
 		private EditRibbonsPanel editRibbonsPanel;
 		private EditGlowsPanel editGlowsPanel;
