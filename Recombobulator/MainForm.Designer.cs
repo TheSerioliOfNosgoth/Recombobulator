@@ -52,6 +52,7 @@
 			this.importRetreatToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.importOraclesCaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.importAllCutAreasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.importMovieRoomsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.compileProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.testExportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.bulkTestingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -73,9 +74,10 @@
 			this.testResults = new System.Windows.Forms.TextBox();
 			this.particlesTab = new System.Windows.Forms.TabPage();
 			this.particlesPanel = new Recombobulator.ParticlePanels.MainParticlesPanel();
+			this.objectsTab = new System.Windows.Forms.TabPage();
+			this.objectsPanel = new Recombobulator.ParticlePanels.MainObjectPanel();
 			this.projectContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.editPortalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.importMovieRoomsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this._mainMenu.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pcmFileTreeListView)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.pcmFileSplitContainer)).BeginInit();
@@ -92,6 +94,7 @@
 			this.scriptsTab.SuspendLayout();
 			this.testResultsTab.SuspendLayout();
 			this.particlesTab.SuspendLayout();
+			this.objectsTab.SuspendLayout();
 			this.projectContextMenu.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -124,14 +127,14 @@
 			// newProjectToolStripMenuItem
 			// 
 			this.newProjectToolStripMenuItem.Name = "newProjectToolStripMenuItem";
-			this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.newProjectToolStripMenuItem.Text = "New Project...";
 			this.newProjectToolStripMenuItem.Click += new System.EventHandler(this.NewProjectToolStripMenuItem_Click);
 			// 
 			// openProjectToolStripMenuItem
 			// 
 			this.openProjectToolStripMenuItem.Name = "openProjectToolStripMenuItem";
-			this.openProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.openProjectToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.openProjectToolStripMenuItem.Text = "Open Project...";
 			this.openProjectToolStripMenuItem.Click += new System.EventHandler(this.OpenProjectToolStripMenuItem_Click);
 			// 
@@ -141,7 +144,7 @@
             this.openDataFileToolStripMenuItem,
             this.addDataFileToProjectToolStripMenuItem});
 			this.dataFileToolStripMenuItem.Name = "dataFileToolStripMenuItem";
-			this.dataFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.dataFileToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.dataFileToolStripMenuItem.Text = "Data File";
 			// 
 			// openDataFileToolStripMenuItem
@@ -166,7 +169,7 @@
             this.openParticlesPSXFileToolStripMenuItem,
             this.saveParticlesFileToolStripMenuItem});
 			this.particlesFileToolStripMenuItem.Name = "particlesFileToolStripMenuItem";
-			this.particlesFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.particlesFileToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.particlesFileToolStripMenuItem.Text = "Particles File";
 			// 
 			// openParticlesPCFileToolStripMenuItem
@@ -203,7 +206,7 @@
             this.importMovieRoomsToolStripMenuItem});
 			this.scriptedImportsToolStripMenuItem.Enabled = false;
 			this.scriptedImportsToolStripMenuItem.Name = "scriptedImportsToolStripMenuItem";
-			this.scriptedImportsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.scriptedImportsToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.scriptedImportsToolStripMenuItem.Text = "Scripted Imports";
 			// 
 			// importUndercityFeb04ToolStripMenuItem
@@ -248,11 +251,18 @@
 			this.importAllCutAreasToolStripMenuItem.Text = "Import All Cut Areas...";
 			this.importAllCutAreasToolStripMenuItem.Click += new System.EventHandler(this.ImportAllCutAreasToolStripMenuItem_Click);
 			// 
+			// importMovieRoomsToolStripMenuItem
+			// 
+			this.importMovieRoomsToolStripMenuItem.Name = "importMovieRoomsToolStripMenuItem";
+			this.importMovieRoomsToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
+			this.importMovieRoomsToolStripMenuItem.Text = "Import Movie Rooms...";
+			this.importMovieRoomsToolStripMenuItem.Click += new System.EventHandler(this.ImportMovieRoomsToolStripMenuItem_Click);
+			// 
 			// compileProjectToolStripMenuItem
 			// 
 			this.compileProjectToolStripMenuItem.Enabled = false;
 			this.compileProjectToolStripMenuItem.Name = "compileProjectToolStripMenuItem";
-			this.compileProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.compileProjectToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.compileProjectToolStripMenuItem.Text = "Compile Project...";
 			this.compileProjectToolStripMenuItem.Click += new System.EventHandler(this.CompileProjectToolStripMenuItem_Click);
 			// 
@@ -260,7 +270,7 @@
 			// 
 			this.testExportToolStripMenuItem.Enabled = false;
 			this.testExportToolStripMenuItem.Name = "testExportToolStripMenuItem";
-			this.testExportToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.testExportToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.testExportToolStripMenuItem.Text = "Test Export";
 			this.testExportToolStripMenuItem.Click += new System.EventHandler(this.TestExportToolStripMenuItem_Click);
 			// 
@@ -270,7 +280,7 @@
             this.detailedExportToolStripMenuItem,
             this.briefExportToolStripMenuItem});
 			this.bulkTestingToolStripMenuItem.Name = "bulkTestingToolStripMenuItem";
-			this.bulkTestingToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.bulkTestingToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.bulkTestingToolStripMenuItem.Text = "Bulk Testing";
 			// 
 			// detailedExportToolStripMenuItem
@@ -290,7 +300,7 @@
 			// exitToolStripMenuItem
 			// 
 			this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-			this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.exitToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.exitToolStripMenuItem.Text = "Exit";
 			this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItem_Click);
 			// 
@@ -351,7 +361,7 @@
 			this.pcmFileSummary.ReadOnly = true;
 			this.pcmFileSummary.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
 			this.pcmFileSummary.Size = new System.Drawing.Size(792, 40);
-			this.pcmFileSummary.TabIndex = 0;
+			this.pcmFileSummary.TabIndex = 3;
 			// 
 			// displayModeTabs
 			// 
@@ -360,13 +370,14 @@
 			this.displayModeTabs.Controls.Add(this.scriptsTab);
 			this.displayModeTabs.Controls.Add(this.testResultsTab);
 			this.displayModeTabs.Controls.Add(this.particlesTab);
+			this.displayModeTabs.Controls.Add(this.objectsTab);
 			this.displayModeTabs.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.displayModeTabs.Location = new System.Drawing.Point(0, 24);
 			this.displayModeTabs.Margin = new System.Windows.Forms.Padding(0);
 			this.displayModeTabs.Name = "displayModeTabs";
 			this.displayModeTabs.SelectedIndex = 0;
 			this.displayModeTabs.Size = new System.Drawing.Size(800, 426);
-			this.displayModeTabs.TabIndex = 3;
+			this.displayModeTabs.TabIndex = 4;
 			// 
 			// projectTab
 			// 
@@ -375,7 +386,7 @@
 			this.projectTab.Name = "projectTab";
 			this.projectTab.Padding = new System.Windows.Forms.Padding(3);
 			this.projectTab.Size = new System.Drawing.Size(792, 400);
-			this.projectTab.TabIndex = 3;
+			this.projectTab.TabIndex = 5;
 			this.projectTab.Text = "Project";
 			this.projectTab.UseVisualStyleBackColor = true;
 			// 
@@ -394,7 +405,7 @@
 			this.projectSplitContainer.Panel2.Controls.Add(this.projectTextBox);
 			this.projectSplitContainer.Size = new System.Drawing.Size(786, 394);
 			this.projectSplitContainer.SplitterDistance = 262;
-			this.projectSplitContainer.TabIndex = 0;
+			this.projectSplitContainer.TabIndex = 6;
 			// 
 			// projectTreeView
 			// 
@@ -402,7 +413,7 @@
 			this.projectTreeView.Location = new System.Drawing.Point(0, 0);
 			this.projectTreeView.Name = "projectTreeView";
 			this.projectTreeView.Size = new System.Drawing.Size(262, 394);
-			this.projectTreeView.TabIndex = 0;
+			this.projectTreeView.TabIndex = 7;
 			this.projectTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.projectTreeView_AfterSelect);
 			this.projectTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.projectTreeView_NodeMouseClick);
 			// 
@@ -416,7 +427,7 @@
 			this.projectTextBox.ReadOnly = true;
 			this.projectTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
 			this.projectTextBox.Size = new System.Drawing.Size(520, 394);
-			this.projectTextBox.TabIndex = 0;
+			this.projectTextBox.TabIndex = 8;
 			// 
 			// pcmFileDataTab
 			// 
@@ -425,7 +436,7 @@
 			this.pcmFileDataTab.Margin = new System.Windows.Forms.Padding(0);
 			this.pcmFileDataTab.Name = "pcmFileDataTab";
 			this.pcmFileDataTab.Size = new System.Drawing.Size(792, 400);
-			this.pcmFileDataTab.TabIndex = 0;
+			this.pcmFileDataTab.TabIndex = 9;
 			this.pcmFileDataTab.Text = "File Data";
 			this.pcmFileDataTab.UseVisualStyleBackColor = true;
 			// 
@@ -436,7 +447,7 @@
 			this.scriptsTab.Margin = new System.Windows.Forms.Padding(0);
 			this.scriptsTab.Name = "scriptsTab";
 			this.scriptsTab.Size = new System.Drawing.Size(792, 400);
-			this.scriptsTab.TabIndex = 1;
+			this.scriptsTab.TabIndex = 10;
 			this.scriptsTab.Text = "Scripts";
 			this.scriptsTab.UseVisualStyleBackColor = true;
 			// 
@@ -450,7 +461,7 @@
 			this.scripts.ReadOnly = true;
 			this.scripts.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
 			this.scripts.Size = new System.Drawing.Size(792, 400);
-			this.scripts.TabIndex = 0;
+			this.scripts.TabIndex = 11;
 			// 
 			// testResultsTab
 			// 
@@ -459,7 +470,7 @@
 			this.testResultsTab.Margin = new System.Windows.Forms.Padding(0);
 			this.testResultsTab.Name = "testResultsTab";
 			this.testResultsTab.Size = new System.Drawing.Size(792, 400);
-			this.testResultsTab.TabIndex = 2;
+			this.testResultsTab.TabIndex = 12;
 			this.testResultsTab.Text = "Test Results";
 			this.testResultsTab.UseVisualStyleBackColor = true;
 			// 
@@ -473,7 +484,7 @@
 			this.testResults.ReadOnly = true;
 			this.testResults.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
 			this.testResults.Size = new System.Drawing.Size(792, 400);
-			this.testResults.TabIndex = 0;
+			this.testResults.TabIndex = 13;
 			// 
 			// particlesTab
 			// 
@@ -481,7 +492,7 @@
 			this.particlesTab.Location = new System.Drawing.Point(4, 22);
 			this.particlesTab.Name = "particlesTab";
 			this.particlesTab.Size = new System.Drawing.Size(792, 400);
-			this.particlesTab.TabIndex = 4;
+			this.particlesTab.TabIndex = 14;
 			this.particlesTab.Text = "Particles";
 			this.particlesTab.UseVisualStyleBackColor = true;
 			// 
@@ -491,7 +502,26 @@
 			this.particlesPanel.Location = new System.Drawing.Point(0, 0);
 			this.particlesPanel.Name = "particlesPanel";
 			this.particlesPanel.Size = new System.Drawing.Size(792, 400);
-			this.particlesPanel.TabIndex = 0;
+			this.particlesPanel.TabIndex = 15;
+			// 
+			// objectsTab
+			// 
+			this.objectsTab.Controls.Add(this.objectsPanel);
+			this.objectsTab.Location = new System.Drawing.Point(4, 22);
+			this.objectsTab.Name = "objectsTab";
+			this.objectsTab.Padding = new System.Windows.Forms.Padding(3);
+			this.objectsTab.Size = new System.Drawing.Size(792, 400);
+			this.objectsTab.TabIndex = 16;
+			this.objectsTab.Text = "Objects";
+			this.objectsTab.UseVisualStyleBackColor = true;
+			// 
+			// objectsPanel
+			// 
+			this.objectsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.objectsPanel.Location = new System.Drawing.Point(3, 3);
+			this.objectsPanel.Name = "objectsPanel";
+			this.objectsPanel.Size = new System.Drawing.Size(786, 394);
+			this.objectsPanel.TabIndex = 17;
 			// 
 			// projectContextMenu
 			// 
@@ -507,13 +537,6 @@
 			this.editPortalToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
 			this.editPortalToolStripMenuItem.Text = "Edit Portal...";
 			this.editPortalToolStripMenuItem.Click += new System.EventHandler(this.EditPortalToolStripMenuItem_Click);
-			// 
-			// importMovieRoomsToolStripMenuItem
-			// 
-			this.importMovieRoomsToolStripMenuItem.Name = "importMovieRoomsToolStripMenuItem";
-			this.importMovieRoomsToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
-			this.importMovieRoomsToolStripMenuItem.Text = "Import Movie Rooms...";
-			this.importMovieRoomsToolStripMenuItem.Click += new System.EventHandler(this.ImportMovieRoomsToolStripMenuItem_Click);
 			// 
 			// MainForm
 			// 
@@ -548,6 +571,7 @@
 			this.testResultsTab.ResumeLayout(false);
 			this.testResultsTab.PerformLayout();
 			this.particlesTab.ResumeLayout(false);
+			this.objectsTab.ResumeLayout(false);
 			this.projectContextMenu.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
@@ -598,6 +622,8 @@
 		private System.Windows.Forms.ToolStripMenuItem saveParticlesFileToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem openParticlesPSXFileToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem importMovieRoomsToolStripMenuItem;
+		private System.Windows.Forms.TabPage objectsTab;
+		private ParticlePanels.MainObjectPanel objectsPanel;
 	}
 }
 

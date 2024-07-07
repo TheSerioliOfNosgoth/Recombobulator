@@ -84,6 +84,12 @@
     <Compile Include="EditPortalForm.Designer.cs">
       <DependentUpon>EditPortalForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ObjectPanels\EditGlyphTuneDataPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ObjectPanels\EditGlyphTuneDataPanel.Designer.cs">
+      <DependentUpon>EditGlyphTuneDataPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="ObjectPanels\EditTextureMT3sPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -449,6 +455,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ObjectPanels\EditGlyphTuneDataPanel.resx">
+      <DependentUpon>EditGlyphTuneDataPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ObjectPanels\EditTextureMT3sPanel.resx">
+      <DependentUpon>EditTextureMT3sPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ObjectPanels\MainObjectPanel.resx">
       <DependentUpon>MainObjectPanel.cs</DependentUpon>

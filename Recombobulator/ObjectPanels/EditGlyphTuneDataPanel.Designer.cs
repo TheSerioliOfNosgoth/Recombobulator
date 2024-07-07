@@ -1,6 +1,6 @@
 ﻿namespace Recombobulator.ParticlePanels
 {
-	partial class EditTextureMT3sPanel
+	partial class EditGlyphTuneDataPanel
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -32,10 +32,10 @@
 			this.toolBoxPanel.SuspendLayout();
 			this.SuspendLayout();
 			// 
-			// EditTextureMT3sPanel
+			// EditGlyphTuneDataPanel
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			this.Name = "EditTextureMT3sPanel";
+			this.Name = "EditGlyphTuneDataPanel";
 			this.backPanel.ResumeLayout(false);
 			this.toolBoxPanel.ResumeLayout(false);
 			this.toolBoxPanel.PerformLayout();

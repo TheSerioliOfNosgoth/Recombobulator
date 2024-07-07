@@ -32,7 +32,7 @@
 			this.categoriesTreeView = new System.Windows.Forms.TreeView();
 			this.backPanel = new System.Windows.Forms.Panel();
 			this.editTextureMT3sPanel = new EditTextureMT3sPanel();
-			this.editRibbonsPanel = new EditTextureMT3sPanel();
+			this.editGlyphTuneDataPanel = new EditGlyphTuneDataPanel();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
 			this.splitContainer.Panel1.SuspendLayout();
 			this.splitContainer.Panel2.SuspendLayout();
@@ -69,7 +69,7 @@
 			// backPanel
 			// 
 			this.backPanel.AutoScroll = true;
-			this.backPanel.Controls.Add(this.editRibbonsPanel);
+			this.backPanel.Controls.Add(this.editGlyphTuneDataPanel);
 			this.backPanel.Controls.Add(this.editTextureMT3sPanel);
 			this.backPanel.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.backPanel.Location = new System.Drawing.Point(0, 0);
@@ -88,16 +88,16 @@
 			this.editTextureMT3sPanel.TabIndex = 3;
 			this.editTextureMT3sPanel.Visible = false;
 			// 
-			// editRibbonsPanel
+			// editGlyphTuneDataPanel
 			// 
-			this.editRibbonsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.editRibbonsPanel.Enabled = false;
-			this.editRibbonsPanel.Location = new System.Drawing.Point(0, 0);
-			this.editRibbonsPanel.Margin = new System.Windows.Forms.Padding(0);
-			this.editRibbonsPanel.Name = "editRibbonsPanel";
-			this.editRibbonsPanel.Size = new System.Drawing.Size(567, 489);
-			this.editRibbonsPanel.TabIndex = 4;
-			this.editRibbonsPanel.Visible = false;
+			this.editGlyphTuneDataPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.editGlyphTuneDataPanel.Enabled = false;
+			this.editGlyphTuneDataPanel.Location = new System.Drawing.Point(0, 0);
+			this.editGlyphTuneDataPanel.Margin = new System.Windows.Forms.Padding(0);
+			this.editGlyphTuneDataPanel.Name = "editGlyphTuneDataPanel";
+			this.editGlyphTuneDataPanel.Size = new System.Drawing.Size(567, 489);
+			this.editGlyphTuneDataPanel.TabIndex = 4;
+			this.editGlyphTuneDataPanel.Visible = false;
 			// 
 			// MainObjectPanel
 			// 
@@ -121,6 +121,6 @@
 		private System.Windows.Forms.TreeView categoriesTreeView;
 		private System.Windows.Forms.Panel backPanel;
 		private EditTextureMT3sPanel editTextureMT3sPanel;
-		private EditTextureMT3sPanel editRibbonsPanel;
+		private EditGlyphTuneDataPanel editGlyphTuneDataPanel;
 	}
 }

@@ -26,8 +26,8 @@ namespace Recombobulator.ParticlePanels
 		{
 			InitializeComponent();
 
-			categoriesTreeView.Nodes.Add(CreateNode("Particles", editTextureMT3sPanel));
-			categoriesTreeView.Nodes.Add(CreateNode("Ribbons", editRibbonsPanel));
+			categoriesTreeView.Nodes.Add(CreateNode("TextureMT3s", editTextureMT3sPanel));
+			categoriesTreeView.Nodes.Add(CreateNode("GlyphTuneData", editGlyphTuneDataPanel));
 
 			categoriesTreeView.SelectedNode = categoriesTreeView.Nodes[0];
 		}
@@ -69,29 +69,19 @@ namespace Recombobulator.ParticlePanels
 			var srObject = (SR1Structures.Object)_file._Structures[0];
 			var genericFXObject = (GenericFXObject)_file._Structures[srObject.data.Offset];
 			var particlesList = (SR1_StructureSeries<GenericParticleParams>)_file._Structures[genericFXObject.ParticleList.Offset];
-			var ribbonList = (SR1_StructureSeries<GenericRibbonParams>)_file._Structures[genericFXObject.RibbonList.Offset];
-			var glowList = (SR1_StructureSeries<GenericGlowParams>)_file._Structures[genericFXObject.GlowList.Offset];
-			var lightningList = (SR1_StructureSeries<GenericLightningParams>)_file._Structures[genericFXObject.LightningList.Offset];
-			var blastList = (SR1_StructureSeries<GenericBlastRingParams>)_file._Structures[genericFXObject.BlastList.Offset];
-			var flashList = (SR1_StructureSeries<GenericFlashParams>)_file._Structures[genericFXObject.FlashList.Offset];
 
 			if (_hasBackup)
 			{
 				var srBackupObject = (SR1Structures.Object)_fileBackup._Structures[0];
 				var backupGenericFXObject = (GenericFXObject)_fileBackup._Structures[srBackupObject.data.Offset];
 				var backupParticlesList = (SR1_StructureSeries<GenericParticleParams>)_fileBackup._Structures[backupGenericFXObject.ParticleList.Offset];
-				var backupRibbonList = (SR1_StructureSeries<GenericRibbonParams>)_fileBackup._Structures[genericFXObject.RibbonList.Offset];
-				var backupGlowList = (SR1_StructureSeries<GenericGlowParams>)_fileBackup._Structures[genericFXObject.GlowList.Offset];
-				var backupLightningList = (SR1_StructureSeries<GenericLightningParams>)_fileBackup._Structures[genericFXObject.LightningList.Offset];
-				var backupBlastList = (SR1_StructureSeries<GenericBlastRingParams>)_fileBackup._Structures[genericFXObject.BlastList.Offset];
-				var backupFlashList = (SR1_StructureSeries<GenericFlashParams>)_fileBackup._Structures[genericFXObject.FlashList.Offset];
 
-				//editParticlesPanel.Open(particlesList, backupParticlesList);
-				//editRibbonsPanel.Open(ribbonList, backupRibbonList);
+				editTextureMT3sPanel.Open(particlesList, backupParticlesList);
+				//editTextureMT3sPanel.Open(ribbonList, backupRibbonList);
 			}
 			else
 			{
-				//editParticlesPanel.Open(particlesList, null);
+				editTextureMT3sPanel.Open(particlesList, null);
 				//editRibbonsPanel.Open(particlesList, null);
 			}
 		}

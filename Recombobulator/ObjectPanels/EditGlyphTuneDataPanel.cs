@@ -8,15 +8,11 @@ using System.Windows.Forms;
 
 namespace Recombobulator.ParticlePanels
 {
-	public partial class EditTextureMT3sPanel : EditPanelBase
+	public partial class EditGlyphTuneDataPanel : EditPanelBase
 	{
-		public EditTextureMT3sPanel()
+		public EditGlyphTuneDataPanel()
 		{
 			InitializeComponent();
-		}
-
-		public void Open(object textureMT3sList, object textureMT3sListBackup = null)
-		{
 		}
 	}
 }
