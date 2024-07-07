@@ -101,7 +101,7 @@
 			// _mainMenu
 			// 
 			this._mainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem});
+			this.fileToolStripMenuItem});
 			this._mainMenu.Location = new System.Drawing.Point(0, 0);
 			this._mainMenu.Name = "_mainMenu";
 			this._mainMenu.Size = new System.Drawing.Size(800, 24);
@@ -111,15 +111,15 @@
 			// fileToolStripMenuItem
 			// 
 			this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.newProjectToolStripMenuItem,
-            this.openProjectToolStripMenuItem,
-            this.dataFileToolStripMenuItem,
-            this.particlesFileToolStripMenuItem,
-            this.scriptedImportsToolStripMenuItem,
-            this.compileProjectToolStripMenuItem,
-            this.testExportToolStripMenuItem,
-            this.bulkTestingToolStripMenuItem,
-            this.exitToolStripMenuItem});
+			this.newProjectToolStripMenuItem,
+			this.openProjectToolStripMenuItem,
+			this.dataFileToolStripMenuItem,
+			this.particlesFileToolStripMenuItem,
+			this.scriptedImportsToolStripMenuItem,
+			this.compileProjectToolStripMenuItem,
+			this.testExportToolStripMenuItem,
+			this.bulkTestingToolStripMenuItem,
+			this.exitToolStripMenuItem});
 			this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
 			this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
 			this.fileToolStripMenuItem.Text = "File";
@@ -141,8 +141,8 @@
 			// dataFileToolStripMenuItem
 			// 
 			this.dataFileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.openDataFileToolStripMenuItem,
-            this.addDataFileToProjectToolStripMenuItem});
+			this.openDataFileToolStripMenuItem,
+			this.addDataFileToProjectToolStripMenuItem});
 			this.dataFileToolStripMenuItem.Name = "dataFileToolStripMenuItem";
 			this.dataFileToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.dataFileToolStripMenuItem.Text = "Data File";
@@ -165,9 +165,9 @@
 			// particlesFileToolStripMenuItem
 			// 
 			this.particlesFileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.openParticlesPCFileToolStripMenuItem,
-            this.openParticlesPSXFileToolStripMenuItem,
-            this.saveParticlesFileToolStripMenuItem});
+			this.openParticlesPCFileToolStripMenuItem,
+			this.openParticlesPSXFileToolStripMenuItem,
+			this.saveParticlesFileToolStripMenuItem});
 			this.particlesFileToolStripMenuItem.Name = "particlesFileToolStripMenuItem";
 			this.particlesFileToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.particlesFileToolStripMenuItem.Text = "Particles File";
@@ -197,13 +197,13 @@
 			// scriptedImportsToolStripMenuItem
 			// 
 			this.scriptedImportsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.importUndercityFeb04ToolStripMenuItem,
-            this.importUndercityFeb16ToolStripMenuItem,
-            this.importSmokestackToolStripMenuItem,
-            this.importRetreatToolStripMenuItem,
-            this.importOraclesCaveToolStripMenuItem,
-            this.importAllCutAreasToolStripMenuItem,
-            this.importMovieRoomsToolStripMenuItem});
+			this.importUndercityFeb04ToolStripMenuItem,
+			this.importUndercityFeb16ToolStripMenuItem,
+			this.importSmokestackToolStripMenuItem,
+			this.importRetreatToolStripMenuItem,
+			this.importOraclesCaveToolStripMenuItem,
+			this.importAllCutAreasToolStripMenuItem,
+			this.importMovieRoomsToolStripMenuItem});
 			this.scriptedImportsToolStripMenuItem.Enabled = false;
 			this.scriptedImportsToolStripMenuItem.Name = "scriptedImportsToolStripMenuItem";
 			this.scriptedImportsToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
@@ -277,8 +277,8 @@
 			// bulkTestingToolStripMenuItem
 			// 
 			this.bulkTestingToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.detailedExportToolStripMenuItem,
-            this.briefExportToolStripMenuItem});
+			this.detailedExportToolStripMenuItem,
+			this.briefExportToolStripMenuItem});
 			this.bulkTestingToolStripMenuItem.Name = "bulkTestingToolStripMenuItem";
 			this.bulkTestingToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.bulkTestingToolStripMenuItem.Text = "Bulk Testing";
@@ -320,10 +320,10 @@
 			treeListColumn4.HeaderFormat.BackColor = System.Drawing.SystemColors.ButtonFace;
 			treeListColumn4.Width = 50;
 			this.pcmFileTreeListView.Columns.AddRange(new TreeList.TreeListColumn[] {
-            treeListColumn1,
-            treeListColumn2,
-            treeListColumn3,
-            treeListColumn4});
+			treeListColumn1,
+			treeListColumn2,
+			treeListColumn3,
+			treeListColumn4});
 			this.pcmFileTreeListView.Cursor = System.Windows.Forms.Cursors.Arrow;
 			this.pcmFileTreeListView.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.pcmFileTreeListView.Images = null;
@@ -384,7 +384,7 @@
 			this.projectTab.Controls.Add(this.projectSplitContainer);
 			this.projectTab.Location = new System.Drawing.Point(4, 22);
 			this.projectTab.Name = "projectTab";
-			this.projectTab.Padding = new System.Windows.Forms.Padding(3);
+			this.projectTab.Padding = new System.Windows.Forms.Padding(0);
 			this.projectTab.Size = new System.Drawing.Size(792, 400);
 			this.projectTab.TabIndex = 5;
 			this.projectTab.Text = "Project";
@@ -509,7 +509,7 @@
 			this.objectsTab.Controls.Add(this.objectsPanel);
 			this.objectsTab.Location = new System.Drawing.Point(4, 22);
 			this.objectsTab.Name = "objectsTab";
-			this.objectsTab.Padding = new System.Windows.Forms.Padding(3);
+			this.objectsTab.Padding = new System.Windows.Forms.Padding(0);
 			this.objectsTab.Size = new System.Drawing.Size(792, 400);
 			this.objectsTab.TabIndex = 16;
 			this.objectsTab.Text = "Objects";
@@ -518,15 +518,15 @@
 			// objectsPanel
 			// 
 			this.objectsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.objectsPanel.Location = new System.Drawing.Point(3, 3);
+			this.objectsPanel.Location = new System.Drawing.Point(0, 0);
 			this.objectsPanel.Name = "objectsPanel";
-			this.objectsPanel.Size = new System.Drawing.Size(786, 394);
+			this.objectsPanel.Size = new System.Drawing.Size(792, 400);
 			this.objectsPanel.TabIndex = 17;
 			// 
 			// projectContextMenu
 			// 
 			this.projectContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.editPortalToolStripMenuItem});
+			this.editPortalToolStripMenuItem});
 			this.projectContextMenu.Name = "projectContextMenu";
 			this.projectContextMenu.Size = new System.Drawing.Size(138, 26);
 			// 

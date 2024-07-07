@@ -32,6 +32,11 @@
 			this.toolBoxPanel.SuspendLayout();
 			this.SuspendLayout();
 			// 
+			// selectionLabel
+			// 
+			this.selectionLabel.Size = new System.Drawing.Size(80, 13);
+			this.selectionLabel.Text = "Current Texture";
+			// 
 			// EditTextureMT3sPanel
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
