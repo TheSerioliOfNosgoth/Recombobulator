@@ -41,6 +41,9 @@
 			this.dataFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openDataFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.addDataFileToProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.objectFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.openObjectPCFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.openObjectPSXFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.particlesFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openParticlesPCFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openParticlesPSXFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -78,9 +81,7 @@
 			this.objectsPanel = new Recombobulator.ParticlePanels.MainObjectPanel();
 			this.projectContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.editPortalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.objectFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.openObjectPCFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.openObjectPSXFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.saveObjectFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this._mainMenu.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pcmFileTreeListView)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.pcmFileSplitContainer)).BeginInit();
@@ -166,6 +167,37 @@
 			this.addDataFileToProjectToolStripMenuItem.Text = "Add To Project...";
 			this.addDataFileToProjectToolStripMenuItem.Click += new System.EventHandler(this.AddDataFileToProjectToolStripMenuItem_Click);
 			// 
+			// objectFileToolStripMenuItem
+			// 
+			this.objectFileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.openObjectPCFileToolStripMenuItem,
+			this.openObjectPSXFileToolStripMenuItem,
+			this.saveObjectFileToolStripMenuItem});
+			this.objectFileToolStripMenuItem.Name = "objectFileToolStripMenuItem";
+			this.objectFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.objectFileToolStripMenuItem.Text = "Object File";
+			// 
+			// openObjectPCFileToolStripMenuItem
+			// 
+			this.openObjectPCFileToolStripMenuItem.Name = "openObjectPCFileToolStripMenuItem";
+			this.openObjectPCFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.openObjectPCFileToolStripMenuItem.Text = "Open PC...";
+			this.openObjectPCFileToolStripMenuItem.Click += new System.EventHandler(this.OpenObjectPSXFileToolStripMenuItem_Click);
+			// 
+			// openObjectPSXFileToolStripMenuItem
+			// 
+			this.openObjectPSXFileToolStripMenuItem.Name = "openObjectPSXFileToolStripMenuItem";
+			this.openObjectPSXFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.openObjectPSXFileToolStripMenuItem.Text = "Open PSX...";
+			this.openObjectPSXFileToolStripMenuItem.Click += new System.EventHandler(this.OpenObjectPSXFileToolStripMenuItem_Click);
+			// 
+			// saveObjectFileToolStripMenuItem
+			// 
+			this.saveObjectFileToolStripMenuItem.Name = "saveObjectFileToolStripMenuItem";
+			this.saveObjectFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.saveObjectFileToolStripMenuItem.Text = "Save...";
+			this.saveObjectFileToolStripMenuItem.Click += new System.EventHandler(this.SaveObjectFileToolStripMenuItem_Click);
+			// 
 			// particlesFileToolStripMenuItem
 			// 
 			this.particlesFileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -179,14 +211,14 @@
 			// openParticlesPCFileToolStripMenuItem
 			// 
 			this.openParticlesPCFileToolStripMenuItem.Name = "openParticlesPCFileToolStripMenuItem";
-			this.openParticlesPCFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.openParticlesPCFileToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
 			this.openParticlesPCFileToolStripMenuItem.Text = "Open PC...";
 			this.openParticlesPCFileToolStripMenuItem.Click += new System.EventHandler(this.OpenParticlesPCFileToolStripMenuItem_Click);
 			// 
 			// openParticlesPSXFileToolStripMenuItem
 			// 
 			this.openParticlesPSXFileToolStripMenuItem.Name = "openParticlesPSXFileToolStripMenuItem";
-			this.openParticlesPSXFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.openParticlesPSXFileToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
 			this.openParticlesPSXFileToolStripMenuItem.Text = "Open PSX...";
 			this.openParticlesPSXFileToolStripMenuItem.Click += new System.EventHandler(this.OpenParticlesPSXFileToolStripMenuItem_Click);
 			// 
@@ -194,7 +226,7 @@
 			// 
 			this.saveParticlesFileToolStripMenuItem.Enabled = false;
 			this.saveParticlesFileToolStripMenuItem.Name = "saveParticlesFileToolStripMenuItem";
-			this.saveParticlesFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.saveParticlesFileToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
 			this.saveParticlesFileToolStripMenuItem.Text = "Save...";
 			this.saveParticlesFileToolStripMenuItem.Click += new System.EventHandler(this.SaveParticlesFileToolStripMenuItem_Click);
 			// 
@@ -540,29 +572,6 @@
 			this.editPortalToolStripMenuItem.Text = "Edit Portal...";
 			this.editPortalToolStripMenuItem.Click += new System.EventHandler(this.EditPortalToolStripMenuItem_Click);
 			// 
-			// objectFileToolStripMenuItem
-			// 
-			this.objectFileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.openObjectPCFileToolStripMenuItem,
-			this.openObjectPSXFileToolStripMenuItem});
-			this.objectFileToolStripMenuItem.Name = "objectFileToolStripMenuItem";
-			this.objectFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-			this.objectFileToolStripMenuItem.Text = "Object File";
-			// 
-			// openObjectPCFileToolStripMenuItem
-			// 
-			this.openObjectPCFileToolStripMenuItem.Name = "openObjectPCFileToolStripMenuItem";
-			this.openObjectPCFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-			this.openObjectPCFileToolStripMenuItem.Text = "Open PC...";
-			this.openObjectPCFileToolStripMenuItem.Click += new System.EventHandler(this.OpenObjectPSXToolStripMenuItem_Click);
-			// 
-			// openObjectPSXFileToolStripMenuItem
-			// 
-			this.openObjectPSXFileToolStripMenuItem.Name = "openObjectPSXFileToolStripMenuItem";
-			this.openObjectPSXFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-			this.openObjectPSXFileToolStripMenuItem.Text = "Open PSX...";
-			this.openObjectPSXFileToolStripMenuItem.Click += new System.EventHandler(this.OpenObjectPSXToolStripMenuItem_Click);
-			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -652,6 +661,7 @@
 		private System.Windows.Forms.ToolStripMenuItem objectFileToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem openObjectPCFileToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem openObjectPSXFileToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem saveObjectFileToolStripMenuItem;
 	}
 }
 

@@ -1880,7 +1880,7 @@ namespace Recombobulator
 			}
 		}
 
-		private void OpenObjectPSXToolStripMenuItem_Click(object sender, System.EventArgs e)
+		private void OpenObjectPSXFileToolStripMenuItem_Click(object sender, System.EventArgs e)
 		{
 			OpenFileDialog dialog = new OpenFileDialog
 			{
@@ -1905,6 +1905,30 @@ namespace Recombobulator
 				}
 
 				displayModeTabs.SelectedTab = objectsTab;
+			}
+		}
+
+		private void SaveObjectFileToolStripMenuItem_Click(object sender, System.EventArgs e)
+		{
+			SaveFileDialog dialog = new SaveFileDialog
+			{
+				CheckFileExists = true,
+				CheckPathExists = true,
+				Filter = "Soul Reaver Files|*.pcm;*.drm",
+				DefaultExt = "pcm",
+				FilterIndex = 1
+			};
+
+			if (dialog.ShowDialog() == DialogResult.OK)
+			{
+				try
+				{
+					objectsPanel.Save(dialog.FileName);
+				}
+				catch (Exception ex)
+				{
+
+				}
 			}
 		}
 	}
