@@ -14,5 +14,9 @@ namespace Recombobulator.ParticlePanels
 		{
 			InitializeComponent();
 		}
+
+		public void Open(object textureMT3sList, object textureMT3sListBackup = null)
+		{
+		}
 	}
 }

@@ -67,22 +67,26 @@ namespace Recombobulator.ParticlePanels
 			}
 
 			var srObject = (SR1Structures.Object)_file._Structures[0];
-			var genericFXObject = (GenericFXObject)_file._Structures[srObject.data.Offset];
-			var particlesList = (SR1_StructureSeries<GenericParticleParams>)_file._Structures[genericFXObject.ParticleList.Offset];
+			var modelList = (SR1_PointerArray<Model>)_file._Structures[srObject.modelList.Offset];
+			var model = (Model)_file._Structures[modelList[0].Offset];
+			var texturesList = (SR1_StructureSeries<TextureMT3>)_file._Structures[model.startTextures.Offset];
+			var glyphData = (GlyphTuneData)_file._Structures[srObject.data.Offset];
 
 			if (_hasBackup)
 			{
 				var srBackupObject = (SR1Structures.Object)_fileBackup._Structures[0];
-				var backupGenericFXObject = (GenericFXObject)_fileBackup._Structures[srBackupObject.data.Offset];
-				var backupParticlesList = (SR1_StructureSeries<GenericParticleParams>)_fileBackup._Structures[backupGenericFXObject.ParticleList.Offset];
+				var backupModelList = (SR1_PointerArray<Model>)_file._Structures[srBackupObject.modelList.Offset];
+				var backupModel = (Model)_file._Structures[backupModelList[0].Offset];
+				var backupTexturesList = (SR1_StructureSeries<TextureMT3>)_fileBackup._Structures[backupModel.startTextures.Offset];
+				var backupGlyphData = (GlyphTuneData)_file._Structures[srBackupObject.data.Offset];
 
-				editTextureMT3sPanel.Open(particlesList, backupParticlesList);
-				//editTextureMT3sPanel.Open(ribbonList, backupRibbonList);
+				editTextureMT3sPanel.Open(texturesList, backupTexturesList);
+				editGlyphTuneDataPanel.Open(glyphData, backupGlyphData);
 			}
 			else
 			{
-				editTextureMT3sPanel.Open(particlesList, null);
-				//editRibbonsPanel.Open(particlesList, null);
+				editTextureMT3sPanel.Open(texturesList, null);
+				editGlyphTuneDataPanel.Open(glyphData, null);
 			}
 		}
 
