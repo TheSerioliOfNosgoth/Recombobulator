@@ -4,30 +4,30 @@ using System.Windows.Forms;
 
 namespace Recombobulator.ParticlePanels
 {
-    public partial class EditPanelBase : UserControl
-    {
-        public EditPanelBase()
-        {
-            InitializeComponent();
+	public partial class EditPanelBase : UserControl
+	{
+		public EditPanelBase()
+		{
+			InitializeComponent();
 		}
 
-		protected TextBox AddField(SR1_Structure structure, string prefix, ref int row)
+		protected TextBox AddFieldInternal(SR1_Structure structure, string prefix, ref int row)
 		{
 			if (structure.GetType() == typeof(Position))
 			{
 				Position position = (Position)structure;
-				AddField(position.x, structure.Name + ".", ref row);
-				AddField(position.y, structure.Name + ".", ref row);
-				AddField(position.z, structure.Name + ".", ref row);
+				AddFieldInternal(position.x, structure.Name + ".", ref row);
+				AddFieldInternal(position.y, structure.Name + ".", ref row);
+				AddFieldInternal(position.z, structure.Name + ".", ref row);
 				return null;
 			}
 
 			if (structure.GetType() == typeof(SVector))
 			{
 				SVector svector = (SVector)structure;
-				AddField(svector.x, structure.Name + ".", ref row);
-				AddField(svector.y, structure.Name + ".", ref row);
-				AddField(svector.z, structure.Name + ".", ref row);
+				AddFieldInternal(svector.x, structure.Name + ".", ref row);
+				AddFieldInternal(svector.y, structure.Name + ".", ref row);
+				AddFieldInternal(svector.z, structure.Name + ".", ref row);
 				return null;
 			}
 
@@ -56,6 +56,11 @@ namespace Recombobulator.ParticlePanels
 			row++;
 
 			return valueTextBox;
+		}
+
+		protected TextBox AddField(SR1_Structure structure, ref int row)
+		{
+			return AddFieldInternal(structure, "", ref row);
 		}
 	}
 }

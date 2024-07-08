@@ -86,7 +86,7 @@ namespace Recombobulator.ParticlePanels
 			int row = 0;
 			foreach (SR1_Structure structure in membersRead)
 			{
-				TextBox valueTextBox = AddField(structure, "", ref row);
+				TextBox valueTextBox = AddField(structure, ref row);
 			}
 
 			fieldsPanel.Visible = true;

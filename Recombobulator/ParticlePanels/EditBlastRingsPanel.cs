@@ -124,7 +124,7 @@ namespace Recombobulator.ParticlePanels
 			int endColor = 0;
 			foreach (SR1_Structure structure in membersRead)
 			{
-				TextBox valueTextBox = AddField(structure, "", ref row);
+				TextBox valueTextBox = AddField(structure, ref row);
 
 				if (structure.Name == "startColor")
 				{
