@@ -37,6 +37,10 @@
 			this.selectionLabel.Size = new System.Drawing.Size(71, 13);
 			this.selectionLabel.Text = "Current Glyph";
 			// 
+			// selectionComboBox
+			// 
+			this.selectionComboBox.SelectedIndexChanged += new System.EventHandler(this.selectionComboBox_SelectedIndexChanged);
+			// 
 			// EditGlyphTuneDataPanel
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);

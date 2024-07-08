@@ -5,11 +5,11 @@ namespace Recombobulator.SR1Structures
 {
 	class GlyphTuneData : SR1_Structure
 	{
-		SR1_Primative<short> glyph_size = new SR1_Primative<short>();
-		SR1_Primative<short> glyph_darkness = new SR1_Primative<short>();
-		SR1_PrimativeArray<sbyte> glyph_costs = new SR1_PrimativeArray<sbyte>(8);
-		SR1_PrimativeArray<short> glyph_range = new SR1_PrimativeArray<short>(8);
-		SR1_StructureArray<GlyphColors> color_array = new SR1_StructureArray<GlyphColors>(8);
+		public readonly SR1_Primative<short> glyph_size = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> glyph_darkness = new SR1_Primative<short>();
+		public readonly SR1_PrimativeArray<sbyte> glyph_costs = new SR1_PrimativeArray<sbyte>(8);
+		public readonly SR1_PrimativeArray<short> glyph_range = new SR1_PrimativeArray<short>(8);
+		public readonly SR1_StructureArray<GlyphColors> color_array = new SR1_StructureArray<GlyphColors>(8);
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
