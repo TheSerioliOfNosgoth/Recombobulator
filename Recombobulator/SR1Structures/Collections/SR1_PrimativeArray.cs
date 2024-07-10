@@ -4,7 +4,14 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	public class SR1_PrimativeArray<T> : SR1_PrimativeBase, IReadOnlyList<T> // where T : struct
+	public abstract class SR1_PrimitiveArrayBase : SR1_PrimativeBase
+	{
+		public abstract bool TryParse(int index, string value);
+
+		public abstract string ToString(int index);
+	}
+
+	public class SR1_PrimativeArray<T> : SR1_PrimitiveArrayBase, IReadOnlyList<T> // where T : struct
 	{
 		protected int[] _dimensions = null;
 		protected T[] _array = null;
@@ -185,6 +192,33 @@ namespace Recombobulator.SR1Structures
 
 				return "{...}";
 			}
+		}
+
+		public override string ToString(int index)
+		{
+			if (_showAsHex)
+			{
+				return GetPrimativeAsHex(_array[index]);
+			}
+
+			return _array[index].ToString();
+		}
+
+		public override bool TryParse(int index, string value)
+		{
+			if (_showAsHex && GetHexAsPrimitive(value, out T fromHex))
+			{
+				_array[index] = fromHex;
+				return true;
+			}
+
+			if (!_showAsHex && GetStringAsPrimitive(value, out T fromString))
+			{
+				_array[index] = fromString;
+				return true;
+			}
+
+			return false;
 		}
 
 		public override string GetTypeName(bool includeDimensions)

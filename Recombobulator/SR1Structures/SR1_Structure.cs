@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 
@@ -294,6 +295,11 @@ namespace Recombobulator.SR1Structures
 			return "";
 		}
 
+		public virtual bool TryParse(string value)
+		{
+			return false;
+		}
+
 		public virtual string GetTypeName(bool includeDimensions)
 		{
 			return GetType().Name;
@@ -356,24 +362,210 @@ namespace Recombobulator.SR1Structures
 			}
 		}
 
+		protected bool GetStringAsPrimitive<T>(string value, out T primitive, bool showAsHex = false)
+		{
+			primitive = default;
+
+			try
+			{
+				TypeCode typeCode = Type.GetTypeCode(typeof(T));
+
+				switch (typeCode)
+				{
+					case TypeCode.Boolean:
+					{
+						if (Boolean.TryParse(value, out Boolean v))
+						{
+							primitive = (T)(object)v;
+							return true;
+						}
+						return false;
+					}
+					case TypeCode.Char:
+					{
+						if (Char.TryParse(value, out Char v))
+						{
+							primitive = (T)(object)v;
+							return true;
+						}
+						return false;
+					}
+					case TypeCode.SByte:
+					{
+						if (SByte.TryParse(value, out SByte v))
+						{
+							primitive = (T)(object)v;
+							return true;
+						}
+						return false;
+					}
+					case TypeCode.Byte:
+					{
+						if (Byte.TryParse(value, out Byte v))
+						{
+							primitive = (T)(object)v;
+							return true;
+						}
+						return false;
+					}
+					case TypeCode.Int16:
+					{
+						if (Int16.TryParse(value, out Int16 v))
+						{
+							primitive = (T)(object)v;
+							return true;
+						}
+						return false;
+					}
+					case TypeCode.UInt16:
+					{
+						if (UInt16.TryParse(value, out UInt16 v))
+						{
+							primitive = (T)(object)v;
+							return true;
+						}
+						return false;
+					}
+					case TypeCode.Int32:
+					{
+						if (Int32.TryParse(value, out Int32 v))
+						{
+							primitive = (T)(object)v;
+							return true;
+						}
+						return false;
+					}
+					case TypeCode.UInt32:
+					{
+						if (UInt32.TryParse(value, out UInt32 v))
+						{
+							primitive = (T)(object)v;
+							return true;
+						}
+						return false;
+					}
+					case TypeCode.Int64:
+					{
+						if (Int64.TryParse(value, out Int64 v))
+						{
+							primitive = (T)(object)v;
+							return true;
+						}
+						return false;
+					}
+					case TypeCode.UInt64:
+					{
+						if (UInt64.TryParse(value, out UInt64 v))
+						{
+							primitive = (T)(object)v;
+							return true;
+						}
+						return false;
+					}
+					case TypeCode.Single:
+					{
+						if (Single.TryParse(value, out Single v))
+						{
+							primitive = (T)(object)v;
+							return true;
+						}
+						return false;
+					}
+					case TypeCode.Double:
+					{
+						if (Double.TryParse(value, out Double v))
+						{
+							primitive = (T)(object)v;
+							return true;
+						}
+						return false;
+					}
+					default:
+					{
+						throw new Exception("Unhandled primative type.");
+					}
+				}
+			}
+			catch
+			{
+			}
+
+			return false;
+		}
+
+		protected bool GetHexAsPrimitive<T>(string value, out T primitive, bool showAsHex = false)
+		{
+			primitive = default;
+
+			try
+			{
+				TypeCode typeCode = Type.GetTypeCode(typeof(T));
+				if (typeCode == TypeCode.Boolean)
+				{
+					if (value == "0x1")
+					{
+						primitive = (T)(object)true;
+						return true;
+					}
+
+					if (value == "0x0")
+					{
+						primitive = (T)(object)false;
+						return true;
+					}
+
+					return false;
+				}
+
+				if (value.StartsWith("0x"))
+				{
+					value = value.Substring(2);
+				}
+
+				int typeLength = GetPrimativeTypeLength(typeCode);
+				NumberStyles styles = NumberStyles.HexNumber;
+				CultureInfo culture = CultureInfo.InvariantCulture;
+
+				if (value.Length <= (typeLength * 2) &&
+					UInt64.TryParse(value, styles, culture, out UInt64 u64Value))
+				{
+					T[] typeArray = new T[1];
+					UInt64[] u64Array = new UInt64[] { u64Value };
+					Buffer.BlockCopy(u64Array, 0, typeArray, 0, typeLength);
+					primitive = typeArray[0];
+					return true;
+				}
+			}
+			catch
+			{
+			}
+
+			return false;
+		}
+
 		protected string GetPrimativeAsHex<T>(T primative)
 		{
 			try
 			{
-				string hexString = "0x";
 				TypeCode typeCode = Type.GetTypeCode(typeof(T));
-				int typeLength = GetPrimativeTypeLength(typeCode);
-				T[] typeArray = new T[] { primative };
-				byte[] byteArray = new byte[typeLength];
-				Buffer.BlockCopy(typeArray, 0, byteArray, 0, typeLength);
-				while (typeLength-- > 0)
+				if (typeCode == TypeCode.Boolean)
 				{
-					hexString += byteArray[typeLength].ToString("X2");
+					return ((bool)(object)primative) ? "0x0" : "0x1";
 				}
 
-				return hexString;
+				int typeLength = GetPrimativeTypeLength(typeCode);
+				T[] typeArray = new T[] { primative };
+				UInt64[] u64Array = new UInt64[1];
+				Buffer.BlockCopy(typeArray, 0, u64Array, 0, typeLength);
+
+				string hexString = u64Array[0].ToString("X8");
+				hexString = hexString.TrimStart('0');
+				hexString = hexString.PadLeft(typeLength * 2, '0');
+				return "0x" + hexString;
 			}
-			catch { }
+			catch
+			{
+			}
 
 			return "";
 		}

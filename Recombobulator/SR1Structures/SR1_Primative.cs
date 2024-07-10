@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 
 namespace Recombobulator.SR1Structures
 {
@@ -42,6 +43,23 @@ namespace Recombobulator.SR1Structures
 			}
 
 			return Value.ToString();
+		}
+
+		public override bool TryParse(string value)
+		{
+			if (_showAsHex && GetHexAsPrimitive(value, out T fromHex))
+			{
+				Value = fromHex;
+				return true;
+			}
+
+			if (!_showAsHex && GetStringAsPrimitive(value, out T fromString))
+			{
+				Value = fromString;
+				return true;
+			}
+
+			return false;
 		}
 
 		public override string GetTypeName(bool includeDimensions)
