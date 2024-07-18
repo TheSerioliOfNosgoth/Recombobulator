@@ -37,9 +37,33 @@
 			this.selectionLabel.Size = new System.Drawing.Size(80, 13);
 			this.selectionLabel.Text = "Current Texture";
 			// 
+			// pasteButton
+			// 
+			this.pasteButton.Click += new System.EventHandler(this.pasteButton_Click);
+			// 
 			// selectionComboBox
 			// 
 			this.selectionComboBox.SelectedIndexChanged += new System.EventHandler(this.selectionComboBox_SelectedIndexChanged);
+			// 
+			// copyButton
+			// 
+			this.copyButton.Click += new System.EventHandler(this.copyButton_Click);
+			// 
+			// insertButton
+			// 
+			this.insertButton.Click += new System.EventHandler(this.insertButton_Click);
+			// 
+			// removeButton
+			// 
+			this.removeButton.Click += new System.EventHandler(this.removeButton_Click);
+			// 
+			// resetButton
+			// 
+			this.resetButton.Click += new System.EventHandler(this.resetButton_Click);
+			// 
+			// addButton
+			// 
+			this.addButton.Click += new System.EventHandler(this.addButton_Click);
 			// 
 			// EditTextureMT3sPanel
 			// 

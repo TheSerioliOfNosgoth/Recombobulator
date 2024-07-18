@@ -29,5 +29,12 @@ namespace Recombobulator.SR1Structures
 			bottonLeft.Write(writer);
 			bottomRight.Write(writer);
 		}
+		public static void Copy(GlyphColors to, GlyphColors from)
+		{
+			to.topLeft.Value = from.topLeft.Value;
+			to.topRight.Value = from.topRight.Value;
+			to.bottonLeft.Value = from.bottonLeft.Value;
+			to.bottomRight.Value = from.bottomRight.Value;
+		}
 	}
 }

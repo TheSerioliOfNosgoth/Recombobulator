@@ -13,17 +13,30 @@ namespace Recombobulator.ParticlePanels
 	{
 		GlyphTuneData _glyph = null;
 		GlyphTuneData _glyphBackup = null;
+		sbyte _copiedCost = 0;
+		short _copiedRange = 0;
+		GlyphColors _copiedColors = new GlyphColors();
 		const int _numGlyphs = 8;
 
 		public EditGlyphTuneDataPanel()
 		{
 			InitializeComponent();
+
+			glyphSizeTextBox.Leave += ValueTextBox_Leave;
+			glyphSizeTextBox.KeyDown += ValueTextBox_KeyDown;
+			glyphDarknessTextBox.Leave += ValueTextBox_Leave;
+			glyphDarknessTextBox.KeyDown += ValueTextBox_KeyDown;
 		}
 
 		public void Open(object glyph, object glyphBackup = null)
 		{
 			_glyph = (GlyphTuneData)glyph;
 			_glyphBackup = (GlyphTuneData)glyphBackup;
+
+			string glyphSizeText = _glyph.glyph_size.ToString();
+			glyphSizeTextBox.Text = glyphSizeText;
+			string glyphDarknessText = _glyph.glyph_darkness.ToString();
+			glyphDarknessTextBox.Text = glyphDarknessText;
 
 			selectionComboBox.SelectedIndex = -1;
 			selectionComboBox.Items.Clear();
@@ -49,17 +62,24 @@ namespace Recombobulator.ParticlePanels
 			fieldsPanel.Controls.Clear();
 			fieldsPanel.RowStyles.Clear();
 			_structures.Clear();
+			_structures.Add(glyphSizeTextBox, _glyph.glyph_size);
+			_structures.Add(glyphDarknessTextBox, _glyph.glyph_darkness);
 
 			if (newIndex < 0)
 			{
 				return;
 			}
 
+			copyButton.Enabled = true;
+			pasteButton.Enabled = true;
+
 			if (_glyphBackup != null)
 			{
-				copyButton.Enabled = true;
-				pasteButton.Enabled = true;
 				resetButton.Enabled = true;
+			}
+			else
+			{
+				resetButton.Enabled = false;
 			}
 
 			fieldsPanel.RowCount = _numGlyphs;
@@ -71,6 +91,59 @@ namespace Recombobulator.ParticlePanels
 
 			fieldsPanel.Visible = true;
 			fieldsPanel.Enabled = true;
+		}
+
+		private void copyButton_Click(object sender, EventArgs e)
+		{
+			int currentIndex = selectionComboBox.SelectedIndex;
+
+			if (currentIndex < 0 ||
+				currentIndex >= _numGlyphs)
+			{
+				return;
+			}
+
+			_copiedCost = _glyph.glyph_costs[currentIndex];
+			_copiedRange = _glyph.glyph_range[currentIndex];
+			GlyphColors.Copy(_copiedColors, (GlyphColors)_glyph.color_array[currentIndex]);
+		}
+
+		private void pasteButton_Click(object sender, EventArgs e)
+		{
+			int currentIndex = selectionComboBox.SelectedIndex;
+
+			if (currentIndex < 0 ||
+				currentIndex >= _numGlyphs)
+			{
+				return;
+			}
+
+			_glyph.glyph_costs[currentIndex] = _copiedCost;
+			_glyph.glyph_range[currentIndex] = _copiedRange;
+			GlyphColors.Copy((GlyphColors)_glyph.color_array[currentIndex], _copiedColors);
+
+			selectionComboBox.SelectedIndex = -1;
+			selectionComboBox.SelectedIndex = currentIndex;
+		}
+
+		private void resetButton_Click(object sender, EventArgs e)
+		{
+			int currentIndex = selectionComboBox.SelectedIndex;
+
+			if (_glyphBackup == null ||
+				currentIndex < 0 ||
+				currentIndex >= _numGlyphs)
+			{
+				return;
+			}
+
+			GlyphColors.Copy(
+				(GlyphColors)_glyph.color_array[currentIndex],
+				(GlyphColors)_glyphBackup.color_array[currentIndex]
+			);
+
+			selectionComboBox.SelectedIndex = -1;
+			selectionComboBox.SelectedIndex = currentIndex;
 		}
 	}
 }

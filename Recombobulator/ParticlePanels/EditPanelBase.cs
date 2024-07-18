@@ -131,12 +131,36 @@ namespace Recombobulator.ParticlePanels
 
 		protected virtual bool SetValue(TextBox textBox, SR1_PrimativeBase primitive)
 		{
-			return true;
+			bool result = primitive.TryParse(textBox.Text);
+
+			string valueText = primitive.ToString();
+			if (primitive.IsShowAsHex())
+			{
+				textBox.Text = valueText.Substring(2);
+			}
+			else
+			{
+				textBox.Text = valueText;
+			}
+
+			return result;
 		}
 
 		protected virtual bool SetValue(TextBox textBox, SR1_PrimitiveArrayBase array, int index)
 		{
-			return true;
+			bool result = array.TryParse(index, textBox.Text);
+
+			string valueText = array.ToString(index);
+			if (array.IsShowAsHex())
+			{
+				textBox.Text = valueText.Substring(2);
+			}
+			else
+			{
+				textBox.Text = valueText;
+			}
+
+			return result;
 		}
 
 		protected bool TrySetColor(string nameToMatch, TextBox textBox, PictureBox pictureBox)
