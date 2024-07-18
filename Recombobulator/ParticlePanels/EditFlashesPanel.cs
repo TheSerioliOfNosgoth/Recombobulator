@@ -64,6 +64,7 @@ namespace Recombobulator.ParticlePanels
 
 			fieldsPanel.Controls.Clear();
 			fieldsPanel.RowStyles.Clear();
+			_structures.Clear();
 
 			if (newIndex < 0)
 			{

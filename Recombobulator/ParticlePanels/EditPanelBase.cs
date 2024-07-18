@@ -1,4 +1,5 @@
 ﻿using Recombobulator.SR1Structures;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -6,6 +7,8 @@ namespace Recombobulator.ParticlePanels
 {
 	public partial class EditPanelBase : UserControl
 	{
+		protected readonly Dictionary<TextBox, SR1_Structure> _structures = new Dictionary<TextBox, SR1_Structure>();
+
 		public EditPanelBase()
 		{
 			InitializeComponent();
@@ -42,9 +45,12 @@ namespace Recombobulator.ParticlePanels
 			}
 			valueTextBox.Text = valueText;
 			valueTextBox.Size = new Size(80, 30);
+			valueTextBox.Leave += ValueTextBox_Leave;
+			valueTextBox.KeyDown += ValueTextBox_KeyDown;
 
 			fieldsPanel.Controls.Add(nameLabel, 0, row);
 			fieldsPanel.Controls.Add(valueTextBox, 1, row);
+			_structures.Add(valueTextBox, structure);
 
 			row++;
 
@@ -76,13 +82,32 @@ namespace Recombobulator.ParticlePanels
 			string valueText = array[index].ToString();
 			valueTextBox.Text = valueText;
 			valueTextBox.Size = new Size(80, 30);
+			valueTextBox.Leave += ValueTextBox_Leave;
+			valueTextBox.KeyDown += ValueTextBox_KeyDown;
 
 			fieldsPanel.Controls.Add(nameLabel, 0, row);
 			fieldsPanel.Controls.Add(valueTextBox, 1, row);
+			_structures.Add(valueTextBox, array);
 
 			row++;
 
 			return valueTextBox;
+		}
+
+		protected void ValueTextBox_KeyDown(object sender, KeyEventArgs e)
+		{
+		}
+
+		protected void ValueTextBox_Leave(object sender, System.EventArgs e)
+		{
+		}
+
+		protected virtual void SetValue(TextBox textBox, SR1_PrimativeBase primitive)
+		{
+		}
+
+		protected virtual void SetValue(TextBox textBox, SR1_PrimitiveArrayBase array, int index)
+		{
 		}
 	}
 }
