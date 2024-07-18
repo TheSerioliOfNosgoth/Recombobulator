@@ -1,6 +1,7 @@
 ﻿using Recombobulator.SR1Structures;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Windows.Forms;
 
 namespace Recombobulator.ParticlePanels
@@ -96,18 +97,59 @@ namespace Recombobulator.ParticlePanels
 
 		protected void ValueTextBox_KeyDown(object sender, KeyEventArgs e)
 		{
+			if (e.KeyCode == Keys.Enter)
+			{
+				e.SuppressKeyPress = true;
+				ValueTextBox_Leave(sender, e);
+			}
 		}
 
 		protected void ValueTextBox_Leave(object sender, System.EventArgs e)
 		{
+			if (selectionComboBox.SelectedIndex == -1)
+			{
+				return;
+			}
+
+			TextBox textBox = sender as TextBox;
+			SR1_Structure structure = _structures[textBox];
+			if (structure != null)
+			{
+				if (structure is SR1_PrimitiveArrayBase)
+				{
+					SetValue(textBox, (SR1_PrimitiveArrayBase)structure, selectionComboBox.SelectedIndex);
+					return;
+				}
+
+				if (structure is SR1_PrimativeBase)
+				{
+					SetValue(textBox, (SR1_PrimativeBase)structure);
+					return;
+				}
+			}
 		}
 
-		protected virtual void SetValue(TextBox textBox, SR1_PrimativeBase primitive)
+		protected virtual bool SetValue(TextBox textBox, SR1_PrimativeBase primitive)
 		{
+			return true;
 		}
 
-		protected virtual void SetValue(TextBox textBox, SR1_PrimitiveArrayBase array, int index)
+		protected virtual bool SetValue(TextBox textBox, SR1_PrimitiveArrayBase array, int index)
 		{
+			return true;
+		}
+
+		protected bool TrySetColor(string nameToMatch, TextBox textBox, PictureBox pictureBox)
+		{
+			if (textBox.Name == nameToMatch)
+			{
+				int.TryParse(textBox.Text, NumberStyles.HexNumber, NumberFormatInfo.CurrentInfo, out int color);
+				color |= unchecked((int)0xFF000000);
+				pictureBox.BackColor = Color.FromArgb(color);
+				return true;
+			}
+
+			return false;
 		}
 	}
 }

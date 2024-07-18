@@ -33,124 +33,99 @@ namespace Recombobulator.ParticlePanels
             selectionComboBox.SelectedIndex = 0;
         }
 
-        private void startColor_TextChanged(object sender, EventArgs e)
+        protected override bool SetValue(TextBox textBox, SR1_PrimativeBase primitive)
         {
-            int startColor = 0;
-
-            foreach (Control control in fieldsPanel.Controls)
+            bool result = base.SetValue(textBox, primitive);
+            if (!result)
             {
-                if (control.Name == "startColor")
-				{
-					int.TryParse(control.Text, NumberStyles.HexNumber, NumberFormatInfo.CurrentInfo, out startColor);
-					startColor |= unchecked((int)0xFF000000);
-				}
+				return result;
+			}
+
+			if (TrySetColor("startColor", textBox, startColorBox))
+			{
+				return result;
+			}
+
+			if (TrySetColor("endColor", textBox, endColorBox))
+			{
+				return result;
+			}
+
+			return result;
+		}
+
+        private void selectionComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int newIndex = selectionComboBox.SelectedIndex;
+
+            insertButton.Enabled = false;
+            removeButton.Enabled = false;
+            resetButton.Enabled = false;
+            addButton.Enabled = false;
+            copyButton.Enabled = false;
+            pasteButton.Enabled = false;
+
+            startColorBox.Visible = false;
+            endColorBox.Visible = false;
+
+            fieldsPanel.Controls.Clear();
+            fieldsPanel.RowStyles.Clear();
+            _structures.Clear();
+
+            if (newIndex < 0)
+            {
+                return;
             }
 
-            startColorBox.BackColor = Color.FromArgb(startColor);
+            addButton.Enabled = true;
+            copyButton.Enabled = true;
+            pasteButton.Enabled = true;
+
+            if (_ribbonsListBackup != null)
+            {
+                if (newIndex < _ribbonsListBackup.Count)
+                {
+                    insertButton.Enabled = false;
+                    removeButton.Enabled = false;
+                    resetButton.Enabled = true;
+                }
+                else
+                {
+                    insertButton.Enabled = true;
+                    removeButton.Enabled = true;
+                    resetButton.Enabled = false;
+                }
+            }
+            else
+            {
+                insertButton.Enabled = true;
+                removeButton.Enabled = true;
+                resetButton.Enabled = false;
+            }
+
+            startColorBox.Visible = true;
+            endColorBox.Visible = true;
+
+            List<SR1_Structure> membersRead = _ribbonsList[newIndex].MembersRead;
+            fieldsPanel.RowCount = membersRead.Count;
+
+            int row = 0;
+            foreach (SR1_Structure structure in membersRead)
+            {
+                TextBox valueTextBox = AddField(structure, ref row);
+
+                if (structure.Name == "startColor" ||
+                    structure.Name == "endColor")
+                {
+                    SetValue(valueTextBox, structure as SR1_PrimativeBase);
+                }
+            }
+
+            fieldsPanel.Visible = true;
+            fieldsPanel.Enabled = true;
         }
 
-        private void endColor_TextChanged(object sender, EventArgs e)
-		{
-			int endColor = 0;
-
-			foreach (Control control in fieldsPanel.Controls)
-			{
-				if (control.Name == "endColor")
-				{
-                    int.TryParse(control.Text, NumberStyles.HexNumber, NumberFormatInfo.CurrentInfo, out endColor);
-                    endColor |= unchecked((int)0xFF000000);
-				}
-			}
-
-			endColorBox.BackColor = Color.FromArgb(endColor);
-		}
-
-		private void selectionComboBox_SelectedIndexChanged(object sender, EventArgs e)
-		{
-			int newIndex = selectionComboBox.SelectedIndex;
-
-			insertButton.Enabled = false;
-			removeButton.Enabled = false;
-			resetButton.Enabled = false;
-			addButton.Enabled = false;
-			copyButton.Enabled = false;
-			pasteButton.Enabled = false;
-
-			startColorBox.Visible = false;
-			endColorBox.Visible = false;
-
-			fieldsPanel.Controls.Clear();
-			fieldsPanel.RowStyles.Clear();
-			_structures.Clear();
-
-			if (newIndex < 0)
-			{
-				return;
-			}
-
-			addButton.Enabled = true;
-			copyButton.Enabled = true;
-			pasteButton.Enabled = true;
-
-			if (_ribbonsListBackup != null)
-			{
-				if (newIndex < _ribbonsListBackup.Count)
-				{
-					insertButton.Enabled = false;
-					removeButton.Enabled = false;
-					resetButton.Enabled = true;
-				}
-				else
-				{
-					insertButton.Enabled = true;
-					removeButton.Enabled = true;
-					resetButton.Enabled = false;
-				}
-			}
-			else
-			{
-				insertButton.Enabled = true;
-				removeButton.Enabled = true;
-				resetButton.Enabled = false;
-			}
-
-			startColorBox.Visible = true;
-			endColorBox.Visible = true;
-
-			List<SR1_Structure> membersRead = _ribbonsList[newIndex].MembersRead;
-			fieldsPanel.RowCount = membersRead.Count;
-
-			int row = 0;
-			int startColor = 0;
-			int endColor = 0;
-			foreach (SR1_Structure structure in membersRead)
-			{
-				TextBox valueTextBox = AddField(structure, ref row);
-
-				if (structure.Name == "startColor")
-				{
-					startColor = ((SR1_Primative<int>)structure).Value;
-					valueTextBox.TextChanged += startColor_TextChanged;
-				}
-
-				if (structure.Name == "endColor")
-				{
-					endColor = ((SR1_Primative<int>)structure).Value;
-					valueTextBox.TextChanged += endColor_TextChanged;
-				}
-			}
-
-			startColor |= unchecked((int)0xFF000000);
-			endColor |= unchecked((int)0xFF000000);
-
-			startColorBox.BackColor = Color.FromArgb(startColor);
-			endColorBox.BackColor = Color.FromArgb(endColor);
-
-			fieldsPanel.Visible = true;
-			fieldsPanel.Enabled = true;
-		}
-
-		private void addButton_Click(object sender, EventArgs e)
+        private void addButton_Click(object sender, EventArgs e)
         {
             _ribbonsList.Add(new GenericRibbonParams());
             selectionComboBox.SelectedIndex = _ribbonsList.Count - 1;

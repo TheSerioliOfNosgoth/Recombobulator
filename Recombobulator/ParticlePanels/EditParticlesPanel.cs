@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using System;
+using System.Globalization;
+using System.Linq;
 
 namespace Recombobulator.ParticlePanels
 {
@@ -32,170 +34,128 @@ namespace Recombobulator.ParticlePanels
             selectionComboBox.SelectedIndex = 0;
         }
 
-        private void startColor_TextChanged(object sender, EventArgs e)
+        protected override bool SetValue(TextBox textBox, SR1_PrimativeBase primitive)
         {
-            byte startRed = 0;
-            byte startGreen = 0;
-            byte startBlue = 0;
+            bool result = base.SetValue(textBox, primitive);
+			if (!result)
+			{
+				return result;
+			}
 
-            foreach (Control control in fieldsPanel.Controls)
+			bool isStartColor = textBox.Name.StartsWith("startColor_");
+            bool isEndColor = textBox.Name.StartsWith("endColor_");
+
+            if (isStartColor || isEndColor)
             {
-                if (control.Name == "startColor_red")
+                byte red = 0;
+                byte green = 0;
+                byte blue = 0;
+
+                foreach (Control control in fieldsPanel.Controls)
                 {
-                    byte.TryParse(control.Text, out startRed);
+                    if ((isStartColor && control.Name.StartsWith("startColor_")) ||
+                        (isEndColor && control.Name.StartsWith("endColor_")))
+                    {
+                        if (control.Name.EndsWith("_red"))
+                        {
+                            byte.TryParse(control.Text, out red);
+                        }
+                        else if (control.Name.EndsWith("_green"))
+                        {
+                            byte.TryParse(control.Text, out green);
+                        }
+                        else if (control.Name.EndsWith("_blue"))
+                        {
+                            byte.TryParse(control.Text, out blue);
+                        }
+                    }
                 }
 
-                if (control.Name == "startColor_green")
+                if (isStartColor)
                 {
-                    byte.TryParse(control.Text, out startGreen);
+                    startColorBox.BackColor = Color.FromArgb(red, green, blue);
                 }
-
-                if (control.Name == "startColor_blue")
+                else if (isEndColor)
                 {
-                    byte.TryParse(control.Text, out startBlue);
+                    endColorBox.BackColor = Color.FromArgb(red, green, blue);
                 }
             }
 
-            startColorBox.BackColor = Color.FromArgb(startRed, startGreen, startBlue);
-        }
-
-        private void endColor_TextChanged(object sender, EventArgs e)
-        {
-            byte endRed = 0;
-            byte endGreen = 0;
-            byte endBlue = 0;
-
-            foreach (Control control in fieldsPanel.Controls)
-            {
-                if (control.Name == "endColor_red")
-                {
-                    byte.TryParse(control.Text, out endRed);
-                }
-
-                if (control.Name == "endColor_green")
-                {
-                    byte.TryParse(control.Text, out endGreen);
-                }
-
-                if (control.Name == "endColor_blue")
-                {
-                    byte.TryParse(control.Text, out endBlue);
-                }
-            }
-
-            endColorBox.BackColor = Color.FromArgb(endRed, endGreen, endBlue);
-        }
-
-		private void selectionComboBox_SelectedIndexChanged(object sender, EventArgs e)
-		{
-			int newIndex = selectionComboBox.SelectedIndex;
-
-			insertButton.Enabled = false;
-			removeButton.Enabled = false;
-			resetButton.Enabled = false;
-			addButton.Enabled = false;
-			copyButton.Enabled = false;
-			pasteButton.Enabled = false;
-
-			startColorBox.Visible = false;
-			endColorBox.Visible = false;
-
-			fieldsPanel.Controls.Clear();
-			fieldsPanel.RowStyles.Clear();
-			_structures.Clear();
-
-			if (newIndex < 0)
-			{
-				return;
-			}
-
-			addButton.Enabled = true;
-			copyButton.Enabled = true;
-			pasteButton.Enabled = true;
-
-			if (_particlesListBackup != null)
-			{
-				if (newIndex < _particlesListBackup.Count)
-				{
-					insertButton.Enabled = false;
-					removeButton.Enabled = false;
-					resetButton.Enabled = true;
-				}
-				else
-				{
-					insertButton.Enabled = true;
-					removeButton.Enabled = true;
-					resetButton.Enabled = false;
-				}
-			}
-			else
-			{
-				insertButton.Enabled = true;
-				removeButton.Enabled = true;
-				resetButton.Enabled = false;
-			}
-
-			startColorBox.Visible = true;
-			endColorBox.Visible = true;
-
-			List<SR1_Structure> membersRead = _particlesList[newIndex].MembersRead;
-			fieldsPanel.RowCount = membersRead.Count;
-
-			int row = 0;
-			int startRed = 0;
-			int startGreen = 0;
-			int startBlue = 0;
-			int endRed = 0;
-			int endGreen = 0;
-			int endBlue = 0;
-			foreach (SR1_Structure structure in membersRead)
-			{
-				TextBox valueTextBox = AddField(structure, ref row);
-
-				if (structure.Name == "startColor_red")
-				{
-					startRed = ((SR1_Primative<byte>)structure).Value;
-					valueTextBox.TextChanged += startColor_TextChanged;
-				}
-
-				if (structure.Name == "startColor_green")
-				{
-					startGreen = ((SR1_Primative<byte>)structure).Value;
-					valueTextBox.TextChanged += startColor_TextChanged;
-				}
-
-				if (structure.Name == "startColor_blue")
-				{
-					startBlue = ((SR1_Primative<byte>)structure).Value;
-					valueTextBox.TextChanged += startColor_TextChanged;
-				}
-
-				if (structure.Name == "endColor_red")
-				{
-					endRed = ((SR1_Primative<byte>)structure).Value;
-					valueTextBox.TextChanged += endColor_TextChanged;
-				}
-
-				if (structure.Name == "endColor_green")
-				{
-					endGreen = ((SR1_Primative<byte>)structure).Value;
-				}
-
-				if (structure.Name == "endColor_blue")
-				{
-					endBlue = ((SR1_Primative<byte>)structure).Value;
-					valueTextBox.TextChanged += endColor_TextChanged;
-				}
-			}
-
-			startColorBox.BackColor = Color.FromArgb(startRed, startGreen, startBlue);
-			endColorBox.BackColor = Color.FromArgb(endRed, endGreen, endBlue);
-
-			fieldsPanel.Visible = true;
-			fieldsPanel.Enabled = true;
+			return result;
 		}
 
-		private void addButton_Click(object sender, EventArgs e)
+        private void selectionComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int newIndex = selectionComboBox.SelectedIndex;
+
+            insertButton.Enabled = false;
+            removeButton.Enabled = false;
+            resetButton.Enabled = false;
+            addButton.Enabled = false;
+            copyButton.Enabled = false;
+            pasteButton.Enabled = false;
+
+            startColorBox.Visible = false;
+            endColorBox.Visible = false;
+
+            fieldsPanel.Controls.Clear();
+            fieldsPanel.RowStyles.Clear();
+            _structures.Clear();
+
+            if (newIndex < 0)
+            {
+                return;
+            }
+
+            addButton.Enabled = true;
+            copyButton.Enabled = true;
+            pasteButton.Enabled = true;
+
+            if (_particlesListBackup != null)
+            {
+                if (newIndex < _particlesListBackup.Count)
+                {
+                    insertButton.Enabled = false;
+                    removeButton.Enabled = false;
+                    resetButton.Enabled = true;
+                }
+                else
+                {
+                    insertButton.Enabled = true;
+                    removeButton.Enabled = true;
+                    resetButton.Enabled = false;
+                }
+            }
+            else
+            {
+                insertButton.Enabled = true;
+                removeButton.Enabled = true;
+                resetButton.Enabled = false;
+            }
+
+            startColorBox.Visible = true;
+            endColorBox.Visible = true;
+
+            List<SR1_Structure> membersRead = _particlesList[newIndex].MembersRead;
+            fieldsPanel.RowCount = membersRead.Count;
+
+            int row = 0;
+            foreach (SR1_Structure structure in membersRead)
+            {
+                TextBox valueTextBox = AddField(structure, ref row);
+
+                if (structure.Name.StartsWith("startColor_") ||
+                    structure.Name.StartsWith("endColor_"))
+                {
+                    SetValue(valueTextBox, structure as SR1_PrimativeBase);
+                }
+            }
+
+            fieldsPanel.Visible = true;
+            fieldsPanel.Enabled = true;
+        }
+
+        private void addButton_Click(object sender, EventArgs e)
         {
             _particlesList.Add(new GenericParticleParams());
             selectionComboBox.SelectedIndex = _particlesList.Count - 1;

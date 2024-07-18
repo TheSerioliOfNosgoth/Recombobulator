@@ -33,36 +33,25 @@ namespace Recombobulator.ParticlePanels
 			selectionComboBox.SelectedIndex = 0;
 		}
 
-		private void color_TextChanged(object sender, EventArgs e)
+		protected override bool SetValue(TextBox textBox, SR1_PrimativeBase primitive)
 		{
-			int color = 0;
-
-			foreach (Control control in fieldsPanel.Controls)
+			bool result = base.SetValue(textBox, primitive);
+			if (!result)
 			{
-				if (control.Name == "color")
-				{
-					int.TryParse(control.Text, NumberStyles.HexNumber, NumberFormatInfo.CurrentInfo, out color);
-					color |= unchecked((int)0xFF000000);
-				}
+				return result;
 			}
 
-			colorBox.BackColor = Color.FromArgb(color);
-		}
-
-		private void glowColor_TextChanged(object sender, EventArgs e)
-		{
-			int glow_color = 0;
-
-			foreach (Control control in fieldsPanel.Controls)
+			if (TrySetColor("color", textBox, colorBox))
 			{
-				if (control.Name == "glow_color")
-				{
-					int.TryParse(control.Text, NumberStyles.HexNumber, NumberFormatInfo.CurrentInfo, out glow_color);
-					glow_color |= unchecked((int)0xFF000000);
-				}
+				return result;
 			}
 
-			glowColorBox.BackColor = Color.FromArgb(glow_color);
+			if (TrySetColor("glow_color", textBox, glowColorBox))
+			{
+				return result;
+			}
+
+			return result;
 		}
 
 		private void selectionComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -121,30 +110,16 @@ namespace Recombobulator.ParticlePanels
 			fieldsPanel.RowCount = membersRead.Count;
 
 			int row = 0;
-			int color = 0;
-			int glow_color = 0;
 			foreach (SR1_Structure structure in membersRead)
 			{
 				TextBox valueTextBox = AddField(structure, ref row);
 
-				if (structure.Name == "color")
+				if (structure.Name == "color" ||
+					structure.Name == "glow_color")
 				{
-					color = ((SR1_Primative<int>)structure).Value;
-					valueTextBox.TextChanged += color_TextChanged;
-				}
-
-				if (structure.Name == "glow_color")
-				{
-					glow_color = ((SR1_Primative<int>)structure).Value;
-					valueTextBox.TextChanged += glowColor_TextChanged;
+					SetValue(valueTextBox, structure as SR1_PrimativeBase);
 				}
 			}
-
-			color |= unchecked((int)0xFF000000);
-			glow_color |= unchecked((int)0xFF000000);
-
-			colorBox.BackColor = Color.FromArgb(color);
-			glowColorBox.BackColor = Color.FromArgb(glow_color);
 
 			fieldsPanel.Visible = true;
 			fieldsPanel.Enabled = true;

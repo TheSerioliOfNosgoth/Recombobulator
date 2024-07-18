@@ -33,20 +33,20 @@ namespace Recombobulator.ParticlePanels
 			selectionComboBox.SelectedIndex = 0;
 		}
 
-		private void color_TextChanged(object sender, EventArgs e)
+		protected override bool SetValue(TextBox textBox, SR1_PrimativeBase primitive)
 		{
-			int color = 0;
-
-			foreach (Control control in fieldsPanel.Controls)
+			bool result = base.SetValue(textBox, primitive);
+			if (!result)
 			{
-				if (control.Name == "color")
-				{
-					int.TryParse(control.Text, NumberStyles.HexNumber, NumberFormatInfo.CurrentInfo, out color);
-					color |= unchecked((int)0xFF000000);
-				}
+				return result;
 			}
 
-			colorBox.BackColor = Color.FromArgb(color);
+			if (TrySetColor("color", textBox, colorBox))
+			{
+				return result;
+			}
+
+			return result;
 		}
 
 		private void selectionComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -103,21 +103,15 @@ namespace Recombobulator.ParticlePanels
 			fieldsPanel.RowCount = membersRead.Count;
 
 			int row = 0;
-			int color = 0;
 			foreach (SR1_Structure structure in membersRead)
 			{
 				TextBox valueTextBox = AddField(structure, ref row);
 
 				if (structure.Name == "color")
 				{
-					color = ((SR1_Primative<int>)structure).Value;
-					valueTextBox.TextChanged += color_TextChanged;
+					SetValue(valueTextBox, structure as SR1_PrimativeBase);
 				}
 			}
-
-			color |= unchecked((int)0xFF000000);
-
-			colorBox.BackColor = Color.FromArgb(color);
 
 			fieldsPanel.Visible = true;
 			fieldsPanel.Enabled = true;
