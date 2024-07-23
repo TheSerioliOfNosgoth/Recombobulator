@@ -100,12 +100,22 @@ namespace Recombobulator
 
 		private void TestExportToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			SaveFileDialog dialog = new SaveFileDialog();
+			SaveFileDialog dialog = new SaveFileDialog()
+			{
+				CheckFileExists = true,
+				CheckPathExists = true,
+				Filter = "Soul Reaver Files|*.pcm;*.drm",
+				DefaultExt = "pcm",
+				FilterIndex = 1,
+				FileName = Path.GetFileName(_file._FilePath),
+				InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
+				RestoreDirectory = true
+			};
+
 			if (dialog.ShowDialog() == DialogResult.OK)
 			{
 				try
 				{
-					dialog.FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), Path.GetFileName(_file._FilePath));
 					_file.Export(dialog.FileName);
 				}
 				catch (Exception ex)
