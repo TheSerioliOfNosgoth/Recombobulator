@@ -438,12 +438,14 @@ namespace Recombobulator
 					}
 
 					migStructure.Write(dataWriter);
+					//extStructure.WriteToConsole("Migration Structure ", 0, false);
 					migStructure = migStructureEnumerator.MoveNext() ? migStructureEnumerator.Current.Value : null;
 				}
 
 				if (extStructure != null)
 				{
 					extStructure.Write(dataWriter);
+					//extStructure.WriteToConsole("Existing Structure ", 0, false);
 					extStructure = structureEnumerator.MoveNext() ? structureEnumerator.Current.Value : null;
 				}
 			}

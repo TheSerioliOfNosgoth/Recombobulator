@@ -19,6 +19,8 @@ namespace Recombobulator.SR1Structures
 
 		public readonly List<SR1_Structure> MembersRead = new List<SR1_Structure>();
 
+		public readonly List<SR1_Structure> MembersWritten = new List<SR1_Structure>();
+
 		private byte[] _padding = null;
 
 		public virtual TreeList.Node CreateNode()
@@ -264,6 +266,11 @@ namespace Recombobulator.SR1Structures
 			}
 
 			NewEnd = (uint)writer.BaseStream.Position;
+
+			if (Parent != null)
+			{
+				Parent.MembersWritten.Add(this);
+			}
 		}
 
 		public void Write(SR1_Writer writer, SR1_File.Version versionAdded, SR1_File.Version versionRemoved)
@@ -292,6 +299,27 @@ namespace Recombobulator.SR1Structures
 		public override string ToString()
 		{
 			return "";
+		}
+
+		public void WriteToConsole(string prefix, int depth, bool writeMembers)
+		{
+			bool isPtr = this is SR1_PointerBase;
+			string depthStr = "";
+			for (int d = 0; d < depth; d++)
+			{
+				depthStr += isPtr ? "****" : "    ";
+			}
+
+			Console.WriteLine(depthStr + prefix + "(0x" + NewStart.ToString("X8") + "): " + GetTypeName(true) + " " + Name + " = " + ToString());
+
+			if (writeMembers)
+			{
+				foreach (SR1_Structure structure in MembersWritten)
+				{
+					// Only use prefix at root.
+					structure.WriteToConsole("", depth + 1, true);
+				}
+			}
 		}
 
 		public virtual string GetTypeName(bool includeDimensions)
