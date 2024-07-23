@@ -29,12 +29,14 @@ namespace Recombobulator.SR1Structures
 			writer.File._LastPrimative = this;
 
 			// Might be safer to add primatives during import rather than export.
-			if (Start == End || writer.File._Primatives.ContainsKey(Start))
+			if (Start == End ||
+				writer.File.IsWritingMigratedStructure ||
+				writer.File._Primatives.ContainsKey(Start))
 			{
 				return;
 			}
 
-			writer.File._Primatives.Add(this.Start, this);
+			writer.File._Primatives.Add(Start, this);
 		}
 
 		public SR1_PrimativeArray(params int[] dimensions)

@@ -322,10 +322,6 @@ namespace Recombobulator.SR1Structures
 				if ((migrateFlags & SR1_File.MigrateFlags.RemoveAnimatedTextures) == 0 &&
 					aniList.Offset != 0)
 				{
-					SR1_Structure lastStructure = file._Structures.Values[file._Structures.Count - 1];
-
-					uint position = lastStructure.End;
-
 					List<int> entryList = new List<int>();
 
 					SR1_StructureSeries<TextureFT3> textures =
@@ -361,8 +357,11 @@ namespace Recombobulator.SR1Structures
 						}
 					}
 
-					texAniAssocData.Offset = position;
+					SR1_Structure lastStructure = file._Structures.Values[file._Structures.Count - 1];
+					uint position = lastStructure.End;
+
 					file._MigrationStructures.Add(position, new TexAniAssocData(entryList));
+					texAniAssocData.Offset = position;
 				}
 				else
 				{
@@ -376,9 +375,8 @@ namespace Recombobulator.SR1Structures
 					SR1_Structure lastStructure = file._Structures.Values[file._Structures.Count - 1];
 					uint position = lastStructure.End;
 
+					file._MigrationStructures.Add(position, new TexAniAssocData());
 					texAniAssocData.Offset = position;
-					TexAniAssocData newTexAniAssocData = new TexAniAssocData();
-					file._MigrationStructures.Add(position, newTexAniAssocData);
 				}
 			}
 		}
