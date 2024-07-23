@@ -87,6 +87,7 @@ namespace Recombobulator
 		public readonly StringWriter _ImportErrors = new StringWriter();
 		public readonly StringWriter _Scripts = new StringWriter();
 		public SR1_PrimativeBase _LastPrimative = null;
+		public bool IsWritingMigratedStructure = false;
 		public Overrides _Overrides { get; private set; }
 		public ImportFlags _ImportFlags { get; private set; } = ImportFlags.None;
 
@@ -437,7 +438,9 @@ namespace Recombobulator
 						break;
 					}
 
+					IsWritingMigratedStructure = true;
 					migStructure.Write(dataWriter);
+					IsWritingMigratedStructure = false;
 					//extStructure.WriteToConsole("Migration Structure ", 0, false);
 					migStructure = migStructureEnumerator.MoveNext() ? migStructureEnumerator.Current.Value : null;
 				}
@@ -485,6 +488,15 @@ namespace Recombobulator
 					continue;
 				}
 
+				// If the pointer referenced the end of the file, there would be
+				// no primitive to find, so the offset must be obtained this way.
+				// If a migration structure was inserted after it, then the code
+				// above would pick it up and assign it to the start of that
+				// structure.
+				// What is needed is a list of the primitives or structures sorted
+				// by their ends, and a flag specifying to find that here and use
+				// it for the offset.
+				// If it can't be found, use the end of the previous structure.
 				if (pointer.Offset == _LastPrimative.End)
 				{
 					uint newOffset = _LastPrimative.NewEnd + (pointer.Offset - _LastPrimative.End);

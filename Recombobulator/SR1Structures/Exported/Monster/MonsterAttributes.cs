@@ -233,10 +233,6 @@ namespace Recombobulator.SR1Structures
 
                     numBehaviors.Value = 2;
 
-                    SR1_Structure lastStructure = file._Structures.Values[file._Structures.Count - 1];
-                    uint position = lastStructure.End;
-
-                    behaviorList.Offset = position;
                     MonsterBehavior newBehaviors = new MonsterBehavior();
                     newBehaviors.alertness.Value = 3;
                     newBehaviors.idleFreq.Value = 0;
@@ -246,7 +242,12 @@ namespace Recombobulator.SR1Structures
                     newBehaviors.idleList[2] = -1;
                     newBehaviors.idleList[3] = -1;
                     newBehaviors.idleList[4] = -1;
-                    file._MigrationStructures.Add(position, newBehaviors);
+
+					SR1_Structure lastStructure = file._Structures.Values[file._Structures.Count - 1];
+					uint position = lastStructure.End;
+
+					file._MigrationStructures.Add(position, newBehaviors);
+					behaviorList.Offset = position;
                 }
 			}
 		}
