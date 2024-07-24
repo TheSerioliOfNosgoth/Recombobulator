@@ -398,8 +398,6 @@ namespace Recombobulator
 			_Overrides = overrides;
 
 			MemoryStream dataStream = new MemoryStream();
-
-			BinaryWriter outputWriter = new BinaryWriter(outputStream, System.Text.Encoding.UTF8, true);
 			SR1_Writer dataWriter = new SR1_Writer(this, dataStream, true);
 
 			_Primatives.Clear();
@@ -456,35 +454,14 @@ namespace Recombobulator
 			List<uint> sortedPrimativeKeys = new List<uint>(_Primatives.Keys);
 			List<uint> sortedStructureKeys = new List<uint>(_Structures.Keys);
 
-			outputWriter.Write(_Pointers.Count);
-
-			foreach (SR1_PointerBase pointer in _Pointers)
-			{
-				if (pointer.Offset != 0)
-				{
-					outputWriter.Write(pointer.NewStart);
-				}
-			}
-
-			uint dataStart = (uint)outputWriter.BaseStream.Position;
-			uint mod = dataStart % 0x800;
-			if (mod > 0)
-			{
-				uint padding = 0x800 - mod;
-				dataStart += padding;
-			}
-
-			while (outputWriter.BaseStream.Position < dataStart)
-			{
-				outputWriter.Write((sbyte)0);
-			}
-
+			List<SR1_PointerBase> validPointers = new List<SR1_PointerBase>();
 			foreach (SR1_PointerBase pointer in _Pointers)
 			{
 				if (_MigrationStructures.ContainsKey(pointer.Offset))
 				{
 					dataWriter.BaseStream.Position = pointer.NewStart;
 					dataWriter.Write(_MigrationStructures[pointer.Offset].NewStart);
+					validPointers.Add(pointer);
 					continue;
 				}
 
@@ -502,6 +479,7 @@ namespace Recombobulator
 					uint newOffset = _LastPrimative.NewEnd + (pointer.Offset - _LastPrimative.End);
 					dataWriter.BaseStream.Position = pointer.NewStart;
 					dataWriter.Write(newOffset);
+					validPointers.Add(pointer);
 				}
 				else
 				{
@@ -518,6 +496,7 @@ namespace Recombobulator
 						if (pointer.Offset >= primative.Start && pointer.Offset < primative.End)
 						{
 							newOffset = primative.NewStart + (pointer.Offset - primative.Start);
+							validPointers.Add(pointer);
 						}
 						else
 						{
@@ -528,6 +507,7 @@ namespace Recombobulator
 								if (pointer.Offset == structure.Start)
 								{
 									newOffset = structure.NewStart;
+									validPointers.Add(pointer);
 								}
 							}
 						}
@@ -538,17 +518,44 @@ namespace Recombobulator
 				}
 			}
 
+			BinaryWriter outputWriter = new BinaryWriter(outputStream, System.Text.Encoding.UTF8, true);
+			WriteHeader(outputWriter, validPointers);
 			dataStream.WriteTo(outputStream);
 			outputStream.Flush();
-
-			dataWriter.Dispose();
 			outputWriter.Dispose();
 
+			dataWriter.Dispose();
 			dataStream.Close();
 
 			outputStream.Position = 0;
 
 			_Overrides = null;
+		}
+
+		private void WriteHeader(BinaryWriter wtr, List<SR1_PointerBase> ptrs)
+		{
+			wtr.Write(ptrs.Count);
+
+			foreach (SR1_PointerBase ptr in ptrs)
+			{
+				if (ptr.Offset != 0)
+				{
+					wtr.Write(ptr.NewStart);
+				}
+			}
+
+			uint dataStart = (uint)wtr.BaseStream.Position;
+			uint mod = dataStart % 0x800;
+			if (mod > 0)
+			{
+				uint padding = 0x800 - mod;
+				dataStart += padding;
+			}
+
+			while (wtr.BaseStream.Position < dataStart)
+			{
+				wtr.Write((sbyte)0);
+			}
 		}
 
 		public bool TestExport()
