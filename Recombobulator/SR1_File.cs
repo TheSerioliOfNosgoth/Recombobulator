@@ -84,13 +84,19 @@ namespace Recombobulator
 			{
 				foreach (var read in primsRead)
 				{
-					readEnd.Add(read.End, read);
+					if (!readEnd.ContainsKey(read.End))
+					{
+						readEnd.Add(read.End, read);
+					}
 				}
 				readEndKeys.AddRange(readEnd.Keys);
 
 				foreach (var written in primsWritten)
 				{
-					writtenStart.Add(written.Start, written);
+					if (!writtenStart.ContainsKey(written.Start))
+					{
+						writtenStart.Add(written.Start, written);
+					}
 				}
 				writtenStartKeys.AddRange(writtenStart.Keys);
 			}

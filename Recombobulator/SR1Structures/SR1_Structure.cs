@@ -101,7 +101,6 @@ namespace Recombobulator.SR1Structures
 			try
 			{
 				ReadMembers(reader, parent);
-				AddToRead(reader);
 
 				if (_padding != null &&
 					reader.PlanMarkerList != null &&
@@ -125,6 +124,8 @@ namespace Recombobulator.SR1Structures
 				}
 
 				End = (uint)reader.BaseStream.Position;
+
+				AddToRead(reader);
 
 				ReadReferences(reader, parent);
 			}

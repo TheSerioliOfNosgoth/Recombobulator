@@ -26,8 +26,7 @@ namespace Recombobulator.SR1Structures
 
 		protected override void AddToRead(SR1_Reader reader)
 		{
-			if (Start != End &&
-				!reader.File._PrimsRead.Contains(this))
+			if (Start != End)
 			{
 				reader.File._PrimsRead.Add(this);
 			}
@@ -35,8 +34,7 @@ namespace Recombobulator.SR1Structures
 
 		protected override void AddToWritten(SR1_Writer writer)
 		{
-			if (Start != End && !writer.File.IsWritingMigStruct &&
-				!writer.File._PrimsWritten.Contains(this))
+			if (Start != End && !writer.File.IsWritingMigStruct)
 			{
 				writer.File._PrimsWritten.Add(this);
 			}

@@ -32,6 +32,8 @@ namespace Recombobulator.SR1Structures
 
 		protected override void AddToWritten(SR1_Writer writer)
 		{
+			base.AddToWritten(writer);
+
 			// Store this pointer in the list so that it can be fixed.
 			if (Offset != 0)
 			{
