@@ -362,6 +362,7 @@ namespace Recombobulator.SR1Structures
 
 					file._MigrationStructures.Add(position, new TexAniAssocData(entryList));
 					texAniAssocData.Offset = position;
+					texAniAssocData.PointsToMigStruct = true;
 				}
 				else
 				{
@@ -377,6 +378,7 @@ namespace Recombobulator.SR1Structures
 
 					file._MigrationStructures.Add(position, new TexAniAssocData());
 					texAniAssocData.Offset = position;
+					texAniAssocData.PointsToMigStruct = true;
 				}
 			}
 		}

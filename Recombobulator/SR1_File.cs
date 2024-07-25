@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Recombobulator.SR1Structures;
 
 namespace Recombobulator
@@ -72,12 +73,36 @@ namespace Recombobulator
 			public readonly Dictionary<string, string> NewObjectNames = new Dictionary<string, string>();
 		}
 
+		public class ExportData
+		{
+			public readonly SortedDictionary<uint, SR1_PrimativeBase> writtenStart = new SortedDictionary<uint, SR1_PrimativeBase>();
+			public readonly List<uint> writtenStartKeys = new List<uint>();
+			public readonly SortedDictionary<uint, SR1_PrimativeBase> readEnd = new SortedDictionary<uint, SR1_PrimativeBase>();
+			public readonly List<uint> readEndKeys = new List<uint>();
+
+			public ExportData(List<SR1_PrimativeBase> primsRead, List<SR1_PrimativeBase> primsWritten)
+			{
+				foreach (var read in primsRead)
+				{
+					readEnd.Add(read.End, read);
+				}
+				readEndKeys.AddRange(readEnd.Keys);
+
+				foreach (var written in primsWritten)
+				{
+					writtenStart.Add(written.Start, written);
+				}
+				writtenStartKeys.AddRange(writtenStart.Keys);
+			}
+		}
+
 		public string _FilePath { get; private set; } = "";
 		public uint _FileLength { get; private set; } = 0;
 		public Version _Version { get; private set; } = SR1_File.Version.Jun01;
 		public bool _IsLevel { get; private set; }
 		public readonly SortedList<uint, SR1_Structure> _Structures = new SortedList<uint, SR1_Structure>();
-		public readonly SortedDictionary<uint, SR1_PrimativeBase> _Primatives = new SortedDictionary<uint, SR1_PrimativeBase>();
+		public readonly List<SR1_PrimativeBase> _PrimsWritten = new List<SR1_PrimativeBase>();
+		public readonly List<SR1_PrimativeBase> _PrimsRead = new List<SR1_PrimativeBase>();
 		public readonly SortedDictionary<uint, SR1_Structure> _MigrationStructures = new SortedDictionary<uint, SR1_Structure>();
 		public List<SR1_PointerBase> _Pointers = new List<SR1_PointerBase>();
 		public readonly List<ushort> _TextureIDs = new List<ushort>();
@@ -86,8 +111,7 @@ namespace Recombobulator
 		public readonly List<string> _ObjectNames = new List<string>();
 		public readonly StringWriter _ImportErrors = new StringWriter();
 		public readonly StringWriter _Scripts = new StringWriter();
-		public SR1_PrimativeBase _LastPrimative = null;
-		public bool IsWritingMigratedStructure = false;
+		public bool IsWritingMigStruct = false;
 		public Overrides _Overrides { get; private set; }
 		public ImportFlags _ImportFlags { get; private set; } = ImportFlags.None;
 
@@ -97,7 +121,8 @@ namespace Recombobulator
 			_Version = SR1_File.Version.Jun01;
 			_IsLevel = false;
 			_Structures.Clear();
-			_Primatives.Clear();
+			_PrimsRead.Clear();
+			_PrimsWritten.Clear();
 			_MigrationStructures.Clear();
 			_Pointers.Clear();
 			_TextureIDs.Clear();
@@ -106,7 +131,6 @@ namespace Recombobulator
 			_ObjectNames.Clear();
 			_ImportErrors.GetStringBuilder().Clear();
 			_Scripts.GetStringBuilder().Clear();
-			_LastPrimative = null;
 			_Overrides = null;
 		}
 
@@ -397,10 +421,7 @@ namespace Recombobulator
 		{
 			_Overrides = overrides;
 
-			MemoryStream dataStream = new MemoryStream();
-			SR1_Writer dataWriter = new SR1_Writer(this, dataStream, true);
-
-			_Primatives.Clear();
+			_PrimsWritten.Clear();
 			_MigrationStructures.Clear();
 			_Pointers.Clear();
 			_TextureIDs.Clear();
@@ -408,8 +429,31 @@ namespace Recombobulator
 			_IntroIDs.Clear();
 			_ObjectNames.Clear();
 
-			_LastPrimative = null;
+			BinaryWriter outputWriter = new BinaryWriter(outputStream, System.Text.Encoding.UTF8, true);
+			MemoryStream dataStream = new MemoryStream();
+			SR1_Writer dataWriter = new SR1_Writer(this, dataStream, true);
 
+			MigrateVersion(targetVersion, migrateFlags);
+
+			WriteBody(dataWriter);
+
+			List<SR1_PointerBase> validPointers = ResolvePointers(dataWriter);
+			WriteHeader(outputWriter, validPointers);
+
+			dataStream.WriteTo(outputStream);
+			dataWriter.Dispose();
+			dataStream.Close();
+
+			outputStream.Flush();
+			outputWriter.Dispose();
+
+			outputStream.Position = 0;
+
+			_Overrides = null;
+		}
+
+		private void MigrateVersion(Version targetVersion, MigrateFlags migrateFlags)
+		{
 			SR1_Structure[] structures = new SR1_Structure[_Structures.Values.Count];
 			_Structures.Values.CopyTo(structures, 0);
 			foreach (SR1_Structure structure in structures)
@@ -418,118 +462,6 @@ namespace Recombobulator
 			}
 
 			_Version = targetVersion;
-
-			var structureEnumerator = _Structures.GetEnumerator();
-			var migStructureEnumerator = _MigrationStructures.GetEnumerator();
-			SR1_Structure migStructure = migStructureEnumerator.MoveNext() ? migStructureEnumerator.Current.Value : null;
-			SR1_Structure extStructure = structureEnumerator.MoveNext() ? structureEnumerator.Current.Value : null;
-			while (migStructure != null || extStructure != null)
-			{
-				while (migStructure != null)
-				{
-					// If there is a pre-existing structure at/before the new structure's insert point,
-					// then break out and do that first.
-					// Given that some arrays use pointers to the end, it would be dangerous to insert new items
-					// before the next structure.
-					if (extStructure != null && extStructure.Start <= migStructureEnumerator.Current.Key)
-					{
-						break;
-					}
-
-					IsWritingMigratedStructure = true;
-					migStructure.Write(dataWriter);
-					IsWritingMigratedStructure = false;
-					//extStructure.WriteToConsole("Migration Structure ", 0, false);
-					migStructure = migStructureEnumerator.MoveNext() ? migStructureEnumerator.Current.Value : null;
-				}
-
-				if (extStructure != null)
-				{
-					extStructure.Write(dataWriter);
-					//extStructure.WriteToConsole("Existing Structure ", 0, false);
-					extStructure = structureEnumerator.MoveNext() ? structureEnumerator.Current.Value : null;
-				}
-			}
-
-			List<uint> sortedPrimativeKeys = new List<uint>(_Primatives.Keys);
-			List<uint> sortedStructureKeys = new List<uint>(_Structures.Keys);
-
-			List<SR1_PointerBase> validPointers = new List<SR1_PointerBase>();
-			foreach (SR1_PointerBase pointer in _Pointers)
-			{
-				if (_MigrationStructures.ContainsKey(pointer.Offset))
-				{
-					dataWriter.BaseStream.Position = pointer.NewStart;
-					dataWriter.Write(_MigrationStructures[pointer.Offset].NewStart);
-					validPointers.Add(pointer);
-					continue;
-				}
-
-				// If the pointer referenced the end of the file, there would be
-				// no primitive to find, so the offset must be obtained this way.
-				// If a migration structure was inserted after it, then the code
-				// above would pick it up and assign it to the start of that
-				// structure.
-				// What is needed is a list of the primitives or structures sorted
-				// by their ends, and a flag specifying to find that here and use
-				// it for the offset.
-				// If it can't be found, use the end of the previous structure.
-				if (pointer.Offset == _LastPrimative.End)
-				{
-					uint newOffset = _LastPrimative.NewEnd + (pointer.Offset - _LastPrimative.End);
-					dataWriter.BaseStream.Position = pointer.NewStart;
-					dataWriter.Write(newOffset);
-					validPointers.Add(pointer);
-				}
-				else
-				{
-					int index = sortedPrimativeKeys.BinarySearch(pointer.Offset);
-					if (index < 0)
-					{
-						index = (~index - 1);
-					}
-
-					if (index >= 0)
-					{
-						uint newOffset = 0;
-						SR1_PrimativeBase primative = _Primatives[sortedPrimativeKeys[index]];
-						if (pointer.Offset >= primative.Start && pointer.Offset < primative.End)
-						{
-							newOffset = primative.NewStart + (pointer.Offset - primative.Start);
-							validPointers.Add(pointer);
-						}
-						else
-						{
-							index = sortedStructureKeys.BinarySearch(pointer.Offset);
-							if (index >= 0)
-							{
-								SR1_Structure structure = _Structures[sortedStructureKeys[index]];
-								if (pointer.Offset == structure.Start)
-								{
-									newOffset = structure.NewStart;
-									validPointers.Add(pointer);
-								}
-							}
-						}
-
-						dataWriter.BaseStream.Position = pointer.NewStart;
-						dataWriter.Write(newOffset);
-					}
-				}
-			}
-
-			BinaryWriter outputWriter = new BinaryWriter(outputStream, System.Text.Encoding.UTF8, true);
-			WriteHeader(outputWriter, validPointers);
-			dataStream.WriteTo(outputStream);
-			outputStream.Flush();
-			outputWriter.Dispose();
-
-			dataWriter.Dispose();
-			dataStream.Close();
-
-			outputStream.Position = 0;
-
-			_Overrides = null;
 		}
 
 		private void WriteHeader(BinaryWriter wtr, List<SR1_PointerBase> ptrs)
@@ -556,6 +488,154 @@ namespace Recombobulator
 			{
 				wtr.Write((sbyte)0);
 			}
+		}
+
+		private void WriteBody(SR1_Writer wtr)
+		{
+			var structureEnumerator = _Structures.GetEnumerator();
+			var migStructureEnumerator = _MigrationStructures.GetEnumerator();
+			SR1_Structure migStructure = migStructureEnumerator.MoveNext() ? migStructureEnumerator.Current.Value : null;
+			SR1_Structure extStructure = structureEnumerator.MoveNext() ? structureEnumerator.Current.Value : null;
+			while (migStructure != null || extStructure != null)
+			{
+				while (migStructure != null)
+				{
+					// If there is a pre-existing structure at/before the new structure's insert point,
+					// then break out and do that first.
+					// Given that some arrays use pointers to the end, it would be dangerous to insert new items
+					// before the next structure.
+					if (extStructure != null && extStructure.Start <= migStructureEnumerator.Current.Key)
+					{
+						break;
+					}
+
+					IsWritingMigStruct = true;
+					migStructure.Write(wtr);
+					IsWritingMigStruct = false;
+					//extStructure.WriteToConsole("Migration Structure ", 0, false);
+					migStructure = migStructureEnumerator.MoveNext() ? migStructureEnumerator.Current.Value : null;
+				}
+
+				if (extStructure != null)
+				{
+					extStructure.Write(wtr);
+					//extStructure.WriteToConsole("Existing Structure ", 0, false);
+					extStructure = structureEnumerator.MoveNext() ? structureEnumerator.Current.Value : null;
+				}
+			}
+		}
+
+		private List<SR1_PointerBase> ResolvePointers(SR1_Writer wtr)
+		{
+			List<SR1_PointerBase> validPointers = new List<SR1_PointerBase>();
+
+			ExportData exportData = new ExportData(_PrimsRead, _PrimsWritten);
+
+			foreach (SR1_PointerBase pointer in _Pointers)
+			{
+				bool result;
+
+				if (pointer.PointsToMigStruct)
+				{
+					result = ResolveMigStructPointer(wtr, pointer);
+				}
+				else if (pointer.PointsToEndOfStruct ||
+					pointer.Offset == exportData.readEndKeys.Last())
+				{
+					result = ResolveStructEndPointer(wtr, pointer, exportData);
+				}
+				else
+				{
+					result = ResolveStandardPointer(wtr, pointer, exportData);
+				}
+
+				if (result)
+				{
+					validPointers.Add(pointer);
+				}
+			}
+
+			return validPointers;
+		}
+
+		// Standard method of locating the new position of a structure.
+		// If new fields are added for removed, other fields might move as a
+		// result.
+		// It's possible for pointers to reference fields within other structures,
+		// so limiting the search to whole structures won't work.
+		// Instead, search all the primitives that were written, based on their
+		// original poditions, and if the primitive is not found, assume it was
+		// removed.
+		// Because it would be expensive to track every single primitive in the
+		// file, primitive arrays are grouped together and the offset within the
+		// that can be calculated.
+		// This also accounts for the frequest reinterperating of types in this
+		// game.
+		private bool ResolveStandardPointer(SR1_Writer wtr, SR1_PointerBase ptr, ExportData exd)
+		{
+			int index = exd.writtenStartKeys.BinarySearch(ptr.Offset);
+			if (index >= 0)
+			{
+				SR1_PrimativeBase primative = exd.writtenStart[exd.writtenStartKeys[index]];
+				if (ptr.Offset >= primative.Start && ptr.Offset < primative.End)
+				{
+					uint newOffset = primative.NewStart + (ptr.Offset - primative.Start);
+					wtr.BaseStream.Position = ptr.NewStart;
+					wtr.Write(newOffset);
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		// Some pointers are used to mark the end of a series of structures.
+		// In these cases, the goal is to locate the end point of that series.
+		// There is a chance that the structure at the end of the series was
+		// removed or something else was added after it in the same series.
+		// To do this, the pointers that were originally read are sorted by
+		// their end positions.
+		// To attempt to locate the new end point, this function recurses upward
+		// through the parents of the structures, for as long as they share the
+		// same original end point.
+		// If the last of these hasn't been removed, then it will usually be
+		// the have the correct end point.
+		// This may not be accurate 100% of the time, but should suffice for
+		// special cases specified by the PointsToEndOfStruct flag.
+		private bool ResolveStructEndPointer(SR1_Writer wtr, SR1_PointerBase ptr, ExportData exd)
+		{
+			int index = exd.readEndKeys.BinarySearch(ptr.Offset);
+			if (index >= 0)
+			{
+				SR1_PrimativeBase primative = exd.readEnd[exd.readEndKeys[index]];
+				SR1_Structure structure = GetTopStructure(primative);
+
+				// Make sure the primitive was writen otherwise it can't be used.
+				if (structure != null && exd.writtenStartKeys.Contains(primative.Start))
+				{
+					wtr.Write(structure.NewEnd);
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		// If the target structure was added while migrating to a new version,
+		// it may have been inserted where an existing one was located.
+		// In order to make sure the correct one is found, this function only
+		// searches for the structures that were added during that process.
+		// The PointsToMigStruct flag specifies whwn to do this.
+		private bool ResolveMigStructPointer(SR1_Writer wtr, SR1_PointerBase ptr)
+		{
+			if (_MigrationStructures.ContainsKey(ptr.Offset))
+			{
+				wtr.BaseStream.Position = ptr.NewStart;
+				wtr.Write(_MigrationStructures[ptr.Offset].NewStart);
+				return true;
+			}
+
+			return false;
 		}
 
 		public bool TestExport()
@@ -618,6 +698,21 @@ namespace Recombobulator
 			TreeList.Node[] nodes = nodeList.ToArray();
 
 			return nodes;
+		}
+
+		private SR1_Structure GetTopStructure(SR1_Structure structure)
+		{
+			if (structure == null)
+			{
+				return null;
+			}
+
+			while (structure.Parent != null && structure.Parent.End == structure.End)
+			{
+				structure = structure.Parent;
+			}
+
+			return structure;
 		}
 
 		public string GetScripts()

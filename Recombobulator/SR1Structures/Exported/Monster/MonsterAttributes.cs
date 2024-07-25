@@ -248,6 +248,7 @@ namespace Recombobulator.SR1Structures
 
 					file._MigrationStructures.Add(position, newBehaviors);
 					behaviorList.Offset = position;
+					behaviorList.PointsToMigStruct = true;
                 }
 			}
 		}

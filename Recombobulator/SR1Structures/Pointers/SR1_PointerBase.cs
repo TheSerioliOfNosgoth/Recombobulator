@@ -7,6 +7,8 @@ namespace Recombobulator.SR1Structures
 	public abstract class SR1_PointerBase : SR1_PrimativeBase
 	{
 		public uint Offset { get; set; }
+		public bool PointsToMigStruct { get; set; }
+		public bool PointsToEndOfStruct { get; set; }
 
 		public abstract object CreateObject(SR1_Structure parent, SR1_Reader reader);
 
@@ -28,10 +30,8 @@ namespace Recombobulator.SR1Structures
 			writer.Write(0x00000000u);
 		}
 
-		protected override void Register(SR1_Writer writer)
+		protected override void AddToWritten(SR1_Writer writer)
 		{
-			base.Register(writer);
-
 			// Store this pointer in the list so that it can be fixed.
 			if (Offset != 0)
 			{

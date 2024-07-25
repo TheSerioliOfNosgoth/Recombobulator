@@ -101,6 +101,7 @@ namespace Recombobulator.SR1Structures
 			try
 			{
 				ReadMembers(reader, parent);
+				AddToRead(reader);
 
 				if (_padding != null &&
 					reader.PlanMarkerList != null &&
@@ -245,7 +246,7 @@ namespace Recombobulator.SR1Structures
 			try
 			{
 				WriteMembers(writer);
-				Register(writer);
+				AddToWritten(writer);
 
 				if (_padding != null)
 				{
@@ -291,7 +292,12 @@ namespace Recombobulator.SR1Structures
 			}
 		}
 
-		protected virtual void Register(SR1_Writer writer)
+		protected virtual void AddToRead(SR1_Reader reader)
+		{
+
+		}
+
+		protected virtual void AddToWritten(SR1_Writer writer)
 		{
 
 		}
