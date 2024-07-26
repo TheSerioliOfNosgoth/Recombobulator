@@ -620,6 +620,7 @@ namespace Recombobulator
 				// Make sure the primitive was writen otherwise it can't be used.
 				if (structure != null && exd.writtenStartKeys.Contains(primative.Start))
 				{
+					wtr.BaseStream.Position = ptr.NewStart;
 					wtr.Write(structure.NewEnd);
 					return true;
 				}
