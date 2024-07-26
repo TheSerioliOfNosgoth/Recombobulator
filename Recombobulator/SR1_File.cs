@@ -77,6 +77,8 @@ namespace Recombobulator
 		{
 			public readonly SortedDictionary<uint, SR1_PrimativeBase> writtenStart = new SortedDictionary<uint, SR1_PrimativeBase>();
 			public readonly List<uint> writtenStartKeys = new List<uint>();
+			public readonly SortedDictionary<uint, SR1_PrimativeBase> writtenEnd = new SortedDictionary<uint, SR1_PrimativeBase>();
+			public readonly List<uint> writtenEndKeys = new List<uint>();
 			public readonly SortedDictionary<uint, SR1_PrimativeBase> readEnd = new SortedDictionary<uint, SR1_PrimativeBase>();
 			public readonly List<uint> readEndKeys = new List<uint>();
 
@@ -97,8 +99,14 @@ namespace Recombobulator
 					{
 						writtenStart.Add(written.Start, written);
 					}
+
+					if (!writtenEnd.ContainsKey(written.End))
+					{
+						writtenEnd.Add(written.End, written);
+					}
 				}
 				writtenStartKeys.AddRange(writtenStart.Keys);
+				writtenEndKeys.AddRange(writtenEnd.Keys);
 			}
 		}
 
@@ -618,7 +626,7 @@ namespace Recombobulator
 				SR1_Structure structure = GetTopStructure(primative);
 
 				// Make sure the primitive was writen otherwise it can't be used.
-				if (structure != null && exd.writtenStartKeys.Contains(primative.Start))
+				if (structure != null && exd.writtenEndKeys.Contains(structure.End))
 				{
 					wtr.BaseStream.Position = ptr.NewStart;
 					wtr.Write(structure.NewEnd);
