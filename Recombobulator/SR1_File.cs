@@ -79,6 +79,8 @@ namespace Recombobulator
 			public readonly List<uint> writtenStartKeys = new List<uint>();
 			public readonly SortedDictionary<uint, SR1_PrimativeBase> writtenEnd = new SortedDictionary<uint, SR1_PrimativeBase>();
 			public readonly List<uint> writtenEndKeys = new List<uint>();
+			public readonly SortedDictionary<uint, SR1_PrimativeBase> readStart = new SortedDictionary<uint, SR1_PrimativeBase>();
+			public readonly List<uint> readStartKeys = new List<uint>();
 			public readonly SortedDictionary<uint, SR1_PrimativeBase> readEnd = new SortedDictionary<uint, SR1_PrimativeBase>();
 			public readonly List<uint> readEndKeys = new List<uint>();
 
@@ -86,11 +88,17 @@ namespace Recombobulator
 			{
 				foreach (var read in primsRead)
 				{
+					if (!readStart.ContainsKey(read.Start))
+					{
+						readStart.Add(read.Start, read);
+					}
+
 					if (!readEnd.ContainsKey(read.End))
 					{
 						readEnd.Add(read.End, read);
 					}
 				}
+				readStartKeys.AddRange(readStart.Keys);
 				readEndKeys.AddRange(readEnd.Keys);
 
 				foreach (var written in primsWritten)
@@ -579,12 +587,12 @@ namespace Recombobulator
 		// It's possible for pointers to reference fields within other structures,
 		// so limiting the search to whole structures won't work.
 		// Instead, search all the primitives that were written, based on their
-		// original poditions, and if the primitive is not found, assume it was
+		// original positions, and if the primitive is not found, assume it was
 		// removed.
 		// Because it would be expensive to track every single primitive in the
 		// file, primitive arrays are grouped together and the offset within the
 		// that can be calculated.
-		// This also accounts for the frequest reinterperating of types in this
+		// This also accounts for the frequent reinterperating of types in this
 		// game.
 		private bool ResolveStandardPointer(SR1_Writer wtr, SR1_PointerBase ptr, ExportData exd)
 		{
@@ -599,6 +607,30 @@ namespace Recombobulator
 					wtr.Write(newOffset);
 					return true;
 				}
+
+				return false;
+			}
+
+			// Similar method to ResolveStructEndPointer.
+			// If the first primitive in a structure was removed, it can no longer
+			// be used to find the new start of that structure.
+			// Check if the primitive was at the start of the structure, and if it
+			// was, use the location of that structure instead.
+			// This may actually be more useful than looking in the writtenStartKeys.
+			index = exd.readStartKeys.BinarySearch(ptr.Offset);
+			if (index >= 0)
+			{
+				SR1_PrimativeBase primative = exd.readStart[exd.readStartKeys[index]];
+				SR1_Structure structure = primative.Parent;
+				if (structure != null && structure.Start == primative.Start &&
+					structure.MembersWritten.Count > 0)
+				{
+					wtr.BaseStream.Position = ptr.NewStart;
+					wtr.Write(structure.NewStart);
+					return true;
+				}
+
+				return false;
 			}
 
 			return false;

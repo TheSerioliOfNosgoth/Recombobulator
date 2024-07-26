@@ -114,7 +114,7 @@ namespace Recombobulator
 			{
 				try
 				{
-					_file.Export(dialog.FileName);
+					_file.Export(dialog.FileName, SR1_File.Version.Retail_PC, SR1_File.MigrateFlags.None, new SR1_File.Overrides());
 				}
 				catch (Exception ex)
 				{
