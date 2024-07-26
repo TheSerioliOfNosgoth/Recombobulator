@@ -168,7 +168,9 @@ namespace Recombobulator.SR1Structures
 
 			try
 			{
+				reader.File.IsReadingTempStruct = true;
 				ReadMembers(reader, null);
+				reader.File.IsReadingTempStruct = false;
 				End = (uint)reader.BaseStream.Position;
 			}
 			catch (Exception ex)

@@ -117,6 +117,7 @@ namespace Recombobulator
 		public readonly List<string> _ObjectNames = new List<string>();
 		public readonly StringWriter _ImportErrors = new StringWriter();
 		public readonly StringWriter _Scripts = new StringWriter();
+		public bool IsReadingTempStruct = false;
 		public bool IsWritingMigStruct = false;
 		public Overrides _Overrides { get; private set; }
 		public ImportFlags _ImportFlags { get; private set; } = ImportFlags.None;

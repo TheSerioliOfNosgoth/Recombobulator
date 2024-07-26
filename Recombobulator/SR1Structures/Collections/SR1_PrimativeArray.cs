@@ -26,7 +26,7 @@ namespace Recombobulator.SR1Structures
 
 		protected override void AddToRead(SR1_Reader reader)
 		{
-			if (Start != End)
+			if (Start != End && !reader.File.IsReadingTempStruct)
 			{
 				reader.File._PrimsRead.Add(this);
 			}
