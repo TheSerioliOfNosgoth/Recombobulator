@@ -7,6 +7,9 @@ namespace Recombobulator.SR1Structures
 	{
 		// Use      //.*\r?\n     to search and remove comments.
 
+		SR1_Pointer<BSPNode> bspRoot = new SR1_Pointer<BSPNode>();
+		SR1_Pointer<BSPLeaf> startLeaves = new SR1_Pointer<BSPLeaf>();
+		SR1_Pointer<BSPLeaf> endLeaves = new SR1_Pointer<BSPLeaf>();
 		SR1_Primative<short> UnitChangeFlags = new SR1_Primative<short>();
 		SR1_Primative<short> spad = new SR1_Primative<short>();
 		SR1_Primative<int> lpad2 = new SR1_Primative<int>();
@@ -38,6 +41,9 @@ namespace Recombobulator.SR1Structures
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
+			bspRoot.Read(reader, this, "bspRoot", SR1_File.Version.First, SR1_File.Version.Jan23);
+			startLeaves.Read(reader, this, "startLeaves", SR1_File.Version.First, SR1_File.Version.Jan23);
+			endLeaves.Read(reader, this, "endLeaves", SR1_File.Version.First, SR1_File.Version.Jan23);
 			UnitChangeFlags.Read(reader, this, "UnitChangeFlags", SR1_File.Version.Apr14, SR1_File.Version.Next);
 			spad.Read(reader, this, "spad", SR1_File.Version.Apr14, SR1_File.Version.Next);
 			lpad2.Read(reader, this, "lpad2", SR1_File.Version.Apr14, SR1_File.Version.Next);
@@ -62,8 +68,8 @@ namespace Recombobulator.SR1Structures
 			sbspEndLeaves.Read(reader, this, "sbspEndLeaves", SR1_File.Version.First, SR1_File.Version.Jun01);
 			MorphDiffList.Read(reader, this, "MorphDiffList");
 			MorphColorList.Read(reader, this, "MorphColorList");
-			numBSPTrees.Read(reader, this, "numBSPTrees");
-			BSPTreeArray.Read(reader, this, "BSPTreeArray");
+			numBSPTrees.Read(reader, this, "numBSPTrees", SR1_File.Version.Jan23, SR1_File.Version.Next);
+			BSPTreeArray.Read(reader, this, "BSPTreeArray", SR1_File.Version.Jan23, SR1_File.Version.Next);
 			morphNormalIdx.Read(reader, this, "morphNormalIdx");
 			signals.Read(reader, this, "signals");
 			texAniAssocData.Read(reader, this, "texAniAssocData", SR1_File.Version.Retail_PC, SR1_File.Version.Next);
@@ -140,53 +146,68 @@ namespace Recombobulator.SR1Structures
 			int morphColorPadding = (reader.File._Version >= SR1_File.Version.Apr14) ? 4 : 2;
 			new SR1_StructureArray<MorphColor>(numVertices.Value).SetPadding(morphColorPadding).ReadFromPointer(reader, MorphColorList);
 
-			SR1_StructureArray<BSPTree> bspTrees = new SR1_StructureArray<BSPTree>(numBSPTrees.Value);
-			bspTrees.ReadFromPointer(reader, BSPTreeArray);
-
-			if (bspTrees.Count > 0 && faces.Count > 0)
+			if (reader.File._Version < SR1_File.Version.Jan23)
 			{
-				BSPTree tree = (BSPTree)bspTrees[numBSPTrees.Value - 1];
-
-				if (tree.ID.Value == -1 && tree.startLeaves.Offset != 0 &&
-					reader.File._Structures.ContainsKey(tree.startLeaves.Offset) &&
-					reader.Level.SignalListStart.Offset != 0 &&
-					reader.File._Structures.ContainsKey(reader.Level.SignalListStart.Offset))
+				if ((int)(startLeaves.Offset - bspRoot.Offset) > 0)
 				{
-					SR1_StructureSeries<BSPLeaf> leaves =
-						(SR1_StructureSeries<BSPLeaf>)reader.File._Structures[tree.startLeaves.Offset];
-					SR1_StructureSeries<MultiSignal> multiSignals =
-						(SR1_StructureSeries<MultiSignal>)reader.File._Structures[reader.Level.SignalListStart.Offset];
+					new SR1_StructureSeries<BSPNode>((int)(startLeaves.Offset - bspRoot.Offset)).ReadFromPointer(reader, bspRoot);
+				}
 
-					foreach (BSPLeaf leaf in leaves)
+				if ((int)(endLeaves.Offset - startLeaves.Offset) > 0)
+				{
+					new SR1_StructureSeries<BSPLeaf>((int)(endLeaves.Offset - startLeaves.Offset)).ReadFromPointer(reader, startLeaves);
+				}
+			}
+			else
+			{
+				SR1_StructureArray<BSPTree> bspTrees = new SR1_StructureArray<BSPTree>(numBSPTrees.Value);
+				bspTrees.ReadFromPointer(reader, BSPTreeArray);
+
+				if (bspTrees.Count > 0 && faces.Count > 0)
+				{
+					BSPTree tree = (BSPTree)bspTrees[numBSPTrees.Value - 1];
+
+					if (tree.ID.Value == -1 && tree.startLeaves.Offset != 0 &&
+						reader.File._Structures.ContainsKey(tree.startLeaves.Offset) &&
+						reader.Level.SignalListStart.Offset != 0 &&
+						reader.File._Structures.ContainsKey(reader.Level.SignalListStart.Offset))
 					{
-						uint faceIndex = (leaf.faceList.Offset - faces.Start) / 12;
-						short numFaces = leaf.numFaces.Value;
-						for (short f = 0; f < numFaces; f++)
+						SR1_StructureSeries<BSPLeaf> leaves =
+							(SR1_StructureSeries<BSPLeaf>)reader.File._Structures[tree.startLeaves.Offset];
+						SR1_StructureSeries<MultiSignal> multiSignals =
+							(SR1_StructureSeries<MultiSignal>)reader.File._Structures[reader.Level.SignalListStart.Offset];
+
+						foreach (BSPLeaf leaf in leaves)
 						{
-							TFace tFace = (TFace)faces[(int)faceIndex + f];
-							tFace.IsInSignalGroup = true;
-
-							foreach (MultiSignal mSignal in multiSignals)
+							uint faceIndex = (leaf.faceList.Offset - faces.Start) / 12;
+							short numFaces = leaf.numFaces.Value;
+							for (short f = 0; f < numFaces; f++)
 							{
-								if (mSignal.Start == (signals.Offset + tFace.textoff.Value))
-								{
-									tFace.MultiSignal = mSignal;
-									if (mSignal.numSignals.Value > 0)
-									{
-										tFace.Signal = (Signal)mSignal.signalList[0];
-									}
-									break;
-								}
-							}
+								TFace tFace = (TFace)faces[(int)faceIndex + f];
+								tFace.IsInSignalGroup = true;
 
-							if (tFace.MultiSignal != null)
-							{
-								foreach (StreamUnitPortal portal in portalList.portals)
+								foreach (MultiSignal mSignal in multiSignals)
 								{
-									if (portal.MSignalID.Value == tFace.MultiSignal.signalNum.Value)
+									if (mSignal.Start == (signals.Offset + tFace.textoff.Value))
 									{
-										tFace.Portal = portal;
+										tFace.MultiSignal = mSignal;
+										if (mSignal.numSignals.Value > 0)
+										{
+											tFace.Signal = (Signal)mSignal.signalList[0];
+										}
 										break;
+									}
+								}
+
+								if (tFace.MultiSignal != null)
+								{
+									foreach (StreamUnitPortal portal in portalList.portals)
+									{
+										if (portal.MSignalID.Value == tFace.MultiSignal.signalNum.Value)
+										{
+											tFace.Portal = portal;
+											break;
+										}
 									}
 								}
 							}
@@ -268,6 +289,9 @@ namespace Recombobulator.SR1Structures
 
 		public override void WriteMembers(SR1_Writer writer)
 		{
+			bspRoot.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
+			startLeaves.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
+			endLeaves.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
 			UnitChangeFlags.Write(writer, SR1_File.Version.Apr14, SR1_File.Version.Next);
 			spad.Write(writer, SR1_File.Version.Apr14, SR1_File.Version.Next);
 			lpad2.Write(writer, SR1_File.Version.Apr14, SR1_File.Version.Next);
@@ -316,6 +340,24 @@ namespace Recombobulator.SR1Structures
 					sbspStartLeaves.Offset = 0;
 					sbspEndLeaves.Offset = 0;
 				}
+			}
+
+			if (file._Version < SR1_File.Version.Jan23 && targetVersion >= SR1_File.Version.Jan23)
+			{
+				SR1_StructureArray<BSPTree> newBSPTrees = new SR1_StructureArray<BSPTree>(1);
+				BSPTree newBSPTree = (BSPTree)newBSPTrees[0];
+
+				// Set them to the existing root and leaves.
+				newBSPTree.bspRoot.Offset = bspRoot.Offset;
+				newBSPTree.startLeaves.Offset = startLeaves.Offset;
+				newBSPTree.endLeaves.Offset = endLeaves.Offset;
+
+				// Insert the BSPTree array where the root used to be.
+				file._MigrationStructures.Add(bspRoot.Start, newBSPTrees);
+
+				numBSPTrees.Value = 1;
+				BSPTreeArray.Offset = bspRoot.Start;
+				BSPTreeArray.PointsToMigStruct = true;
 			}
 
 			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)

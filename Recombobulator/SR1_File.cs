@@ -22,8 +22,8 @@ namespace Recombobulator
 			Detect = -1,
 			Detect_Retail_PC = -2,
 			First = 0,
-			Alpha_1_X,
-			Alpha_1,
+			Proto1,
+			Jan23,
 			Feb04,
 			Feb16,
 			Apr14,
@@ -523,7 +523,7 @@ namespace Recombobulator
 			{
 				while (migStructure != null)
 				{
-					// If there is a pre-existing structure at/before the new structure's insert point,
+					// If there is a pre-existing structure before the new structure's insert point,
 					// then break out and do that first.
 					// Given that some arrays use pointers to the end, it would be dangerous to insert new items
 					// before the next structure.
