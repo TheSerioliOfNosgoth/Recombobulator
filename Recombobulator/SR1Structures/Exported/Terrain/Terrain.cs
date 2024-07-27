@@ -9,7 +9,7 @@ namespace Recombobulator.SR1Structures
 
 		SR1_Pointer<BSPNode> bspRoot = new SR1_Pointer<BSPNode>();
 		SR1_Pointer<BSPLeaf> startLeaves = new SR1_Pointer<BSPLeaf>();
-		SR1_Pointer<BSPLeaf> endLeaves = new SR1_Pointer<BSPLeaf>();
+		SR1_Primative<int> numNodes = new SR1_Primative<int>();
 		SR1_Primative<short> UnitChangeFlags = new SR1_Primative<short>();
 		SR1_Primative<short> spad = new SR1_Primative<short>();
 		SR1_Primative<int> lpad2 = new SR1_Primative<int>();
@@ -27,6 +27,7 @@ namespace Recombobulator.SR1Structures
 		SR1_Primative<int> pad = new SR1_Primative<int>();
 		SR1_Pointer<BSPNode> sbspRoot = new SR1_Pointer<BSPNode>();
 		public SR1_Pointer<StreamUnitPortalList> StreamUnits = new SR1_Pointer<StreamUnitPortalList>(); // void in sym, StreamUnitPortalList created for this tool.
+		SR1_Pointer<BSPLeaf> endLeaves = new SR1_Pointer<BSPLeaf>();
 		SR1_Pointer<TextureFT3> StartTextureList = new SR1_Pointer<TextureFT3>();
 		SR1_Pointer<TextureFT3> EndTextureList = new SR1_Pointer<TextureFT3>();
 		SR1_Pointer<SBSPLeaf> sbspStartLeaves = new SR1_Pointer<SBSPLeaf>();
@@ -43,12 +44,12 @@ namespace Recombobulator.SR1Structures
 		{
 			bspRoot.Read(reader, this, "bspRoot", SR1_File.Version.First, SR1_File.Version.Jan23);
 			startLeaves.Read(reader, this, "startLeaves", SR1_File.Version.First, SR1_File.Version.Jan23);
-			endLeaves.Read(reader, this, "endLeaves", SR1_File.Version.First, SR1_File.Version.Jan23);
+			numNodes.Read(reader, this, "numNodes", SR1_File.Version.First, SR1_File.Version.Jan23);
+			vplLength.Read(reader, this, "vplLength", SR1_File.Version.First, SR1_File.Version.Apr14);
+			vpList.Read(reader, this, "vpList", SR1_File.Version.First, SR1_File.Version.Apr14);
 			UnitChangeFlags.Read(reader, this, "UnitChangeFlags", SR1_File.Version.Apr14, SR1_File.Version.Next);
 			spad.Read(reader, this, "spad", SR1_File.Version.Apr14, SR1_File.Version.Next);
 			lpad2.Read(reader, this, "lpad2", SR1_File.Version.Apr14, SR1_File.Version.Next);
-			vplLength.Read(reader, this, "vplLength", SR1_File.Version.Feb04, SR1_File.Version.Apr14);
-			vpList.Read(reader, this, "vpList", SR1_File.Version.Feb04, SR1_File.Version.Apr14);
 			numIntros.Read(reader, this, "numIntros");
 			introList.Read(reader, this, "introList");
 			numVertices.Read(reader, this, "numVertices");
@@ -61,6 +62,7 @@ namespace Recombobulator.SR1Structures
 			sbspRoot.Read(reader, this, "sbspRoot", SR1_File.Version.First, SR1_File.Version.Jun01);
 			pad.Read(reader, this, "pad", SR1_File.Version.Jun01, SR1_File.Version.Next);
 			StreamUnits.Read(reader, this, "StreamUnits");
+			endLeaves.Read(reader, this, "endLeaves", SR1_File.Version.First, SR1_File.Version.Jan23);
 			StartTextureList.Read(reader, this, "StartTextureList");
 			EndTextureList.Read(reader, this, "EndTextureList");
 			EndTextureList.PointsToEndOfStruct = true;
@@ -70,8 +72,8 @@ namespace Recombobulator.SR1Structures
 			MorphColorList.Read(reader, this, "MorphColorList");
 			numBSPTrees.Read(reader, this, "numBSPTrees", SR1_File.Version.Jan23, SR1_File.Version.Next);
 			BSPTreeArray.Read(reader, this, "BSPTreeArray", SR1_File.Version.Jan23, SR1_File.Version.Next);
-			morphNormalIdx.Read(reader, this, "morphNormalIdx");
-			signals.Read(reader, this, "signals");
+			morphNormalIdx.Read(reader, this, "morphNormalIdx", SR1_File.Version.Jan23, SR1_File.Version.Next);
+			signals.Read(reader, this, "signals", SR1_File.Version.Jan23, SR1_File.Version.Next);
 			texAniAssocData.Read(reader, this, "texAniAssocData", SR1_File.Version.Retail_PC, SR1_File.Version.Next);
 		}
 
@@ -291,12 +293,12 @@ namespace Recombobulator.SR1Structures
 		{
 			bspRoot.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
 			startLeaves.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
-			endLeaves.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
+			numNodes.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
+			vplLength.Write(writer, SR1_File.Version.First, SR1_File.Version.Apr14);
+			vpList.Write(writer, SR1_File.Version.First, SR1_File.Version.Apr14);
 			UnitChangeFlags.Write(writer, SR1_File.Version.Apr14, SR1_File.Version.Next);
 			spad.Write(writer, SR1_File.Version.Apr14, SR1_File.Version.Next);
 			lpad2.Write(writer, SR1_File.Version.Apr14, SR1_File.Version.Next);
-			vplLength.Write(writer, SR1_File.Version.Feb04, SR1_File.Version.Apr14);
-			vpList.Write(writer, SR1_File.Version.Feb04, SR1_File.Version.Apr14);
 			numIntros.Write(writer);
 			introList.Write(writer);
 			numVertices.Write(writer);
@@ -309,16 +311,17 @@ namespace Recombobulator.SR1Structures
 			sbspRoot.Write(writer, SR1_File.Version.First, SR1_File.Version.Jun01);
 			pad.Write(writer, SR1_File.Version.Jun01, SR1_File.Version.Next);
 			StreamUnits.Write(writer);
+			endLeaves.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
 			StartTextureList.Write(writer);
 			EndTextureList.Write(writer);
 			sbspStartLeaves.Write(writer, SR1_File.Version.First, SR1_File.Version.Jun01);
 			sbspEndLeaves.Write(writer, SR1_File.Version.First, SR1_File.Version.Jun01);
 			MorphDiffList.Write(writer);
 			MorphColorList.Write(writer);
-			numBSPTrees.Write(writer);
-			BSPTreeArray.Write(writer);
-			morphNormalIdx.Write(writer);
-			signals.Write(writer);
+			numBSPTrees.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
+			BSPTreeArray.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
+			morphNormalIdx.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
+			signals.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			texAniAssocData.Write(writer, SR1_File.Version.Retail_PC, SR1_File.Version.Next);
 		}
 
