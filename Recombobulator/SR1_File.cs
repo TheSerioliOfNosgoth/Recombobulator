@@ -527,7 +527,7 @@ namespace Recombobulator
 					// then break out and do that first.
 					// Given that some arrays use pointers to the end, it would be dangerous to insert new items
 					// before the next structure.
-					if (extStructure != null && extStructure.Start <= migStructureEnumerator.Current.Key)
+					if (extStructure != null && extStructure.Start < migStructureEnumerator.Current.Key)
 					{
 						break;
 					}
