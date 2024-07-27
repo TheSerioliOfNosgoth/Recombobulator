@@ -125,6 +125,8 @@ namespace Recombobulator.SR1Structures
 
 				End = (uint)reader.BaseStream.Position;
 
+				AddToRead(reader);
+
 				ReadReferences(reader, parent);
 			}
 			catch (Exception ex)
@@ -166,7 +168,9 @@ namespace Recombobulator.SR1Structures
 
 			try
 			{
+				reader.File.IsReadingTempStruct = true;
 				ReadMembers(reader, null);
+				reader.File.IsReadingTempStruct = false;
 				End = (uint)reader.BaseStream.Position;
 			}
 			catch (Exception ex)
@@ -245,7 +249,7 @@ namespace Recombobulator.SR1Structures
 			try
 			{
 				WriteMembers(writer);
-				Register(writer);
+				AddToWritten(writer);
 
 				if (_padding != null)
 				{
@@ -291,7 +295,12 @@ namespace Recombobulator.SR1Structures
 			}
 		}
 
-		protected virtual void Register(SR1_Writer writer)
+		protected virtual void AddToRead(SR1_Reader reader)
+		{
+
+		}
+
+		protected virtual void AddToWritten(SR1_Writer writer)
 		{
 
 		}

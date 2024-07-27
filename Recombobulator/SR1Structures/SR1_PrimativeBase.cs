@@ -10,19 +10,20 @@ namespace Recombobulator.SR1Structures
 
 		public virtual bool IsArray() { return false; }
 
-		protected override void Register(SR1_Writer writer)
+		protected override void AddToRead(SR1_Reader reader)
 		{
-			writer.File._LastPrimative = this;
-
-			// Might be safer to add primatives during import rather than export.
-			if (Start == End ||
-				writer.File.IsWritingMigratedStructure ||
-				writer.File._Primatives.ContainsKey(Start))
+			if (Start != End && !reader.File.IsReadingTempStruct)
 			{
-				return;
+				reader.File._PrimsRead.Add(this);
 			}
+		}
 
-			writer.File._Primatives.Add(Start, this);
+		protected override void AddToWritten(SR1_Writer writer)
+		{
+			if (Start != End && !writer.File.IsWritingMigStruct)
+			{
+				writer.File._PrimsWritten.Add(this);
+			}
 		}
 
 		public bool IsShowAsHex()

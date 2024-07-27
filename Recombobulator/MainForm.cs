@@ -102,8 +102,6 @@ namespace Recombobulator
 		{
 			SaveFileDialog dialog = new SaveFileDialog()
 			{
-				CheckFileExists = true,
-				CheckPathExists = true,
 				Filter = "Soul Reaver Files|*.pcm;*.drm",
 				DefaultExt = "pcm",
 				FilterIndex = 1,
@@ -1842,8 +1840,6 @@ namespace Recombobulator
 		{
 			SaveFileDialog dialog = new SaveFileDialog
 			{
-				CheckFileExists = true,
-				CheckPathExists = true,
 				Filter = "Soul Reaver Files|*.pcm;*.drm",
 				DefaultExt = "pcm",
 				FilterIndex = 1
