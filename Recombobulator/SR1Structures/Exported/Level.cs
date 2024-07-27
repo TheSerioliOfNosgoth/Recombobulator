@@ -175,6 +175,7 @@ namespace Recombobulator.SR1Structures
 			unitFlags.Read(reader, this, "unitFlags");
 			SignalListStart.Read(reader, this, "SignalListStart");
 			SignalListEnd.Read(reader, this, "SignalListEnd");
+			SignalListEnd.PointsToEndOfStruct = true;
 			numBSPLeaves.Read(reader, this, "numBSPLeaves");
 			PuzzleInstances.Read(reader, this, "PuzzleInstances");
 			NumberOfPlanMarkers.Read(reader, this, "NumberOfPlanMarkers");
@@ -513,7 +514,6 @@ namespace Recombobulator.SR1Structures
 					{
 						file._Structures.Remove(events.Start);
 						PuzzleInstances.Offset = 0;
-						SignalListEnd.Offset = events.End;
 					}
 				}
 

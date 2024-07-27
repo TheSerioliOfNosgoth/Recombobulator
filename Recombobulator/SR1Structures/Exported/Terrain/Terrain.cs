@@ -57,7 +57,7 @@ namespace Recombobulator.SR1Structures
 			StreamUnits.Read(reader, this, "StreamUnits");
 			StartTextureList.Read(reader, this, "StartTextureList");
 			EndTextureList.Read(reader, this, "EndTextureList");
-			//EndTextureList.PointsToEndOfStruct = true;
+			EndTextureList.PointsToEndOfStruct = true;
 			sbspStartLeaves.Read(reader, this, "sbspStartLeaves", SR1_File.Version.First, SR1_File.Version.Jun01);
 			sbspEndLeaves.Read(reader, this, "sbspEndLeaves", SR1_File.Version.First, SR1_File.Version.Jun01);
 			MorphDiffList.Read(reader, this, "MorphDiffList");
@@ -371,7 +371,6 @@ namespace Recombobulator.SR1Structures
 					{
 						file._Structures.Remove(aniList.Offset);
 						aniList.Offset = 0;
-						EndTextureList.Offset = MorphDiffList.Offset;
 					}
 
 					SR1_Structure lastStructure = file._Structures.Values[file._Structures.Count - 1];

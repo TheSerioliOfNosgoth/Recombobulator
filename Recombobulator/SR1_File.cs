@@ -622,6 +622,8 @@ namespace Recombobulator
 			{
 				SR1_PrimativeBase primative = exd.readStart[exd.readStartKeys[index]];
 				SR1_Structure structure = primative.Parent;
+
+				// Make sure the primitive was writen otherwise it can't be used.
 				if (structure != null && structure.Start == primative.Start &&
 					structure.MembersWritten.Count > 0)
 				{
@@ -658,7 +660,7 @@ namespace Recombobulator
 				SR1_Structure structure = GetTopStructure(primative);
 
 				// Make sure the primitive was writen otherwise it can't be used.
-				if (structure != null && exd.writtenEndKeys.Contains(structure.End))
+				if (structure != null && structure.MembersWritten.Count > 0)
 				{
 					wtr.BaseStream.Position = ptr.NewStart;
 					wtr.Write(structure.NewEnd);
