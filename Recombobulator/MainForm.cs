@@ -26,6 +26,12 @@ namespace Recombobulator
 
 		private void OpenDataFileToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			VersionSelectForm versionSelectForm = new VersionSelectForm();
+			if (versionSelectForm.ShowDialog() != DialogResult.OK)
+			{
+				return;
+			}
+
 			OpenFileDialog dialog = new OpenFileDialog
 			{
 				CheckFileExists = true,
@@ -45,7 +51,11 @@ namespace Recombobulator
 
 				try
 				{
-					_file.Import(dialog.FileName, SR1_File.ImportFlags.LogErrors | SR1_File.ImportFlags.LogScripts);
+					SR1_File.ImportFlags importFlags = SR1_File.ImportFlags.None;
+					importFlags |= SR1_File.ImportFlags.LogErrors;
+					importFlags |= SR1_File.ImportFlags.LogScripts;
+					SR1_File.Version version = versionSelectForm.Version;
+					_file.Import(dialog.FileName, importFlags, version);
 
 					pcmFileTreeListView.Nodes.AddRange(_file.CreateChunkNodes());
 
@@ -100,6 +110,12 @@ namespace Recombobulator
 
 		private void TestExportToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			VersionSelectForm versionSelectForm = new VersionSelectForm();
+			if (versionSelectForm.ShowDialog() != DialogResult.OK)
+			{
+				return;
+			}
+
 			SaveFileDialog dialog = new SaveFileDialog()
 			{
 				Filter = "Soul Reaver Files|*.pcm;*.drm",
@@ -114,7 +130,9 @@ namespace Recombobulator
 			{
 				try
 				{
-					_file.Export(dialog.FileName);
+					SR1_File.MigrateFlags migrateFlags = SR1_File.MigrateFlags.None;
+					SR1_File.Version version = versionSelectForm.Version;
+					_file.Export(dialog.FileName, version, migrateFlags, new SR1_File.Overrides());
 				}
 				catch (Exception ex)
 				{
