@@ -40,6 +40,10 @@ namespace Recombobulator.SR1Structures
 		public SR1_Pointer<MultiSignal> signals = new SR1_Pointer<MultiSignal>();
 		SR1_Pointer<TexAniAssocData> texAniAssocData = new SR1_Pointer<TexAniAssocData>();
 
+		// Used to remember where to insert the morph normals, on migrating from Proto1
+		// because of weird padding at the end of them.
+		uint NormalListEnd = 0;
+
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
 			bspRoot.Read(reader, this, "bspRoot", SR1_File.Version.First, SR1_File.Version.Jan23);
@@ -79,8 +83,6 @@ namespace Recombobulator.SR1Structures
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
 		{
-			SR1_Structure temp = null;
-
 			if (numVertices.Value > 0)
 			{
 				new SR1_StructureArray<TVertex>(numVertices.Value).ReadFromPointer(reader, vertexList);
@@ -94,12 +96,14 @@ namespace Recombobulator.SR1Structures
 
 			if (numNormals.Value > 0)
 			{
-				temp = new SR1_StructureArray<Normal>(numNormals.Value).SetPadding(4).ReadFromPointer(reader, normalList);
+				SR1_Structure normals = new SR1_StructureArray<Normal>(numNormals.Value);
+				normals.SetPadding(4);
+				normals.ReadFromPointer(reader, normalList);
 
 				// 2 mystery bytes after normalList. Always 0x2A and 0xCD.
-				if (temp.End != 0x00000000 && !reader.File._Structures.ContainsKey(temp.End))
+				if (normals.End != 0x00000000 && !reader.File._Structures.ContainsKey(normals.End))
 				{
-					reader.BaseStream.Position = temp.End;
+					reader.BaseStream.Position = normals.End;
 					new SR1_Primative<ushort>().Read(reader, null, "");
 
 					if (numFaces.Value <= 0)
@@ -107,6 +111,10 @@ namespace Recombobulator.SR1Structures
 						new SR1_Primative<ushort>().Read(reader, null, "");
 					}
 				}
+
+				// Used to remember where to insert the morph normals, on migrating from Proto1
+				// because of weird padding at the end of them.
+				NormalListEnd = (uint)reader.BaseStream.Position;
 			}
 
 			DrMoveAniTex drMoveAniTex = new DrMoveAniTex();
@@ -236,7 +244,10 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
-			new SR1_PrimativeArray<ushort>(numFaces.Value).SetPadding(4).ReadFromPointer(reader, morphNormalIdx);
+			if (reader.File._Version >= SR1_File.Version.Jan23)
+			{
+				new SR1_PrimativeArray<ushort>(numFaces.Value).SetPadding(4).ReadFromPointer(reader, morphNormalIdx);
+			}
 
 			for (int t = 0; t < textures.Count; t++)
 			{
@@ -347,10 +358,11 @@ namespace Recombobulator.SR1Structures
 
 			if (file._Version < SR1_File.Version.Jan23 && targetVersion >= SR1_File.Version.Jan23)
 			{
+				// Create a new array of BSPTres.
 				SR1_StructureArray<BSPTree> newBSPTrees = new SR1_StructureArray<BSPTree>(1);
 				BSPTree newBSPTree = (BSPTree)newBSPTrees[0];
 
-				// Set them to the existing root and leaves.
+				// Set the BSPTree fields to the existing root and leaves.
 				newBSPTree.bspRoot.Offset = bspRoot.Offset;
 				newBSPTree.startLeaves.Offset = startLeaves.Offset;
 				newBSPTree.endLeaves.Offset = endLeaves.Offset;
@@ -361,6 +373,26 @@ namespace Recombobulator.SR1Structures
 				numBSPTrees.Value = 1;
 				BSPTreeArray.Offset = bspRoot.Start;
 				BSPTreeArray.PointsToMigStruct = true;
+
+				// Create a new array of morph normals.
+				SR1_PrimativeArray<ushort> morphNormals = new SR1_PrimativeArray<ushort>(numFaces.Value);
+				morphNormals.SetPadding(4);
+
+				// There were no morph normals originally, but they would be stored in
+				// the same array, so just copy indices of regular ones from the faces.
+				var faces = (SR1_StructureArray<TFace>)file._Structures[faceList.Offset];
+				int n = 0;
+				foreach (TFace face in faces)
+				{
+					morphNormals[n] = face.normal.Value;
+					n++;
+				}
+
+				// Insert the array of morph normals after the regular normals.
+				file._MigrationStructures.Add(NormalListEnd, morphNormals);
+
+				morphNormalIdx.Offset = NormalListEnd;
+				morphNormalIdx.PointsToMigStruct = true;
 			}
 
 			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
