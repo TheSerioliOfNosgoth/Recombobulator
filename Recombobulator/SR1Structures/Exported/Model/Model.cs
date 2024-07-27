@@ -43,6 +43,7 @@ namespace Recombobulator.SR1Structures
 			multiSpline.Read(reader, this, "multiSpline");
 			startTextures.Read(reader, this, "startTextures");
 			endTextures.Read(reader, this, "endTextures");
+			endTextures.PointsToEndOfStruct = true;
 		}
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
