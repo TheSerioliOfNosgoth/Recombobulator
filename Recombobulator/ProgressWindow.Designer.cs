@@ -58,8 +58,11 @@
 			this.ControlBox = false;
 			this.Controls.Add(this.lblText);
 			this.Controls.Add(this.pbProgress);
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.Name = "ProgressWindow";
+			this.ShowIcon = false;
 			this.ShowInTaskbar = false;
+			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "ProgressWindow";
 			this.ResumeLayout(false);
