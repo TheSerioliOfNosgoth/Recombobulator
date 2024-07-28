@@ -65,6 +65,8 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_Primative<int> numHotSpots = new SR1_Primative<int>();
 		public readonly SR1_Pointer<HotSpot> hotSpotList = new SR1_Pointer<HotSpot>();
 		public readonly SR1_Pointer<ObjectNameList> objectNameList = new SR1_Pointer<ObjectNameList>();
+		public readonly SR1_Primative<int> vramBlock = new SR1_Primative<int>();
+		public readonly SR1_Primative<int> vramPad = new SR1_Primative<int>();
 		public readonly SR1_Primative<int> depthQFogStart = new SR1_Primative<int>();
 		public readonly SR1_Primative<int> morphLastStep = new SR1_Primative<int>();
 		public readonly SR1_PrimativePointer<char> worldName = new SR1_PrimativePointer<char>();
@@ -181,8 +183,10 @@ namespace Recombobulator.SR1Structures
 			numHotSpots.Read(reader, this, "numHotSpots");
 			hotSpotList.Read(reader, this, "hotSpotList");
 			objectNameList.Read(reader, this, "objectNameList");
-			depthQFogStart.Read(reader, this, "depthQFogStart");
-			morphLastStep.Read(reader, this, "morphLastStep");
+			vramBlock.Read(reader, this, "vramBlock", SR1_File.Version.First, SR1_File.Version.Jan23);
+			vramPad.Read(reader, this, "vramPad", SR1_File.Version.First, SR1_File.Version.Jan23);
+			depthQFogStart.Read(reader, this, "depthQFogStart", SR1_File.Version.Jan23, SR1_File.Version.Next);
+			morphLastStep.Read(reader, this, "morphLastStep", SR1_File.Version.Jan23, SR1_File.Version.Next);
 			worldName.Read(reader, this, "worldName");
 			vramSize.Read(reader, this, "vramSize", SR1_File.Version.Apr14, SR1_File.Version.Next);
 			numberBrotherUnits.Read(reader, this, "numberBrotherUnits", SR1_File.Version.First, SR1_File.Version.Apr14);
@@ -430,8 +434,10 @@ namespace Recombobulator.SR1Structures
 			numHotSpots.Write(writer);
 			hotSpotList.Write(writer);
 			objectNameList.Write(writer);
-			depthQFogStart.Write(writer);
-			morphLastStep.Write(writer);
+			vramBlock.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
+			vramPad.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
+			depthQFogStart.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
+			morphLastStep.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			worldName.Write(writer);
 			vramSize.Write(writer);
 			numberBrotherUnits.Write(writer);
