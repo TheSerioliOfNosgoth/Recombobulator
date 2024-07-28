@@ -10,11 +10,11 @@ namespace Recombobulator.SR1Structures
 		SR1_Pointer<BSPNode> bspRoot = new SR1_Pointer<BSPNode>();
 		SR1_Pointer<BSPLeaf> startLeaves = new SR1_Pointer<BSPLeaf>();
 		SR1_Primative<int> numNodes = new SR1_Primative<int>();
+		SR1_Primative<int> vplLength = new SR1_Primative<int>();
+		SR1_PrimativePointer<byte> vpList = new SR1_PrimativePointer<byte>();
 		SR1_Primative<short> UnitChangeFlags = new SR1_Primative<short>();
 		SR1_Primative<short> spad = new SR1_Primative<short>();
 		SR1_Primative<int> lpad2 = new SR1_Primative<int>();
-		SR1_Primative<int> vplLength = new SR1_Primative<int>();
-		SR1_PrimativePointer<byte> vpList = new SR1_PrimativePointer<byte>();
 		SR1_Primative<int> numIntros = new SR1_Primative<int>();
 		SR1_Pointer<Intro> introList = new SR1_Pointer<Intro>();
 		SR1_Primative<int> numVertices = new SR1_Primative<int>();
@@ -24,8 +24,8 @@ namespace Recombobulator.SR1Structures
 		SR1_Pointer<TFace> faceList = new SR1_Pointer<TFace>();
 		SR1_Pointer<Normal> normalList = new SR1_Pointer<Normal>();
 		SR1_Pointer<DrMoveAniTex> aniList = new SR1_Pointer<DrMoveAniTex>();
-		SR1_Primative<int> pad = new SR1_Primative<int>();
 		SR1_Pointer<BSPNode> sbspRoot = new SR1_Pointer<BSPNode>();
+		SR1_Primative<int> pad = new SR1_Primative<int>();
 		public SR1_Pointer<StreamUnitPortalList> StreamUnits = new SR1_Pointer<StreamUnitPortalList>(); // void in sym, StreamUnitPortalList created for this tool.
 		SR1_Pointer<BSPLeaf> endLeaves = new SR1_Pointer<BSPLeaf>();
 		SR1_Pointer<TextureFT3> StartTextureList = new SR1_Pointer<TextureFT3>();
