@@ -17,7 +17,7 @@ namespace Recombobulator.SR1Structures
 		{
 			numSignals.Read(reader, this, "numSignals");
 			signalNum.Read(reader, this, "signalNum");
-			flags.Read(reader, this, "flags", SR1_File.Version.Jan23, SR1_File.Version.Next);
+			flags.Read(reader, this, "flags");
 
 			for (int i = 0; i < numSignals.Value; i++)
 			{
@@ -36,7 +36,7 @@ namespace Recombobulator.SR1Structures
 		{
 			numSignals.Write(writer);
 			signalNum.Write(writer);
-			flags.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
+			flags.Write(writer);
 			signalList.Write(writer);
 			pad.Write(writer);
 		}
