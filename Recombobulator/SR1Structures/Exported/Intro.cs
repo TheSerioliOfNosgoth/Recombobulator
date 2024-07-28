@@ -8,6 +8,7 @@ namespace Recombobulator.SR1Structures
 	{
 		public readonly SR1_String name = new SR1_String(16);
 		public readonly SR1_Primative<int> intronum = new SR1_Primative<int>();
+		public readonly SR1_Pointer<Object> sr1object = new SR1_Pointer<Object>();
 		public readonly SR1_Primative<int> UniqueID = new SR1_Primative<int>();
 		public readonly SR1_Pointer<Intro> link = new SR1_Pointer<Intro>();
 		public readonly Rotation rotation = new Rotation();
@@ -29,7 +30,8 @@ namespace Recombobulator.SR1Structures
 		{
 			name.SetReadMax(true).Read(reader, this, "name");
 			intronum.Read(reader, this, "intronum");
-			UniqueID.Read(reader, this, "UniqueID");
+			sr1object.Read(reader, this, "object", SR1_File.Version.First, SR1_File.Version.Jan23);
+			UniqueID.Read(reader, this, "UniqueID", SR1_File.Version.Jan23, SR1_File.Version.Next);
 			link.Read(reader, this, "link", SR1_File.Version.First, SR1_File.Version.Feb16);
 			rotation.Read(reader, this, "rotation");
 			position.Read(reader, this, "position");
@@ -42,8 +44,8 @@ namespace Recombobulator.SR1Structures
 			dsignal.Read(reader, this, "dsignal");
 			specturalLightGroup.Read(reader, this, "specturalLightGroup");
 			meshColor.Read(reader, this, "meshColor");
-			spectralPosition.Read(reader, this, "spectralPosition");
-			spad.Read(reader, this, "spad");
+			spectralPosition.Read(reader, this, "spectralPosition", SR1_File.Version.Jan23, SR1_File.Version.Next);
+			spad.Read(reader, this, "spad", SR1_File.Version.Jan23, SR1_File.Version.Next);
 
 			if (!reader.File._IntroNames.Contains(name.ToString()))
 			{
@@ -91,7 +93,8 @@ namespace Recombobulator.SR1Structures
 		{
 			name.Write(writer);
 			intronum.Write(writer);
-			UniqueID.Write(writer);
+			sr1object.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
+			UniqueID.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			link.Write(writer, SR1_File.Version.First, SR1_File.Version.Feb16);
 			rotation.Write(writer);
 			position.Write(writer);
@@ -104,8 +107,8 @@ namespace Recombobulator.SR1Structures
 			dsignal.Write(writer);
 			specturalLightGroup.Write(writer);
 			meshColor.Write(writer);
-			spectralPosition.Write(writer);
-			spad.Write(writer);
+			spectralPosition.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
+			spad.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 		}
 
 		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
