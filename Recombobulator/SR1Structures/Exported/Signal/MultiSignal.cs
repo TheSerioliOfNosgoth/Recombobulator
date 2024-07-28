@@ -17,7 +17,7 @@ namespace Recombobulator.SR1Structures
 		{
 			numSignals.Read(reader, this, "numSignals");
 			signalNum.Read(reader, this, "signalNum");
-			flags.Read(reader, this, "flags");
+			flags.Read(reader, this, "flags", SR1_File.Version.Jan23, SR1_File.Version.Next);
 
 			for (int i = 0; i < numSignals.Value; i++)
 			{
@@ -36,7 +36,7 @@ namespace Recombobulator.SR1Structures
 		{
 			numSignals.Write(writer);
 			signalNum.Write(writer);
-			flags.Write(writer);
+			flags.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			signalList.Write(writer);
 			pad.Write(writer);
 		}
@@ -62,7 +62,7 @@ namespace Recombobulator.SR1Structures
 
 			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
 			{
-				pad.Value = 15;
+				pad.Value = (int)Signal.SignalTypeJun01.HandleEnd;
 			}
 		}
 

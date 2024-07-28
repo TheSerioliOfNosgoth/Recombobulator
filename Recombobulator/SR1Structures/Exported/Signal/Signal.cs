@@ -182,6 +182,14 @@ namespace Recombobulator.SR1Structures
 			HandleDecoupledTimer2,
 		}
 
+		public enum SignalTypeProto1
+		{
+			HandleCameraAdjust = 13,
+			HandleFarPlane = 24,
+			HandleEnd = 60,
+			HandleStreamLevel = 78,
+		}
+
 		public readonly SR1_Primative<int> id = new SR1_Primative<int>();
 		public SignalData data = new SignalData();
 
@@ -521,6 +529,25 @@ namespace Recombobulator.SR1Structures
 						break;
 				}
 			}
+			else
+			{
+				switch ((SignalTypeProto1)id.Value)
+				{
+					case SignalTypeProto1.HandleCameraAdjust:
+						data = new SignalCameraAdjust();
+						break;
+					case SignalTypeProto1.HandleEnd:
+						data = new SignalEnd();
+						break;
+					case SignalTypeProto1.HandleStreamLevel:
+						data = new SignalStreamLevel();
+						break;
+					default:
+						// The lengths can be different. Check the length field in signalInfoList entries.
+						data = new SignalDepricated(GetSizeOfDepricated(reader, id.Value));
+						break;
+				}
+			}
 
 			data.SetPadding(4).Read(reader, this, "data");
 		}
@@ -651,7 +678,12 @@ namespace Recombobulator.SR1Structures
 						return 1;
 				}
 			}
-			return 1;
+
+			switch (id)
+			{
+				default:
+					return 1;
+			}
 		}
 	}
 }
