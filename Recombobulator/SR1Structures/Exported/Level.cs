@@ -23,7 +23,7 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_Primative<int> numBGObjects = new SR1_Primative<int>();
 		public readonly SR1_Pointer<BGObject> bgObjectList = new SR1_Pointer<BGObject>();
 		public readonly SR1_Primative<int> waterZLevel = new SR1_Primative<int>();
-		public readonly SVectorNoPad gexStartPosition = new SVectorNoPad();
+		public readonly SVector gexStartPosition = new SVector();
 		public readonly SR1_Primative<int> collectableCount0 = new SR1_Primative<int>();
 		public readonly SR1_Primative<int> collectableCount1 = new SR1_Primative<int>();
 		public readonly SR1_Primative<int> collectableCount2 = new SR1_Primative<int>();
