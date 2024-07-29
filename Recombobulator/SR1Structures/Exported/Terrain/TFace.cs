@@ -7,9 +7,12 @@ namespace Recombobulator.SR1Structures
 	class TFace : SR1_Structure
 	{
 		public readonly Face face = new Face();
+		public readonly SR1_Primative<ushort> attr0 = new SR1_Primative<ushort>();
 		public readonly SR1_Primative<byte> attr = new SR1_Primative<byte>();
 		public readonly SR1_Primative<sbyte> sortPush = new SR1_Primative<sbyte>();
 		public readonly SR1_Primative<ushort> normal = new SR1_Primative<ushort>();
+		public readonly SR1_Primative<ushort> morph = new SR1_Primative<ushort>();
+		public readonly SR1_Pointer<TextureFT3> texture = new SR1_Pointer<TextureFT3>();
 		public readonly SR1_Primative<ushort> textoff = new SR1_Primative<ushort>();
 
 		public bool IsInSignalGroup = false;
@@ -21,10 +24,13 @@ namespace Recombobulator.SR1Structures
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
 			face.Read(reader, this, "face");
-			attr.Read(reader, this, "attr");
-			sortPush.Read(reader, this, "sortPush");
+			attr0.Read(reader, this, "attr", SR1_File.Version.First, SR1_File.Version.Jan23);
+			attr.Read(reader, this, "attr", SR1_File.Version.Jan23, SR1_File.Version.Next);
+			sortPush.Read(reader, this, "sortPush", SR1_File.Version.Jan23, SR1_File.Version.Next);
 			normal.Read(reader, this, "normal");
-			textoff.Read(reader, this, "textoff");
+			morph.Read(reader, this, "morph", SR1_File.Version.First, SR1_File.Version.Jan23);
+			texture.Read(reader, this, "texture", SR1_File.Version.First, SR1_File.Version.Jan23);
+			textoff.Read(reader, this, "textoff", SR1_File.Version.Jan23, SR1_File.Version.Next);
 		}
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
@@ -34,9 +40,12 @@ namespace Recombobulator.SR1Structures
 		public override void WriteMembers(SR1_Writer writer)
 		{
 			face.Write(writer);
-			attr.Write(writer);
-			sortPush.Write(writer);
+			attr0.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
+			attr.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
+			sortPush.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			normal.Write(writer);
+			morph.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
+			texture.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
 
 			if (IsInSignalGroup && attr.Value != 0)
 			{
@@ -61,7 +70,7 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
-			textoff.Write(writer);
+			textoff.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 		}
 
 		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)

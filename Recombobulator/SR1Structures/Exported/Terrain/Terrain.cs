@@ -230,11 +230,29 @@ namespace Recombobulator.SR1Structures
 			{
 				if (!face.IsInSignalGroup)
 				{
-					int textureSize = (reader.File._Version >= SR1_File.Version.Apr14) ? 12 : 16;
-					int textureIndex = face.textoff.Value / textureSize;
-					if (textureIndex < textures.Count)
+					if (reader.File._Version < SR1_File.Version.Jan23)
 					{
-						face.Texture = (TextureFT3)textures[textureIndex];
+						foreach (TextureFT3 texture in textures)
+						{
+							if (texture.Start == face.texture.Offset)
+							{
+								face.Texture = texture;
+								break;
+							}
+						}
+					}
+					else
+					{
+						int textureSize = (reader.File._Version >= SR1_File.Version.Apr14) ? 12 : 16;
+						int textureIndex = face.textoff.Value / textureSize;
+						if (textureIndex < textures.Count)
+						{
+							face.Texture = (TextureFT3)textures[textureIndex];
+						}
+					}
+
+					if (face.Texture != null)
+					{
 						face.Texture.NumReferences++;
 						if ((face.attr.Value & 0x08) != 0)
 						{
