@@ -436,7 +436,7 @@ namespace Recombobulator
 			Directory.CreateDirectory(Path.GetDirectoryName(fileName));
 			FileStream file = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite);
 			Export(file, targetVersion, migrateFlags, overrides);
-			Import(file);
+			Import(file, targetVersion);
 			file.Close();
 		}
 
