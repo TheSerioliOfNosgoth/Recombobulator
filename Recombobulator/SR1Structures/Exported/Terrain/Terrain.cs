@@ -104,12 +104,15 @@ namespace Recombobulator.SR1Structures
 				if (normals.End != 0x00000000 && !reader.File._Structures.ContainsKey(normals.End))
 				{
 					reader.BaseStream.Position = normals.End;
-					new SR1_Primative<ushort>().Read(reader, null, "");
 
-					if (numFaces.Value <= 0)
-					{
-						new SR1_Primative<ushort>().Read(reader, null, "");
-					}
+					//new SR1_Primative<ushort>().Read(reader, null, "");
+					//if (numFaces.Value <= 0)
+					//{
+					//	new SR1_Primative<ushort>().Read(reader, null, "");
+					//}
+
+					// Untested on later builds, but seems to work for Proto1.
+					new SR1_Primative<byte>().ShowAsHex(true).SetPadding(4).Read(reader, null, "");
 				}
 
 				// Used to remember where to insert the morph normals, on migrating from Proto1
@@ -153,8 +156,30 @@ namespace Recombobulator.SR1Structures
 
 			new SR1_StructureSeries<MorphVertex>((int)(MorphColorList.Offset - MorphDiffList.Offset)).ReadFromPointer(reader, MorphDiffList);
 
-			int morphColorPadding = (reader.File._Version >= SR1_File.Version.Apr14) ? 4 : 2;
-			new SR1_StructureArray<MorphColor>(numVertices.Value).SetPadding(morphColorPadding).ReadFromPointer(reader, MorphColorList);
+			if (reader.File._Version >= SR1_File.Version.Jan23)
+			{
+				int morphColorPadding = (reader.File._Version >= SR1_File.Version.Apr14) ? 4 : 2;
+				new SR1_StructureArray<MorphColor>(numVertices.Value).SetPadding(morphColorPadding).ReadFromPointer(reader, MorphColorList);
+			}
+			else if (MorphColorList.Offset != 0)
+			{
+				int numMorphColors = 0;
+				MorphColor morphColor = new MorphColor();
+
+				reader.BaseStream.Position = MorphColorList.Offset;
+
+				do
+				{
+					morphColor.ReadTemp(reader);
+					numMorphColors++;
+				}
+				while (morphColor.vindex.Value != -1);
+
+				if (numMorphColors > 0)
+				{
+					new SR1_StructureArray<MorphColor>(numMorphColors).ReadFromPointer(reader, MorphColorList);
+				}
+			}
 
 			if (reader.File._Version < SR1_File.Version.Jan23)
 			{
