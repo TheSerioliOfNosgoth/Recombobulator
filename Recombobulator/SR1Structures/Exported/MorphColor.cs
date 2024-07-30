@@ -5,14 +5,14 @@ namespace Recombobulator.SR1Structures
 {
 	class MorphColor : SR1_Structure
 	{
-		SR1_Primative<byte> r0 = new SR1_Primative<byte>();
-		SR1_Primative<byte> g0 = new SR1_Primative<byte>();
-		SR1_Primative<byte> b0 = new SR1_Primative<byte>();
-		SR1_Primative<byte> r1 = new SR1_Primative<byte>();
-		SR1_Primative<byte> g1 = new SR1_Primative<byte>();
-		SR1_Primative<byte> b1 = new SR1_Primative<byte>();
-		SR1_Primative<short> vindex = new SR1_Primative<short>();
-		SR1_Primative<short> morphColor15 = new SR1_Primative<short>();
+		public readonly SR1_Primative<byte> r0 = new SR1_Primative<byte>();
+		public readonly SR1_Primative<byte> g0 = new SR1_Primative<byte>();
+		public readonly SR1_Primative<byte> b0 = new SR1_Primative<byte>();
+		public readonly SR1_Primative<byte> r1 = new SR1_Primative<byte>();
+		public readonly SR1_Primative<byte> g1 = new SR1_Primative<byte>();
+		public readonly SR1_Primative<byte> b1 = new SR1_Primative<byte>();
+		public readonly SR1_Primative<short> vindex = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> morphColor15 = new SR1_Primative<short>();
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
