@@ -196,24 +196,42 @@ namespace Recombobulator
 				{
 					bool validVersion = false;
 
-					if (!validVersion && forcedVersion == Version.Detect_Retail_PC)
-					{
-						dataReader.BaseStream.Position = 0x9C;
-						if (dataReader.ReadUInt64() == 0xFFFFFFFFFFFFFFFF)
-						{
-							_Version = Version.Retail_PC;
-							validVersion = true;
-						}
-					}
-
 					if (!validVersion)
 					{
 						dataReader.BaseStream.Position = 0xF0;
 						UInt32 version = dataReader.ReadUInt32();
 						if (!validVersion && version == RETAIL_VERSION)
 						{
-							_Version = Version.Jun01;
-							validVersion = true;
+							if (forcedVersion == Version.Detect_Retail_PC)
+							{
+								dataReader.BaseStream.Position = 0x9C;
+								if (dataReader.ReadUInt64() == 0xFFFFFFFFFFFFFFFF)
+								{
+									dataReader.BaseStream.Position = 0x01CC;
+									char[] levelName = dataReader.ReadChars(9);
+									string levelNameStr = new string(levelName);
+									if (levelNameStr == "pillars10")
+									{
+										dataReader.BaseStream.Position = 0x04C8;
+										if (dataReader.ReadUInt32() == 0x0000060C)
+										{
+											_Version = Version.Retail_PC;
+											validVersion = true;
+										}
+									}
+									else
+									{
+										_Version = Version.Retail_PC;
+										validVersion = true;
+									}
+								}
+							}
+
+							if (!validVersion)
+							{
+								_Version = Version.Jun01;
+								validVersion = true;
+							}
 						}
 
 						if (!validVersion && version == BETA_19990512_VERSION)
@@ -433,6 +451,11 @@ namespace Recombobulator
 
 		public void Export(string fileName, Version targetVersion, MigrateFlags migrateFlags, Overrides overrides)
 		{
+			if (targetVersion == Version.Detect || targetVersion == Version.Detect_Retail_PC)
+			{
+				targetVersion = _Version;
+			}
+
 			Directory.CreateDirectory(Path.GetDirectoryName(fileName));
 			FileStream file = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite);
 			Export(file, targetVersion, migrateFlags, overrides);
@@ -775,11 +798,12 @@ namespace Recombobulator
 			return _ImportErrors.ToString();
 		}
 
-		public static string[] TestFolder(string folderName, TestFlags flags, ref int filesRead, ref int filesToRead, ref string recentMessage)
+		public static string[] TestFolder(string folderName, SR1_File.Version testVersion, TestFlags flags, ref int filesRead, ref int filesToRead, ref string recentMessage)
 		{
 			DirectoryInfo directoryInfo = new DirectoryInfo(folderName);
 			FileInfo[] fileInfos = directoryInfo.GetFiles("*.*", SearchOption.AllDirectories);
-			fileInfos = Array.FindAll(fileInfos, info => (info.Extension == ".pcm" || info.Extension == ".drm"));
+			fileInfos = Array.FindAll(fileInfos, info =>
+				(info.Extension.ToLower() == ".pcm" || info.Extension.ToLower() == ".drm"));
 
 			List<string> physObs = new List<string>();
 			List<string> genericTunes = new List<string>();
@@ -810,7 +834,7 @@ namespace Recombobulator
 				try
 				{
 					SR1_File file = new SR1_File();
-					file.Import(fileInfo.FullName, ImportFlags.LogErrors);
+					file.Import(fileInfo.FullName, ImportFlags.LogErrors, testVersion);
 					fileDesc = fileInfo.Name.PadRight(20) + "(Size = 0x" + file._FileLength.ToString("X8") + " bytes)";
 
 					if (file.TestExport())
