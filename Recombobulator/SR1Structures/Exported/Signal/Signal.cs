@@ -186,7 +186,12 @@ namespace Recombobulator.SR1Structures
 		{
 			HandleCameraAdjust = 13,
 			HandleCameraMode = 14,
+			HandleCameraKey = 15,
+			HandleCameraSmooth = 17,
+			HandleCameraLock = 19,
+			HandleCameraUnlock = 20,
 			HandleFarPlane = 24,
+			HandleSoundStartSequence = 25,
 			HandleEnd = 60,
 			HandleStreamLevel = 78,
 		}
@@ -539,6 +544,24 @@ namespace Recombobulator.SR1Structures
 						break;
 					case SignalTypeProto1.HandleCameraMode:
 						data = new SignalCameraMode();
+						break;
+					case SignalTypeProto1.HandleCameraKey:
+						data = new SignalCameraKey();
+						break;
+					case SignalTypeProto1.HandleCameraSmooth:
+						data = new SignalCameraSmooth();
+						break;
+					case SignalTypeProto1.HandleCameraLock:
+						data = new SignalCameraLock();
+						break;
+					case SignalTypeProto1.HandleCameraUnlock:
+						data = new SignalCameraUnlock();
+						break;
+					case SignalTypeProto1.HandleFarPlane:
+						data = new SignalDepricated(1);
+						break;
+					case SignalTypeProto1.HandleSoundStartSequence:
+						data = new SignalDepricated(2);
 						break;
 					case SignalTypeProto1.HandleEnd:
 						data = new SignalEnd();
