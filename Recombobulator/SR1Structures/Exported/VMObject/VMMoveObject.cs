@@ -57,14 +57,28 @@ namespace Recombobulator.SR1Structures
 		{
 			if (reader.File._Version < SR1_File.Version.Jan23)
 			{
-				var offsets = new SR1_StructureArray<VMMoveOffset>(numVMOffsets.Value).ReadFromPointer(reader, vmoffsetList);
-				var vertices = new SR1_StructureArray<VMMoveVertex>(numVMVertices.Value).ReadFromPointer(reader, vmvertexList);
-				var interps = new SR1_StructureArray<VMInterpolated>(numVMInterpolated.Value).ReadFromPointer(reader, vminterpolatedList);
-
 				uint end = 0;
-				end = Math.Max(end, offsets.End);
-				end = Math.Max(end, vertices.End);
-				end = Math.Max(end, interps.End);
+
+				if (numVMOffsets.Value > 0)
+				{
+					var offsets = new SR1_StructureArray<VMMoveOffset>(numVMOffsets.Value);
+					offsets.ReadFromPointer(reader, vmoffsetList);
+					end = Math.Max(end, offsets.End);
+				}
+
+				if (numVMVertices.Value > 0)
+				{
+					var vertices = new SR1_StructureArray<VMMoveVertex>(numVMVertices.Value);
+					vertices.ReadFromPointer(reader, vmvertexList);
+					end = Math.Max(end, vertices.End);
+				}
+
+				if (numVMInterpolated.Value > 0)
+				{
+					var interps = new SR1_StructureArray<VMInterpolated>(numVMInterpolated.Value);
+					interps.ReadFromPointer(reader, vminterpolatedList);
+					end = Math.Max(end, interps.End);
+				}
 
 				if ((end % 4) != 0)
 				{
