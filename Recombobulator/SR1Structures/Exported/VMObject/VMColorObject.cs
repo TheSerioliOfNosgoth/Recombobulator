@@ -5,6 +5,7 @@ namespace Recombobulator.SR1Structures
 {
 	class VMColorObject : VMObject
 	{
+		SR1_Primative<int> flags0 = new SR1_Primative<int>();
 		SR1_Primative<ushort> flags = new SR1_Primative<ushort>();
 		SR1_Primative<short> bspIdx = new SR1_Primative<short>();
 		SR1_Primative<short> materialIdx = new SR1_Primative<short>();
@@ -15,6 +16,8 @@ namespace Recombobulator.SR1Structures
 		Position position = new Position();
 		SR1_Primative<short> radius = new SR1_Primative<short>();
 		SR1_Primative<int> radiusSquared = new SR1_Primative<int>();
+		SR1_Primative<int> numVMOffsets = new SR1_Primative<int>();
+		SR1_Pointer<VMMoveOffset> vmoffsetList = new SR1_Pointer<VMMoveOffset>();
 		SR1_Primative<int> numVMOffsetTables = new SR1_Primative<int>();
 		SR1_PointerArrayPointer<VMColorOffsetTable> vmoffsetTableList = new SR1_PointerArrayPointer<VMColorOffsetTable>();
 		SR1_Pointer<VMColorOffsetTable> curVMOffsetTable = new SR1_Pointer<VMColorOffsetTable>();
@@ -26,55 +29,70 @@ namespace Recombobulator.SR1Structures
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
-			flags.Read(reader, this, "flags");
-			bspIdx.Read(reader, this, "bspIdx");
-			materialIdx.Read(reader, this, "materialIdx");
-			spectralIdx.Read(reader, this, "spectralIdx");
-			currentIdx.Read(reader, this, "currentIdx");
-			timeScale.Read(reader, this, "timeScale");
+			flags0.Read(reader, this, "flags", SR1_File.Version.First, SR1_File.Version.Jan23);
+			flags.Read(reader, this, "flags", SR1_File.Version.Jan23, SR1_File.Version.Next);
+			bspIdx.Read(reader, this, "bspIdx", SR1_File.Version.Jan23, SR1_File.Version.Next);
+			materialIdx.Read(reader, this, "materialIdx", SR1_File.Version.Jan23, SR1_File.Version.Next);
+			spectralIdx.Read(reader, this, "spectralIdx", SR1_File.Version.Jan23, SR1_File.Version.Next);
+			currentIdx.Read(reader, this, "currentIdx", SR1_File.Version.Jan23, SR1_File.Version.Next);
+			timeScale.Read(reader, this, "timeScale", SR1_File.Version.Jan23, SR1_File.Version.Next);
 			timer.Read(reader, this, "timer");
 			position.Read(reader, this, "position");
 			radius.Read(reader, this, "radius");
 			radiusSquared.Read(reader, this, "radiusSquared");
-			numVMOffsetTables.Read(reader, this, "numVMOffsetTables");
-			vmoffsetTableList.Read(reader, this, "vmoffsetTableList");
-			curVMOffsetTable.Read(reader, this, "curVMOffsetTable");
+			numVMOffsets.Read(reader, this, "numVMOffsets", SR1_File.Version.First, SR1_File.Version.Jan23);
+			vmoffsetList.Read(reader, this, "vmoffsetlist", SR1_File.Version.First, SR1_File.Version.Jan23);
+			numVMOffsetTables.Read(reader, this, "numVMOffsetTables", SR1_File.Version.Jan23, SR1_File.Version.Next);
+			vmoffsetTableList.Read(reader, this, "vmoffsetTableList", SR1_File.Version.Jan23, SR1_File.Version.Next);
+			curVMOffsetTable.Read(reader, this, "curVMOffsetTable", SR1_File.Version.Jan23, SR1_File.Version.Next);
 			numVMVertices.Read(reader, this, "numVMVertices");
 			vmvertexList.Read(reader, this, "vmvertexList");
 			numVMInterpolated.Read(reader, this, "numVMInterpolated");
 			vminterpolatedList.Read(reader, this, "vminterpolatedList");
-			name.Read(reader, this, "name");
+			name.Read(reader, this, "name", SR1_File.Version.Jan23, SR1_File.Version.Next);
 		}
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
 		{
-			VMObjectList vmObjectData = (VMObjectList)parent.Parent;
-			if (numVMOffsetTables.Value > 0) vmObjectData.VMOffsetTableLists.Add(new SR1_PointerArray<VMColorOffsetTable>(numVMOffsetTables.Value, false));
-			if (numVMVertices.Value > 0) vmObjectData.VMVertexLists.Add(new SR1_StructureArray<VMColorVertex>(numVMVertices.Value));
-			if (numVMInterpolated.Value > 0) vmObjectData.VMInterpolatedLists.Add(new SR1_StructureArray<VMInterpolated>(numVMInterpolated.Value));
-			vmObjectData.VMObjectNames.Add(new SR1_String(12));
+			if (reader.File._Version < SR1_File.Version.Jan23)
+			{
+				new SR1_StructureArray<VMColorOffset>(numVMOffsets.Value).ReadFromPointer(reader, vmoffsetList);
+				new SR1_StructureArray<VMColorVertex>(numVMVertices.Value).ReadFromPointer(reader, vmvertexList);
+				new SR1_StructureArray<VMInterpolated>(numVMInterpolated.Value).ReadFromPointer(reader, vminterpolatedList);
+			}
+			else
+			{
+				VMObjectList vmObjectData = (VMObjectList)parent.Parent;
+				if (numVMOffsetTables.Value > 0) vmObjectData.VMOffsetTableLists.Add(new SR1_PointerArray<VMColorOffsetTable>(numVMOffsetTables.Value, false));
+				if (numVMVertices.Value > 0) vmObjectData.VMVertexLists.Add(new SR1_StructureArray<VMColorVertex>(numVMVertices.Value));
+				if (numVMInterpolated.Value > 0) vmObjectData.VMInterpolatedLists.Add(new SR1_StructureArray<VMInterpolated>(numVMInterpolated.Value));
+				vmObjectData.VMObjectNames.Add(new SR1_String(12));
+			}
 		}
 
 		public override void WriteMembers(SR1_Writer writer)
 		{
-			flags.Write(writer);
-			bspIdx.Write(writer);
-			materialIdx.Write(writer);
-			spectralIdx.Write(writer);
-			currentIdx.Write(writer);
-			timeScale.Write(writer);
+			flags0.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
+			flags.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
+			bspIdx.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
+			materialIdx.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
+			spectralIdx.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
+			currentIdx.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
+			timeScale.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			timer.Write(writer);
 			position.Write(writer);
 			radius.Write(writer);
 			radiusSquared.Write(writer);
-			numVMOffsetTables.Write(writer);
-			vmoffsetTableList.Write(writer);
-			curVMOffsetTable.Write(writer);
+			numVMOffsets.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
+			vmoffsetList.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
+			numVMOffsetTables.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
+			vmoffsetTableList.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
+			curVMOffsetTable.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			numVMVertices.Write(writer);
 			vmvertexList.Write(writer);
 			numVMInterpolated.Write(writer);
 			vminterpolatedList.Write(writer);
-			name.Write(writer);
+			name.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 		}
 	}
 }

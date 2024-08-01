@@ -185,6 +185,7 @@ namespace Recombobulator.SR1Structures
 		public enum SignalTypeProto1
 		{
 			HandleCameraAdjust = 13,
+			HandleCameraMode = 14,
 			HandleFarPlane = 24,
 			HandleEnd = 60,
 			HandleStreamLevel = 78,
@@ -535,6 +536,9 @@ namespace Recombobulator.SR1Structures
 				{
 					case SignalTypeProto1.HandleCameraAdjust:
 						data = new SignalCameraAdjust();
+						break;
+					case SignalTypeProto1.HandleCameraMode:
+						data = new SignalCameraMode();
 						break;
 					case SignalTypeProto1.HandleEnd:
 						data = new SignalEnd();

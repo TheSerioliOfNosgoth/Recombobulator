@@ -262,7 +262,15 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
-			new VMObjectList(numVMObjects.Value).ReadFromPointer(reader, vmobjectList);
+			if (reader.File._Version < SR1_File.Version.Jan23)
+			{
+				new SR1_StructureArray<VMObject>(numVMObjects.Value).ReadFromPointer(reader, vmobjectList);
+			}
+			else
+			{
+				new VMObjectList(numVMObjects.Value).ReadFromPointer(reader, vmobjectList);
+			}
+
 			if (reader.File._Version <= SR1_File.Version.May12)
 			{
 				new SR1_StructureArray<SpotLight>(numSpotLights.Value).ReadFromPointer(reader, spotLightList);

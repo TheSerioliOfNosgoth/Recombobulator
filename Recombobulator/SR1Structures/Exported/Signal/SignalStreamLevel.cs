@@ -9,7 +9,7 @@
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
 			currentnum.Read(reader, this, "currentnum");
-			streamID.Read(reader, this, "streamID");
+			streamID.Read(reader, this, "streamID", SR1_File.Version.Jan23, SR1_File.Version.Next);
 			toname.SetReadMax(true).Read(reader, this, "toname");
 		}
 
@@ -20,7 +20,7 @@
 		public override void WriteMembers(SR1_Writer writer)
 		{
 			currentnum.Write(writer);
-			streamID.Write(writer);
+			streamID.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			toname.Write(writer);
 		}
 
