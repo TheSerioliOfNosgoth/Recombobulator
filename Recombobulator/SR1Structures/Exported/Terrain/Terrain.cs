@@ -105,14 +105,19 @@ namespace Recombobulator.SR1Structures
 				{
 					reader.BaseStream.Position = normals.End;
 
-					//new SR1_Primative<ushort>().Read(reader, null, "");
-					//if (numFaces.Value <= 0)
-					//{
-					//	new SR1_Primative<ushort>().Read(reader, null, "");
-					//}
-
-					// Untested on later builds, but seems to work for Proto1.
-					new SR1_Primative<byte>().ShowAsHex(true).SetPadding(4).Read(reader, null, "");
+					if (reader.File._Version >= SR1_File.Version.Jan23)
+					{
+						new SR1_Primative<ushort>().Read(reader, null, "");
+						if (numFaces.Value <= 0)
+						{
+							new SR1_Primative<ushort>().Read(reader, null, "");
+						}
+					}
+					else
+					{
+						// Untested on later builds, but seems to work for Proto1.
+						new SR1_Primative<byte>().ShowAsHex(true).SetPadding(4).Read(reader, null, "");
+					}
 				}
 
 				// Used to remember where to insert the morph normals, on migrating from Proto1
