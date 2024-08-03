@@ -100,24 +100,12 @@ namespace Recombobulator.SR1Structures
 				normals.SetPadding(4);
 				normals.ReadFromPointer(reader, normalList);
 
-				// 2 mystery bytes after normalList. Always 0x2A and 0xCD.
-				if (normals.End != 0x00000000 && !reader.File._Structures.ContainsKey(normals.End))
+				// Mystery byte after normalList. Always 0x2A.
+				// This is *not* alignment.
+				if (normals.End != 0 && !reader.File._Structures.ContainsKey(normals.End))
 				{
 					reader.BaseStream.Position = normals.End;
-
-					if (reader.File._Version >= SR1_File.Version.Jan23)
-					{
-						new SR1_Primative<ushort>().Read(reader, null, "");
-						if (numFaces.Value <= 0)
-						{
-							new SR1_Primative<ushort>().Read(reader, null, "");
-						}
-					}
-					else
-					{
-						// Untested on later builds, but seems to work for Proto1.
-						new SR1_Primative<byte>().ShowAsHex(true).SetPadding(4).Read(reader, null, "");
-					}
+					new SR1_Primative<byte>().ShowAsHex(true).Read(reader, null, "");
 				}
 
 				// Used to remember where to insert the morph normals, on migrating from Proto1
@@ -190,7 +178,9 @@ namespace Recombobulator.SR1Structures
 			{
 				if ((int)(startLeaves.Offset - bspRoot.Offset) > 0)
 				{
-					new SR1_StructureSeries<BSPNode>((int)(startLeaves.Offset - bspRoot.Offset)).ReadFromPointer(reader, bspRoot);
+					var bspNodes = new SR1_StructureSeries<BSPNode>((int)(startLeaves.Offset - bspRoot.Offset));
+					bspNodes.ReadFromPointer(reader, bspRoot);
+					bspNodes.Align = 4;
 				}
 
 				if ((int)(endLeaves.Offset - startLeaves.Offset) > 0)
@@ -294,7 +284,9 @@ namespace Recombobulator.SR1Structures
 
 			if (reader.File._Version >= SR1_File.Version.Jan23)
 			{
-				new SR1_PrimativeArray<ushort>(numFaces.Value).SetPadding(4).ReadFromPointer(reader, morphNormalIdx);
+				var morphNormals = new SR1_PrimativeArray<ushort>(numFaces.Value).SetPadding(4);
+				morphNormals.Align = 2;
+				morphNormals.ReadFromPointer(reader, morphNormalIdx);
 			}
 
 			for (int t = 0; t < textures.Count; t++)

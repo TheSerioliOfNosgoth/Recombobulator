@@ -23,6 +23,10 @@ namespace Recombobulator.SR1Structures
 
 		private byte[] _padding = null;
 
+		public int Align = 0;
+
+		public bool Unparsed = false;
+
 		public virtual TreeList.Node CreateNode()
 		{
 			string offsetString = " (0x" + Start.ToString("X8") + "-" + "0x" + End.ToString("X8") + ")";

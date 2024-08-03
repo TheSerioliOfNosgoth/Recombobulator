@@ -434,6 +434,26 @@ namespace Recombobulator
 
 			root.Read(dataReader, null, "");
 
+			SR1_Structure[] structures = new SR1_Structure[_Structures.Values.Count];
+			_Structures.Values.CopyTo(structures, 0);
+			SR1_Structure structure0;
+			SR1_Structure structure1;
+			for (int s = 1; s < structures.Length; s++)
+			{
+				structure0 = structures[s - 1];
+				structure1 = structures[s];
+
+				int difference = (int)(structure1.Start - structure0.End);
+				if (difference > 0)
+				{
+					dataReader.BaseStream.Position = structure0.End;
+
+					SR1_PrimativeArray<byte> unparsedData = new SR1_PrimativeArray<byte>(difference);
+					unparsedData.Read(dataReader, null, "(Unparsed)");
+					unparsedData.Unparsed = true;
+				}
+			}
+
 			if (_IsLevel && (_ImportFlags & ImportFlags.LogScripts) != 0)
 			{
 				dataReader.ScriptParser.ParseAll(dataReader);
@@ -542,6 +562,7 @@ namespace Recombobulator
 			var migStructureEnumerator = _MigrationStructures.GetEnumerator();
 			SR1_Structure migStructure = migStructureEnumerator.MoveNext() ? migStructureEnumerator.Current.Value : null;
 			SR1_Structure extStructure = structureEnumerator.MoveNext() ? structureEnumerator.Current.Value : null;
+			SR1_PrimativeArray<byte> unparsedData = null;
 			while (migStructure != null || extStructure != null)
 			{
 				while (migStructure != null)
@@ -556,7 +577,7 @@ namespace Recombobulator
 					}
 
 					IsWritingMigStruct = true;
-					migStructure.Write(wtr);
+					WriteAlignedStructure(wtr, migStructure, null);
 					IsWritingMigStruct = false;
 					//extStructure.WriteToConsole("Migration Structure ", 0, false);
 					migStructure = migStructureEnumerator.MoveNext() ? migStructureEnumerator.Current.Value : null;
@@ -564,11 +585,55 @@ namespace Recombobulator
 
 				if (extStructure != null)
 				{
-					extStructure.Write(wtr);
-					//extStructure.WriteToConsole("Existing Structure ", 0, false);
+					if (extStructure.Unparsed)
+					{
+						unparsedData = extStructure as SR1_PrimativeArray<byte>;
+					}
+					else
+					{
+						WriteAlignedStructure(wtr, extStructure, unparsedData);
+						//extStructure.WriteToConsole("Existing Structure ", 0, false);
+
+						unparsedData = null;
+					}
+
 					extStructure = structureEnumerator.MoveNext() ? structureEnumerator.Current.Value : null;
 				}
 			}
+		}
+
+		private void WriteAlignedStructure(SR1_Writer wtr, SR1_Structure structure, SR1_PrimativeArray<byte> unparsedData)
+		{
+			uint align = (uint)structure.Align;
+			if (align > 0)
+			{
+				int length = 0;
+				uint mod = (uint)wtr.BaseStream.Position % align;
+				if (mod > 0)
+				{
+					length = (int)(align - mod);
+				}
+
+				if (length > 0)
+				{
+					int index = length - 1;
+					byte[] data = new byte[length];
+
+					// Try to use previous data for alignment to help with matching.
+					if (unparsedData != null)
+					{
+						int unparsedIndex = unparsedData.Count - 1;
+						while (index >= 0 && unparsedIndex >= 0)
+						{
+							data[index--] = unparsedData[unparsedIndex--];
+						}
+					}
+
+					wtr.Write(data);
+				}
+			}
+
+			structure.Write(wtr);
 		}
 
 		private List<SR1_PointerBase> ResolvePointers(SR1_Writer wtr)

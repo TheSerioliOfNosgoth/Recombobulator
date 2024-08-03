@@ -28,6 +28,14 @@ namespace Recombobulator.SR1Structures
 			{
 				sounds = new SR1_StructureArray<ObjectSound>(2);
 			}
+			// A sound was ommitted from cathy3 in one version of the game, but the array length is still 4.
+			// Hack to make it export correctly.
+			else if (reader.Level != null &&
+				reader.Level.Name == "cathy3" &&
+				reader.Level.terrain.Offset == Start + 0x34)
+			{
+				sounds = new SR1_StructureArray<ObjectSound>(3);
+			}
 			else
 			{
 				sounds = new SR1_StructureArray<ObjectSound>(numSounds.Value);
