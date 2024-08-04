@@ -20,6 +20,7 @@ namespace Recombobulator.SR1Structures
 		public Signal Signal = null;
 		public StreamUnitPortal Portal = null;
 		public TextureFT3 Texture = null;
+		public int TextureIndex = -1;
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
@@ -77,17 +78,17 @@ namespace Recombobulator.SR1Structures
 		{
 			base.MigrateVersion(file, targetVersion, migrateFlags);
 
-			bool removeSignal = false;
-
-			if (file._Version < SR1_File.Version.May12 && targetVersion >= SR1_File.Version.May12)
+			if (IsInSignalGroup)
 			{
-				if (IsInSignalGroup)
+				bool removeSignal = false;
+
+				if (file._Version < SR1_File.Version.May12 && targetVersion >= SR1_File.Version.May12)
 				{
 					// Looks like there are other things triggered besides portals/signals.
 					removeSignal |= (attr.Value != 0x44);
 
 					if (file._Version < SR1_File.Version.Apr14 &&
-                        file._Structures[0].Name == "adda1" && MultiSignal != null && MultiSignal.signalNum.Value == 51)
+						file._Structures[0].Name == "adda1" && MultiSignal != null && MultiSignal.signalNum.Value == 51)
 					{
 						// On PC, nop 004ABBBA to make it draw the adjacent area without the camera being inside it.
 						// This makes it behave as if STREAM_GetClipRect returned true.
@@ -101,22 +102,7 @@ namespace Recombobulator.SR1Structures
 						normal.Value = unchecked((ushort)(-(short)normal.Value));
 					}
 				}
-				else
-				{
-					// 0x02 lets forge 6 work and prevents crashing in retreat when using portals.
-					// 0x08 is water?
-					// 0x46 lets portals work but not fully, however crashes forge 5.
-					// attr.Value = (byte)(attr.Value & 0x46);
-					if (file._Version < SR1_File.Version.Apr14 && targetVersion >= SR1_File.Version.Apr14)
-					{
-						textoff.Value = (ushort)((textoff.Value * 12) / 16);
-					}
-					//attr.Value = (byte)(attr.Value & 0x02); // 0x44 is used for signals. Renderable stuff too?
-				}
-			}
 
-			if (IsInSignalGroup)
-			{
 				removeSignal |= Portal != null && Portal.OmitFromMigration;
 				removeSignal |= MultiSignal != null && MultiSignal.OmitFromMigration;
 				removeSignal |= Signal != null && Signal.OmitFromMigration;
@@ -129,6 +115,27 @@ namespace Recombobulator.SR1Structures
 					attr.Value = 0;
 					textoff.Value = 0;
 				}
+			}
+			else
+			{
+				// May need to evaluate texture offset in Terrain.MigrateVersion
+				// instead of here if new ones are added or removed because the
+				// index would change.
+				if (TextureIndex >= 0)
+				{
+					int textureSize = (targetVersion >= SR1_File.Version.Apr14) ? 12 : 16;
+					textoff.Value = (ushort)(TextureIndex * textureSize);
+				}
+				else
+				{
+					textoff.Value = 0xFFFF;
+				}
+
+				// 0x02 lets forge 6 work and prevents crashing in retreat when using portals.
+				// 0x08 is water?
+				// 0x46 lets portals work but not fully, however crashes forge 5.
+				// attr.Value = (byte)(attr.Value & 0x46);
+				//attr.Value = (byte)(attr.Value & 0x02); // 0x44 is used for signals. Renderable stuff too?
 			}
 		}
 

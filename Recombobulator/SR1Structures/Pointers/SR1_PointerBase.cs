@@ -8,6 +8,7 @@ namespace Recombobulator.SR1Structures
 	{
 		public uint Offset { get; set; }
 		public bool PointsToMigStruct { get; set; }
+		public bool PointsToStartOfStruct { get; set; }
 		public bool PointsToEndOfStruct { get; set; }
 
 		public abstract object CreateObject(SR1_Structure parent, SR1_Reader reader);
@@ -70,7 +71,7 @@ namespace Recombobulator.SR1Structures
 
 		public bool PrepareToReadReference(SR1_Reader reader)
 		{
-			if (Offset != 0x00000000 && !reader.File._Structures.ContainsKey(Offset))
+			if (Offset != 0 && !reader.File._Structures.ContainsKey(Offset))
 			{
 				reader.BaseStream.Position = Offset;
 				return true;

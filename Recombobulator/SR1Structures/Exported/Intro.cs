@@ -52,16 +52,25 @@ namespace Recombobulator.SR1Structures
 				reader.File._IntroNames.Add(name.ToString());
 			}
 
-			int uniqueID = UniqueID.Value;
-			if (!reader.File._IntroIDs.Contains(uniqueID))
+			if (reader.File._Version < SR1_File.Version.Jan23)
 			{
+				// Just use the count as the ID so there's something to remap.
+				int uniqueID = reader.File._IntroIDs.Count;
 				reader.File._IntroIDs.Add(uniqueID);
+			}
+			else
+			{
+				int uniqueID = UniqueID.Value;
+				if (!reader.File._IntroIDs.Contains(uniqueID))
+				{
+					reader.File._IntroIDs.Add(uniqueID);
+				}
 			}
 		}
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
 		{
-			if (data.Offset != 0x00000000 && !reader.File._Structures.ContainsKey(data.Offset))
+			if (data.Offset != 0 && !reader.File._Structures.ContainsKey(data.Offset))
 			{
 				reader.BaseStream.Position = (long)data.Offset;
 				INICommand tempCMD = new INICommand();
@@ -117,6 +126,11 @@ namespace Recombobulator.SR1Structures
 
 			if (file._Version != targetVersion)
 			{
+				//if (name.ToString() == "raziel")
+				//{
+					// Raziel always has this ID.
+					//UniqueID.Value = 2560;
+				//}
 				if (file._Overrides.NewIntroIDs.TryGetValue(UniqueID.Value, out int newIntroID))
 				{
 					UniqueID.Value = newIntroID;
@@ -125,6 +139,20 @@ namespace Recombobulator.SR1Structures
 				if (file._Overrides.NewObjectNames.ContainsKey(name.ToString()))
 				{
 					name.SetText(file._Overrides.NewObjectNames[name.ToString()], 16);
+				}
+			}
+
+			if (file._Version < SR1_File.Version.Jan23 && targetVersion >= SR1_File.Version.Jan23)
+			{
+				spectralPosition.x.Value = position.x.Value;
+				spectralPosition.y.Value = position.y.Value;
+				spectralPosition.z.Value = position.z.Value;
+				
+				// Remove the commands until I know they are the same as retail.
+				if (data.Offset != 0)
+				{
+					file._Structures.Remove(data.Offset);
+					data.Offset = 0;
 				}
 			}
 		}

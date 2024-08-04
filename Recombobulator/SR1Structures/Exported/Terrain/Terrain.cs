@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Recombobulator.SR1Structures
@@ -47,7 +48,9 @@ namespace Recombobulator.SR1Structures
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
 			bspRoot.Read(reader, this, "bspRoot", SR1_File.Version.First, SR1_File.Version.Jan23);
+			bspRoot.PointsToStartOfStruct = true;
 			startLeaves.Read(reader, this, "startLeaves", SR1_File.Version.First, SR1_File.Version.Jan23);
+			startLeaves.PointsToStartOfStruct = true;
 			numNodes.Read(reader, this, "numNodes", SR1_File.Version.First, SR1_File.Version.Jan23);
 			vplLength.Read(reader, this, "vplLength", SR1_File.Version.First, SR1_File.Version.Apr14);
 			vpList.Read(reader, this, "vpList", SR1_File.Version.First, SR1_File.Version.Apr14);
@@ -64,9 +67,11 @@ namespace Recombobulator.SR1Structures
 			normalList.Read(reader, this, "normalList");
 			aniList.Read(reader, this, "aniList");
 			sbspRoot.Read(reader, this, "sbspRoot", SR1_File.Version.First, SR1_File.Version.Jun01);
+			sbspRoot.PointsToStartOfStruct = true;
 			pad.Read(reader, this, "pad", SR1_File.Version.Jun01, SR1_File.Version.Next);
 			StreamUnits.Read(reader, this, "StreamUnits");
 			endLeaves.Read(reader, this, "endLeaves", SR1_File.Version.First, SR1_File.Version.Jan23);
+			endLeaves.PointsToEndOfStruct = true;
 			StartTextureList.Read(reader, this, "StartTextureList");
 			EndTextureList.Read(reader, this, "EndTextureList");
 			EndTextureList.PointsToEndOfStruct = true;
@@ -174,6 +179,13 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
+			if (reader.File._Version >= SR1_File.Version.Jan23)
+			{
+				var morphNormals = new SR1_PrimativeArray<ushort>(numFaces.Value).SetPadding(4);
+				morphNormals.Align = 2;
+				morphNormals.ReadFromPointer(reader, morphNormalIdx);
+			}
+
 			if (reader.File._Version < SR1_File.Version.Jan23)
 			{
 				if ((int)(startLeaves.Offset - bspRoot.Offset) > 0)
@@ -248,45 +260,45 @@ namespace Recombobulator.SR1Structures
 
 			foreach (TFace face in faces)
 			{
-				if (!face.IsInSignalGroup)
+				if (!face.IsInSignalGroup && textures.Count > 0)
 				{
+					int textoff;
 					if (reader.File._Version < SR1_File.Version.Jan23)
 					{
-						foreach (TextureFT3 texture in textures)
+						if (face.texture.Offset >= textures.Start &&
+							face.texture.Offset < textures.End)
 						{
-							if (texture.Start == face.texture.Offset)
-							{
-								face.Texture = texture;
-								break;
-							}
+							textoff = (int)(face.texture.Offset - textures.Start);
+						}
+						else
+						{
+							// Might be a signal.
+							continue;
 						}
 					}
 					else
 					{
-						int textureSize = (reader.File._Version >= SR1_File.Version.Apr14) ? 12 : 16;
-						int textureIndex = face.textoff.Value / textureSize;
-						if (textureIndex < textures.Count)
-						{
-							face.Texture = (TextureFT3)textures[textureIndex];
-						}
+						textoff = face.textoff.Value;
 					}
 
-					if (face.Texture != null)
+					int textureSize = (reader.File._Version >= SR1_File.Version.Apr14) ? 12 : 16;
+					int textureIndex = textoff / textureSize;
+					if (textureIndex < textures.Count)
 					{
-						face.Texture.NumReferences++;
-						if ((face.attr.Value & 0x08) != 0)
-						{
-							face.Texture.HasTranslucentPolygon = true;
-						}
+						face.Texture = (TextureFT3)textures[textureIndex];
+						face.TextureIndex = textureIndex;
 					}
 				}
-			}
 
-			if (reader.File._Version >= SR1_File.Version.Jan23)
-			{
-				var morphNormals = new SR1_PrimativeArray<ushort>(numFaces.Value).SetPadding(4);
-				morphNormals.Align = 2;
-				morphNormals.ReadFromPointer(reader, morphNormalIdx);
+				if (face.Texture != null)
+				{
+					face.Texture.NumReferences++;
+					if (reader.File._Version >= SR1_File.Version.Jan23 &&
+						(face.attr.Value & 0x08) != 0)
+					{
+						face.Texture.HasTranslucentPolygon = true;
+					}
+				}
 			}
 
 			for (int t = 0; t < textures.Count; t++)
@@ -378,6 +390,9 @@ namespace Recombobulator.SR1Structures
 
 		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
 		{
+			SR1_Structure lastStructure = file._Structures.Values[file._Structures.Count - 1];
+			uint position = lastStructure.End;
+
 			base.MigrateVersion(file, targetVersion, migrateFlags);
 
 			if (file._Version <= SR1_File.Version.May12 && targetVersion >= SR1_File.Version.Retail_PC)
@@ -398,14 +413,19 @@ namespace Recombobulator.SR1Structures
 
 			if (file._Version < SR1_File.Version.Jan23 && targetVersion >= SR1_File.Version.Jan23)
 			{
+				#region BSPTrees
+
 				// Create a new array of BSPTres.
 				SR1_StructureArray<BSPTree> newBSPTrees = new SR1_StructureArray<BSPTree>(1);
 				BSPTree newBSPTree = (BSPTree)newBSPTrees[0];
 
 				// Set the BSPTree fields to the existing root and leaves.
 				newBSPTree.bspRoot.Offset = bspRoot.Offset;
+				newBSPTree.bspRoot.PointsToStartOfStruct = true;
 				newBSPTree.startLeaves.Offset = startLeaves.Offset;
+				newBSPTree.startLeaves.PointsToStartOfStruct = true;
 				newBSPTree.endLeaves.Offset = endLeaves.Offset;
+				newBSPTree.endLeaves.PointsToEndOfStruct = true;
 
 				// Insert the BSPTree array where the root used to be.
 				file._MigrationStructures.Add(bspRoot.Start, newBSPTrees);
@@ -414,9 +434,53 @@ namespace Recombobulator.SR1Structures
 				BSPTreeArray.Offset = bspRoot.Start;
 				BSPTreeArray.PointsToMigStruct = true;
 
+				#endregion
+
+				#region MorphColors
+
+				// Create a new array of morph colors with one per vertex.
+				SR1_StructureArray<MorphColor> newMorphColors = new SR1_StructureArray<MorphColor>(numVertices.Value);
+				newMorphColors.SetPadding(4);
+
+				// The morph colors originally applies to a subset of the vertices,
+				// but now they apply to every veretex, so copy the regular colors
+				// from the vertices, then overwrite any found in the old morph
+				// colors.
+				var vertices = (SR1_StructureArray<TVertex>)file._Structures[vertexList.Offset];
+				int c = 0;
+				foreach (TVertex vertex in vertices)
+				{
+					MorphColor morphColor = (MorphColor)newMorphColors[c];
+					morphColor.morphColor15.Value = unchecked((short)vertex.rbg15.Value);
+					c++;
+				}
+				var oldMorphColors = (SR1_StructureArray<MorphColor>)file._Structures[MorphColorList.Offset];
+				foreach (MorphColor oldMorphColor in oldMorphColors)
+				{
+					c = oldMorphColor.vindex.Value;
+
+					if (c >= 0)
+					{
+						MorphColor morphColor = (MorphColor)newMorphColors[c];
+						morphColor.morphColor15.Value = oldMorphColor.morphColor15.Value;
+					}
+				}
+
+				// Remove the old morph colors.
+				file._Structures.Remove(MorphColorList.Offset);
+
+				// Insert the new morph colors where the old ones were.
+				file._MigrationStructures.Add(MorphColorList.Offset, newMorphColors);
+				MorphColorList.PointsToMigStruct = true;
+
+				#endregion
+
+				#region MorphNormals
+
 				// Create a new array of morph normals.
-				SR1_PrimativeArray<ushort> morphNormals = new SR1_PrimativeArray<ushort>(numFaces.Value);
-				morphNormals.SetPadding(4);
+				SR1_PrimativeArray<ushort> newMorphNormals = new SR1_PrimativeArray<ushort>(numFaces.Value);
+				newMorphNormals.SetPadding(4);
+				newMorphNormals.Align = 2;
 
 				// There were no morph normals originally, but they would be stored in
 				// the same array, so just copy indices of regular ones from the faces.
@@ -424,15 +488,17 @@ namespace Recombobulator.SR1Structures
 				int n = 0;
 				foreach (TFace face in faces)
 				{
-					morphNormals[n] = face.normal.Value;
+					newMorphNormals[n] = face.normal.Value;
 					n++;
 				}
 
 				// Insert the array of morph normals after the regular normals.
-				file._MigrationStructures.Add(NormalListEnd, morphNormals);
+				file._MigrationStructures.Add(NormalListEnd, newMorphNormals);
 
 				morphNormalIdx.Offset = NormalListEnd;
 				morphNormalIdx.PointsToMigStruct = true;
+
+				#endregion
 			}
 
 			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
@@ -475,9 +541,6 @@ namespace Recombobulator.SR1Structures
 						}
 					}
 
-					SR1_Structure lastStructure = file._Structures.Values[file._Structures.Count - 1];
-					uint position = lastStructure.End;
-
 					file._MigrationStructures.Add(position, new TexAniAssocData(entryList));
 					texAniAssocData.Offset = position;
 					texAniAssocData.PointsToMigStruct = true;
@@ -489,9 +552,6 @@ namespace Recombobulator.SR1Structures
 						file._Structures.Remove(aniList.Offset);
 						aniList.Offset = 0;
 					}
-
-					SR1_Structure lastStructure = file._Structures.Values[file._Structures.Count - 1];
-					uint position = lastStructure.End;
 
 					file._MigrationStructures.Add(position, new TexAniAssocData());
 					texAniAssocData.Offset = position;

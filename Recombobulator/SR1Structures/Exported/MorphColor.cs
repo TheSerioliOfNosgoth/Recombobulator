@@ -41,5 +41,18 @@ namespace Recombobulator.SR1Structures
 			vindex.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
 			morphColor15.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 		}
+
+		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
+		{
+			if (file._Version < SR1_File.Version.Jan23 && targetVersion >= SR1_File.Version.Jan23)
+			{
+				int r = (r0.Value >> 3) << 0;
+				int g = (g0.Value >> 3) << 5;
+				int b = (b0.Value >> 3) << 10;
+				int color = r | g | b;
+
+				morphColor15.Value = (short)color;
+			}
+		}
 	}
 }

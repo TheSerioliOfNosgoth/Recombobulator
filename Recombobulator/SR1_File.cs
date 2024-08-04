@@ -487,6 +487,14 @@ namespace Recombobulator
 		{
 			_Overrides = overrides;
 
+			if (_Version < Version.Jan23 && targetVersion >= Version.Jan23)
+			{
+				// These thing aren't ready yet.
+				migrateFlags |= SR1_File.MigrateFlags.RemovePortals;
+				migrateFlags |= SR1_File.MigrateFlags.RemoveSignals;
+				migrateFlags |= SR1_File.MigrateFlags.RemoveVertexMorphs;
+			}
+
 			_PrimsWritten.Clear();
 			_MigrationStructures.Clear();
 			_Pointers.Clear();
@@ -650,6 +658,10 @@ namespace Recombobulator
 				{
 					result = ResolveMigStructPointer(wtr, pointer);
 				}
+				else if (pointer.PointsToStartOfStruct)
+				{
+					result = ResolveStructStartPointer(wtr, pointer, exportData);
+				}
 				else if (pointer.PointsToEndOfStruct ||
 					pointer.Offset == exportData.readEndKeys.Last())
 				{
@@ -726,6 +738,26 @@ namespace Recombobulator
 			return false;
 		}
 
+		private bool ResolveStructStartPointer(SR1_Writer wtr, SR1_PointerBase ptr, ExportData exd)
+		{
+			int index = exd.readStartKeys.BinarySearch(ptr.Offset);
+			if (index >= 0)
+			{
+				SR1_PrimativeBase primative = exd.readStart[exd.readStartKeys[index]];
+				SR1_Structure structure = GetTopStructure(primative, false);
+
+				// Make sure the primitive was writen otherwise it can't be used.
+				if (structure != null && structure.MembersWritten.Count > 0)
+				{
+					wtr.BaseStream.Position = ptr.NewStart;
+					wtr.Write(structure.NewStart);
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		// Some pointers are used to mark the end of a series of structures.
 		// In these cases, the goal is to locate the end point of that series.
 		// There is a chance that the structure at the end of the series was
@@ -745,7 +777,7 @@ namespace Recombobulator
 			if (index >= 0)
 			{
 				SR1_PrimativeBase primative = exd.readEnd[exd.readEndKeys[index]];
-				SR1_Structure structure = GetTopStructure(primative);
+				SR1_Structure structure = GetTopStructure(primative, true);
 
 				// Make sure the primitive was writen otherwise it can't be used.
 				if (structure != null && structure.MembersWritten.Count > 0)
@@ -838,16 +870,26 @@ namespace Recombobulator
 			return nodes;
 		}
 
-		private SR1_Structure GetTopStructure(SR1_Structure structure)
+		private SR1_Structure GetTopStructure(SR1_Structure structure, bool findByEnd)
 		{
 			if (structure == null)
 			{
 				return null;
 			}
 
-			while (structure.Parent != null && structure.Parent.End == structure.End)
+			if (findByEnd)
 			{
-				structure = structure.Parent;
+				while (structure.Parent != null && structure.Parent.End == structure.End)
+				{
+					structure = structure.Parent;
+				}
+			}
+			else
+			{
+				while (structure.Parent != null && structure.Parent.Start == structure.Start)
+				{
+					structure = structure.Parent;
+				}
 			}
 
 			return structure;

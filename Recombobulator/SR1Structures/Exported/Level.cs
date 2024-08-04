@@ -271,6 +271,7 @@ namespace Recombobulator.SR1Structures
 				new VMObjectList(numVMObjects.Value).ReadFromPointer(reader, vmobjectList);
 			}
 
+			// Why only before May? They still seem supported.
 			if (reader.File._Version <= SR1_File.Version.May12)
 			{
 				new SR1_StructureArray<SpotLight>(numSpotLights.Value).ReadFromPointer(reader, spotLightList);
@@ -364,6 +365,7 @@ namespace Recombobulator.SR1Structures
 				new Mirror().Read(reader, null, "");
 			}
 
+			// Could try new align stuff instead of this.
 			reader.BaseStream.Position = objectNameListStruct.Start - 1;
 			while (!reader.File._Structures.ContainsKey((uint)reader.BaseStream.Position))
 			{

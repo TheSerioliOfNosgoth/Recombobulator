@@ -390,7 +390,7 @@ namespace Recombobulator.SR1Structures
 						break;
 				}
 			}
-			else if (reader.File._Version >= SR1_File.Version.Feb04)
+			else if (reader.File._Version >= SR1_File.Version.First)
 			{
 				switch ((SignalTypeFeb16)id.Value)
 				{
@@ -697,7 +697,7 @@ namespace Recombobulator.SR1Structures
 						return 1;
 				}
 			}
-			else if (reader.File._Version >= SR1_File.Version.Feb04)
+			else if (reader.File._Version >= SR1_File.Version.First)
 			{
 				switch (id)
 				{

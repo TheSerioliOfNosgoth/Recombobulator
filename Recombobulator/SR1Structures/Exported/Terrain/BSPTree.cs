@@ -18,8 +18,11 @@ namespace Recombobulator.SR1Structures
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
 			bspRoot.Read(reader, this, "bspRoot");
+			bspRoot.PointsToStartOfStruct = true;
 			startLeaves.Read(reader, this, "startLeaves");
+			startLeaves.PointsToStartOfStruct = true;
 			endLeaves.Read(reader, this, "endLeaves");
+			endLeaves.PointsToEndOfStruct = true;
 			globalOffset.Read(reader, this, "globalOffset");
 			flags.Read(reader, this, "flags");
 			localOffset.Read(reader, this, "localOffset");

@@ -31,7 +31,9 @@ namespace Recombobulator.SR1Structures
 			flags.Read(reader, this, "flags");
 			d.Read(reader, this, "d");
 			front.Read(reader, this, "front");
+			front.PointsToStartOfStruct = true;
 			back.Read(reader, this, "back");
+			back.PointsToStartOfStruct = true;
 			spectralSphere.Read(reader, this, "spectralSphere", SR1_File.Version.First, SR1_File.Version.Jan23);
 			spectralSphereNoSq.Read(reader, this, "spectralSphere", SR1_File.Version.Jan23, SR1_File.Version.Next);
 			front_spectral_error.Read(reader, this, "front_spectral_error", SR1_File.Version.Jan23, SR1_File.Version.Next);
