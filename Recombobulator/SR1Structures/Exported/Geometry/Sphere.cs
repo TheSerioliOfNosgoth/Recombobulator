@@ -5,9 +5,9 @@ namespace Recombobulator.SR1Structures
 {
 	class Sphere : SR1_Structure
 	{
-		Position position = new Position();
-		SR1_Primative<ushort> radius = new SR1_Primative<ushort>();
-		SR1_Primative<uint> radiusSquared = new SR1_Primative<uint>();
+		public readonly Position position = new Position();
+		public readonly SR1_Primative<ushort> radius = new SR1_Primative<ushort>();
+		public readonly SR1_Primative<uint> radiusSquared = new SR1_Primative<uint>();
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{

@@ -78,7 +78,7 @@ namespace Recombobulator.SR1Structures
 						flags.Value |= 0x0003; // Invisible and no collision.
 					}
 
-					// Clise doors to adda1
+					// Close doors to adda1
 					if (ID.Value == 5 || ID.Value == 6)
 					{
 						flags.Value &= ~0x0003; // Invisible and no collision.

@@ -64,5 +64,22 @@ namespace Recombobulator.SR1Structures
 			front_material_error.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			back_material_error.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 		}
+
+		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
+		{
+			base.MigrateVersion(file, targetVersion, migrateFlags);
+
+			if (file._Version < SR1_File.Version.Jan23 && targetVersion >= SR1_File.Version.Jan23)
+			{
+				sphereNoSq.position.x.Value = sphere.position.x.Value;
+				sphereNoSq.position.y.Value = sphere.position.y.Value;
+				sphereNoSq.position.z.Value = sphere.position.z.Value;
+				sphereNoSq.radius.Value = sphere.radius.Value;
+				spectralSphereNoSq.position.x.Value = spectralSphere.position.x.Value;
+				spectralSphereNoSq.position.y.Value = spectralSphere.position.y.Value;
+				spectralSphereNoSq.position.z.Value = spectralSphere.position.z.Value;
+				spectralSphereNoSq.radius.Value = spectralSphere.radius.Value;
+			}
+		}
 	}
 }
