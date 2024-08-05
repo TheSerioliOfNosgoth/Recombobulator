@@ -89,6 +89,21 @@ namespace Recombobulator.SR1Structures
 			color.Write(writer, SR1_File.Version.First, SR1_File.Version.Apr14);
 		}
 
+		public static void Copy(TextureFT3 to, TextureFT3 from)
+		{
+			to.u0.Value = from.u0.Value;
+			to.v0.Value = from.v0.Value;
+			to.clut.Value = from.clut.Value;
+			to.u1.Value = from.u1.Value;
+			to.v1.Value = from.v1.Value;
+			to.tpage.Value = from.tpage.Value;
+			to.attr2.Value = from.attr2.Value;
+			to.u2.Value = from.u2.Value;
+			to.v2.Value = from.v2.Value;
+			to.attr.Value = from.attr.Value;
+			to.color.Value = from.color.Value;
+		}
+
 		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
 		{
 			base.MigrateVersion(file, targetVersion, migrateFlags);

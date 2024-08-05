@@ -462,7 +462,13 @@ namespace Recombobulator.SR1Structures
 					if (c >= 0)
 					{
 						MorphColor morphColor = (MorphColor)newMorphColors[c];
-						morphColor.morphColor15.Value = oldMorphColor.morphColor15.Value;
+
+						// MigrateVersion happens in Terrain before the MorphColors,
+						// so those won't have been converted yet, and the new ones
+						// aren't even in the list, so copy them here and migrate
+						// them as well.
+						MorphColor.Copy(morphColor, oldMorphColor);
+						morphColor.MigrateVersion(file, targetVersion, migrateFlags);
 					}
 				}
 

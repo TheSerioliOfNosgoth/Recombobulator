@@ -42,6 +42,18 @@ namespace Recombobulator.SR1Structures
 			morphColor15.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 		}
 
+		public static void Copy(MorphColor to, MorphColor from)
+		{
+			to.r0.Value = from.r0.Value;
+			to.g0.Value = from.g0.Value;
+			to.b0.Value = from.b0.Value;
+			to.r1.Value = from.r1.Value;
+			to.g1.Value = from.g1.Value;
+			to.b1.Value = from.b1.Value;
+			to.vindex.Value = from.vindex.Value;
+			to.morphColor15.Value = from.morphColor15.Value;
+		}
+
 		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
 		{
 			base.MigrateVersion(file, targetVersion, migrateFlags);
