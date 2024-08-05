@@ -88,7 +88,7 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_Pointer<MultiSignal> startGoingIntoWaterSignal = new SR1_Pointer<MultiSignal>();
 		public readonly SR1_Pointer<MultiSignal> startGoingOutOfWaterSignal = new SR1_Pointer<MultiSignal>();
 		public readonly SR1_Primative<int> unitFlags = new SR1_Primative<int>();
-		public readonly SR1_Pointer<MultiSignal> SignalListStart = new SR1_Pointer<MultiSignal>(/*PtrHeuristic.Start*/);
+		public readonly SR1_Pointer<MultiSignal> SignalListStart = new SR1_Pointer<MultiSignal>(PtrHeuristic.Start);
 		public readonly SR1_Pointer<MultiSignal> SignalListEnd = new SR1_Pointer<MultiSignal>(PtrHeuristic.End);
 		public readonly SR1_Primative<int> numBSPLeaves = new SR1_Primative<int>();
 		public readonly SR1_Pointer<EventPointers> PuzzleInstances = new SR1_Pointer<EventPointers>();

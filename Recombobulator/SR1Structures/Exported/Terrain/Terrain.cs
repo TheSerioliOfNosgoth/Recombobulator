@@ -29,10 +29,10 @@ namespace Recombobulator.SR1Structures
 		SR1_Primative<int> pad = new SR1_Primative<int>();
 		public SR1_Pointer<StreamUnitPortalList> StreamUnits = new SR1_Pointer<StreamUnitPortalList>(); // void in sym, StreamUnitPortalList created for this tool.
 		SR1_Pointer<BSPLeaf> endLeaves = new SR1_Pointer<BSPLeaf>(PtrHeuristic.End);
-		SR1_Pointer<TextureFT3> StartTextureList = new SR1_Pointer<TextureFT3>(/*PtrHeuristic.Start*/);
+		SR1_Pointer<TextureFT3> StartTextureList = new SR1_Pointer<TextureFT3>(PtrHeuristic.Start);
 		SR1_Pointer<TextureFT3> EndTextureList = new SR1_Pointer<TextureFT3>(PtrHeuristic.End);
-		SR1_Pointer<SBSPLeaf> sbspStartLeaves = new SR1_Pointer<SBSPLeaf>(/*PtrHeuristic.Start*/);
-		SR1_Pointer<SBSPLeaf> sbspEndLeaves = new SR1_Pointer<SBSPLeaf>(/*PtrHeuristic.End*/);
+		SR1_Pointer<SBSPLeaf> sbspStartLeaves = new SR1_Pointer<SBSPLeaf>(PtrHeuristic.Start);
+		SR1_Pointer<SBSPLeaf> sbspEndLeaves = new SR1_Pointer<SBSPLeaf>(PtrHeuristic.End);
 		SR1_Pointer<MorphVertex> MorphDiffList = new SR1_Pointer<MorphVertex>();
 		SR1_Pointer<MorphColor> MorphColorList = new SR1_Pointer<MorphColor>();
 		SR1_Primative<int> numBSPTrees = new SR1_Primative<int>();

@@ -18,7 +18,7 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_Primative<short> pad = new SR1_Primative<short>();
 		public readonly SR1_Primative<int> maxRadSq = new SR1_Primative<int>();
 		public readonly SR1_Pointer<MultiSpline> multiSpline = new SR1_Pointer<MultiSpline>();
-		public readonly SR1_Pointer<TextureMT3> startTextures = new SR1_Pointer<TextureMT3>(/*PtrHeuristic.Start*/);
+		public readonly SR1_Pointer<TextureMT3> startTextures = new SR1_Pointer<TextureMT3>(PtrHeuristic.Start);
 		public readonly SR1_Pointer<TextureMT3> endTextures = new SR1_Pointer<TextureMT3>(PtrHeuristic.End);
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
