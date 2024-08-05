@@ -192,7 +192,49 @@ namespace Recombobulator.SR1Structures
 
 				if ((int)(endLeaves.Offset - startLeaves.Offset) > 0)
 				{
-					new SR1_StructureSeries<BSPLeaf>((int)(endLeaves.Offset - startLeaves.Offset)).ReadFromPointer(reader, startLeaves);
+					SR1_StructureSeries<BSPLeaf> leaves = new SR1_StructureSeries<BSPLeaf>((int)(endLeaves.Offset - startLeaves.Offset));
+					leaves.ReadFromPointer(reader, startLeaves);
+
+					// It's mostly duplicating the stuff below at ths point.
+					// Split it out into a function?
+					/*SR1_StructureSeries<MultiSignal> multiSignals =
+						(SR1_StructureSeries<MultiSignal>)reader.File._Structures[reader.Level.SignalListStart.Offset];
+
+					foreach (BSPLeaf leaf in leaves)
+					{
+						uint faceIndex = (leaf.faceList.Offset - faces.Start) / 12;
+						short numFaces = leaf.numFaces.Value;
+						for (short f = 0; f < numFaces; f++)
+						{
+							TFace tFace = (TFace)faces[(int)faceIndex + f];
+							tFace.IsInSignalGroup = true;
+
+							foreach (MultiSignal mSignal in multiSignals)
+							{
+								if (mSignal.Start == (signals.Offset + tFace.texture.Offset))
+								{
+									tFace.MultiSignal = mSignal;
+									if (mSignal.numSignals.Value > 0)
+									{
+										tFace.Signal = (Signal)mSignal.signalList[0];
+									}
+									break;
+								}
+							}
+
+							if (tFace.MultiSignal != null)
+							{
+								foreach (StreamUnitPortal portal in portalList.portals)
+								{
+									if (portal.MSignalID.Value == tFace.MultiSignal.signalNum.Value)
+									{
+										tFace.Portal = portal;
+										break;
+									}
+								}
+							}
+						}
+					}*/
 				}
 			}
 			else
@@ -411,19 +453,45 @@ namespace Recombobulator.SR1Structures
 				#region BSPTrees
 
 				// Create a new array of BSPTres.
-				SR1_StructureArray<BSPTree> newBSPTrees = new SR1_StructureArray<BSPTree>(1);
-				BSPTree newBSPTree = (BSPTree)newBSPTrees[0];
+				SR1_StructureArray<BSPTree> newBSPTrees = new SR1_StructureArray<BSPTree>(2);
 
-				// Set the BSPTree fields to the existing root and leaves.
-				newBSPTree.bspRoot.Offset = bspRoot.Offset;
-				newBSPTree.startLeaves.Offset = startLeaves.Offset;
-				newBSPTree.endLeaves.Offset = endLeaves.Offset;
+				#region EnvTree
+
+				BSPTree envTree = (BSPTree)newBSPTrees[0];
+
+				// Set the environment BSPTree fields to the existing root and leaves.
+				envTree.bspRoot.Offset = bspRoot.Offset;
+				envTree.startLeaves.Offset = startLeaves.Offset;
+				envTree.endLeaves.Offset = endLeaves.Offset;
+				envTree.ID.Value = 0;
+
+				#endregion
+
+				#region SigTree
+
+				// Create a leaf for the signal tree. Only one is needed.
+				//BSPLeaf sigLeaf = new BSPLeaf();
+
+				// Insert the BSPLeaf... Nowhere to put it!
+				// PtrHeuristic.Migration won't work as is, and I can't overlap
+				// the pre-existing structure without confusing the order.
+				//file._MigrationStructures.Add(bspRoot.Start, newBSPTrees);
+
+				BSPTree sigTree = (BSPTree)newBSPTrees[1];
+
+				// Set the signal BSPTree fields to the new signal leaves.
+				sigTree.bspRoot.Offset = 0;
+				sigTree.startLeaves.Offset = 0;
+				sigTree.endLeaves.Offset = 0;
+				sigTree.ID.Value = -1;
+
+				#endregion
 
 				// Insert the BSPTree array where the root used to be.
-				file._MigrationStructures.Add(bspRoot.Start, newBSPTrees);
+				file._MigrationStructures.Add(endLeaves.Offset, newBSPTrees);
 
-				numBSPTrees.Value = 1;
-				BSPTreeArray.Offset = bspRoot.Start;
+				numBSPTrees.Value = 2;
+				BSPTreeArray.Offset = endLeaves.Offset;
 				BSPTreeArray.Heuristic = PtrHeuristic.Migration;
 
 				#endregion
