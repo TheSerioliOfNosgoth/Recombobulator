@@ -4,12 +4,20 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
+	public enum PtrHeuristic : int
+	{
+		Member = 0,
+		Start = 1,
+		End = 2,
+		Migration = 3
+	}
+
 	public abstract class SR1_PointerBase : SR1_PrimativeBase
 	{
+
+		public PtrHeuristic Heuristic { get; set; } = PtrHeuristic.Member;
+
 		public uint Offset { get; set; }
-		public bool PointsToMigStruct { get; set; }
-		public bool PointsToStartOfStruct { get; set; }
-		public bool PointsToEndOfStruct { get; set; }
 
 		public abstract object CreateObject(SR1_Structure parent, SR1_Reader reader);
 

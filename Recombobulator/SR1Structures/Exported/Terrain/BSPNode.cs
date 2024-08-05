@@ -12,8 +12,8 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_Primative<short> c = new SR1_Primative<short>();
 		public readonly SR1_Primative<short> flags = new SR1_Primative<short>();
 		public readonly SR1_Primative<int> d = new SR1_Primative<int>();
-		public readonly SR1_Pointer<BSPNode> front = new SR1_Pointer<BSPNode>();
-		public readonly SR1_Pointer<BSPNode> back = new SR1_Pointer<BSPNode>();
+		public readonly SR1_Pointer<BSPNode> front = new SR1_Pointer<BSPNode>(PtrHeuristic.Start);
+		public readonly SR1_Pointer<BSPNode> back = new SR1_Pointer<BSPNode>(PtrHeuristic.Start);
 		public readonly Sphere spectralSphere = new Sphere();
 		public readonly Sphere_noSq spectralSphereNoSq = new Sphere_noSq();
 		public readonly SR1_Primative<short> front_spectral_error = new SR1_Primative<short>();
@@ -31,9 +31,7 @@ namespace Recombobulator.SR1Structures
 			flags.Read(reader, this, "flags");
 			d.Read(reader, this, "d");
 			front.Read(reader, this, "front");
-			front.PointsToStartOfStruct = true;
 			back.Read(reader, this, "back");
-			back.PointsToStartOfStruct = true;
 			spectralSphere.Read(reader, this, "spectralSphere", SR1_File.Version.First, SR1_File.Version.Jan23);
 			spectralSphereNoSq.Read(reader, this, "spectralSphere", SR1_File.Version.Jan23, SR1_File.Version.Next);
 			front_spectral_error.Read(reader, this, "front_spectral_error", SR1_File.Version.Jan23, SR1_File.Version.Next);

@@ -17,7 +17,7 @@ namespace Recombobulator
 		public const UInt32 BETA_19990512_VERSION = 0x3c204139;
 		public const UInt32 RETAIL_VERSION = 0x3C20413B;
 
-		public enum Version
+		public enum Version : int
 		{
 			Detect = -1,
 			Detect_Retail_PC = -2,
@@ -654,15 +654,15 @@ namespace Recombobulator
 			{
 				bool result;
 
-				if (pointer.PointsToMigStruct)
+				if (pointer.Heuristic == PtrHeuristic.Migration)
 				{
 					result = ResolveMigStructPointer(wtr, pointer);
 				}
-				else if (pointer.PointsToStartOfStruct)
+				else if (pointer.Heuristic == PtrHeuristic.Start)
 				{
 					result = ResolveStructStartPointer(wtr, pointer, exportData);
 				}
-				else if (pointer.PointsToEndOfStruct ||
+				else if (pointer.Heuristic == PtrHeuristic.End ||
 					pointer.Offset == exportData.readEndKeys.Last())
 				{
 					result = ResolveStructEndPointer(wtr, pointer, exportData);

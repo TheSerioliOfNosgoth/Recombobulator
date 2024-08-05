@@ -88,8 +88,8 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_Pointer<MultiSignal> startGoingIntoWaterSignal = new SR1_Pointer<MultiSignal>();
 		public readonly SR1_Pointer<MultiSignal> startGoingOutOfWaterSignal = new SR1_Pointer<MultiSignal>();
 		public readonly SR1_Primative<int> unitFlags = new SR1_Primative<int>();
-		public readonly SR1_Pointer<MultiSignal> SignalListStart = new SR1_Pointer<MultiSignal>();
-		public readonly SR1_Pointer<MultiSignal> SignalListEnd = new SR1_Pointer<MultiSignal>();
+		public readonly SR1_Pointer<MultiSignal> SignalListStart = new SR1_Pointer<MultiSignal>(/*PtrHeuristic.Start*/);
+		public readonly SR1_Pointer<MultiSignal> SignalListEnd = new SR1_Pointer<MultiSignal>(PtrHeuristic.End);
 		public readonly SR1_Primative<int> numBSPLeaves = new SR1_Primative<int>();
 		public readonly SR1_Pointer<EventPointers> PuzzleInstances = new SR1_Pointer<EventPointers>();
 		public readonly SR1_Primative<int> NumberOfPlanMarkers = new SR1_Primative<int>();
@@ -208,7 +208,6 @@ namespace Recombobulator.SR1Structures
 			unitFlags.Read(reader, this, "unitFlags");
 			SignalListStart.Read(reader, this, "SignalListStart");
 			SignalListEnd.Read(reader, this, "SignalListEnd");
-			SignalListEnd.PointsToEndOfStruct = true;
 			numBSPLeaves.Read(reader, this, "numBSPLeaves");
 			PuzzleInstances.Read(reader, this, "PuzzleInstances", SR1_File.Version.Jan23, SR1_File.Version.Next);
 			NumberOfPlanMarkers.Read(reader, this, "NumberOfPlanMarkers", SR1_File.Version.Jan23, SR1_File.Version.Next);

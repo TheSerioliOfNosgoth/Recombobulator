@@ -8,8 +8,8 @@ namespace Recombobulator.SR1Structures
 	{
 		// Use      //.*\r?\n     to search and remove comments.
 
-		SR1_Pointer<BSPNode> bspRoot = new SR1_Pointer<BSPNode>();
-		SR1_Pointer<BSPLeaf> startLeaves = new SR1_Pointer<BSPLeaf>();
+		SR1_Pointer<BSPNode> bspRoot = new SR1_Pointer<BSPNode>(PtrHeuristic.Start);
+		SR1_Pointer<BSPLeaf> startLeaves = new SR1_Pointer<BSPLeaf>(PtrHeuristic.Start);
 		SR1_Primative<int> numNodes = new SR1_Primative<int>();
 		SR1_Primative<int> vplLength = new SR1_Primative<int>();
 		SR1_PrimativePointer<byte> vpList = new SR1_PrimativePointer<byte>();
@@ -25,14 +25,14 @@ namespace Recombobulator.SR1Structures
 		SR1_Pointer<TFace> faceList = new SR1_Pointer<TFace>();
 		SR1_Pointer<Normal> normalList = new SR1_Pointer<Normal>();
 		SR1_Pointer<DrMoveAniTex> aniList = new SR1_Pointer<DrMoveAniTex>();
-		SR1_Pointer<BSPNode> sbspRoot = new SR1_Pointer<BSPNode>();
+		SR1_Pointer<BSPNode> sbspRoot = new SR1_Pointer<BSPNode>(PtrHeuristic.Start);
 		SR1_Primative<int> pad = new SR1_Primative<int>();
 		public SR1_Pointer<StreamUnitPortalList> StreamUnits = new SR1_Pointer<StreamUnitPortalList>(); // void in sym, StreamUnitPortalList created for this tool.
-		SR1_Pointer<BSPLeaf> endLeaves = new SR1_Pointer<BSPLeaf>();
-		SR1_Pointer<TextureFT3> StartTextureList = new SR1_Pointer<TextureFT3>();
-		SR1_Pointer<TextureFT3> EndTextureList = new SR1_Pointer<TextureFT3>();
-		SR1_Pointer<SBSPLeaf> sbspStartLeaves = new SR1_Pointer<SBSPLeaf>();
-		SR1_Pointer<SBSPLeaf> sbspEndLeaves = new SR1_Pointer<SBSPLeaf>();
+		SR1_Pointer<BSPLeaf> endLeaves = new SR1_Pointer<BSPLeaf>(PtrHeuristic.End);
+		SR1_Pointer<TextureFT3> StartTextureList = new SR1_Pointer<TextureFT3>(/*PtrHeuristic.Start*/);
+		SR1_Pointer<TextureFT3> EndTextureList = new SR1_Pointer<TextureFT3>(PtrHeuristic.End);
+		SR1_Pointer<SBSPLeaf> sbspStartLeaves = new SR1_Pointer<SBSPLeaf>(/*PtrHeuristic.Start*/);
+		SR1_Pointer<SBSPLeaf> sbspEndLeaves = new SR1_Pointer<SBSPLeaf>(/*PtrHeuristic.End*/);
 		SR1_Pointer<MorphVertex> MorphDiffList = new SR1_Pointer<MorphVertex>();
 		SR1_Pointer<MorphColor> MorphColorList = new SR1_Pointer<MorphColor>();
 		SR1_Primative<int> numBSPTrees = new SR1_Primative<int>();
@@ -48,9 +48,7 @@ namespace Recombobulator.SR1Structures
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
 			bspRoot.Read(reader, this, "bspRoot", SR1_File.Version.First, SR1_File.Version.Jan23);
-			bspRoot.PointsToStartOfStruct = true;
 			startLeaves.Read(reader, this, "startLeaves", SR1_File.Version.First, SR1_File.Version.Jan23);
-			startLeaves.PointsToStartOfStruct = true;
 			numNodes.Read(reader, this, "numNodes", SR1_File.Version.First, SR1_File.Version.Jan23);
 			vplLength.Read(reader, this, "vplLength", SR1_File.Version.First, SR1_File.Version.Apr14);
 			vpList.Read(reader, this, "vpList", SR1_File.Version.First, SR1_File.Version.Apr14);
@@ -67,14 +65,11 @@ namespace Recombobulator.SR1Structures
 			normalList.Read(reader, this, "normalList");
 			aniList.Read(reader, this, "aniList");
 			sbspRoot.Read(reader, this, "sbspRoot", SR1_File.Version.First, SR1_File.Version.Jun01);
-			sbspRoot.PointsToStartOfStruct = true;
 			pad.Read(reader, this, "pad", SR1_File.Version.Jun01, SR1_File.Version.Next);
 			StreamUnits.Read(reader, this, "StreamUnits");
 			endLeaves.Read(reader, this, "endLeaves", SR1_File.Version.First, SR1_File.Version.Jan23);
-			endLeaves.PointsToEndOfStruct = true;
 			StartTextureList.Read(reader, this, "StartTextureList");
 			EndTextureList.Read(reader, this, "EndTextureList");
-			EndTextureList.PointsToEndOfStruct = true;
 			sbspStartLeaves.Read(reader, this, "sbspStartLeaves", SR1_File.Version.First, SR1_File.Version.Jun01);
 			sbspEndLeaves.Read(reader, this, "sbspEndLeaves", SR1_File.Version.First, SR1_File.Version.Jun01);
 			MorphDiffList.Read(reader, this, "MorphDiffList");
@@ -421,18 +416,15 @@ namespace Recombobulator.SR1Structures
 
 				// Set the BSPTree fields to the existing root and leaves.
 				newBSPTree.bspRoot.Offset = bspRoot.Offset;
-				newBSPTree.bspRoot.PointsToStartOfStruct = true;
 				newBSPTree.startLeaves.Offset = startLeaves.Offset;
-				newBSPTree.startLeaves.PointsToStartOfStruct = true;
 				newBSPTree.endLeaves.Offset = endLeaves.Offset;
-				newBSPTree.endLeaves.PointsToEndOfStruct = true;
 
 				// Insert the BSPTree array where the root used to be.
 				file._MigrationStructures.Add(bspRoot.Start, newBSPTrees);
 
 				numBSPTrees.Value = 1;
 				BSPTreeArray.Offset = bspRoot.Start;
-				BSPTreeArray.PointsToMigStruct = true;
+				BSPTreeArray.Heuristic = PtrHeuristic.Migration;
 
 				#endregion
 
@@ -477,7 +469,7 @@ namespace Recombobulator.SR1Structures
 
 				// Insert the new morph colors where the old ones were.
 				file._MigrationStructures.Add(MorphColorList.Offset, newMorphColors);
-				MorphColorList.PointsToMigStruct = true;
+				MorphColorList.Heuristic = PtrHeuristic.Migration;
 
 				#endregion
 
@@ -502,7 +494,7 @@ namespace Recombobulator.SR1Structures
 				file._MigrationStructures.Add(NormalListEnd, newMorphNormals);
 
 				morphNormalIdx.Offset = NormalListEnd;
-				morphNormalIdx.PointsToMigStruct = true;
+				morphNormalIdx.Heuristic = PtrHeuristic.Migration;
 
 				#endregion
 			}
@@ -549,7 +541,7 @@ namespace Recombobulator.SR1Structures
 
 					file._MigrationStructures.Add(position, new TexAniAssocData(entryList));
 					texAniAssocData.Offset = position;
-					texAniAssocData.PointsToMigStruct = true;
+					texAniAssocData.Heuristic = PtrHeuristic.Migration;
 				}
 				else
 				{
@@ -561,7 +553,7 @@ namespace Recombobulator.SR1Structures
 
 					file._MigrationStructures.Add(position, new TexAniAssocData());
 					texAniAssocData.Offset = position;
-					texAniAssocData.PointsToMigStruct = true;
+					texAniAssocData.Heuristic = PtrHeuristic.Migration;
 				}
 			}
 		}

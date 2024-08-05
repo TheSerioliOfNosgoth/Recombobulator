@@ -5,9 +5,9 @@ namespace Recombobulator.SR1Structures
 {
 	class BSPTree : SR1_Structure
 	{
-		public readonly SR1_Pointer<BSPNode> bspRoot = new SR1_Pointer<BSPNode>();
-		public readonly SR1_Pointer<BSPLeaf> startLeaves = new SR1_Pointer<BSPLeaf>();
-		public readonly SR1_Pointer<BSPLeaf> endLeaves = new SR1_Pointer<BSPLeaf>();
+		public readonly SR1_Pointer<BSPNode> bspRoot = new SR1_Pointer<BSPNode>(PtrHeuristic.Start);
+		public readonly SR1_Pointer<BSPLeaf> startLeaves = new SR1_Pointer<BSPLeaf>(PtrHeuristic.Start);
+		public readonly SR1_Pointer<BSPLeaf> endLeaves = new SR1_Pointer<BSPLeaf>(PtrHeuristic.End);
 		public readonly Position globalOffset = new Position();
 		public readonly SR1_Primative<short> flags = new SR1_Primative<short>().ShowAsHex(true);
 		public readonly Position localOffset = new Position();
@@ -18,11 +18,8 @@ namespace Recombobulator.SR1Structures
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
 			bspRoot.Read(reader, this, "bspRoot");
-			bspRoot.PointsToStartOfStruct = true;
 			startLeaves.Read(reader, this, "startLeaves");
-			startLeaves.PointsToStartOfStruct = true;
 			endLeaves.Read(reader, this, "endLeaves");
-			endLeaves.PointsToEndOfStruct = true;
 			globalOffset.Read(reader, this, "globalOffset");
 			flags.Read(reader, this, "flags");
 			localOffset.Read(reader, this, "localOffset");
