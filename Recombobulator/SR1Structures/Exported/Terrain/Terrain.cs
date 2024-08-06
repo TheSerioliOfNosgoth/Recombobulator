@@ -181,6 +181,10 @@ namespace Recombobulator.SR1Structures
 				morphNormals.ReadFromPointer(reader, morphNormalIdx);
 			}
 
+			#region BSPTrees
+
+			uint signalLeavesOffset = 0;
+
 			if (reader.File._Version < SR1_File.Version.Jan23)
 			{
 				if ((int)(startLeaves.Offset - bspRoot.Offset) > 0)
@@ -194,105 +198,36 @@ namespace Recombobulator.SR1Structures
 				{
 					SR1_StructureSeries<BSPLeaf> leaves = new SR1_StructureSeries<BSPLeaf>((int)(endLeaves.Offset - startLeaves.Offset));
 					leaves.ReadFromPointer(reader, startLeaves);
-
-					// It's mostly duplicating the stuff below at ths point.
-					// Split it out into a function?
-					/*SR1_StructureSeries<MultiSignal> multiSignals =
-						(SR1_StructureSeries<MultiSignal>)reader.File._Structures[reader.Level.SignalListStart.Offset];
-
-					foreach (BSPLeaf leaf in leaves)
-					{
-						uint faceIndex = (leaf.faceList.Offset - faces.Start) / 12;
-						short numFaces = leaf.numFaces.Value;
-						for (short f = 0; f < numFaces; f++)
-						{
-							TFace tFace = (TFace)faces[(int)faceIndex + f];
-							tFace.IsInSignalGroup = true;
-
-							foreach (MultiSignal mSignal in multiSignals)
-							{
-								if (mSignal.Start == (signals.Offset + tFace.texture.Offset))
-								{
-									tFace.MultiSignal = mSignal;
-									if (mSignal.numSignals.Value > 0)
-									{
-										tFace.Signal = (Signal)mSignal.signalList[0];
-									}
-									break;
-								}
-							}
-
-							if (tFace.MultiSignal != null)
-							{
-								foreach (StreamUnitPortal portal in portalList.portals)
-								{
-									if (portal.MSignalID.Value == tFace.MultiSignal.signalNum.Value)
-									{
-										tFace.Portal = portal;
-										break;
-									}
-								}
-							}
-						}
-					}*/
 				}
+
+				signalLeavesOffset = startLeaves.Offset;
 			}
 			else
 			{
 				SR1_StructureArray<BSPTree> bspTrees = new SR1_StructureArray<BSPTree>(numBSPTrees.Value);
 				bspTrees.ReadFromPointer(reader, BSPTreeArray);
 
-				if (bspTrees.Count > 0 && faces.Count > 0)
+				if (bspTrees.Count > 0)
 				{
 					BSPTree tree = (BSPTree)bspTrees[numBSPTrees.Value - 1];
-
-					if (tree.ID.Value == -1 && tree.startLeaves.Offset != 0 &&
-						reader.File._Structures.ContainsKey(tree.startLeaves.Offset) &&
-						reader.Level.SignalListStart.Offset != 0 &&
-						reader.File._Structures.ContainsKey(reader.Level.SignalListStart.Offset))
+					if (tree.ID.Value == -1)
 					{
-						SR1_StructureSeries<BSPLeaf> leaves =
-							(SR1_StructureSeries<BSPLeaf>)reader.File._Structures[tree.startLeaves.Offset];
-						SR1_StructureSeries<MultiSignal> multiSignals =
-							(SR1_StructureSeries<MultiSignal>)reader.File._Structures[reader.Level.SignalListStart.Offset];
-
-						foreach (BSPLeaf leaf in leaves)
-						{
-							uint faceIndex = (leaf.faceList.Offset - faces.Start) / 12;
-							short numFaces = leaf.numFaces.Value;
-							for (short f = 0; f < numFaces; f++)
-							{
-								TFace tFace = (TFace)faces[(int)faceIndex + f];
-								tFace.IsInSignalGroup = true;
-
-								foreach (MultiSignal mSignal in multiSignals)
-								{
-									if (mSignal.Start == (signals.Offset + tFace.textoff.Value))
-									{
-										tFace.MultiSignal = mSignal;
-										if (mSignal.numSignals.Value > 0)
-										{
-											tFace.Signal = (Signal)mSignal.signalList[0];
-										}
-										break;
-									}
-								}
-
-								if (tFace.MultiSignal != null)
-								{
-									foreach (StreamUnitPortal portal in portalList.portals)
-									{
-										if (portal.MSignalID.Value == tFace.MultiSignal.signalNum.Value)
-										{
-											tFace.Portal = portal;
-											break;
-										}
-									}
-								}
-							}
-						}
+						signalLeavesOffset = tree.startLeaves.Offset;
 					}
 				}
+			}
+
+			#endregion
+
+			if (numFaces.Value > 0 && signalLeavesOffset != 0)
+			{
+				MapSignalFaces(
+					reader,
+					faceList.Offset,
+					signalLeavesOffset,
+					reader.Level.SignalListStart.Offset,
+					StreamUnits.Offset
+				);
 			}
 
 			foreach (TFace face in faces)
@@ -423,6 +358,74 @@ namespace Recombobulator.SR1Structures
 			morphNormalIdx.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			signals.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			texAniAssocData.Write(writer, SR1_File.Version.Retail_PC, SR1_File.Version.Next);
+		}
+
+		private void MapSignalFaces(
+			SR1_Reader reader,
+			uint facesOffset, uint leavesOffset,
+			uint signalsOffset, uint streamUnitsOffset)
+		{
+			if (facesOffset == 0 || !reader.File._Structures.ContainsKey(facesOffset) ||
+				leavesOffset == 0 || !reader.File._Structures.ContainsKey(leavesOffset) ||
+				signalsOffset == 0 || !reader.File._Structures.ContainsKey(signalsOffset))
+			{
+				return;
+			}
+
+			var faces = (SR1_StructureArray<TFace>)reader.File._Structures[facesOffset];
+			var leaves = (SR1_StructureSeries<BSPLeaf>)reader.File._Structures[leavesOffset];
+			var multiSignals = (SR1_StructureSeries<MultiSignal>)reader.File._Structures[signalsOffset];
+
+			foreach (BSPLeaf leaf in leaves)
+			{
+				int faceSize = (reader.File._Version >= SR1_File.Version.Jan23) ? 12 : 16;
+				uint faceIndex = (leaf.faceList.Offset - faces.Start) / (uint)faceSize;
+				short numFaces = leaf.numFaces.Value;
+				for (short f = 0; f < numFaces; f++)
+				{
+					TFace tFace = (TFace)faces[(int)faceIndex + f];
+
+					tFace.IsInSignalGroup = true;
+					if (reader.File._Version < SR1_File.Version.Jan23)
+					{
+						tFace.IsInSignalGroup = ((tFace.attr0.Value & 0x4000) != 0);
+					}
+
+					foreach (MultiSignal mSignal in multiSignals)
+					{
+						uint signalOffset = tFace.texture.Offset;
+						if (reader.File._Version >= SR1_File.Version.Jan23)
+						{
+							signalOffset = signals.Offset + tFace.textoff.Value;
+						}
+
+						if (mSignal.Start == signalOffset)
+						{
+							tFace.MultiSignal = mSignal;
+							if (mSignal.numSignals.Value > 0)
+							{
+								tFace.Signal = (Signal)mSignal.signalList[0];
+							}
+							break;
+						}
+					}
+
+					if (tFace.MultiSignal != null && streamUnitsOffset != 0 &&
+						reader.File._Structures.ContainsKey(streamUnitsOffset))
+					{
+						var streamUnits = (StreamUnitPortalList)reader.File._Structures[streamUnitsOffset];
+
+						foreach (StreamUnitPortal portal in streamUnits.portals)
+						{
+							if (portal.MSignalID.Value == tFace.MultiSignal.signalNum.Value)
+							{
+								tFace.Portal = portal;
+								break;
+							}
+						}
+					}
+				}
+			}
 		}
 
 		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)

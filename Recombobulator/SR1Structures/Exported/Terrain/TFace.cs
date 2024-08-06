@@ -7,13 +7,13 @@ namespace Recombobulator.SR1Structures
 	class TFace : SR1_Structure
 	{
 		public readonly Face face = new Face();
-		public readonly SR1_Primative<ushort> attr0 = new SR1_Primative<ushort>();
-		public readonly SR1_Primative<byte> attr = new SR1_Primative<byte>();
+		public readonly SR1_Primative<ushort> attr0 = new SR1_Primative<ushort>().ShowAsHex(true);
+		public readonly SR1_Primative<byte> attr = new SR1_Primative<byte>().ShowAsHex(true);
 		public readonly SR1_Primative<sbyte> sortPush = new SR1_Primative<sbyte>();
 		public readonly SR1_Primative<ushort> normal = new SR1_Primative<ushort>();
 		public readonly SR1_Primative<ushort> morph = new SR1_Primative<ushort>();
 		public readonly SR1_Pointer<TextureFT3> texture = new SR1_Pointer<TextureFT3>();
-		public readonly SR1_Primative<ushort> textoff = new SR1_Primative<ushort>();
+		public readonly SR1_Primative<ushort> textoff = new SR1_Primative<ushort>().ShowAsHex(true);
 
 		public bool IsInSignalGroup = false;
 		public MultiSignal MultiSignal = null;
@@ -82,7 +82,9 @@ namespace Recombobulator.SR1Structures
 			{
 				bool removeSignal = false;
 
-				if (file._Version < SR1_File.Version.May12 && targetVersion >= SR1_File.Version.May12)
+				if (file._Version >= SR1_File.Version.Jan23 &&
+					file._Version < SR1_File.Version.May12 &&
+					targetVersion >= SR1_File.Version.May12)
 				{
 					// Looks like there are other things triggered besides portals/signals.
 					removeSignal |= (attr.Value != 0x44);
