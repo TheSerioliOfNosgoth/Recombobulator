@@ -470,10 +470,12 @@ namespace Recombobulator.SR1Structures
 
 			if (file._Version < SR1_File.Version.Jan23 && targetVersion >= SR1_File.Version.Jan23)
 			{
+				var faces = (SR1_StructureArray<TFace>)file._Structures[faceList.Offset];
+
 				#region BSPTrees
 
 				// Create a new array of BSPTres.
-				SR1_StructureArray<BSPTree> newBSPTrees = new SR1_StructureArray<BSPTree>(2);
+				SR1_StructureArray<BSPTree> newBSPTrees = new SR1_StructureArray<BSPTree>(1);
 
 				#region EnvTree
 
@@ -489,13 +491,31 @@ namespace Recombobulator.SR1Structures
 
 				#region SigTree
 
+				/*List<TFace> sigFaces = new List<TFace>();
+
+				foreach(TFace tFace in faces)
+				{
+					if (tFace.IsInSignalGroup)
+					{
+						TFace sigFace = new TFace();
+						sigFaces.Add(sigFace);
+					}
+				}
+
+				// TODO - Make the faces list growable.
+				foreach (TFace sigFace in sigFaces)
+				{
+					
+				}*/
+
 				// Create a leaf for the signal tree. Only one is needed.
 				//BSPLeaf sigLeaf = new BSPLeaf();
+				// TODO - Copy the spheres and stuff from bspRoot.
+				// TODO - Set faceList and numFaces to the ones i made above.
 
-				// Insert the BSPLeaf... Nowhere to put it!
-				// PtrHeuristic.Migration won't work as is, and I can't overlap
-				// the pre-existing structure without confusing the order.
-				//file._MigrationStructures.Add(bspRoot.Start, newBSPTrees);
+				// Insert the BSPLeaf at the end of the leaves list.
+				//var bspLeaves = (SR1_StructureSeries<BSPLeaf>)file._Structures[startLeaves.Offset];
+				//bspLeaves.Add(sigLeaf);
 
 				BSPTree sigTree = (BSPTree)newBSPTrees[1];
 
@@ -510,7 +530,7 @@ namespace Recombobulator.SR1Structures
 				// Insert the BSPTree array where the root used to be.
 				file._MigrationStructures.Add(endLeaves.Offset, newBSPTrees);
 
-				numBSPTrees.Value = 2;
+				numBSPTrees.Value = 1;
 				BSPTreeArray.Offset = endLeaves.Offset;
 				BSPTreeArray.Heuristic = PtrHeuristic.Migration;
 
@@ -570,7 +590,6 @@ namespace Recombobulator.SR1Structures
 
 				// There were no morph normals originally, but they would be stored in
 				// the same array, so just copy indices of regular ones from the faces.
-				var faces = (SR1_StructureArray<TFace>)file._Structures[faceList.Offset];
 				int n = 0;
 				foreach (TFace face in faces)
 				{

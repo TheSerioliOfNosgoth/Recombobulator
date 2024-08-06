@@ -80,42 +80,50 @@ namespace Recombobulator.SR1Structures
 
 			if (IsInSignalGroup)
 			{
-				bool removeSignal = false;
-
-				if (file._Version >= SR1_File.Version.Jan23 &&
-					file._Version < SR1_File.Version.May12 &&
-					targetVersion >= SR1_File.Version.May12)
+				if (file._Version >= SR1_File.Version.Jan23)
 				{
-					// Looks like there are other things triggered besides portals/signals.
-					removeSignal |= (attr.Value != 0x44);
+					bool removeSignal = false;
 
-					if (file._Version < SR1_File.Version.Apr14 &&
-						file._Structures[0].Name == "adda1" && MultiSignal != null && MultiSignal.signalNum.Value == 51)
+					if (file._Version >= SR1_File.Version.Jan23 &&
+						file._Version < SR1_File.Version.May12 &&
+						targetVersion >= SR1_File.Version.May12)
 					{
-						// On PC, nop 004ABBBA to make it draw the adjacent area without the camera being inside it.
-						// This makes it behave as if STREAM_GetClipRect returned true.
+						// Looks like there are other things triggered besides portals/signals.
+						removeSignal |= (attr.Value != 0x44);
 
-						normal.Value = 1448; // 1466
+						if (file._Version < SR1_File.Version.Apr14 &&
+							file._Structures[0].Name == "adda1" && MultiSignal != null && MultiSignal.signalNum.Value == 51)
+						{
+							// On PC, nop 004ABBBA to make it draw the adjacent area without the camera being inside it.
+							// This makes it behave as if STREAM_GetClipRect returned true.
+
+							normal.Value = 1448; // 1466
+						}
+
+						if (file._Structures[0].Name == "undrct15" && MultiSignal != null &&
+							(MultiSignal.signalNum.Value == 3 || MultiSignal.signalNum.Value == 4))
+						{
+							normal.Value = unchecked((ushort)(-(short)normal.Value));
+						}
 					}
 
-					if (file._Structures[0].Name == "undrct15" && MultiSignal != null &&
-						(MultiSignal.signalNum.Value == 3 || MultiSignal.signalNum.Value == 4))
+					removeSignal |= Portal != null && Portal.OmitFromMigration;
+					removeSignal |= MultiSignal != null && MultiSignal.OmitFromMigration;
+					removeSignal |= Signal != null && Signal.OmitFromMigration;
+
+					// 0x004ABBBA has something to do with the portals.
+					// COLLIDE_LineWithSignals does care about TFace::texoff. See address 00490DF6 in game.
+					// It's an offset into Terrain->signals, not Level->signalListStart
+					if (removeSignal)
 					{
-						normal.Value = unchecked((ushort)(-(short)normal.Value));
+						attr.Value = 0;
+						textoff.Value = 0;
 					}
 				}
-
-				removeSignal |= Portal != null && Portal.OmitFromMigration;
-				removeSignal |= MultiSignal != null && MultiSignal.OmitFromMigration;
-				removeSignal |= Signal != null && Signal.OmitFromMigration;
-
-				// 0x004ABBBA has something to do with the portals.
-				// COLLIDE_LineWithSignals does care about TFace::texoff. See address 00490DF6 in game.
-				// It's an offset into Terrain->signals, not Level->signalListStart
-				if (removeSignal)
+				else
 				{
 					attr.Value = 0;
-					textoff.Value = 0;
+					textoff.Value = 0xFFFF;
 				}
 			}
 			else
