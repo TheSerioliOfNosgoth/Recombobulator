@@ -219,57 +219,26 @@ namespace Recombobulator.SR1Structures
 
 			#endregion
 
-			if (numFaces.Value > 0 && signalLeavesOffset != 0)
+			if (numFaces.Value > 0)
 			{
-				MapSignalFaces(
-					reader,
-					faceList.Offset,
-					signalLeavesOffset,
-					reader.Level.SignalListStart.Offset,
-					StreamUnits.Offset
-				);
-			}
-
-			foreach (TFace face in faces)
-			{
-				if (!face.IsInSignalGroup && textures.Count > 0)
+				if (signalLeavesOffset != 0)
 				{
-					int textoff;
-					if (reader.File._Version < SR1_File.Version.Jan23)
-					{
-						if (face.texture.Offset >= textures.Start &&
-							face.texture.Offset < textures.End)
-						{
-							textoff = (int)(face.texture.Offset - textures.Start);
-						}
-						else
-						{
-							// Might be a signal.
-							continue;
-						}
-					}
-					else
-					{
-						textoff = face.textoff.Value;
-					}
-
-					int textureSize = (reader.File._Version >= SR1_File.Version.Apr14) ? 12 : 16;
-					int textureIndex = textoff / textureSize;
-					if (textureIndex < textures.Count)
-					{
-						face.Texture = (TextureFT3)textures[textureIndex];
-						face.TextureIndex = textureIndex;
-					}
+					MapSignalFaces(
+						reader,
+						faceList.Offset,
+						signalLeavesOffset,
+						reader.Level.SignalListStart.Offset,
+						StreamUnits.Offset
+					);
 				}
 
-				if (face.Texture != null)
+				if (textures.Count > 0)
 				{
-					face.Texture.NumReferences++;
-					if (reader.File._Version >= SR1_File.Version.Jan23 &&
-						(face.attr.Value & 0x08) != 0)
-					{
-						face.Texture.HasTranslucentPolygon = true;
-					}
+					MapTextureFaces(
+						reader,
+						faceList.Offset,
+						StartTextureList.Offset
+					);
 				}
 			}
 
@@ -379,11 +348,12 @@ namespace Recombobulator.SR1Structures
 			foreach (BSPLeaf leaf in leaves)
 			{
 				int faceSize = (reader.File._Version >= SR1_File.Version.Jan23) ? 12 : 16;
-				uint faceIndex = (leaf.faceList.Offset - faces.Start) / (uint)faceSize;
+				int faceIndex = (int)(leaf.faceList.Offset - faces.Start) / faceSize;
 				short numFaces = leaf.numFaces.Value;
+
 				for (short f = 0; f < numFaces; f++)
 				{
-					TFace tFace = (TFace)faces[(int)faceIndex + f];
+					TFace tFace = (TFace)faces[faceIndex + f];
 
 					tFace.IsInSignalGroup = true;
 					if (reader.File._Version < SR1_File.Version.Jan23)
@@ -423,6 +393,53 @@ namespace Recombobulator.SR1Structures
 								break;
 							}
 						}
+					}
+				}
+			}
+		}
+
+		private void MapTextureFaces(
+			SR1_Reader reader,
+			uint facesOffset,
+			uint texturesOffset)
+		{
+			if (facesOffset == 0 || !reader.File._Structures.ContainsKey(facesOffset) ||
+				texturesOffset == 0 || !reader.File._Structures.ContainsKey(texturesOffset))
+			{
+				return;
+			}
+
+			var faces = (SR1_StructureArray<TFace>)reader.File._Structures[facesOffset];
+			var textures = (SR1_StructureSeries<TextureFT3>)reader.File._Structures[texturesOffset];
+
+			foreach (TFace tFace in faces)
+			{
+				if (!tFace.IsInSignalGroup)
+				{
+					int textureOffset = tFace.textoff.Value;
+					if (reader.File._Version < SR1_File.Version.Jan23)
+					{
+						textureOffset = (int)(tFace.texture.Offset - textures.Start);
+					}
+
+					int textureSize = (reader.File._Version >= SR1_File.Version.Apr14) ? 12 : 16;
+					int textureIndex = textureOffset / textureSize;
+
+					if (textureIndex >= 0 && textureIndex < textures.Count)
+					{
+						tFace.Texture = (TextureFT3)textures[textureIndex];
+						tFace.TextureIndex = textureIndex;
+					}
+				}
+
+				if (tFace.Texture != null)
+				{
+					tFace.Texture.NumReferences++;
+
+					if (reader.File._Version >= SR1_File.Version.Jan23 &&
+						(tFace.attr.Value & 0x08) != 0)
+					{
+						tFace.Texture.HasTranslucentPolygon = true;
 					}
 				}
 			}
