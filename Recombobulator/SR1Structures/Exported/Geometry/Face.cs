@@ -5,9 +5,9 @@ namespace Recombobulator.SR1Structures
 {
 	public class Face : SR1_Structure
 	{
-		SR1_Primative<ushort> v0 = new SR1_Primative<ushort>();
-		SR1_Primative<ushort> v1 = new SR1_Primative<ushort>();
-		SR1_Primative<ushort> v2 = new SR1_Primative<ushort>();
+		public readonly SR1_Primative<ushort> v0 = new SR1_Primative<ushort>();
+		public readonly SR1_Primative<ushort> v1 = new SR1_Primative<ushort>();
+		public readonly SR1_Primative<ushort> v2 = new SR1_Primative<ushort>();
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{

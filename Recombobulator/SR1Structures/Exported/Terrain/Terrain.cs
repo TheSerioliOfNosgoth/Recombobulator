@@ -41,6 +41,16 @@ namespace Recombobulator.SR1Structures
 		public SR1_Pointer<MultiSignal> signals = new SR1_Pointer<MultiSignal>();
 		SR1_Pointer<TexAniAssocData> texAniAssocData = new SR1_Pointer<TexAniAssocData>();
 
+		SR1_StructureArray<TVertex> _vertices = null;
+		SR1_StructureArray<TFace> _faces = null;
+		SR1_StructureArray<Normal> _normals = null;
+		DrMoveAniTex _drMoveAniTex = null;
+		StreamUnitPortalList _portalList = null;
+		SR1_StructureSeries<TextureFT3> _textures = null;
+		SR1_StructureSeries<MorphVertex> _morphVertices = null;
+		SR1_StructureArray<MorphColor> _morphColors = null;
+		SR1_PrimativeArray<ushort> _morphNormals = null;
+
 		// Used to remember where to insert the morph normals, on migrating from Proto1
 		// because of weird padding at the end of them.
 		uint NormalListEnd = 0;
@@ -83,28 +93,31 @@ namespace Recombobulator.SR1Structures
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
 		{
+			#region Geometry
+
+			_vertices = new SR1_StructureArray<TVertex>(numVertices.Value);
 			if (numVertices.Value > 0)
 			{
-				new SR1_StructureArray<TVertex>(numVertices.Value).ReadFromPointer(reader, vertexList);
+				_vertices.ReadFromPointer(reader, vertexList);
 			}
 
-			SR1_StructureArray<TFace> faces = new SR1_StructureArray<TFace>(numFaces.Value);
+			_faces = new SR1_StructureArray<TFace>(numFaces.Value);
 			if (numFaces.Value > 0)
 			{
-				faces.ReadFromPointer(reader, faceList);
+				_faces.ReadFromPointer(reader, faceList);
 			}
 
+			_normals = new SR1_StructureArray<Normal>(numNormals.Value);
 			if (numNormals.Value > 0)
 			{
-				SR1_Structure normals = new SR1_StructureArray<Normal>(numNormals.Value);
-				normals.SetPadding(4);
-				normals.ReadFromPointer(reader, normalList);
+				_normals.SetPadding(4);
+				_normals.ReadFromPointer(reader, normalList);
 
 				// Mystery byte after normalList. Always 0x2A.
 				// This is *not* alignment.
-				if (normals.End != 0 && !reader.File._Structures.ContainsKey(normals.End))
+				if (_normals.End != 0 && !reader.File._Structures.ContainsKey(_normals.End))
 				{
-					reader.BaseStream.Position = normals.End;
+					reader.BaseStream.Position = _normals.End;
 					new SR1_Primative<byte>().ShowAsHex(true).Read(reader, null, "");
 				}
 
@@ -113,8 +126,10 @@ namespace Recombobulator.SR1Structures
 				NormalListEnd = (uint)reader.BaseStream.Position;
 			}
 
-			DrMoveAniTex drMoveAniTex = new DrMoveAniTex();
-			drMoveAniTex.ReadFromPointer(reader, aniList);
+			#endregion
+
+			_drMoveAniTex = new DrMoveAniTex();
+			_drMoveAniTex.ReadFromPointer(reader, aniList);
 
 			if (reader.File._Version <= SR1_File.Version.May12)
 			{
@@ -124,11 +139,13 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
-			StreamUnitPortalList portalList = new StreamUnitPortalList();
-			portalList.ReadFromPointer(reader, StreamUnits);
+			_portalList = new StreamUnitPortalList();
+			_portalList.ReadFromPointer(reader, StreamUnits);
 
-			SR1_StructureSeries<TextureFT3> textures = new SR1_StructureSeries<TextureFT3>((int)(EndTextureList.Offset - StartTextureList.Offset));
-			textures.ReadFromPointer(reader, StartTextureList);
+			_textures = new SR1_StructureSeries<TextureFT3>((int)(EndTextureList.Offset - StartTextureList.Offset));
+			_textures.ReadFromPointer(reader, StartTextureList);
+
+			#region Morphs
 
 			if (reader.File._Version <= SR1_File.Version.May12)
 			{
@@ -147,12 +164,19 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
-			new SR1_StructureSeries<MorphVertex>((int)(MorphColorList.Offset - MorphDiffList.Offset)).ReadFromPointer(reader, MorphDiffList);
+			_morphVertices = new SR1_StructureSeries<MorphVertex>((int)(MorphColorList.Offset - MorphDiffList.Offset));
+			_morphVertices.ReadFromPointer(reader, MorphDiffList);
 
 			if (reader.File._Version >= SR1_File.Version.Jan23)
 			{
-				int morphColorPadding = (reader.File._Version >= SR1_File.Version.Apr14) ? 4 : 2;
-				new SR1_StructureArray<MorphColor>(numVertices.Value).SetPadding(morphColorPadding).ReadFromPointer(reader, MorphColorList);
+				_morphColors = new SR1_StructureArray<MorphColor>(numVertices.Value);
+
+				if (numVertices.Value > 0)
+				{
+					int morphColorPadding = (reader.File._Version >= SR1_File.Version.Apr14) ? 4 : 2;
+					_morphColors.SetPadding(morphColorPadding);
+					_morphColors.ReadFromPointer(reader, MorphColorList);
+				}
 			}
 			else if (MorphColorList.Offset != 0)
 			{
@@ -168,18 +192,35 @@ namespace Recombobulator.SR1Structures
 				}
 				while (morphColor.vindex.Value != -1);
 
+				_morphColors = new SR1_StructureArray<MorphColor>(numMorphColors);
+
 				if (numMorphColors > 0)
 				{
-					new SR1_StructureArray<MorphColor>(numMorphColors).ReadFromPointer(reader, MorphColorList);
+					_morphColors.ReadFromPointer(reader, MorphColorList);
+				}
+			}
+			else
+			{
+				_morphColors = new SR1_StructureArray<MorphColor>(0);
+			}
+
+			if (reader.File._Version < SR1_File.Version.Jan23)
+			{
+				_morphNormals = new SR1_PrimativeArray<ushort>(0);
+			}
+			else
+			{
+				_morphNormals = new SR1_PrimativeArray<ushort>(numFaces.Value);
+
+				if (numFaces.Value > 0)
+				{
+					_morphNormals.SetPadding(4);
+					_morphNormals.Align = 2;
+					_morphNormals.ReadFromPointer(reader, morphNormalIdx);
 				}
 			}
 
-			if (reader.File._Version >= SR1_File.Version.Jan23)
-			{
-				var morphNormals = new SR1_PrimativeArray<ushort>(numFaces.Value).SetPadding(4);
-				morphNormals.Align = 2;
-				morphNormals.ReadFromPointer(reader, morphNormalIdx);
-			}
+			#endregion
 
 			#region BSPTrees
 
@@ -219,6 +260,8 @@ namespace Recombobulator.SR1Structures
 
 			#endregion
 
+			#region MapFaces
+
 			if (numFaces.Value > 0)
 			{
 				if (signalLeavesOffset != 0)
@@ -232,7 +275,7 @@ namespace Recombobulator.SR1Structures
 					);
 				}
 
-				if (textures.Count > 0)
+				if (_textures.Count > 0)
 				{
 					MapTextureFaces(
 						reader,
@@ -242,10 +285,12 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
-			for (int t = 0; t < textures.Count; t++)
+			#endregion
+
+			for (int t = 0; t < _textures.Count; t++)
 			{
-				TextureFT3 texture = (TextureFT3)textures[t];
-				int aniTexIndex = drMoveAniTex.GetAnimatedTextureIndex(reader.File, texture);
+				TextureFT3 texture = (TextureFT3)_textures[t];
+				int aniTexIndex = _drMoveAniTex.GetAnimatedTextureIndex(reader.File, texture);
 				if (aniTexIndex >= 0)
 				{
 					texture.AniTexIndex = aniTexIndex;

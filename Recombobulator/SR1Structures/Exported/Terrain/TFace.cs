@@ -124,6 +124,9 @@ namespace Recombobulator.SR1Structures
 				{
 					attr.Value = 0;
 					textoff.Value = 0xFFFF;
+
+					// Effectively disable the FFace.
+					face.v2.Value = face.v1.Value;
 				}
 			}
 			else
