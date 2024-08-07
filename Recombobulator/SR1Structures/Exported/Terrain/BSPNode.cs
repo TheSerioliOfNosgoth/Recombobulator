@@ -5,8 +5,8 @@ namespace Recombobulator.SR1Structures
 {
 	class BSPNode : SR1_Structure
 	{
-		Sphere sphere = new Sphere();
-		Sphere_noSq sphereNoSq = new Sphere_noSq();
+		public readonly Sphere sphere = new Sphere();
+		public readonly Sphere_noSq sphereNoSq = new Sphere_noSq();
 		public readonly SR1_Primative<short> a = new SR1_Primative<short>();
 		public readonly SR1_Primative<short> b = new SR1_Primative<short>();
 		public readonly SR1_Primative<short> c = new SR1_Primative<short>();

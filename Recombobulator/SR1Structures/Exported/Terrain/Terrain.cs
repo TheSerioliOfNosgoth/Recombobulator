@@ -342,8 +342,15 @@ namespace Recombobulator.SR1Structures
 			}
 
 			var faces = (SR1_StructureArray<TFace>)reader.File._Structures[facesOffset];
-			var leaves = (SR1_StructureSeries<BSPLeaf>)reader.File._Structures[leavesOffset];
 			var multiSignals = (SR1_StructureSeries<MultiSignal>)reader.File._Structures[signalsOffset];
+
+			SR1_Structure nodesOrLeaves = reader.File._Structures[leavesOffset];
+			if (nodesOrLeaves.GetType() != typeof(SR1_StructureSeries<BSPLeaf>))
+			{
+				return;
+			}
+
+			var leaves = (SR1_StructureSeries<BSPLeaf>)nodesOrLeaves;
 
 			foreach (BSPLeaf leaf in leaves)
 			{
@@ -471,11 +478,14 @@ namespace Recombobulator.SR1Structures
 			if (file._Version < SR1_File.Version.Jan23 && targetVersion >= SR1_File.Version.Jan23)
 			{
 				var faces = (SR1_StructureArray<TFace>)file._Structures[faceList.Offset];
+				var bspNodes = (SR1_StructureSeries<BSPNode>)file._Structures[bspRoot.Offset];
+				var bspLeaves = (SR1_StructureSeries<BSPLeaf>)file._Structures[startLeaves.Offset];
+				var bspRootStruct = (BSPNode)bspNodes[0];
 
 				#region BSPTrees
 
 				// Create a new array of BSPTres.
-				SR1_StructureArray<BSPTree> newBSPTrees = new SR1_StructureArray<BSPTree>(1);
+				SR1_StructureArray<BSPTree> newBSPTrees = new SR1_StructureArray<BSPTree>(2);
 
 				#region EnvTree
 
@@ -509,20 +519,47 @@ namespace Recombobulator.SR1Structures
 				}*/
 
 				// Create a leaf for the signal tree. Only one is needed.
-				//BSPLeaf sigLeaf = new BSPLeaf();
-				// TODO - Copy the spheres and stuff from bspRoot.
+				BSPLeaf sigLeaf = new BSPLeaf();
+
+				Sphere.Copy(sigLeaf.sphere, bspRootStruct.sphere);
+				Sphere.Copy(sigLeaf.spectralSphere, bspRootStruct.spectralSphere);
+
+				short radius = (short)sigLeaf.sphere.radius.Value;
+
+				sigLeaf.box.minX.Value = (short)(sigLeaf.sphere.position.x.Value - radius);
+				sigLeaf.box.minY.Value = (short)(sigLeaf.sphere.position.y.Value - radius);
+				sigLeaf.box.minZ.Value = (short)(sigLeaf.sphere.position.z.Value - radius);
+				sigLeaf.box.maxX.Value = (short)(sigLeaf.sphere.position.x.Value + radius);
+				sigLeaf.box.maxY.Value = (short)(sigLeaf.sphere.position.y.Value + radius);
+				sigLeaf.box.maxZ.Value = (short)(sigLeaf.sphere.position.z.Value + radius);
+
+				short spectralRadius = (short)sigLeaf.spectralSphere.radius.Value;
+
+				sigLeaf.spectralBox.minX.Value = (short)(sigLeaf.spectralSphere.position.x.Value - spectralRadius);
+				sigLeaf.spectralBox.minY.Value = (short)(sigLeaf.spectralSphere.position.y.Value - spectralRadius);
+				sigLeaf.spectralBox.minZ.Value = (short)(sigLeaf.spectralSphere.position.z.Value - spectralRadius);
+				sigLeaf.spectralBox.maxX.Value = (short)(sigLeaf.spectralSphere.position.x.Value + spectralRadius);
+				sigLeaf.spectralBox.maxY.Value = (short)(sigLeaf.spectralSphere.position.y.Value + spectralRadius);
+				sigLeaf.spectralBox.maxZ.Value = (short)(sigLeaf.spectralSphere.position.z.Value + spectralRadius);
+
 				// TODO - Set faceList and numFaces to the ones i made above.
 
+				// MigrateVersion is only called on MembersReal, which won't include
+				// this new one, so do that here.
+				sigLeaf.MigrateVersion(file, targetVersion, migrateFlags);
+
 				// Insert the BSPLeaf at the end of the leaves list.
-				//var bspLeaves = (SR1_StructureSeries<BSPLeaf>)file._Structures[startLeaves.Offset];
-				//bspLeaves.Add(sigLeaf);
+				bspLeaves.Add(sigLeaf);
 
 				BSPTree sigTree = (BSPTree)newBSPTrees[1];
 
 				// Set the signal BSPTree fields to the new signal leaves.
-				sigTree.bspRoot.Offset = 0;
-				sigTree.startLeaves.Offset = 0;
-				sigTree.endLeaves.Offset = 0;
+				sigTree.bspRoot.Offset = endLeaves.Offset;
+				sigTree.bspRoot.Heuristic = PtrHeuristic.End;
+				sigTree.startLeaves.Offset = endLeaves.Offset;
+				sigTree.startLeaves.Heuristic = PtrHeuristic.End;
+				sigTree.endLeaves.Offset = endLeaves.Offset;
+				sigTree.endLeaves.Heuristic = PtrHeuristic.End;
 				sigTree.ID.Value = -1;
 
 				#endregion
@@ -530,7 +567,7 @@ namespace Recombobulator.SR1Structures
 				// Insert the BSPTree array where the root used to be.
 				file._MigrationStructures.Add(endLeaves.Offset, newBSPTrees);
 
-				numBSPTrees.Value = 1;
+				numBSPTrees.Value = 2;
 				BSPTreeArray.Offset = endLeaves.Offset;
 				BSPTreeArray.Heuristic = PtrHeuristic.Migration;
 
