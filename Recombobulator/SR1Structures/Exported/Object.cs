@@ -274,7 +274,7 @@ namespace Recombobulator.SR1Structures
 					uint length = keyLists.Start - (uint)reader.BaseStream.Position;
 					if (length > 0)
 					{
-						new SR1_StructureSeries<G2AnimFXList>((int)length).SetPadding(4).Read(reader, null, "");
+						new SR1_StructureSeries<G2AnimFXList>().SetReadLength((int)length).SetPadding(4).Read(reader, null, "");
 					}
 				}
 				else if (reader.AnimFXDictionary.Count > 0)

@@ -62,7 +62,8 @@ namespace Recombobulator.SR1Structures
 
 			SR1_StructureArray<MFace> faces = new SR1_StructureArray<MFace>(numFaces.Value);
 			faces.ReadFromPointer(reader, faceList);
-			SR1_StructureSeries<TextureMT3> textures = new SR1_StructureSeries<TextureMT3>((int)(endTextures.Offset - startTextures.Offset));
+			SR1_StructureSeries<TextureMT3> textures = new SR1_StructureSeries<TextureMT3>();
+			textures.SetReadLength((int)(endTextures.Offset - startTextures.Offset));
 			textures.ReadFromPointer(reader, startTextures);
 
 			foreach (MFace face in faces)

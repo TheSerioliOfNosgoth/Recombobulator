@@ -74,6 +74,25 @@ namespace Recombobulator.SR1Structures
 			textoff.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 		}
 
+		public static void Copy(TFace to, TFace from)
+		{
+			Face.Copy(to.face, from.face);
+			to.attr0.Value = from.attr0.Value;
+			to.attr.Value = from.attr.Value;
+			to.sortPush.Value = from.sortPush.Value;
+			to.normal.Value = from.normal.Value;
+			to.morph.Value = from.morph.Value;
+			to.texture.Offset = from.texture.Offset;
+			to.textoff.Value = from.textoff.Value;
+
+			to.IsInSignalGroup = from.IsInSignalGroup;
+			to.MultiSignal = from.MultiSignal;
+			to.Signal = from.Signal;
+			to.Portal = from.Portal;
+			to.Texture = from.Texture;
+			to.TextureIndex = from.TextureIndex;
+		}
+
 		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
 		{
 			base.MigrateVersion(file, targetVersion, migrateFlags);

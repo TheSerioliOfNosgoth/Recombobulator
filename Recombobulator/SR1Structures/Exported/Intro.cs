@@ -81,7 +81,8 @@ namespace Recombobulator.SR1Structures
 				while (tempCMD.command.Value != 0);
 
 				int bufferLength = (int)reader.BaseStream.Position - (int)data.Offset;
-				SR1_StructureSeries<INICommand> commands = new SR1_StructureSeries<INICommand>(bufferLength);
+				SR1_StructureSeries<INICommand> commands = new SR1_StructureSeries<INICommand>();
+				commands.SetReadLength(bufferLength);
 
 				reader.BaseStream.Position = (long)data.Offset;
 				commands.Read(reader, null, "");

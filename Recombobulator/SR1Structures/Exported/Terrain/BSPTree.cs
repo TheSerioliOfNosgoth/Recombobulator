@@ -32,12 +32,12 @@ namespace Recombobulator.SR1Structures
 		{
 			if ((int)(startLeaves.Offset - bspRoot.Offset) > 0)
 			{
-				new SR1_StructureSeries<BSPNode>((int)(startLeaves.Offset - bspRoot.Offset)).ReadFromPointer(reader, bspRoot);
+				new SR1_StructureSeries<BSPNode>().SetReadLength((int)(startLeaves.Offset - bspRoot.Offset)).ReadFromPointer(reader, bspRoot);
 			}
 
 			if ((int)(endLeaves.Offset - startLeaves.Offset) > 0)
 			{
-				new SR1_StructureSeries<BSPLeaf>((int)(endLeaves.Offset - startLeaves.Offset)).ReadFromPointer(reader, startLeaves);
+				new SR1_StructureSeries<BSPLeaf>().SetReadLength((int)(endLeaves.Offset - startLeaves.Offset)).ReadFromPointer(reader, startLeaves);
 			}
 		}
 

@@ -26,5 +26,12 @@ namespace Recombobulator.SR1Structures
 			v1.Write(writer);
 			v2.Write(writer);
 		}
+
+		public static void Copy(Face to, Face from)
+		{
+			to.v0.Value = from.v0.Value;
+			to.v1.Value = from.v1.Value;
+			to.v2.Value = from.v2.Value;
+		}
 	}
 }

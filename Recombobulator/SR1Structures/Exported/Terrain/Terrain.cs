@@ -42,7 +42,7 @@ namespace Recombobulator.SR1Structures
 		SR1_Pointer<TexAniAssocData> texAniAssocData = new SR1_Pointer<TexAniAssocData>();
 
 		SR1_StructureArray<TVertex> _vertices = null;
-		SR1_StructureArray<TFace> _faces = null;
+		SR1_StructureSeries<TFace> _faces = null;
 		SR1_StructureArray<Normal> _normals = null;
 		DrMoveAniTex _drMoveAniTex = null;
 		StreamUnitPortalList _portalList = null;
@@ -101,9 +101,10 @@ namespace Recombobulator.SR1Structures
 				_vertices.ReadFromPointer(reader, vertexList);
 			}
 
-			_faces = new SR1_StructureArray<TFace>(numFaces.Value);
+			_faces = new SR1_StructureSeries<TFace>();
 			if (numFaces.Value > 0)
 			{
+				_faces.SetReadCount(numFaces.Value);
 				_faces.ReadFromPointer(reader, faceList);
 			}
 
@@ -135,21 +136,22 @@ namespace Recombobulator.SR1Structures
 			{
 				if (sbspRoot.Offset != 0 && sbspRoot.Offset < sbspStartLeaves.Offset)
 				{
-					new SR1_StructureSeries<BSPNode>((int)(sbspStartLeaves.Offset - sbspRoot.Offset)).ReadFromPointer(reader, sbspRoot);
+					new SR1_StructureSeries<BSPNode>().SetReadLength((int)(sbspStartLeaves.Offset - sbspRoot.Offset)).ReadFromPointer(reader, sbspRoot);
 				}
 			}
 
 			_portalList = new StreamUnitPortalList();
 			_portalList.ReadFromPointer(reader, StreamUnits);
 
-			_textures = new SR1_StructureSeries<TextureFT3>((int)(EndTextureList.Offset - StartTextureList.Offset));
+			_textures = new SR1_StructureSeries<TextureFT3>();
+			_textures.SetReadLength((int)(EndTextureList.Offset - StartTextureList.Offset));
 			_textures.ReadFromPointer(reader, StartTextureList);
 
 			#region Morphs
 
 			if (reader.File._Version <= SR1_File.Version.May12)
 			{
-				new SR1_StructureSeries<SBSPLeaf>((int)(sbspEndLeaves.Offset - sbspStartLeaves.Offset)).ReadFromPointer(reader, sbspStartLeaves);
+				new SR1_StructureSeries<SBSPLeaf>().SetReadLength((int)(sbspEndLeaves.Offset - sbspStartLeaves.Offset)).ReadFromPointer(reader, sbspStartLeaves);
 
 				if (reader.IntroListDictionary.Count > 0)
 				{
@@ -164,7 +166,8 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
-			_morphVertices = new SR1_StructureSeries<MorphVertex>((int)(MorphColorList.Offset - MorphDiffList.Offset));
+			_morphVertices = new SR1_StructureSeries<MorphVertex>();
+			_morphVertices.SetReadLength((int)(MorphColorList.Offset - MorphDiffList.Offset));
 			_morphVertices.ReadFromPointer(reader, MorphDiffList);
 
 			if (reader.File._Version >= SR1_File.Version.Jan23)
@@ -230,14 +233,15 @@ namespace Recombobulator.SR1Structures
 			{
 				if ((int)(startLeaves.Offset - bspRoot.Offset) > 0)
 				{
-					var bspNodes = new SR1_StructureSeries<BSPNode>((int)(startLeaves.Offset - bspRoot.Offset));
+					var bspNodes = new SR1_StructureSeries<BSPNode>().SetReadLength((int)(startLeaves.Offset - bspRoot.Offset));
 					bspNodes.ReadFromPointer(reader, bspRoot);
 					bspNodes.Align = 4;
 				}
 
 				if ((int)(endLeaves.Offset - startLeaves.Offset) > 0)
 				{
-					SR1_StructureSeries<BSPLeaf> leaves = new SR1_StructureSeries<BSPLeaf>((int)(endLeaves.Offset - startLeaves.Offset));
+					SR1_StructureSeries<BSPLeaf> leaves = new SR1_StructureSeries<BSPLeaf>();
+					leaves.SetReadLength((int)(endLeaves.Offset - startLeaves.Offset));
 					leaves.ReadFromPointer(reader, startLeaves);
 				}
 
@@ -386,7 +390,7 @@ namespace Recombobulator.SR1Structures
 				return;
 			}
 
-			var faces = (SR1_StructureArray<TFace>)reader.File._Structures[facesOffset];
+			var faces = (SR1_StructureSeries<TFace>)reader.File._Structures[facesOffset];
 			var multiSignals = (SR1_StructureSeries<MultiSignal>)reader.File._Structures[signalsOffset];
 
 			SR1_Structure nodesOrLeaves = reader.File._Structures[leavesOffset];
@@ -461,7 +465,7 @@ namespace Recombobulator.SR1Structures
 				return;
 			}
 
-			var faces = (SR1_StructureArray<TFace>)reader.File._Structures[facesOffset];
+			var faces = (SR1_StructureSeries<TFace>)reader.File._Structures[facesOffset];
 			var textures = (SR1_StructureSeries<TextureFT3>)reader.File._Structures[texturesOffset];
 
 			foreach (TFace tFace in faces)
@@ -522,7 +526,7 @@ namespace Recombobulator.SR1Structures
 
 			if (file._Version < SR1_File.Version.Jan23 && targetVersion >= SR1_File.Version.Jan23)
 			{
-				var faces = (SR1_StructureArray<TFace>)file._Structures[faceList.Offset];
+				var faces = (SR1_StructureSeries<TFace>)file._Structures[faceList.Offset];
 				var bspNodes = (SR1_StructureSeries<BSPNode>)file._Structures[bspRoot.Offset];
 				var bspLeaves = (SR1_StructureSeries<BSPLeaf>)file._Structures[startLeaves.Offset];
 				var bspRootStruct = (BSPNode)bspNodes[0];
@@ -546,22 +550,31 @@ namespace Recombobulator.SR1Structures
 
 				#region SigTree
 
-				/*List<TFace> sigFaces = new List<TFace>();
+				List<TFace> sigFaces = new List<TFace>();
 
 				foreach(TFace tFace in faces)
 				{
 					if (tFace.IsInSignalGroup)
 					{
 						TFace sigFace = new TFace();
+						TFace.Copy(sigFace, tFace);
+						sigFace.MigrateVersion(file, targetVersion, migrateFlags);
+						sigFace.attr.Value = 0; // 0x44;
+						sigFace.textoff.Value = tFace.textoff.Value;
+
+						// TODO - Rmove this once trrain.signals has a valid pointer.
+						sigFace.IsInSignalGroup = false;
+
 						sigFaces.Add(sigFace);
 					}
 				}
 
-				// TODO - Make the faces list growable.
 				foreach (TFace sigFace in sigFaces)
 				{
-					
-				}*/
+					_faces.Add(sigFace);
+				}
+
+				numFaces.Value = _faces.Count;
 
 				// Create a leaf for the signal tree. Only one is needed.
 				BSPLeaf sigLeaf = new BSPLeaf();
