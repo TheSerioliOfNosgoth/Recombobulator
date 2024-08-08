@@ -28,19 +28,19 @@ namespace Recombobulator.SR1Structures
 		{
 			if (reader.File._Version >= SR1_File.Version.May12)
 			{
-				new SR1_StructureSeries<GenericParticleParams>().SetReadLength((int)(RibbonList.Offset - ParticleList.Offset)).ReadFromPointer(reader, ParticleList);
-				new SR1_StructureSeries<GenericRibbonParams>().SetReadLength((int)(GlowList.Offset - RibbonList.Offset)).ReadFromPointer(reader, RibbonList);
-				new SR1_StructureSeries<GenericGlowParams>().SetReadLength((int)(LightningList.Offset - GlowList.Offset)).ReadFromPointer(reader, GlowList);
-				new SR1_StructureSeries<GenericLightningParams>().SetReadLength((int)(BlastList.Offset - LightningList.Offset)).ReadFromPointer(reader, LightningList);
-				new SR1_StructureSeries<GenericBlastRingParams>().SetReadLength((int)(ColorList.Offset - BlastList.Offset)).ReadFromPointer(reader, BlastList);
+				new SR1_StructureSeries<GenericParticleParams>().ReadFromPointer(reader, ParticleList, RibbonList);
+				new SR1_StructureSeries<GenericRibbonParams>().ReadFromPointer(reader, RibbonList, GlowList);
+				new SR1_StructureSeries<GenericGlowParams>().ReadFromPointer(reader, GlowList, LightningList);
+				new SR1_StructureSeries<GenericLightningParams>().ReadFromPointer(reader, LightningList, BlastList);
+				new SR1_StructureSeries<GenericBlastRingParams>().ReadFromPointer(reader, BlastList, ColorList);
 				new SR1_PrimativeArray<uint>((int)(FlashList.Offset - ColorList.Offset) >> 2).ReadFromPointer(reader, ColorList);
-				new SR1_StructureSeries<GenericFlashParams>().SetReadLength((int)(reader.BaseStream.Length - FlashList.Offset)).ReadFromPointer(reader, FlashList);
+				new SR1_StructureSeries<GenericFlashParams>().ReadFromPointer(reader, FlashList, (uint)reader.BaseStream.Length);
 			}
 			else
 			{
-				new SR1_StructureSeries<GenericParticleParams>().SetReadLength((int)(RibbonList.Offset - ParticleList.Offset)).ReadFromPointer(reader, ParticleList);
-				new SR1_StructureSeries<GenericRibbonParams>().SetReadLength((int)(GlowList.Offset - RibbonList.Offset)).ReadFromPointer(reader, RibbonList);
-				new SR1_StructureSeries<GenericGlowParams>().SetReadLength((int)(ColorList.Offset - GlowList.Offset)).ReadFromPointer(reader, GlowList);
+				new SR1_StructureSeries<GenericParticleParams>().ReadFromPointer(reader, ParticleList, RibbonList);
+				new SR1_StructureSeries<GenericRibbonParams>().ReadFromPointer(reader, RibbonList, GlowList);
+				new SR1_StructureSeries<GenericGlowParams>().ReadFromPointer(reader, GlowList, ColorList);
 				new SR1_PrimativeArray<uint>((int)(reader.BaseStream.Length - ColorList.Offset) >> 2).ReadFromPointer(reader, ColorList);
 			}
 		}

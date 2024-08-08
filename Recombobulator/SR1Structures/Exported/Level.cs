@@ -242,7 +242,7 @@ namespace Recombobulator.SR1Structures
 			worldNameString.SetPadding(4).ReadFromPointer(reader, worldName);
 			Name = worldNameString.ToString();
 
-			new SR1_StructureSeries<MultiSignal>().SetReadLength((int)(SignalListEnd.Offset - SignalListStart.Offset)).ReadFromPointer(reader, SignalListStart);
+			new SR1_StructureSeries<MultiSignal>().ReadFromPointer(reader, SignalListStart, SignalListEnd);
 			SR1_Structure terrainStruct = new Terrain().ReadFromPointer(reader, terrain);
 
 			lightListStruct0.ReadFromPointer(reader, lightList);

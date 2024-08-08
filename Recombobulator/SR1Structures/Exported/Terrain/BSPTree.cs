@@ -30,15 +30,8 @@ namespace Recombobulator.SR1Structures
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
 		{
-			if ((int)(startLeaves.Offset - bspRoot.Offset) > 0)
-			{
-				new SR1_StructureSeries<BSPNode>().SetReadLength((int)(startLeaves.Offset - bspRoot.Offset)).ReadFromPointer(reader, bspRoot);
-			}
-
-			if ((int)(endLeaves.Offset - startLeaves.Offset) > 0)
-			{
-				new SR1_StructureSeries<BSPLeaf>().SetReadLength((int)(endLeaves.Offset - startLeaves.Offset)).ReadFromPointer(reader, startLeaves);
-			}
+			new SR1_StructureSeries<BSPNode>().ReadFromPointer(reader, bspRoot, startLeaves);
+			new SR1_StructureSeries<BSPLeaf>().ReadFromPointer(reader, startLeaves, endLeaves);
 		}
 
 		public override void WriteMembers(SR1_Writer writer)

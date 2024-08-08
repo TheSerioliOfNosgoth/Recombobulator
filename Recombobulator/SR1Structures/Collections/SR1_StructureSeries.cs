@@ -37,6 +37,52 @@ namespace Recombobulator.SR1Structures
 			return this;
 		}
 
+
+
+		public SR1_Structure ReadFromPointer(SR1_Reader reader, SR1_PointerBase startPointer, int count)
+		{
+			if (startPointer != null && startPointer.Offset != 0 &&
+				count > 0)
+			{
+				SetReadCount(count);
+
+				if (_ReadCount > 0 &&
+					startPointer.PrepareToReadReference(reader))
+				{
+					Read(reader, null, "");
+				}
+			}
+
+			return this;
+		}
+
+		public SR1_Structure ReadFromPointer(SR1_Reader reader, SR1_PointerBase startPointer, uint endOffset)
+		{
+			if (startPointer != null && startPointer.Offset != 0 &&
+				endOffset != 0)
+			{
+				SetReadLength((int)(endOffset - startPointer.Offset));
+
+				if (_ReadLength > 0 &&
+					startPointer.PrepareToReadReference(reader))
+				{
+					Read(reader, null, "");
+				}
+			}
+
+			return this;
+		}
+
+		public SR1_Structure ReadFromPointer(SR1_Reader reader, SR1_PointerBase startPointer, SR1_PointerBase endPointer)
+		{
+			if (endPointer != null)
+			{
+				ReadFromPointer(reader, startPointer, endPointer.Offset);
+			}
+
+			return this;
+		}
+
 		public void Add(T entry)
 		{
 			_List.Add(entry);

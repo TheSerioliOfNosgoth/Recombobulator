@@ -279,7 +279,7 @@ namespace Recombobulator.SR1Structures
 				}
 				else if (reader.AnimFXDictionary.Count > 0)
 				{
-					// Superceeded by code above?
+					// Superceded by code above?
 					int numEffects = reader.AnimFXDictionary.Count;
 					if (reader.Object.Name == "wrshp___")
 					{

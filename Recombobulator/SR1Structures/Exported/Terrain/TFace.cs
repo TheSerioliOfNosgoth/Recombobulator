@@ -48,7 +48,7 @@ namespace Recombobulator.SR1Structures
 			morph.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
 			texture.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
 
-			if (IsInSignalGroup && attr.Value != 0)
+			if (writer.File._Version >= SR1_File.Version.Jan23 && IsInSignalGroup && attr.Value != 0)
 			{
 				Level level = (Level)writer.File._Structures[0];
 				Terrain terrain = (Terrain)writer.File._Structures[level.terrain.Offset];
@@ -97,77 +97,80 @@ namespace Recombobulator.SR1Structures
 		{
 			base.MigrateVersion(file, targetVersion, migrateFlags);
 
-			if (IsInSignalGroup)
+			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
 			{
-				if (file._Version >= SR1_File.Version.Jan23)
+				if (IsInSignalGroup)
 				{
-					bool removeSignal = false;
-
-					if (file._Version >= SR1_File.Version.Jan23 &&
-						file._Version < SR1_File.Version.May12 &&
-						targetVersion >= SR1_File.Version.May12)
+					if (file._Version >= SR1_File.Version.Jan23)
 					{
-						// Looks like there are other things triggered besides portals/signals.
-						removeSignal |= (attr.Value != 0x44);
+						bool removeSignal = false;
 
-						if (file._Version < SR1_File.Version.Apr14 &&
-							file._Structures[0].Name == "adda1" && MultiSignal != null && MultiSignal.signalNum.Value == 51)
+						if (file._Version >= SR1_File.Version.Jan23 &&
+							file._Version < SR1_File.Version.May12 &&
+							targetVersion >= SR1_File.Version.May12)
 						{
-							// On PC, nop 004ABBBA to make it draw the adjacent area without the camera being inside it.
-							// This makes it behave as if STREAM_GetClipRect returned true.
+							// Looks like there are other things triggered besides portals/signals.
+							removeSignal |= (attr.Value != 0x44);
 
-							normal.Value = 1448; // 1466
+							if (file._Version < SR1_File.Version.Apr14 &&
+								file._Structures[0].Name == "adda1" && MultiSignal != null && MultiSignal.signalNum.Value == 51)
+							{
+								// On PC, nop 004ABBBA to make it draw the adjacent area without the camera being inside it.
+								// This makes it behave as if STREAM_GetClipRect returned true.
+
+								normal.Value = 1448; // 1466
+							}
+
+							if (file._Structures[0].Name == "undrct15" && MultiSignal != null &&
+								(MultiSignal.signalNum.Value == 3 || MultiSignal.signalNum.Value == 4))
+							{
+								normal.Value = unchecked((ushort)(-(short)normal.Value));
+							}
 						}
 
-						if (file._Structures[0].Name == "undrct15" && MultiSignal != null &&
-							(MultiSignal.signalNum.Value == 3 || MultiSignal.signalNum.Value == 4))
+						removeSignal |= Portal != null && Portal.OmitFromMigration;
+						removeSignal |= MultiSignal != null && MultiSignal.OmitFromMigration;
+						removeSignal |= Signal != null && Signal.OmitFromMigration;
+
+						// 0x004ABBBA has something to do with the portals.
+						// COLLIDE_LineWithSignals does care about TFace::texoff. See address 00490DF6 in game.
+						// It's an offset into Terrain->signals, not Level->signalListStart
+						if (removeSignal)
 						{
-							normal.Value = unchecked((ushort)(-(short)normal.Value));
+							attr.Value = 0;
+							textoff.Value = 0;
 						}
 					}
-
-					removeSignal |= Portal != null && Portal.OmitFromMigration;
-					removeSignal |= MultiSignal != null && MultiSignal.OmitFromMigration;
-					removeSignal |= Signal != null && Signal.OmitFromMigration;
-
-					// 0x004ABBBA has something to do with the portals.
-					// COLLIDE_LineWithSignals does care about TFace::texoff. See address 00490DF6 in game.
-					// It's an offset into Terrain->signals, not Level->signalListStart
-					if (removeSignal)
+					else
 					{
 						attr.Value = 0;
-						textoff.Value = 0;
+						textoff.Value = 0xFFFF;
+
+						// Effectively disable the FFace.
+						face.v2.Value = face.v1.Value;
 					}
 				}
 				else
 				{
-					attr.Value = 0;
-					textoff.Value = 0xFFFF;
+					// May need to evaluate texture offset in Terrain.MigrateVersion
+					// instead of here if new ones are added or removed because the
+					// index would change.
+					if (TextureIndex >= 0)
+					{
+						int textureSize = (targetVersion >= SR1_File.Version.Apr14) ? 12 : 16;
+						textoff.Value = (ushort)(TextureIndex * textureSize);
+					}
+					else
+					{
+						textoff.Value = 0xFFFF;
+					}
 
-					// Effectively disable the FFace.
-					face.v2.Value = face.v1.Value;
+					// 0x02 lets forge 6 work and prevents crashing in retreat when using portals.
+					// 0x08 is water?
+					// 0x46 lets portals work but not fully, however crashes forge 5.
+					// attr.Value = (byte)(attr.Value & 0x46);
+					//attr.Value = (byte)(attr.Value & 0x02); // 0x44 is used for signals. Renderable stuff too?
 				}
-			}
-			else
-			{
-				// May need to evaluate texture offset in Terrain.MigrateVersion
-				// instead of here if new ones are added or removed because the
-				// index would change.
-				if (TextureIndex >= 0)
-				{
-					int textureSize = (targetVersion >= SR1_File.Version.Apr14) ? 12 : 16;
-					textoff.Value = (ushort)(TextureIndex * textureSize);
-				}
-				else
-				{
-					textoff.Value = 0xFFFF;
-				}
-
-				// 0x02 lets forge 6 work and prevents crashing in retreat when using portals.
-				// 0x08 is water?
-				// 0x46 lets portals work but not fully, however crashes forge 5.
-				// attr.Value = (byte)(attr.Value & 0x46);
-				//attr.Value = (byte)(attr.Value & 0x02); // 0x44 is used for signals. Renderable stuff too?
 			}
 		}
 

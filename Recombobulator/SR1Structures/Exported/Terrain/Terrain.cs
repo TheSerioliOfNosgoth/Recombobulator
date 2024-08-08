@@ -41,9 +41,9 @@ namespace Recombobulator.SR1Structures
 		public SR1_Pointer<MultiSignal> signals = new SR1_Pointer<MultiSignal>();
 		SR1_Pointer<TexAniAssocData> texAniAssocData = new SR1_Pointer<TexAniAssocData>();
 
-		SR1_StructureArray<TVertex> _vertices = null;
+		SR1_StructureSeries<TVertex> _vertices = null;
 		SR1_StructureSeries<TFace> _faces = null;
-		SR1_StructureArray<Normal> _normals = null;
+		SR1_StructureSeries<Normal> _normals = null;
 		DrMoveAniTex _drMoveAniTex = null;
 		StreamUnitPortalList _portalList = null;
 		SR1_StructureSeries<TextureFT3> _textures = null;
@@ -95,25 +95,17 @@ namespace Recombobulator.SR1Structures
 		{
 			#region Geometry
 
-			_vertices = new SR1_StructureArray<TVertex>(numVertices.Value);
-			if (numVertices.Value > 0)
-			{
-				_vertices.ReadFromPointer(reader, vertexList);
-			}
+			_vertices = new SR1_StructureSeries<TVertex>();
+			_vertices.ReadFromPointer(reader, vertexList, numVertices.Value);
 
 			_faces = new SR1_StructureSeries<TFace>();
-			if (numFaces.Value > 0)
-			{
-				_faces.SetReadCount(numFaces.Value);
-				_faces.ReadFromPointer(reader, faceList);
-			}
+			_faces.ReadFromPointer(reader, faceList, numFaces.Value);
 
-			_normals = new SR1_StructureArray<Normal>(numNormals.Value);
+			_normals = new SR1_StructureSeries<Normal>();
+			_normals.SetPadding(4);
+			_normals.ReadFromPointer(reader, normalList, numNormals.Value);
 			if (numNormals.Value > 0)
 			{
-				_normals.SetPadding(4);
-				_normals.ReadFromPointer(reader, normalList);
-
 				// Mystery byte after normalList. Always 0x2A.
 				// This is *not* alignment.
 				if (_normals.End != 0 && !reader.File._Structures.ContainsKey(_normals.End))
@@ -134,24 +126,20 @@ namespace Recombobulator.SR1Structures
 
 			if (reader.File._Version <= SR1_File.Version.May12)
 			{
-				if (sbspRoot.Offset != 0 && sbspRoot.Offset < sbspStartLeaves.Offset)
-				{
-					new SR1_StructureSeries<BSPNode>().SetReadLength((int)(sbspStartLeaves.Offset - sbspRoot.Offset)).ReadFromPointer(reader, sbspRoot);
-				}
+				new SR1_StructureSeries<BSPNode>().ReadFromPointer(reader, sbspRoot, sbspStartLeaves);
 			}
 
 			_portalList = new StreamUnitPortalList();
 			_portalList.ReadFromPointer(reader, StreamUnits);
 
 			_textures = new SR1_StructureSeries<TextureFT3>();
-			_textures.SetReadLength((int)(EndTextureList.Offset - StartTextureList.Offset));
-			_textures.ReadFromPointer(reader, StartTextureList);
+			_textures.ReadFromPointer(reader, StartTextureList, EndTextureList);
 
 			#region Morphs
 
 			if (reader.File._Version <= SR1_File.Version.May12)
 			{
-				new SR1_StructureSeries<SBSPLeaf>().SetReadLength((int)(sbspEndLeaves.Offset - sbspStartLeaves.Offset)).ReadFromPointer(reader, sbspStartLeaves);
+				new SR1_StructureSeries<SBSPLeaf>().ReadFromPointer(reader, sbspStartLeaves, sbspEndLeaves);
 
 				if (reader.IntroListDictionary.Count > 0)
 				{
@@ -167,8 +155,7 @@ namespace Recombobulator.SR1Structures
 			}
 
 			_morphVertices = new SR1_StructureSeries<MorphVertex>();
-			_morphVertices.SetReadLength((int)(MorphColorList.Offset - MorphDiffList.Offset));
-			_morphVertices.ReadFromPointer(reader, MorphDiffList);
+			_morphVertices.ReadFromPointer(reader, MorphDiffList, MorphColorList);
 
 			if (reader.File._Version >= SR1_File.Version.Jan23)
 			{
@@ -231,19 +218,12 @@ namespace Recombobulator.SR1Structures
 
 			if (reader.File._Version < SR1_File.Version.Jan23)
 			{
-				if ((int)(startLeaves.Offset - bspRoot.Offset) > 0)
-				{
-					var bspNodes = new SR1_StructureSeries<BSPNode>().SetReadLength((int)(startLeaves.Offset - bspRoot.Offset));
-					bspNodes.ReadFromPointer(reader, bspRoot);
-					bspNodes.Align = 4;
-				}
+				SR1_StructureSeries<BSPNode> bspNodes = new SR1_StructureSeries<BSPNode>();
+				bspNodes.ReadFromPointer(reader, bspRoot, startLeaves);
+				bspNodes.Align = 4;
 
-				if ((int)(endLeaves.Offset - startLeaves.Offset) > 0)
-				{
-					SR1_StructureSeries<BSPLeaf> leaves = new SR1_StructureSeries<BSPLeaf>();
-					leaves.SetReadLength((int)(endLeaves.Offset - startLeaves.Offset));
-					leaves.ReadFromPointer(reader, startLeaves);
-				}
+				SR1_StructureSeries<BSPLeaf> leaves = new SR1_StructureSeries<BSPLeaf>();
+				leaves.ReadFromPointer(reader, startLeaves, endLeaves);
 
 				signalLeavesOffset = startLeaves.Offset;
 			}
@@ -641,7 +621,7 @@ namespace Recombobulator.SR1Structures
 				// but now they apply to every veretex, so copy the regular colors
 				// from the vertices, then overwrite any found in the old morph
 				// colors.
-				var vertices = (SR1_StructureArray<TVertex>)file._Structures[vertexList.Offset];
+				var vertices = (SR1_StructureSeries<TVertex>)file._Structures[vertexList.Offset];
 				int c = 0;
 				foreach (TVertex vertex in vertices)
 				{
