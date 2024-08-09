@@ -53,6 +53,11 @@ namespace Recombobulator.SR1Structures
 		SR1_PrimativeArray<ushort> _morphNormals = null;
 		SR1_StructureSeries<BSPLeaf> _signalLeaves = null;
 
+		// Proto builds only.
+		BSPNode _bspRoot = null;
+		SR1_StructureSeries<BSPNode> _bspNodes = null;
+		SR1_StructureSeries<BSPLeaf> _bspLeaves = null;
+
 		// Used to remember where to insert the morph normals, on migrating from Proto1
 		// because of weird padding at the end of them.
 		uint NormalListEnd = 0;
@@ -221,14 +226,19 @@ namespace Recombobulator.SR1Structures
 
 			if (reader.File._Version < SR1_File.Version.Jan23)
 			{
-				SR1_StructureSeries<BSPNode> bspNodes = new SR1_StructureSeries<BSPNode>();
-				bspNodes.ReadFromPointer(reader, bspRoot, startLeaves);
-				bspNodes.Align = 4;
+				_bspNodes = new SR1_StructureSeries<BSPNode>();
+				_bspNodes.ReadFromPointer(reader, bspRoot, startLeaves);
+				_bspNodes.Align = 4;
 
-				SR1_StructureSeries<BSPLeaf> leaves = new SR1_StructureSeries<BSPLeaf>();
-				leaves.ReadFromPointer(reader, startLeaves, endLeaves);
+				_bspRoot = (BSPNode)_bspNodes[0];
 
-				_signalLeaves = leaves;
+				_bspLeaves = new SR1_StructureSeries<BSPLeaf>();
+				_bspLeaves.ReadFromPointer(reader, startLeaves, endLeaves);
+
+				// _signalLeaves is the entire hierarchy in proto builds.
+				// MapSignalFaces will use the attr of the faces to figure out
+				// which ones have signals instead of the tree ID.
+				_signalLeaves = _bspLeaves;
 			}
 			else
 			{
@@ -469,11 +479,6 @@ namespace Recombobulator.SR1Structures
 
 			if (file._Version < SR1_File.Version.Jan23 && targetVersion >= SR1_File.Version.Jan23)
 			{
-				var faces = (SR1_StructureSeries<TFace>)file._Structures[faceList.Offset];
-				var bspNodes = (SR1_StructureSeries<BSPNode>)file._Structures[bspRoot.Offset];
-				var bspLeaves = (SR1_StructureSeries<BSPLeaf>)file._Structures[startLeaves.Offset];
-				var bspRootStruct = (BSPNode)bspNodes[0];
-
 				#region BSPTrees
 
 				// Create a new array of BSPTres.
@@ -495,15 +500,15 @@ namespace Recombobulator.SR1Structures
 
 				List<TFace> sigFaces = new List<TFace>();
 
-				foreach(TFace tFace in faces)
+				foreach(TFace face in _faces)
 				{
-					if (tFace.IsInSignalGroup)
+					if (face.IsInSignalGroup)
 					{
 						TFace sigFace = new TFace();
-						TFace.Copy(sigFace, tFace);
+						TFace.Copy(sigFace, face);
 						sigFace.MigrateVersion(file, targetVersion, migrateFlags);
 						sigFace.attr.Value = 0; // 0x44;
-						sigFace.textoff.Value = tFace.textoff.Value;
+						sigFace.textoff.Value = face.textoff.Value;
 
 						// TODO - Rmove this once trrain.signals has a valid pointer.
 						sigFace.IsInSignalGroup = false;
@@ -522,8 +527,8 @@ namespace Recombobulator.SR1Structures
 				// Create a leaf for the signal tree. Only one is needed.
 				BSPLeaf sigLeaf = new BSPLeaf();
 
-				Sphere.Copy(sigLeaf.sphere, bspRootStruct.sphere);
-				Sphere.Copy(sigLeaf.spectralSphere, bspRootStruct.spectralSphere);
+				Sphere.Copy(sigLeaf.sphere, _bspRoot.sphere);
+				Sphere.Copy(sigLeaf.spectralSphere, _bspRoot.spectralSphere);
 
 				short radius = (short)sigLeaf.sphere.radius.Value;
 
@@ -550,7 +555,7 @@ namespace Recombobulator.SR1Structures
 				sigLeaf.MigrateVersion(file, targetVersion, migrateFlags);
 
 				// Insert the BSPLeaf at the end of the leaves list.
-				bspLeaves.Add(sigLeaf);
+				_bspLeaves.Add(sigLeaf);
 
 				BSPTree sigTree = (BSPTree)newBSPTrees[1];
 
@@ -629,7 +634,7 @@ namespace Recombobulator.SR1Structures
 				// There were no morph normals originally, but they would be stored in
 				// the same array, so just copy indices of regular ones from the faces.
 				int n = 0;
-				foreach (TFace face in faces)
+				foreach (TFace face in _faces)
 				{
 					newMorphNormals[n] = face.normal.Value;
 					n++;
