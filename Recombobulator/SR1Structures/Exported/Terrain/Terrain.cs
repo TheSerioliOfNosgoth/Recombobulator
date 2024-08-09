@@ -41,6 +41,7 @@ namespace Recombobulator.SR1Structures
 		public SR1_Pointer<MultiSignal> signals = new SR1_Pointer<MultiSignal>();
 		SR1_Pointer<TexAniAssocData> texAniAssocData = new SR1_Pointer<TexAniAssocData>();
 
+		SR1_StructureSeries<MultiSignal> _multiSignals = null;
 		SR1_StructureSeries<TVertex> _vertices = null;
 		SR1_StructureSeries<TFace> _faces = null;
 		SR1_StructureSeries<Normal> _normals = null;
@@ -50,6 +51,7 @@ namespace Recombobulator.SR1Structures
 		SR1_StructureSeries<MorphVertex> _morphVertices = null;
 		SR1_StructureArray<MorphColor> _morphColors = null;
 		SR1_PrimativeArray<ushort> _morphNormals = null;
+		SR1_StructureSeries<BSPLeaf> _signalLeaves = null;
 
 		// Used to remember where to insert the morph normals, on migrating from Proto1
 		// because of weird padding at the end of them.
@@ -93,6 +95,9 @@ namespace Recombobulator.SR1Structures
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
 		{
+			uint signalsOffset = reader.Level.SignalListStart.Offset;
+			_multiSignals = (SR1_StructureSeries<MultiSignal>)reader.File._Structures[signalsOffset];
+
 			#region Geometry
 
 			_vertices = new SR1_StructureSeries<TVertex>();
@@ -214,8 +219,6 @@ namespace Recombobulator.SR1Structures
 
 			#region BSPTrees
 
-			uint signalLeavesOffset = 0;
-
 			if (reader.File._Version < SR1_File.Version.Jan23)
 			{
 				SR1_StructureSeries<BSPNode> bspNodes = new SR1_StructureSeries<BSPNode>();
@@ -225,7 +228,7 @@ namespace Recombobulator.SR1Structures
 				SR1_StructureSeries<BSPLeaf> leaves = new SR1_StructureSeries<BSPLeaf>();
 				leaves.ReadFromPointer(reader, startLeaves, endLeaves);
 
-				signalLeavesOffset = startLeaves.Offset;
+				_signalLeaves = leaves;
 			}
 			else
 			{
@@ -237,7 +240,8 @@ namespace Recombobulator.SR1Structures
 					BSPTree tree = (BSPTree)bspTrees[numBSPTrees.Value - 1];
 					if (tree.ID.Value == -1)
 					{
-						signalLeavesOffset = tree.startLeaves.Offset;
+						var nodesOrLeaves = reader.File._Structures[tree.startLeaves.Offset];
+						_signalLeaves = nodesOrLeaves as SR1_StructureSeries<BSPLeaf>;
 					}
 				}
 			}
@@ -246,28 +250,8 @@ namespace Recombobulator.SR1Structures
 
 			#region MapFaces
 
-			if (numFaces.Value > 0)
-			{
-				if (signalLeavesOffset != 0)
-				{
-					MapSignalFaces(
-						reader,
-						faceList.Offset,
-						signalLeavesOffset,
-						reader.Level.SignalListStart.Offset,
-						StreamUnits.Offset
-					);
-				}
-
-				if (_textures.Count > 0)
-				{
-					MapTextureFaces(
-						reader,
-						faceList.Offset,
-						StartTextureList.Offset
-					);
-				}
-			}
+			MapSignalFaces(reader);
+			MapTextureFaces(reader);
 
 			#endregion
 
@@ -313,7 +297,7 @@ namespace Recombobulator.SR1Structures
 
 					if (found)
 					{
-						new SR1_StructureArray<BSPLeaf>(1).Read(reader, null, "");
+						new SR1_StructureSeries<BSPLeaf>().SetReadCount(1).Read(reader, null, "");
 						break;
 					}
 
@@ -358,74 +342,59 @@ namespace Recombobulator.SR1Structures
 			texAniAssocData.Write(writer, SR1_File.Version.Retail_PC, SR1_File.Version.Next);
 		}
 
-		private void MapSignalFaces(
-			SR1_Reader reader,
-			uint facesOffset, uint leavesOffset,
-			uint signalsOffset, uint streamUnitsOffset)
+		private void MapSignalFaces(SR1_Reader reader)
 		{
-			if (facesOffset == 0 || !reader.File._Structures.ContainsKey(facesOffset) ||
-				leavesOffset == 0 || !reader.File._Structures.ContainsKey(leavesOffset) ||
-				signalsOffset == 0 || !reader.File._Structures.ContainsKey(signalsOffset))
+			if (_multiSignals == null || _multiSignals.Count == 0 ||
+				_faces == null || _faces.Count == 0 ||
+				_signalLeaves == null || _signalLeaves.Count == 0)
 			{
 				return;
 			}
 
-			var faces = (SR1_StructureSeries<TFace>)reader.File._Structures[facesOffset];
-			var multiSignals = (SR1_StructureSeries<MultiSignal>)reader.File._Structures[signalsOffset];
-
-			SR1_Structure nodesOrLeaves = reader.File._Structures[leavesOffset];
-			if (nodesOrLeaves.GetType() != typeof(SR1_StructureSeries<BSPLeaf>))
-			{
-				return;
-			}
-
-			var leaves = (SR1_StructureSeries<BSPLeaf>)nodesOrLeaves;
-
-			foreach (BSPLeaf leaf in leaves)
+			foreach (BSPLeaf leaf in _signalLeaves)
 			{
 				int faceSize = (reader.File._Version >= SR1_File.Version.Jan23) ? 12 : 16;
-				int faceIndex = (int)(leaf.faceList.Offset - faces.Start) / faceSize;
+				int faceIndex = (int)(leaf.faceList.Offset - _faces.Start) / faceSize;
 				short numFaces = leaf.numFaces.Value;
 
 				for (short f = 0; f < numFaces; f++)
 				{
-					TFace tFace = (TFace)faces[faceIndex + f];
+					TFace face = (TFace)_faces[faceIndex + f];
 
-					tFace.IsInSignalGroup = true;
+					face.IsInSignalGroup = true;
 					if (reader.File._Version < SR1_File.Version.Jan23)
 					{
-						tFace.IsInSignalGroup = ((tFace.attr0.Value & 0x4000) != 0);
+						face.IsInSignalGroup = ((face.attr0.Value & 0x4000) != 0);
 					}
 
-					foreach (MultiSignal mSignal in multiSignals)
+					foreach (MultiSignal mSignal in _multiSignals)
 					{
-						uint signalOffset = tFace.texture.Offset;
+						uint signalOffset = face.texture.Offset;
 						if (reader.File._Version >= SR1_File.Version.Jan23)
 						{
-							signalOffset = signals.Offset + tFace.textoff.Value;
+							// Note to self, don't try to use _multiSignals.Start here.
+							// signals.Offset is not the first one in the array!
+							signalOffset = signals.Offset + face.textoff.Value;
 						}
 
 						if (mSignal.Start == signalOffset)
 						{
-							tFace.MultiSignal = mSignal;
+							face.MultiSignal = mSignal;
 							if (mSignal.numSignals.Value > 0)
 							{
-								tFace.Signal = (Signal)mSignal.signalList[0];
+								face.Signal = (Signal)mSignal.signalList[0];
 							}
 							break;
 						}
 					}
 
-					if (tFace.MultiSignal != null && streamUnitsOffset != 0 &&
-						reader.File._Structures.ContainsKey(streamUnitsOffset))
+					if (face.MultiSignal != null && _portalList != null)
 					{
-						var streamUnits = (StreamUnitPortalList)reader.File._Structures[streamUnitsOffset];
-
-						foreach (StreamUnitPortal portal in streamUnits.portals)
+						foreach (StreamUnitPortal portal in _portalList.portals)
 						{
-							if (portal.MSignalID.Value == tFace.MultiSignal.signalNum.Value)
+							if (portal.MSignalID.Value == face.MultiSignal.signalNum.Value)
 							{
-								tFace.Portal = portal;
+								face.Portal = portal;
 								break;
 							}
 						}
@@ -434,48 +403,42 @@ namespace Recombobulator.SR1Structures
 			}
 		}
 
-		private void MapTextureFaces(
-			SR1_Reader reader,
-			uint facesOffset,
-			uint texturesOffset)
+		private void MapTextureFaces(SR1_Reader reader)
 		{
-			if (facesOffset == 0 || !reader.File._Structures.ContainsKey(facesOffset) ||
-				texturesOffset == 0 || !reader.File._Structures.ContainsKey(texturesOffset))
+			if (_faces == null || _faces.Count <= 0 ||
+				_textures == null || _textures.Count <= 0)
 			{
 				return;
 			}
 
-			var faces = (SR1_StructureSeries<TFace>)reader.File._Structures[facesOffset];
-			var textures = (SR1_StructureSeries<TextureFT3>)reader.File._Structures[texturesOffset];
-
-			foreach (TFace tFace in faces)
+			foreach (TFace face in _faces)
 			{
-				if (!tFace.IsInSignalGroup)
+				if (!face.IsInSignalGroup)
 				{
-					int textureOffset = tFace.textoff.Value;
+					int textureOffset = face.textoff.Value;
 					if (reader.File._Version < SR1_File.Version.Jan23)
 					{
-						textureOffset = (int)(tFace.texture.Offset - textures.Start);
+						textureOffset = (int)(face.texture.Offset - _textures.Start);
 					}
 
 					int textureSize = (reader.File._Version >= SR1_File.Version.Apr14) ? 12 : 16;
 					int textureIndex = textureOffset / textureSize;
 
-					if (textureIndex >= 0 && textureIndex < textures.Count)
+					if (textureIndex >= 0 && textureIndex < _textures.Count)
 					{
-						tFace.Texture = (TextureFT3)textures[textureIndex];
-						tFace.TextureIndex = textureIndex;
+						face.Texture = (TextureFT3)_textures[textureIndex];
+						face.TextureIndex = textureIndex;
 					}
 				}
 
-				if (tFace.Texture != null)
+				if (face.Texture != null)
 				{
-					tFace.Texture.NumReferences++;
+					face.Texture.NumReferences++;
 
 					if (reader.File._Version >= SR1_File.Version.Jan23 &&
-						(tFace.attr.Value & 0x08) != 0)
+						(face.attr.Value & 0x08) != 0)
 					{
-						tFace.Texture.HasTranslucentPolygon = true;
+						face.Texture.HasTranslucentPolygon = true;
 					}
 				}
 			}

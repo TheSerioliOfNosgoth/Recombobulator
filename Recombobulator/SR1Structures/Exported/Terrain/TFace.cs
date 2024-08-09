@@ -165,6 +165,12 @@ namespace Recombobulator.SR1Structures
 						textoff.Value = 0xFFFF;
 					}
 
+					// Backface collision.
+					//if ((attr0.Value & 0x2000) != 0)
+					//{
+					//	attr.Value |= 0x20;
+					//}
+
 					// 0x02 lets forge 6 work and prevents crashing in retreat when using portals.
 					// 0x08 is water?
 					// 0x46 lets portals work but not fully, however crashes forge 5.
