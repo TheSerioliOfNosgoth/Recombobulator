@@ -764,13 +764,13 @@ namespace Recombobulator.SR1Structures
 				_envTree.startLeaves.Offset = _bspLeaves.NewStart;
 				_envTree.endLeaves.Offset = _sigLeaf.NewStart;
 
-				_sigTree.bspRoot.Offset = _sigLeaf.NewStart;
-				_sigTree.startLeaves.Offset = _sigLeaf.NewStart;
-				_sigTree.endLeaves.Offset = _sigLeaf.NewEnd;
+				_sigTree.bspRoot.Offset = _bspTrees.NewStart;
+				_sigTree.startLeaves.Offset = _bspTrees.NewStart;
+				_sigTree.endLeaves.Offset = _bspTrees.NewStart;
 
 				if (_sigFaces.Count > 0)
 				{
-					_sigLeaf.faceList.Offset = _sigFaces[0].NewStart;
+					_sigLeaf.faceList.Offset = 0; // _sigFaces[0].NewStart;
 				}
 				else
 				{
