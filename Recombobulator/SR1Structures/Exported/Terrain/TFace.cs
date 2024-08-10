@@ -148,6 +148,8 @@ namespace Recombobulator.SR1Structures
 
 						// Effectively disable the FFace.
 						face.v2.Value = face.v1.Value;
+
+						IsInSignalGroup = false;
 					}
 				}
 				else

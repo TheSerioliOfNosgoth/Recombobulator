@@ -53,10 +53,17 @@ namespace Recombobulator.SR1Structures
 		SR1_PrimativeArray<ushort> _morphNormals = null;
 		SR1_StructureSeries<BSPLeaf> _signalLeaves = null;
 
-		// Proto builds only.
+		// Exist in proto builds.
 		BSPNode _bspRoot = null;
 		SR1_StructureSeries<BSPNode> _bspNodes = null;
 		SR1_StructureSeries<BSPLeaf> _bspLeaves = null;
+
+		// Added when converting to proto builds.
+		SR1_StructureArray<BSPTree> _bspTrees = null;
+		BSPTree _envTree = null;
+		BSPTree _sigTree = null;
+		BSPLeaf _sigLeaf = null;
+		List<TFace> _sigFaces = null;
 
 		// Used to remember where to insert the morph normals, on migrating from Proto1
 		// because of weird padding at the end of them.
@@ -100,6 +107,27 @@ namespace Recombobulator.SR1Structures
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
 		{
+			_multiSignals = null;
+			_vertices = null;
+			_faces = null;
+			_normals = null;
+			_drMoveAniTex = null;
+			_portalList = null;
+			_textures = null;
+			_morphVertices = null;
+			_morphColors = null;
+			_morphNormals = null;
+			_signalLeaves = null;
+
+			_bspRoot = null;
+			_bspNodes = null;
+			_bspLeaves = null;
+			_bspTrees = null;
+			_envTree = null;
+			_sigTree = null;
+			_sigLeaf = null;
+			_sigFaces = null;
+
 			uint signalsOffset = reader.Level.SignalListStart.Offset;
 			_multiSignals = (SR1_StructureSeries<MultiSignal>)reader.File._Structures[signalsOffset];
 
@@ -250,8 +278,11 @@ namespace Recombobulator.SR1Structures
 					BSPTree tree = (BSPTree)bspTrees[numBSPTrees.Value - 1];
 					if (tree.ID.Value == -1)
 					{
-						var nodesOrLeaves = reader.File._Structures[tree.startLeaves.Offset];
-						_signalLeaves = nodesOrLeaves as SR1_StructureSeries<BSPLeaf>;
+						if (reader.File._Structures.ContainsKey(tree.startLeaves.Offset))
+						{
+							var nodesOrLeaves = reader.File._Structures[tree.startLeaves.Offset];
+							_signalLeaves = nodesOrLeaves as SR1_StructureSeries<BSPLeaf>;
+						}
 					}
 				}
 			}
@@ -375,6 +406,10 @@ namespace Recombobulator.SR1Structures
 					if (reader.File._Version < SR1_File.Version.Jan23)
 					{
 						face.IsInSignalGroup = ((face.attr0.Value & 0x4000) != 0);
+						if (!face.IsInSignalGroup)
+						{
+							continue;
+						}
 					}
 
 					foreach (MultiSignal mSignal in _multiSignals)
@@ -482,23 +517,26 @@ namespace Recombobulator.SR1Structures
 				#region BSPTrees
 
 				// Create a new array of BSPTres.
-				SR1_StructureArray<BSPTree> newBSPTrees = new SR1_StructureArray<BSPTree>(2);
+				_bspTrees = new SR1_StructureArray<BSPTree>(2);
 
 				#region EnvTree
 
-				BSPTree envTree = (BSPTree)newBSPTrees[0];
+				_envTree = (BSPTree)_bspTrees[0];
 
 				// Set the environment BSPTree fields to the existing root and leaves.
-				envTree.bspRoot.Offset = bspRoot.Offset;
-				envTree.startLeaves.Offset = startLeaves.Offset;
-				envTree.endLeaves.Offset = endLeaves.Offset;
-				envTree.ID.Value = 0;
+				_envTree.bspRoot.Offset = 0;
+				_envTree.bspRoot.Heuristic = PtrHeuristic.Explicit;
+				_envTree.startLeaves.Offset = 0;
+				_envTree.startLeaves.Heuristic = PtrHeuristic.Explicit;
+				_envTree.endLeaves.Offset = 0;
+				_envTree.endLeaves.Heuristic = PtrHeuristic.Explicit;
+				_envTree.ID.Value = 0;
 
 				#endregion
 
 				#region SigTree
 
-				List<TFace> sigFaces = new List<TFace>();
+				_sigFaces = new List<TFace>();
 
 				foreach(TFace face in _faces)
 				{
@@ -508,16 +546,16 @@ namespace Recombobulator.SR1Structures
 						TFace.Copy(sigFace, face);
 						sigFace.MigrateVersion(file, targetVersion, migrateFlags);
 						sigFace.attr.Value = 0; // 0x44;
-						sigFace.textoff.Value = face.textoff.Value;
+						sigFace.textoff.Value = 0; // face.textoff.Value;
 
-						// TODO - Rmove this once trrain.signals has a valid pointer.
+						// TODO - Rmove this once terrain.signals has a valid pointer.
 						sigFace.IsInSignalGroup = false;
 
-						sigFaces.Add(sigFace);
+						_sigFaces.Add(sigFace);
 					}
 				}
 
-				foreach (TFace sigFace in sigFaces)
+				foreach (TFace sigFace in _sigFaces)
 				{
 					_faces.Add(sigFace);
 				}
@@ -525,57 +563,59 @@ namespace Recombobulator.SR1Structures
 				numFaces.Value = _faces.Count;
 
 				// Create a leaf for the signal tree. Only one is needed.
-				BSPLeaf sigLeaf = new BSPLeaf();
+				_sigLeaf = new BSPLeaf();
 
-				Sphere.Copy(sigLeaf.sphere, _bspRoot.sphere);
-				Sphere.Copy(sigLeaf.spectralSphere, _bspRoot.spectralSphere);
+				Sphere.Copy(_sigLeaf.sphere, _bspRoot.sphere);
+				Sphere.Copy(_sigLeaf.spectralSphere, _bspRoot.spectralSphere);
 
-				short radius = (short)sigLeaf.sphere.radius.Value;
+				_sigLeaf.faceList.Offset = 0;
+				_sigLeaf.faceList.Heuristic = PtrHeuristic.Explicit;
+				_sigLeaf.numFaces.Value = 0; // (short)_sigFaces.Count;
 
-				sigLeaf.box.minX.Value = (short)(sigLeaf.sphere.position.x.Value - radius);
-				sigLeaf.box.minY.Value = (short)(sigLeaf.sphere.position.y.Value - radius);
-				sigLeaf.box.minZ.Value = (short)(sigLeaf.sphere.position.z.Value - radius);
-				sigLeaf.box.maxX.Value = (short)(sigLeaf.sphere.position.x.Value + radius);
-				sigLeaf.box.maxY.Value = (short)(sigLeaf.sphere.position.y.Value + radius);
-				sigLeaf.box.maxZ.Value = (short)(sigLeaf.sphere.position.z.Value + radius);
+				short radius = (short)_sigLeaf.sphere.radius.Value;
 
-				short spectralRadius = (short)sigLeaf.spectralSphere.radius.Value;
+				_sigLeaf.box.minX.Value = (short)(_sigLeaf.sphere.position.x.Value - radius);
+				_sigLeaf.box.minY.Value = (short)(_sigLeaf.sphere.position.y.Value - radius);
+				_sigLeaf.box.minZ.Value = (short)(_sigLeaf.sphere.position.z.Value - radius);
+				_sigLeaf.box.maxX.Value = (short)(_sigLeaf.sphere.position.x.Value + radius);
+				_sigLeaf.box.maxY.Value = (short)(_sigLeaf.sphere.position.y.Value + radius);
+				_sigLeaf.box.maxZ.Value = (short)(_sigLeaf.sphere.position.z.Value + radius);
 
-				sigLeaf.spectralBox.minX.Value = (short)(sigLeaf.spectralSphere.position.x.Value - spectralRadius);
-				sigLeaf.spectralBox.minY.Value = (short)(sigLeaf.spectralSphere.position.y.Value - spectralRadius);
-				sigLeaf.spectralBox.minZ.Value = (short)(sigLeaf.spectralSphere.position.z.Value - spectralRadius);
-				sigLeaf.spectralBox.maxX.Value = (short)(sigLeaf.spectralSphere.position.x.Value + spectralRadius);
-				sigLeaf.spectralBox.maxY.Value = (short)(sigLeaf.spectralSphere.position.y.Value + spectralRadius);
-				sigLeaf.spectralBox.maxZ.Value = (short)(sigLeaf.spectralSphere.position.z.Value + spectralRadius);
+				short spectralRadius = (short)_sigLeaf.spectralSphere.radius.Value;
 
-				// TODO - Set faceList and numFaces to the ones i made above.
+				_sigLeaf.spectralBox.minX.Value = (short)(_sigLeaf.spectralSphere.position.x.Value - spectralRadius);
+				_sigLeaf.spectralBox.minY.Value = (short)(_sigLeaf.spectralSphere.position.y.Value - spectralRadius);
+				_sigLeaf.spectralBox.minZ.Value = (short)(_sigLeaf.spectralSphere.position.z.Value - spectralRadius);
+				_sigLeaf.spectralBox.maxX.Value = (short)(_sigLeaf.spectralSphere.position.x.Value + spectralRadius);
+				_sigLeaf.spectralBox.maxY.Value = (short)(_sigLeaf.spectralSphere.position.y.Value + spectralRadius);
+				_sigLeaf.spectralBox.maxZ.Value = (short)(_sigLeaf.spectralSphere.position.z.Value + spectralRadius);
 
 				// MigrateVersion is only called on MembersReal, which won't include
 				// this new one, so do that here.
-				sigLeaf.MigrateVersion(file, targetVersion, migrateFlags);
+				_sigLeaf.MigrateVersion(file, targetVersion, migrateFlags);
 
 				// Insert the BSPLeaf at the end of the leaves list.
-				_bspLeaves.Add(sigLeaf);
+				_bspLeaves.Add(_sigLeaf);
 
-				BSPTree sigTree = (BSPTree)newBSPTrees[1];
+				_sigTree = (BSPTree)_bspTrees[1];
 
 				// Set the signal BSPTree fields to the new signal leaves.
-				sigTree.bspRoot.Offset = endLeaves.Offset;
-				sigTree.bspRoot.Heuristic = PtrHeuristic.End;
-				sigTree.startLeaves.Offset = endLeaves.Offset;
-				sigTree.startLeaves.Heuristic = PtrHeuristic.End;
-				sigTree.endLeaves.Offset = endLeaves.Offset;
-				sigTree.endLeaves.Heuristic = PtrHeuristic.End;
-				sigTree.ID.Value = -1;
+				_sigTree.bspRoot.Offset = 0;
+				_sigTree.bspRoot.Heuristic = PtrHeuristic.Explicit;
+				_sigTree.startLeaves.Offset = 0;
+				_sigTree.startLeaves.Heuristic = PtrHeuristic.Explicit;
+				_sigTree.endLeaves.Offset = 0;
+				_sigTree.endLeaves.Heuristic = PtrHeuristic.Explicit;
+				_sigTree.ID.Value = -1;
 
 				#endregion
 
 				// Insert the BSPTree array where the root used to be.
-				file._MigrationStructures.Add(endLeaves.Offset, newBSPTrees);
+				file._MigrationStructures.Add(endLeaves.Offset, _bspTrees);
 
 				numBSPTrees.Value = 2;
-				BSPTreeArray.Offset = endLeaves.Offset;
-				BSPTreeArray.Heuristic = PtrHeuristic.Migration;
+				BSPTreeArray.Offset = 0;
+				BSPTreeArray.Heuristic = PtrHeuristic.Explicit;
 
 				#endregion
 
@@ -651,6 +691,8 @@ namespace Recombobulator.SR1Structures
 
 			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
 			{
+				#region AniTex
+
 				if ((migrateFlags & SR1_File.MigrateFlags.RemoveAnimatedTextures) == 0 &&
 					aniList.Offset != 0)
 				{
@@ -704,6 +746,35 @@ namespace Recombobulator.SR1Structures
 					file._MigrationStructures.Add(position, new TexAniAssocData());
 					texAniAssocData.Offset = position;
 					texAniAssocData.Heuristic = PtrHeuristic.Migration;
+				}
+
+				#endregion
+			}
+		}
+
+		public override void MigratePointers(SR1_File file, SR1_File.Version sourceVersion, SR1_File.MigrateFlags migrateFlags)
+		{
+			base.MigratePointers(file, sourceVersion, migrateFlags);
+
+			if (sourceVersion < SR1_File.Version.Jan23 && file._Version >= SR1_File.Version.Jan23)
+			{
+				BSPTreeArray.Offset = _bspTrees.NewStart;
+
+				_envTree.bspRoot.Offset = _bspRoot.NewStart;
+				_envTree.startLeaves.Offset = _bspLeaves.NewStart;
+				_envTree.endLeaves.Offset = _sigLeaf.NewStart;
+
+				_sigTree.bspRoot.Offset = _sigLeaf.NewStart;
+				_sigTree.startLeaves.Offset = _sigLeaf.NewStart;
+				_sigTree.endLeaves.Offset = _sigLeaf.NewEnd;
+
+				if (_sigFaces.Count > 0)
+				{
+					_sigLeaf.faceList.Offset = _sigFaces[0].NewStart;
+				}
+				else
+				{
+					_sigLeaf.faceList.Offset = _faces.NewEnd;
 				}
 			}
 		}

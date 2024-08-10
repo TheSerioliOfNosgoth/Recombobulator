@@ -123,8 +123,9 @@ namespace Recombobulator
 		public Version _Version { get; private set; } = SR1_File.Version.Jun01;
 		public bool _IsLevel { get; private set; }
 		public readonly SortedList<uint, SR1_Structure> _Structures = new SortedList<uint, SR1_Structure>();
-		public readonly List<SR1_PrimativeBase> _PrimsWritten = new List<SR1_PrimativeBase>();
+		public readonly SortedList<uint, SR1_Structure> _StructuresWritten = new SortedList<uint, SR1_Structure>();
 		public readonly List<SR1_PrimativeBase> _PrimsRead = new List<SR1_PrimativeBase>();
+		public readonly List<SR1_PrimativeBase> _PrimsWritten = new List<SR1_PrimativeBase>();
 		public readonly SortedDictionary<uint, SR1_Structure> _MigrationStructures = new SortedDictionary<uint, SR1_Structure>();
 		public List<SR1_PointerBase> _Pointers = new List<SR1_PointerBase>();
 		public readonly List<ushort> _TextureIDs = new List<ushort>();
@@ -144,6 +145,7 @@ namespace Recombobulator
 			_Version = SR1_File.Version.Jun01;
 			_IsLevel = false;
 			_Structures.Clear();
+			_StructuresWritten.Clear();
 			_PrimsRead.Clear();
 			_PrimsWritten.Clear();
 			_MigrationStructures.Clear();
@@ -509,7 +511,14 @@ namespace Recombobulator
 
 			MigrateVersion(targetVersion, migrateFlags);
 
+			Version sourceVersion = _Version;
+			_Version = targetVersion;
+
 			WriteBody(dataWriter);
+
+			// Fix up the pointers now that the structures' new positions have been
+			// determined.
+			MigratePointers(sourceVersion, migrateFlags);
 
 			List<SR1_PointerBase> validPointers = ResolvePointers(dataWriter);
 			WriteHeader(outputWriter, validPointers);
@@ -534,8 +543,16 @@ namespace Recombobulator
 			{
 				structure.MigrateVersion(this, targetVersion, migrateFlags);
 			}
+		}
 
-			_Version = targetVersion;
+		private void MigratePointers(Version sourceVersion, MigrateFlags migrateFlags)
+		{
+			SR1_Structure[] structures = new SR1_Structure[_StructuresWritten.Values.Count];
+			_StructuresWritten.Values.CopyTo(structures, 0);
+			foreach (SR1_Structure structure in structures)
+			{
+				structure.MigratePointers(this, sourceVersion, migrateFlags);
+			}
 		}
 
 		private void WriteHeader(BinaryWriter wtr, List<SR1_PointerBase> ptrs)
@@ -642,6 +659,8 @@ namespace Recombobulator
 			}
 
 			structure.Write(wtr);
+
+			_StructuresWritten.Add(structure.NewStart, structure);
 		}
 
 		private List<SR1_PointerBase> ResolvePointers(SR1_Writer wtr)
@@ -654,7 +673,11 @@ namespace Recombobulator
 			{
 				bool result;
 
-				if (pointer.Heuristic == PtrHeuristic.Migration)
+				if (pointer.Offset == 0)
+				{
+					result = false;
+				}
+				else if (pointer.Heuristic == PtrHeuristic.Migration)
 				{
 					result = ResolveMigStructPointer(wtr, pointer);
 				}
@@ -667,9 +690,13 @@ namespace Recombobulator
 				{
 					result = ResolveStructEndPointer(wtr, pointer, exportData);
 				}
-				else
+				else if (pointer.Heuristic == PtrHeuristic.Member)
 				{
 					result = ResolveStandardPointer(wtr, pointer, exportData);
+				}
+				else
+				{
+					result = ResolveExpStructPointer(wtr, pointer);
 				}
 
 				if (result)
@@ -806,6 +833,13 @@ namespace Recombobulator
 			}
 
 			return false;
+		}
+
+		private bool ResolveExpStructPointer(SR1_Writer wtr, SR1_PointerBase ptr)
+		{
+			wtr.BaseStream.Position = ptr.NewStart;
+			wtr.Write(ptr.Offset);
+			return true;
 		}
 
 		public bool TestExport()

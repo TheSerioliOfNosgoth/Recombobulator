@@ -9,7 +9,8 @@ namespace Recombobulator.SR1Structures
 		Member = 0,
 		Start = 1,
 		End = 2,
-		Migration = 3
+		Migration = 3,
+		Explicit = 4
 	}
 
 	public abstract class SR1_PointerBase : SR1_PrimativeBase
@@ -44,10 +45,7 @@ namespace Recombobulator.SR1Structures
 			base.AddToWritten(writer);
 
 			// Store this pointer in the list so that it can be fixed.
-			if (Offset != 0)
-			{
-				writer.File._Pointers.Add(this);
-			}
+			writer.File._Pointers.Add(this);
 		}
 
 		public override string ToString()
