@@ -565,6 +565,9 @@ namespace Recombobulator.SR1Structures
 				// Create a leaf for the signal tree. Only one is needed.
 				_sigLeaf = new BSPLeaf();
 
+				// Leaves need flag 2!
+				_sigLeaf.flags.Value = 2;
+
 				Sphere.Copy(_sigLeaf.sphere, _bspRoot.sphere);
 				Sphere.Copy(_sigLeaf.spectralSphere, _bspRoot.spectralSphere);
 
@@ -764,9 +767,9 @@ namespace Recombobulator.SR1Structures
 				_envTree.startLeaves.Offset = _bspLeaves.NewStart;
 				_envTree.endLeaves.Offset = _sigLeaf.NewStart;
 
-				_sigTree.bspRoot.Offset = _bspTrees.NewStart;
-				_sigTree.startLeaves.Offset = _bspTrees.NewStart;
-				_sigTree.endLeaves.Offset = _bspTrees.NewStart;
+				_sigTree.bspRoot.Offset = _sigLeaf.NewStart;
+				_sigTree.startLeaves.Offset = _sigLeaf.NewStart;
+				_sigTree.endLeaves.Offset = _sigLeaf.NewEnd;
 
 				if (_sigFaces.Count > 0)
 				{
