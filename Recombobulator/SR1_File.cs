@@ -491,9 +491,7 @@ namespace Recombobulator
 
 			if (_Version < Version.Jan23 && targetVersion >= Version.Jan23)
 			{
-				// These thing aren't ready yet.
-				migrateFlags |= SR1_File.MigrateFlags.RemovePortals;
-				migrateFlags |= SR1_File.MigrateFlags.RemoveSignals;
+				// These things aren't ready yet.
 				migrateFlags |= SR1_File.MigrateFlags.RemoveVertexMorphs;
 			}
 

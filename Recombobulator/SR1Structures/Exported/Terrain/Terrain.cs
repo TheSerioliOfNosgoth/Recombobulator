@@ -567,9 +567,25 @@ namespace Recombobulator.SR1Structures
 						sigFace.textoff.Value = 0xFFFF;
 
 						sigFace.IsInSignalGroup = true;
+
 						sigFace.MultiSignal = face.MultiSignal;
 						sigFace.Signal = face.Signal;
 						sigFace.Portal = face.Portal;
+
+						bool removeSignal = false;
+
+						removeSignal |= sigFace.MultiSignal != null && sigFace.MultiSignal.OmitFromMigration;
+						removeSignal |= sigFace.Signal != null && sigFace.Signal.OmitFromMigration;
+						removeSignal |= sigFace.Portal != null && sigFace.Portal.OmitFromMigration;
+
+						if (removeSignal)
+						{
+							sigFace.attr.Value = 0;
+
+							sigFace.MultiSignal = null;
+							sigFace.Signal = null;
+							sigFace.Portal = null;
+						}
 
 						_sigFaces.Add(sigFace);
 
@@ -614,7 +630,7 @@ namespace Recombobulator.SR1Structures
 
 				_sigLeaf.faceList.Offset = 0;
 				_sigLeaf.faceList.Heuristic = PtrHeuristic.Explicit;
-				_sigLeaf.numFaces.Value = 0; // (short)_sigFaces.Count;
+				_sigLeaf.numFaces.Value = (short)_sigFaces.Count;
 
 				short radius = (short)_sigLeaf.sphere.radius.Value;
 
@@ -839,7 +855,7 @@ namespace Recombobulator.SR1Structures
 
 				if (_sigFaces.Count > 0)
 				{
-					_sigLeaf.faceList.Offset = 0; // _sigFaces[0].NewStart;
+					_sigLeaf.faceList.Offset = _sigFaces[0].NewStart;
 				}
 				else
 				{
