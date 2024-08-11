@@ -65,6 +65,9 @@ namespace Recombobulator.SR1Structures
 		BSPLeaf _sigLeaf = null;
 		List<TFace> _sigFaces = null;
 
+		// The first signal referenced by the terrain.
+		MultiSignal _terrainSignal = null;
+
 		// Used to remember where to insert the morph normals, on migrating from Proto1
 		// because of weird padding at the end of them.
 		uint NormalListEnd = 0;
@@ -128,8 +131,21 @@ namespace Recombobulator.SR1Structures
 			_sigLeaf = null;
 			_sigFaces = null;
 
+			#region Signals
+
 			uint signalsOffset = reader.Level.SignalListStart.Offset;
 			_multiSignals = (SR1_StructureSeries<MultiSignal>)reader.File._Structures[signalsOffset];
+
+			foreach (MultiSignal mSignal in _multiSignals)
+			{
+				if (mSignal.Start == signals.Offset)
+				{
+					_terrainSignal = mSignal;
+					break;
+				}
+			}
+
+			#endregion
 
 			#region Geometry
 
@@ -472,7 +488,6 @@ namespace Recombobulator.SR1Structures
 					if (textureIndex >= 0 && textureIndex < _textures.Count)
 					{
 						face.Texture = (TextureFT3)_textures[textureIndex];
-						face.TextureIndex = textureIndex;
 					}
 				}
 
@@ -538,21 +553,47 @@ namespace Recombobulator.SR1Structures
 
 				_sigFaces = new List<TFace>();
 
+				bool needTerrainSignal = (_terrainSignal != null);
+
 				foreach(TFace face in _faces)
 				{
 					if (face.IsInSignalGroup)
 					{
 						TFace sigFace = new TFace();
-						TFace.Copy(sigFace, face);
-						sigFace.MigrateVersion(file, targetVersion, migrateFlags);
-						sigFace.attr.Value = 0; // 0x44;
-						sigFace.textoff.Value = 0; // face.textoff.Value;
 
-						// TODO - Rmove this once terrain.signals has a valid pointer.
-						sigFace.IsInSignalGroup = false;
+						Face.Copy(sigFace.face, face.face);
+						sigFace.attr.Value = 0x40; // 0x44?
+						sigFace.normal.Value = face.normal.Value;
+						sigFace.textoff.Value = 0xFFFF;
+
+						sigFace.IsInSignalGroup = true;
+						sigFace.MultiSignal = face.MultiSignal;
+						sigFace.Signal = face.Signal;
+						sigFace.Portal = face.Portal;
 
 						_sigFaces.Add(sigFace);
+
+						if (needTerrainSignal && _multiSignals != null)
+						{
+							foreach (MultiSignal mSignal in _multiSignals)
+							{
+								if (face.MultiSignal != null && face.MultiSignal == mSignal)
+								{
+									if (_terrainSignal == null || mSignal.Start < _terrainSignal.Start)
+									{
+										_terrainSignal = mSignal;
+									}
+
+									break;
+								}
+							}
+						}
 					}
+				}
+
+				if (_terrainSignal != null)
+				{
+					signals.Offset = _terrainSignal.Start;
 				}
 
 				foreach (TFace sigFace in _sigFaces)
@@ -755,11 +796,36 @@ namespace Recombobulator.SR1Structures
 			}
 		}
 
-		public override void MigratePointers(SR1_File file, SR1_File.Version sourceVersion, SR1_File.MigrateFlags migrateFlags)
+		public override void MigratePointers(SR1_Writer writer, SR1_File.Version sourceVersion, SR1_File.MigrateFlags migrateFlags)
 		{
-			base.MigratePointers(file, sourceVersion, migrateFlags);
+			base.MigratePointers(writer, sourceVersion, migrateFlags);
 
-			if (sourceVersion < SR1_File.Version.Jan23 && file._Version >= SR1_File.Version.Jan23)
+			if (_faces != null)
+			{
+				foreach (TFace face in _faces)
+				{
+					writer.BaseStream.Position = face.textoff.NewStart;
+
+					if (face.IsInSignalGroup)
+					{
+						if (_terrainSignal != null && face.MultiSignal != null)
+						{
+							uint offset = face.MultiSignal.NewStart - _terrainSignal.NewStart;
+							writer.Write((ushort)offset);
+						}
+					}
+					else
+					{
+						if (_textures != null && face.Texture != null)
+						{
+							uint offset = face.Texture.NewStart - _textures[0].NewStart;
+							writer.Write((ushort)offset);
+						}
+					}
+				}
+			}
+
+			if (sourceVersion < SR1_File.Version.Jan23 && writer.File._Version >= SR1_File.Version.Jan23)
 			{
 				BSPTreeArray.Offset = _bspTrees.NewStart;
 

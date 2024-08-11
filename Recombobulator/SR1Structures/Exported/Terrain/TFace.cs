@@ -20,7 +20,6 @@ namespace Recombobulator.SR1Structures
 		public Signal Signal = null;
 		public StreamUnitPortal Portal = null;
 		public TextureFT3 Texture = null;
-		public int TextureIndex = -1;
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
@@ -47,30 +46,6 @@ namespace Recombobulator.SR1Structures
 			normal.Write(writer);
 			morph.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
 			texture.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
-
-			if (writer.File._Version >= SR1_File.Version.Jan23 && IsInSignalGroup && attr.Value != 0)
-			{
-				Level level = (Level)writer.File._Structures[0];
-				Terrain terrain = (Terrain)writer.File._Structures[level.terrain.Offset];
-				SR1_StructureSeries<MultiSignal> signals = (SR1_StructureSeries<MultiSignal>)writer.File._Structures[level.SignalListStart.Offset];
-				MultiSignal terrainSignals = null;
-				foreach (MultiSignal signal in signals)
-				{
-					if (signal.Start == terrain.signals.Offset)
-					{
-						terrainSignals = signal;
-						break;
-					}
-				}
-
-				// Looks like there are other things triggered besides portals/signals.
-				// TODO - Figure out what, and correct here.
-				if (MultiSignal != null)
-				{
-					textoff.Value = (ushort)(MultiSignal.NewStart - terrainSignals.NewStart);
-				}
-			}
-
 			textoff.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 		}
 
@@ -90,18 +65,32 @@ namespace Recombobulator.SR1Structures
 			to.Signal = from.Signal;
 			to.Portal = from.Portal;
 			to.Texture = from.Texture;
-			to.TextureIndex = from.TextureIndex;
 		}
 
 		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
 		{
 			base.MigrateVersion(file, targetVersion, migrateFlags);
 
+			// Set it as 'null' here and calculate the real value in Terrain.cs
+			// once the textures have been written to their new locations.
+			textoff.Value = 0xFFFF;
+
 			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
 			{
 				if (IsInSignalGroup)
 				{
-					if (file._Version >= SR1_File.Version.Jan23)
+					if (file._Version < SR1_File.Version.Jan23)
+					{
+						// Effectively disable the FFace.
+						// This doesn't apply to the new tFaces created in Texture.MigrateVersion.
+						face.v2.Value = face.v1.Value;
+						MultiSignal = null;
+						Signal = null;
+						Portal = null;
+
+						IsInSignalGroup = false;
+					}
+					else
 					{
 						bool removeSignal = false;
 
@@ -128,9 +117,9 @@ namespace Recombobulator.SR1Structures
 							}
 						}
 
-						removeSignal |= Portal != null && Portal.OmitFromMigration;
 						removeSignal |= MultiSignal != null && MultiSignal.OmitFromMigration;
 						removeSignal |= Signal != null && Signal.OmitFromMigration;
+						removeSignal |= Portal != null && Portal.OmitFromMigration;
 
 						// 0x004ABBBA has something to do with the portals.
 						// COLLIDE_LineWithSignals does care about TFace::texoff. See address 00490DF6 in game.
@@ -138,35 +127,15 @@ namespace Recombobulator.SR1Structures
 						if (removeSignal)
 						{
 							attr.Value = 0;
-							textoff.Value = 0;
+
+							MultiSignal = null;
+							Signal = null;
+							Portal = null;
 						}
-					}
-					else
-					{
-						attr.Value = 0;
-						textoff.Value = 0xFFFF;
-
-						// Effectively disable the FFace.
-						face.v2.Value = face.v1.Value;
-
-						IsInSignalGroup = false;
 					}
 				}
 				else
 				{
-					// May need to evaluate texture offset in Terrain.MigrateVersion
-					// instead of here if new ones are added or removed because the
-					// index would change.
-					if (TextureIndex >= 0)
-					{
-						int textureSize = (targetVersion >= SR1_File.Version.Apr14) ? 12 : 16;
-						textoff.Value = (ushort)(TextureIndex * textureSize);
-					}
-					else
-					{
-						textoff.Value = 0xFFFF;
-					}
-
 					// Backface collision.
 					//if ((attr0.Value & 0x2000) != 0)
 					//{
@@ -177,7 +146,7 @@ namespace Recombobulator.SR1Structures
 					// 0x08 is water?
 					// 0x46 lets portals work but not fully, however crashes forge 5.
 					// attr.Value = (byte)(attr.Value & 0x46);
-					//attr.Value = (byte)(attr.Value & 0x02); // 0x44 is used for signals. Renderable stuff too?
+					// attr.Value = (byte)(attr.Value & 0x02); // 0x44 is used for signals. Renderable stuff too?
 				}
 			}
 		}

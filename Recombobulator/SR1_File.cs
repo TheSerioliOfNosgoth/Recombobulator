@@ -516,9 +516,11 @@ namespace Recombobulator
 
 			WriteBody(dataWriter);
 
+			dataWriter.BaseStream.Position = 0;
+
 			// Fix up the pointers now that the structures' new positions have been
 			// determined.
-			MigratePointers(sourceVersion, migrateFlags);
+			MigratePointers(dataWriter, sourceVersion, migrateFlags);
 
 			List<SR1_PointerBase> validPointers = ResolvePointers(dataWriter);
 			WriteHeader(outputWriter, validPointers);
@@ -545,13 +547,13 @@ namespace Recombobulator
 			}
 		}
 
-		private void MigratePointers(Version sourceVersion, MigrateFlags migrateFlags)
+		private void MigratePointers(SR1_Writer writer, Version sourceVersion, MigrateFlags migrateFlags)
 		{
 			SR1_Structure[] structures = new SR1_Structure[_StructuresWritten.Values.Count];
 			_StructuresWritten.Values.CopyTo(structures, 0);
 			foreach (SR1_Structure structure in structures)
 			{
-				structure.MigratePointers(this, sourceVersion, migrateFlags);
+				structure.MigratePointers(writer, sourceVersion, migrateFlags);
 			}
 		}
 

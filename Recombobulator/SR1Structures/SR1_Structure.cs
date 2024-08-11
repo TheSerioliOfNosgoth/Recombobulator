@@ -299,11 +299,11 @@ namespace Recombobulator.SR1Structures
 			}
 		}
 
-		public virtual void MigratePointers(SR1_File file, SR1_File.Version sourceVersion, SR1_File.MigrateFlags migrateFlags)
+		public virtual void MigratePointers(SR1_Writer writer, SR1_File.Version sourceVersion, SR1_File.MigrateFlags migrateFlags)
 		{
 			foreach (SR1_Structure structure in MembersWritten)
 			{
-				structure.MigratePointers(file, sourceVersion, migrateFlags);
+				structure.MigratePointers(writer, sourceVersion, migrateFlags);
 			}
 		}
 
