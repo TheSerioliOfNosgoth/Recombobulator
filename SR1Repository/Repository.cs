@@ -55,6 +55,7 @@ namespace SR1Repository
 		string _sourceBigfileName;
 		string _sourceTexturesFileName;
 
+		string _archivesFileName;
 		string _assetsFileName;
 		string _levelsFileName;
 		string _introsFileName;
@@ -68,6 +69,7 @@ namespace SR1Repository
 		string _outputBigFileName;
 		string _outputTexturesFileName;
 
+		ArchiveList _archives;
 		AssetDescList _assets;
 		LevelList _levels;
 		IntroList _intros;
@@ -77,6 +79,7 @@ namespace SR1Repository
 		TexDescList _textures;
 		TexSetList _textureSets;
 
+		public ArchiveList Archives { get { return _archives; } }
 		public AssetDescList Assets { get { return _assets; } }
 		public LevelList Levels { get { return _levels; } }
 		public IntroList Intros { get { return _intros; } }
@@ -101,11 +104,12 @@ namespace SR1Repository
 			_sourceBigfileName = Path.Combine(projectFolderName, "bigfile.dat");
 			_sourceTexturesFileName = Path.Combine(projectFolderName, "textures.big");
 
+			_archivesFileName = Path.Combine(projectFolderName, "archives.json");
 			_assetsFileName = Path.Combine(projectFolderName, "assets.json");
 			_levelsFileName = Path.Combine(projectFolderName, "levels.json");
 			_introsFileName = Path.Combine(projectFolderName, "intros.json");
-            _eventsFileName = Path.Combine(projectFolderName, "events.json");
-            _objectsFileName = Path.Combine(projectFolderName, "objects.json");
+			_eventsFileName = Path.Combine(projectFolderName, "events.json");
+			_objectsFileName = Path.Combine(projectFolderName, "objects.json");
 			_clipsFileName = Path.Combine(projectFolderName, "clips.json");
 			_allClipsFileName = Path.Combine(projectFolderName, "allSFX.pmf");
 			_texturesFileName = Path.Combine(projectFolderName, "textures.json");
@@ -165,18 +169,27 @@ namespace SR1Repository
 			return true;
 		}
 
-		bool InitializeAssets(AssetDescList assets, TexDescList textures)
+		bool InitializeAssets(ArchiveList archives, AssetDescList assets, TexDescList textures)
 		{
 			if (!LoadHashTable(out Hashtable hashTable))
 			{
 				return false;
 			}
 
+			archives.Clear();
 			assets.Clear();
 			textures.Clear();
 
 			try
 			{
+				Archive mainArchive = new Archive()
+				{
+					ArchiveIndex = 0,
+					ArchiveName = "main",
+				};
+
+				#region Bigfile
+
 				FileStream sourceBigFile = new FileStream(_sourceBigfileName, FileMode.Open, FileAccess.Read);
 				BinaryReader bigFileReader = new BinaryReader(sourceBigFile);
 
@@ -231,6 +244,10 @@ namespace SR1Repository
 					assetIndex++;
 				}
 
+				#endregion
+
+				#region Textures
+
 				FileStream sourceTexturesFile = new FileStream(_sourceTexturesFileName, FileMode.Open, FileAccess.Read);
 				BinaryReader texturesReader = new BinaryReader(sourceTexturesFile);
 
@@ -248,11 +265,19 @@ namespace SR1Repository
 					textures.Add(texDesc);
 				}
 
+				mainArchive.TextureStart = 0;
+				mainArchive.TextureCount = textures.Count;
+
 				texturesReader.Close();
 				sourceTexturesFile.Close();
+
+				#endregion
+
+				archives.Add(mainArchive);
 			}
 			catch (Exception)
 			{
+				archives.Clear();
 				assets.Clear();
 				textures.Clear();
 				Console.WriteLine("Error: Couldn't initialize the file list.");
@@ -620,7 +645,7 @@ namespace SR1Repository
 
 			#region Events
 			reader.BaseStream.Position = dataStart + 0xDC;
-            uint eventPointersOffset = reader.ReadUInt32();
+			uint eventPointersOffset = reader.ReadUInt32();
 			if (eventPointersOffset != 0)
 			{
 				reader.BaseStream.Position = dataStart + eventPointersOffset;
@@ -630,24 +655,24 @@ namespace SR1Repository
 					uint nextEventOffset = (uint)reader.BaseStream.Position + 0x04;
 
 					Event srEvent = new Event();
-                    srEvent.UnitName = level.UnitName;
-                    srEvent.StreamUnitID = level.UnitID;
-                    srEvent.EventOffset = reader.ReadUInt32();
+					srEvent.UnitName = level.UnitName;
+					srEvent.StreamUnitID = level.UnitID;
+					srEvent.EventOffset = reader.ReadUInt32();
 					reader.BaseStream.Position = dataStart + srEvent.EventOffset;
 					srEvent.EventNumber = reader.ReadInt16();
 					srEvent.NumInstances = reader.ReadInt16();
-                    reader.BaseStream.Position = dataStart + srEvent.EventOffset + 0x10;
+					reader.BaseStream.Position = dataStart + srEvent.EventOffset + 0x10;
 					srEvent.InstanceListOffset = reader.ReadUInt32();
-                    reader.BaseStream.Position = dataStart + srEvent.InstanceListOffset;
+					reader.BaseStream.Position = dataStart + srEvent.InstanceListOffset;
 
-                    for (int i = 0; i < srEvent.NumInstances; i++)
-                    {
+					for (int i = 0; i < srEvent.NumInstances; i++)
+					{
 						uint nextInstanceOffset = (uint)reader.BaseStream.Position + 0x04;
 
 						EventInstance instance = new EventInstance();
-						
+
 						instance.EventInstanceOffset = reader.ReadUInt32();
-                        reader.BaseStream.Position = dataStart + instance.EventInstanceOffset;
+						reader.BaseStream.Position = dataStart + instance.EventInstanceOffset;
 						instance.ID = reader.ReadInt16();
 						if (instance.ID == 1)
 						{
@@ -656,10 +681,10 @@ namespace SR1Repository
 							instance.IntroID = reader.ReadInt32();
 
 							srEvent.Instances.Add(instance);
-                        }
+						}
 
 						reader.BaseStream.Position = nextInstanceOffset;
-                    }
+					}
 
 					if (addingLevel)
 					{
@@ -947,6 +972,12 @@ namespace SR1Repository
 				return false;
 			}
 
+			if (!File.Exists(_archivesFileName))
+			{
+				Console.WriteLine("Error: Cannot find archive file \"" + _archivesFileName + "\".");
+				return false;
+			}
+
 			if (!File.Exists(_assetsFileName))
 			{
 				Console.WriteLine("Error: Cannot find asset file \"" + _assetsFileName + "\".");
@@ -963,15 +994,15 @@ namespace SR1Repository
 			{
 				Console.WriteLine("Error: Cannot find intro file \"" + _introsFileName + "\".");
 				return false;
-            }
+			}
 
-            if (!File.Exists(_eventsFileName))
-            {
-                Console.WriteLine("Error: Cannot find event file \"" + _eventsFileName + "\".");
-                return false;
-            }
+			if (!File.Exists(_eventsFileName))
+			{
+				Console.WriteLine("Error: Cannot find event file \"" + _eventsFileName + "\".");
+				return false;
+			}
 
-            if (!File.Exists(_objectsFileName))
+			if (!File.Exists(_objectsFileName))
 			{
 				Console.WriteLine("Error: Cannot find object file \"" + _objectsFileName + "\".");
 				return false;
@@ -997,6 +1028,9 @@ namespace SR1Repository
 
 			try
 			{
+				string archivesFileData = File.ReadAllText(_archivesFileName, Encoding.ASCII);
+				_archives = (ArchiveList)JsonSerializer.Deserialize(archivesFileData, typeof(ArchiveList));
+
 				string assetsFileData = File.ReadAllText(_assetsFileName, Encoding.ASCII);
 				_assets = (AssetDescList)JsonSerializer.Deserialize(assetsFileData, typeof(AssetDescList));
 
@@ -1006,10 +1040,10 @@ namespace SR1Repository
 				string introsFileData = File.ReadAllText(_introsFileName, Encoding.ASCII);
 				_intros = (IntroList)JsonSerializer.Deserialize(introsFileData, typeof(IntroList));
 
-                string eventsFileData = File.ReadAllText(_eventsFileName, Encoding.ASCII);
-                _events = (EventList)JsonSerializer.Deserialize(eventsFileData, typeof(EventList));
+				string eventsFileData = File.ReadAllText(_eventsFileName, Encoding.ASCII);
+				_events = (EventList)JsonSerializer.Deserialize(eventsFileData, typeof(EventList));
 
-                string objectsFileData = File.ReadAllText(_objectsFileName, Encoding.ASCII);
+				string objectsFileData = File.ReadAllText(_objectsFileName, Encoding.ASCII);
 				_objects = (ObjectList)JsonSerializer.Deserialize(objectsFileData, typeof(ObjectList));
 
 				string clipsFileData = File.ReadAllText(_clipsFileName, Encoding.ASCII);
@@ -1059,19 +1093,22 @@ namespace SR1Repository
 
 			try
 			{
+				string archivesFileData = JsonSerializer.Serialize(_archives, new JsonSerializerOptions { WriteIndented = true });
+				File.WriteAllText(_archivesFileName, archivesFileData, Encoding.ASCII);
+
 				string assetsFileData = JsonSerializer.Serialize(_assets, new JsonSerializerOptions { WriteIndented = true });
 				File.WriteAllText(_assetsFileName, assetsFileData, Encoding.ASCII);
 
 				string levelsFileData = JsonSerializer.Serialize(_levels, new JsonSerializerOptions { WriteIndented = true });
 				File.WriteAllText(_levelsFileName, levelsFileData, Encoding.ASCII);
 
-                string introsFileData = JsonSerializer.Serialize(_intros, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(_introsFileName, introsFileData, Encoding.ASCII);
+				string introsFileData = JsonSerializer.Serialize(_intros, new JsonSerializerOptions { WriteIndented = true });
+				File.WriteAllText(_introsFileName, introsFileData, Encoding.ASCII);
 
-                string eventsFileData = JsonSerializer.Serialize(_events, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(_eventsFileName, eventsFileData, Encoding.ASCII);
+				string eventsFileData = JsonSerializer.Serialize(_events, new JsonSerializerOptions { WriteIndented = true });
+				File.WriteAllText(_eventsFileName, eventsFileData, Encoding.ASCII);
 
-                string clipsFileData = JsonSerializer.Serialize(_sfxClips, new JsonSerializerOptions { WriteIndented = true });
+				string clipsFileData = JsonSerializer.Serialize(_sfxClips, new JsonSerializerOptions { WriteIndented = true });
 				File.WriteAllText(_clipsFileName, clipsFileData, Encoding.ASCII);
 
 				string objectsFileData = JsonSerializer.Serialize(_objects, new JsonSerializerOptions { WriteIndented = true });
@@ -1094,6 +1131,7 @@ namespace SR1Repository
 
 		void ClearReposititory()
 		{
+			_archives = null;
 			_assets = null;
 			_levels = null;
 			_intros = null;
@@ -1125,6 +1163,7 @@ namespace SR1Repository
 
 			try
 			{
+				_archives = new ArchiveList();
 				_assets = new AssetDescList();
 				_levels = new LevelList();
 				_intros = new IntroList();
@@ -1137,7 +1176,7 @@ namespace SR1Repository
 				FileStream sourceBigFile = new FileStream(_sourceBigfileName, FileMode.Open, FileAccess.Read);
 				FileStream sourceTexturesFile = new FileStream(_sourceTexturesFileName, FileMode.Open, FileAccess.Read);
 
-				if (!InitializeAssets(_assets, _textures))
+				if (!InitializeAssets(_archives, _assets, _textures))
 				{
 					return false;
 				}
@@ -1256,6 +1295,7 @@ namespace SR1Repository
 				#endregion
 
 				#region Textures
+
 				BinaryReader texturesReader = new BinaryReader(sourceTexturesFile);
 				texturesReader.BaseStream.Position = headerLength;
 				foreach (TexDesc texture in _textures.Textures)
@@ -1269,6 +1309,7 @@ namespace SR1Repository
 					FilesRead++;
 				}
 				texturesReader.Close();
+
 				#endregion
 
 				sourceBigFile.Close();
@@ -1288,9 +1329,9 @@ namespace SR1Repository
 				Console.WriteLine("Extracted " + _assets.Count.ToString() + " files from \"" + _sourceBigfileName + "\".");
 				Console.WriteLine("Extracted " + _textures.Count.ToString() + " files from \"" + _sourceTexturesFileName + "\".");
 				Console.WriteLine("Discovered " + _levels.Count + " unique levels.");
-                Console.WriteLine("Discovered " + _intros.Count + " unique intros.");
-                Console.WriteLine("Discovered " + _events.Count + " unique events.");
-                Console.WriteLine("Discovered " + _sfxClips.Count + " unique sfxClips.");
+				Console.WriteLine("Discovered " + _intros.Count + " unique intros.");
+				Console.WriteLine("Discovered " + _events.Count + " unique events.");
+				Console.WriteLine("Discovered " + _sfxClips.Count + " unique sfxClips.");
 				Console.WriteLine("Discovered " + _objects.Count + " unique objects.");
 			}
 			catch (Exception)
@@ -1315,8 +1356,6 @@ namespace SR1Repository
 
 			try
 			{
-				FileStream outputTexturesFile = new FileStream(_outputTexturesFileName, FileMode.Create);
-
 				// Sort by index. Offset isn't saved.
 				SortedList<int, AssetDesc> sortedAssets = new SortedList<int, AssetDesc>();
 				foreach (AssetDesc asset in _assets.Assets)
@@ -1384,27 +1423,49 @@ namespace SR1Repository
 
 				#region Textures
 
-				BinaryWriter texturesWriter = new BinaryWriter(outputTexturesFile);
-				texturesWriter.Write((ushort)512);
-				texturesWriter.Write((ushort)_textures.Count);
-				texturesWriter.Write(new byte[headerLength - 4]);
-				uint totalTextures = (uint)_textures.Count - 1;
-
-				foreach (TexDesc texture in _textures.Textures)
+				for (int fileIndex = 0; fileIndex < 2; fileIndex++)
 				{
-					string inputFileName = Path.Combine(_projectFolderName, texture.FilePath);
-					Bitmap tempBitmap = new Bitmap(inputFileName);
-					WriteTexture(texturesWriter, tempBitmap);
+					Archive archive = _archives[fileIndex];
 
-					Console.WriteLine("Added file: \"" + inputFileName + "\"");
-					RecentMessage = (string)texture.FilePath.Clone();
-					FilesRead++;
+					string texturesFileName =
+						Path.GetDirectoryName(_outputTexturesFileName) +
+						Path.DirectorySeparatorChar +
+						Path.GetFileNameWithoutExtension(_outputTexturesFileName) +
+						fileIndex + ".big";
+
+					int start = archive.TextureStart;
+					int count = archive.TextureCount;
+
+					if (count <= 0)
+					{
+						continue;
+					}
+
+					int end = start + count;
+
+					FileStream outputTexturesFile = new FileStream(texturesFileName, FileMode.Create);
+					BinaryWriter texturesWriter = new BinaryWriter(outputTexturesFile);
+					texturesWriter.Write((ushort)512);
+					texturesWriter.Write((ushort)count);
+					texturesWriter.Write(new byte[headerLength - 4]);
+
+					for (int textureIndex = start; textureIndex < end; textureIndex++)
+					{
+						TexDesc texture = _textures[textureIndex];
+						string inputFileName = Path.Combine(_projectFolderName, texture.FilePath);
+						Bitmap tempBitmap = new Bitmap(inputFileName);
+						WriteTexture(texturesWriter, tempBitmap);
+
+						Console.WriteLine("Added file: \"" + inputFileName + "\"");
+						RecentMessage = (string)texture.FilePath.Clone();
+						FilesRead++;
+					}
+
+					texturesWriter.Close();
+					outputTexturesFile.Close();
+
+					Console.WriteLine("Packed " + count + " files into \"" + texturesFileName + "\".");
 				}
-
-				texturesWriter.Close();
-				outputTexturesFile.Close();
-
-				Console.WriteLine("Packed " + _textures.Count.ToString() + " files into \"" + _outputTexturesFileName + "\".");
 
 				#endregion
 			}

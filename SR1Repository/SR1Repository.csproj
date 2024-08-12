@@ -83,6 +83,8 @@
     <Compile Include="ListBase.cs" />
     <Compile Include="ObjectList.cs" />
     <Compile Include="Object.cs" />
+    <Compile Include="Archive.cs" />
+    <Compile Include="ArchiveList.cs" />
     <Compile Include="TexSetList.cs" />
     <Compile Include="TexSet.cs" />
     <Compile Include="Level.cs" />

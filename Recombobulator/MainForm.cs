@@ -190,10 +190,13 @@ namespace Recombobulator
 				{
 					fileName = addFileDialog.FileName;
 
+					// TODO - Set an index in the dialog?
+					Archive archive = _repository.Archives[0];
+
 					TexSet textureSet = _repository.TextureSets.TexSets.Find(x => x.Index == addFileDialog.TextureSet);
 					if (textureSet == null)
 					{
-						textureSet = ImportTextureSet(fileName, _file._FilePath);
+						textureSet = ImportTextureSet(fileName, _file._FilePath, archive);
 					}
 
 					SR1_File.MigrateFlags migrateFlags = SR1_File.MigrateFlags.None;
@@ -203,7 +206,9 @@ namespace Recombobulator
 
 					for (int t = 0; t < textureSet.TextureIDs.Length; t++)
 					{
-						overrides.NewTextureIDs.Add(_repository.Textures[textureSet.TextureIDs[t]].TPage, textureSet.TextureIDs[t]);
+						ushort textureKey = _repository.Textures[textureSet.TextureIDs[t]].TPage;
+						ushort textureValue = (ushort)(textureSet.TextureIDs[t] - archive.TextureStart);
+						overrides.NewTextureIDs.Add(textureKey, textureValue);
 					}
 
 					object newObject = null;
@@ -906,6 +911,7 @@ namespace Recombobulator
 
 		class ImportScript
 		{
+			public string archiveName = "";
 			public readonly List<ImportFile> ImportFiles = new List<ImportFile>();
 			public readonly List<ReplacePortal> ReplacePortals = new List<ReplacePortal>();
 		}
@@ -995,6 +1001,49 @@ namespace Recombobulator
 
 		private void ImportFromScript(string folderName, ImportScript importScript, ref int filesRead, ref int filesToRead, ref string recentMessage)
 		{
+			Archive archive = null;
+
+			if (importScript.archiveName != null)
+			{
+				archive = _repository.Archives.Archives.Find(x => x.ArchiveName == importScript.archiveName);
+
+				if (archive == null)
+				{
+					archive = new Archive()
+					{
+						ArchiveIndex = _repository.Archives.Count,
+						ArchiveName = importScript.archiveName,
+						TextureStart = _repository.Textures.Count,
+						TextureCount = 0
+					};
+
+					_repository.Archives.Archives.Add(archive);
+				}
+			}
+			else
+			{
+				archive = _repository.Archives[0];
+			}
+
+			/*ushort textureIndex = (ushort)_repository.Textures.Count;
+			for (int t = 0; t < 10; t++)
+			{
+				int newTextureIndex = textureIndex + t;
+
+				string originalTextureName = _repository.MakeTextureFilePath(t, true);
+				string copiedTextureName = _repository.MakeTextureFilePath(newTextureIndex, true);
+				File.Copy(originalTextureName, copiedTextureName);
+
+				TexDesc persistenTexture = new TexDesc();
+				persistenTexture.TextureIndex = textureIndex + t;
+				persistenTexture.FilePath = _repository.MakeTextureFilePath(newTextureIndex);
+				persistenTexture.IsNew = true;
+				persistenTexture.TPage = 0;
+
+				_repository.Textures.Add(persistenTexture);
+				archive.TextureCount++;
+			}*/
+
 			Interlocked.Exchange(ref filesRead, 0);
 			Interlocked.Exchange(ref filesToRead, 0);
 
@@ -1048,7 +1097,7 @@ namespace Recombobulator
 
 				if (textureSet == null)
 				{
-					textureSet = ImportTextureSet(exportName, importPath);
+					textureSet = ImportTextureSet(exportName, importPath, archive);
 				}
 
 				SR1_File.MigrateFlags migrateFlags = SR1_File.MigrateFlags.None;
@@ -1060,7 +1109,9 @@ namespace Recombobulator
 				{
 					for (int t = 0; t < textureSet.TextureIDs.Length; t++)
 					{
-						overrides.NewTextureIDs.Add(_repository.Textures[textureSet.TextureIDs[t]].TPage, textureSet.TextureIDs[t]);
+						ushort textureKey = _repository.Textures[textureSet.TextureIDs[t]].TPage;
+						ushort textureValue = (ushort)(textureSet.TextureIDs[t] - archive.TextureStart);
+						overrides.NewTextureIDs.Add(textureKey, textureValue);
 					}
 				}
 
@@ -1183,7 +1234,7 @@ namespace Recombobulator
 			}
 		}
 
-		private TexSet ImportTextureSet(string textureSetName, string filePath)
+		private TexSet ImportTextureSet(string textureSetName, string filePath, Archive archive)
 		{
 			TexSet textureSet = new TexSet();
 			textureSet.Name = textureSetName;
@@ -1232,6 +1283,7 @@ namespace Recombobulator
 						textures[t].TPage = tPages[t].tPage;
 
 						_repository.Textures.Add(textures[t]);
+						archive.TextureCount++;
 
 						textureSet.TextureIDs[t] = (ushort)newTextureIndex;
 					}
@@ -1269,7 +1321,10 @@ namespace Recombobulator
 			Properties.Settings.Default.RecentFolder = dialog.SelectedPath;
 			Properties.Settings.Default.Save();
 
-			ImportScript importScript = new ImportScript();
+			ImportScript importScript = new ImportScript()
+			{
+				archiveName = "Undercity-Feb04"
+			};
 
 			List<ImportFile> importFiles = importScript.ImportFiles;
 
@@ -1334,7 +1389,10 @@ namespace Recombobulator
 			Properties.Settings.Default.RecentFolder = dialog.SelectedPath;
 			Properties.Settings.Default.Save();
 
-			ImportScript importScript = new ImportScript();
+			ImportScript importScript = new ImportScript()
+			{
+				archiveName = "Undercity-Feb16"
+			};
 
 			List<ImportFile> importFiles = importScript.ImportFiles;
 
@@ -1403,7 +1461,10 @@ namespace Recombobulator
 			Properties.Settings.Default.RecentFolder = dialog.SelectedPath;
 			Properties.Settings.Default.Save();
 
-			ImportScript importScript = new ImportScript();
+			ImportScript importScript = new ImportScript()
+			{
+				archiveName = "Smokestack"
+			};
 
 			List<ImportFile> importFiles = importScript.ImportFiles;
 
@@ -1512,7 +1573,10 @@ namespace Recombobulator
 			Properties.Settings.Default.RecentFolder = dialog.SelectedPath;
 			Properties.Settings.Default.Save();
 
-			ImportScript importScript = new ImportScript();
+			ImportScript importScript = new ImportScript()
+			{
+				archiveName = "Retreat"
+			};
 
 			List<ImportFile> importFiles = importScript.ImportFiles;
 
@@ -1545,7 +1609,10 @@ namespace Recombobulator
 			Properties.Settings.Default.RecentFolder = dialog.SelectedPath;
 			Properties.Settings.Default.Save();
 
-			ImportScript importScript = new ImportScript();
+			ImportScript importScript = new ImportScript()
+			{
+				archiveName = "OraclesCave"
+			};
 
 			List<ImportFile> importFiles = importScript.ImportFiles;
 
@@ -1600,7 +1667,10 @@ namespace Recombobulator
 			Properties.Settings.Default.RecentFolder = dialog.SelectedPath;
 			Properties.Settings.Default.Save();
 
-			ImportScript importScript = new ImportScript();
+			ImportScript importScript = new ImportScript()
+			{
+				archiveName = "CutAreas"
+			};
 
 			List<ImportFile> importFiles = importScript.ImportFiles;
 			List<ReplacePortal> replacePortals = importScript.ReplacePortals;
@@ -1793,7 +1863,10 @@ namespace Recombobulator
 			Properties.Settings.Default.RecentFolder = dialog.SelectedPath;
 			Properties.Settings.Default.Save();
 
-			ImportScript importScript = new ImportScript();
+			ImportScript importScript = new ImportScript()
+			{
+				archiveName = "MovieRooms"
+			};
 
 			List<ImportFile> importFiles = importScript.ImportFiles;
 
