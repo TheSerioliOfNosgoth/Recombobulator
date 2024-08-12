@@ -1315,7 +1315,6 @@ namespace SR1Repository
 
 			try
 			{
-				FileStream outputBigFile = new FileStream(_outputBigFileName, FileMode.Create);
 				FileStream outputTexturesFile = new FileStream(_outputTexturesFileName, FileMode.Create);
 
 				// Sort by index. Offset isn't saved.
@@ -1326,6 +1325,8 @@ namespace SR1Repository
 				}
 
 				#region Bigfile
+
+				FileStream outputBigFile = new FileStream(_outputBigFileName, FileMode.Create);
 				BinaryWriter bigFileWriter = new BinaryWriter(outputBigFile);
 				bigFileWriter.Write(_assets.Count);
 
@@ -1373,14 +1374,22 @@ namespace SR1Repository
 
 					bigFileWriter.Flush();
 				}
+
+				bigFileWriter.Close();
+				outputBigFile.Close();
+
+				Console.WriteLine("Packed " + _assets.Count.ToString() + " files into \"" + _outputBigFileName + "\".");
+
 				#endregion
 
 				#region Textures
+
 				BinaryWriter texturesWriter = new BinaryWriter(outputTexturesFile);
 				texturesWriter.Write((ushort)512);
 				texturesWriter.Write((ushort)_textures.Count);
 				texturesWriter.Write(new byte[headerLength - 4]);
 				uint totalTextures = (uint)_textures.Count - 1;
+
 				foreach (TexDesc texture in _textures.Textures)
 				{
 					string inputFileName = Path.Combine(_projectFolderName, texture.FilePath);
@@ -1391,13 +1400,13 @@ namespace SR1Repository
 					RecentMessage = (string)texture.FilePath.Clone();
 					FilesRead++;
 				}
-				#endregion
 
-				bigFileWriter.Close();
-				outputBigFile.Close();
+				texturesWriter.Close();
+				outputTexturesFile.Close();
 
-				Console.WriteLine("Packed " + _assets.Count.ToString() + " files into \"" + _outputBigFileName + "\".");
 				Console.WriteLine("Packed " + _textures.Count.ToString() + " files into \"" + _outputTexturesFileName + "\".");
+
+				#endregion
 			}
 			catch (Exception)
 			{
