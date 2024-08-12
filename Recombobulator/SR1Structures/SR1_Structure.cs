@@ -23,6 +23,10 @@ namespace Recombobulator.SR1Structures
 
 		private byte[] _padding = null;
 
+		public int Align = 0;
+
+		public bool Unparsed = false;
+
 		public virtual TreeList.Node CreateNode()
 		{
 			string offsetString = " (0x" + Start.ToString("X8") + "-" + "0x" + End.ToString("X8") + ")";
@@ -292,6 +296,14 @@ namespace Recombobulator.SR1Structures
 			foreach (SR1_Structure structure in MembersRead)
 			{
 				structure.MigrateVersion(file, targetVersion, migrateFlags);
+			}
+		}
+
+		public virtual void MigratePointers(SR1_Writer writer, SR1_File.Version sourceVersion, SR1_File.MigrateFlags migrateFlags)
+		{
+			foreach (SR1_Structure structure in MembersWritten)
+			{
+				structure.MigratePointers(writer, sourceVersion, migrateFlags);
 			}
 		}
 

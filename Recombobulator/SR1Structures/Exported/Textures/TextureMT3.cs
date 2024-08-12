@@ -85,6 +85,22 @@ namespace Recombobulator.SR1Structures
 			color.Write(writer);
 		}
 
+		public static void Copy(TextureMT3 to, TextureMT3 from)
+		{
+			to.u0.Value = from.u0.Value;
+			to.v0.Value = from.v0.Value;
+			to.clut.Value = from.clut.Value;
+			to.u1.Value = from.u1.Value;
+			to.v1.Value = from.v1.Value;
+			to.tpage.Value = from.tpage.Value;
+			to.pad.Value = from.pad.Value;
+			to.u2.Value = from.u2.Value;
+			to.v2.Value = from.v2.Value;
+			to.pad1.Value = from.pad1.Value;
+			to.sortPush.Value = from.sortPush.Value;
+			to.color.Value = from.color.Value;
+		}
+
 		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
 		{
 			base.MigrateVersion(file, targetVersion, migrateFlags);

@@ -17,12 +17,12 @@ namespace Recombobulator
 		public const UInt32 BETA_19990512_VERSION = 0x3c204139;
 		public const UInt32 RETAIL_VERSION = 0x3C20413B;
 
-		public enum Version
+		public enum Version : int
 		{
 			Detect = -1,
 			Detect_Retail_PC = -2,
 			First = 0,
-			Proto,
+			Proto1,
 			Jan23,
 			Feb04,
 			Feb16,
@@ -123,8 +123,9 @@ namespace Recombobulator
 		public Version _Version { get; private set; } = SR1_File.Version.Jun01;
 		public bool _IsLevel { get; private set; }
 		public readonly SortedList<uint, SR1_Structure> _Structures = new SortedList<uint, SR1_Structure>();
-		public readonly List<SR1_PrimativeBase> _PrimsWritten = new List<SR1_PrimativeBase>();
+		public readonly SortedList<uint, SR1_Structure> _StructuresWritten = new SortedList<uint, SR1_Structure>();
 		public readonly List<SR1_PrimativeBase> _PrimsRead = new List<SR1_PrimativeBase>();
+		public readonly List<SR1_PrimativeBase> _PrimsWritten = new List<SR1_PrimativeBase>();
 		public readonly SortedDictionary<uint, SR1_Structure> _MigrationStructures = new SortedDictionary<uint, SR1_Structure>();
 		public List<SR1_PointerBase> _Pointers = new List<SR1_PointerBase>();
 		public readonly List<ushort> _TextureIDs = new List<ushort>();
@@ -144,6 +145,7 @@ namespace Recombobulator
 			_Version = SR1_File.Version.Jun01;
 			_IsLevel = false;
 			_Structures.Clear();
+			_StructuresWritten.Clear();
 			_PrimsRead.Clear();
 			_PrimsWritten.Clear();
 			_MigrationStructures.Clear();
@@ -196,24 +198,42 @@ namespace Recombobulator
 				{
 					bool validVersion = false;
 
-					if (!validVersion && forcedVersion == Version.Detect_Retail_PC)
-					{
-						dataReader.BaseStream.Position = 0x9C;
-						if (dataReader.ReadUInt64() == 0xFFFFFFFFFFFFFFFF)
-						{
-							_Version = Version.Retail_PC;
-							validVersion = true;
-						}
-					}
-
 					if (!validVersion)
 					{
 						dataReader.BaseStream.Position = 0xF0;
 						UInt32 version = dataReader.ReadUInt32();
 						if (!validVersion && version == RETAIL_VERSION)
 						{
-							_Version = Version.Jun01;
-							validVersion = true;
+							if (forcedVersion == Version.Detect_Retail_PC)
+							{
+								dataReader.BaseStream.Position = 0x9C;
+								if (dataReader.ReadUInt64() == 0xFFFFFFFFFFFFFFFF)
+								{
+									dataReader.BaseStream.Position = 0x01CC;
+									char[] levelName = dataReader.ReadChars(9);
+									string levelNameStr = new string(levelName);
+									if (levelNameStr == "pillars10")
+									{
+										dataReader.BaseStream.Position = 0x04C8;
+										if (dataReader.ReadUInt32() == 0x0000060C)
+										{
+											_Version = Version.Retail_PC;
+											validVersion = true;
+										}
+									}
+									else
+									{
+										_Version = Version.Retail_PC;
+										validVersion = true;
+									}
+								}
+							}
+
+							if (!validVersion)
+							{
+								_Version = Version.Jun01;
+								validVersion = true;
+							}
 						}
 
 						if (!validVersion && version == BETA_19990512_VERSION)
@@ -416,6 +436,26 @@ namespace Recombobulator
 
 			root.Read(dataReader, null, "");
 
+			SR1_Structure[] structures = new SR1_Structure[_Structures.Values.Count];
+			_Structures.Values.CopyTo(structures, 0);
+			SR1_Structure structure0;
+			SR1_Structure structure1;
+			for (int s = 1; s < structures.Length; s++)
+			{
+				structure0 = structures[s - 1];
+				structure1 = structures[s];
+
+				int difference = (int)(structure1.Start - structure0.End);
+				if (difference > 0)
+				{
+					dataReader.BaseStream.Position = structure0.End;
+
+					SR1_PrimativeArray<byte> unparsedData = new SR1_PrimativeArray<byte>(difference);
+					unparsedData.Read(dataReader, null, "(Unparsed)");
+					unparsedData.Unparsed = true;
+				}
+			}
+
 			if (_IsLevel && (_ImportFlags & ImportFlags.LogScripts) != 0)
 			{
 				dataReader.ScriptParser.ParseAll(dataReader);
@@ -433,16 +473,27 @@ namespace Recombobulator
 
 		public void Export(string fileName, Version targetVersion, MigrateFlags migrateFlags, Overrides overrides)
 		{
+			if (targetVersion == Version.Detect || targetVersion == Version.Detect_Retail_PC)
+			{
+				targetVersion = _Version;
+			}
+
 			Directory.CreateDirectory(Path.GetDirectoryName(fileName));
 			FileStream file = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite);
 			Export(file, targetVersion, migrateFlags, overrides);
-			Import(file);
+			Import(file, targetVersion);
 			file.Close();
 		}
 
 		private void Export(Stream outputStream, Version targetVersion, MigrateFlags migrateFlags, Overrides overrides)
 		{
 			_Overrides = overrides;
+
+			if (_Version < Version.Jan23 && targetVersion >= Version.Jan23)
+			{
+				// These things aren't ready yet.
+				migrateFlags |= SR1_File.MigrateFlags.RemoveVertexMorphs;
+			}
 
 			_PrimsWritten.Clear();
 			_MigrationStructures.Clear();
@@ -458,7 +509,16 @@ namespace Recombobulator
 
 			MigrateVersion(targetVersion, migrateFlags);
 
+			Version sourceVersion = _Version;
+			_Version = targetVersion;
+
 			WriteBody(dataWriter);
+
+			dataWriter.BaseStream.Position = 0;
+
+			// Fix up the pointers now that the structures' new positions have been
+			// determined.
+			MigratePointers(dataWriter, sourceVersion, migrateFlags);
 
 			List<SR1_PointerBase> validPointers = ResolvePointers(dataWriter);
 			WriteHeader(outputWriter, validPointers);
@@ -483,8 +543,16 @@ namespace Recombobulator
 			{
 				structure.MigrateVersion(this, targetVersion, migrateFlags);
 			}
+		}
 
-			_Version = targetVersion;
+		private void MigratePointers(SR1_Writer writer, Version sourceVersion, MigrateFlags migrateFlags)
+		{
+			SR1_Structure[] structures = new SR1_Structure[_StructuresWritten.Values.Count];
+			_StructuresWritten.Values.CopyTo(structures, 0);
+			foreach (SR1_Structure structure in structures)
+			{
+				structure.MigratePointers(writer, sourceVersion, migrateFlags);
+			}
 		}
 
 		private void WriteHeader(BinaryWriter wtr, List<SR1_PointerBase> ptrs)
@@ -519,11 +587,12 @@ namespace Recombobulator
 			var migStructureEnumerator = _MigrationStructures.GetEnumerator();
 			SR1_Structure migStructure = migStructureEnumerator.MoveNext() ? migStructureEnumerator.Current.Value : null;
 			SR1_Structure extStructure = structureEnumerator.MoveNext() ? structureEnumerator.Current.Value : null;
+			SR1_PrimativeArray<byte> unparsedData = null;
 			while (migStructure != null || extStructure != null)
 			{
 				while (migStructure != null)
 				{
-					// If there is a pre-existing structure at/before the new structure's insert point,
+					// If there is a pre-existing structure before the new structure's insert point,
 					// then break out and do that first.
 					// Given that some arrays use pointers to the end, it would be dangerous to insert new items
 					// before the next structure.
@@ -533,7 +602,7 @@ namespace Recombobulator
 					}
 
 					IsWritingMigStruct = true;
-					migStructure.Write(wtr);
+					WriteAlignedStructure(wtr, migStructure, null);
 					IsWritingMigStruct = false;
 					//extStructure.WriteToConsole("Migration Structure ", 0, false);
 					migStructure = migStructureEnumerator.MoveNext() ? migStructureEnumerator.Current.Value : null;
@@ -541,11 +610,57 @@ namespace Recombobulator
 
 				if (extStructure != null)
 				{
-					extStructure.Write(wtr);
-					//extStructure.WriteToConsole("Existing Structure ", 0, false);
+					if (extStructure.Unparsed)
+					{
+						unparsedData = extStructure as SR1_PrimativeArray<byte>;
+					}
+					else
+					{
+						WriteAlignedStructure(wtr, extStructure, unparsedData);
+						//extStructure.WriteToConsole("Existing Structure ", 0, false);
+
+						unparsedData = null;
+					}
+
 					extStructure = structureEnumerator.MoveNext() ? structureEnumerator.Current.Value : null;
 				}
 			}
+		}
+
+		private void WriteAlignedStructure(SR1_Writer wtr, SR1_Structure structure, SR1_PrimativeArray<byte> unparsedData)
+		{
+			uint align = (uint)structure.Align;
+			if (align > 0)
+			{
+				int length = 0;
+				uint mod = (uint)wtr.BaseStream.Position % align;
+				if (mod > 0)
+				{
+					length = (int)(align - mod);
+				}
+
+				if (length > 0)
+				{
+					int index = length - 1;
+					byte[] data = new byte[length];
+
+					// Try to use previous data for alignment to help with matching.
+					if (unparsedData != null)
+					{
+						int unparsedIndex = unparsedData.Count - 1;
+						while (index >= 0 && unparsedIndex >= 0)
+						{
+							data[index--] = unparsedData[unparsedIndex--];
+						}
+					}
+
+					wtr.Write(data);
+				}
+			}
+
+			structure.Write(wtr);
+
+			_StructuresWritten.Add(structure.NewStart, structure);
 		}
 
 		private List<SR1_PointerBase> ResolvePointers(SR1_Writer wtr)
@@ -558,18 +673,30 @@ namespace Recombobulator
 			{
 				bool result;
 
-				if (pointer.PointsToMigStruct)
+				if (pointer.Offset == 0)
+				{
+					result = false;
+				}
+				else if (pointer.Heuristic == PtrHeuristic.Migration)
 				{
 					result = ResolveMigStructPointer(wtr, pointer);
 				}
-				else if (pointer.PointsToEndOfStruct ||
+				else if (pointer.Heuristic == PtrHeuristic.Start)
+				{
+					result = ResolveStructStartPointer(wtr, pointer, exportData);
+				}
+				else if (pointer.Heuristic == PtrHeuristic.End ||
 					pointer.Offset == exportData.readEndKeys.Last())
 				{
 					result = ResolveStructEndPointer(wtr, pointer, exportData);
 				}
-				else
+				else if (pointer.Heuristic == PtrHeuristic.Member)
 				{
 					result = ResolveStandardPointer(wtr, pointer, exportData);
+				}
+				else
+				{
+					result = ResolveExpStructPointer(wtr, pointer);
 				}
 
 				if (result)
@@ -638,6 +765,26 @@ namespace Recombobulator
 			return false;
 		}
 
+		private bool ResolveStructStartPointer(SR1_Writer wtr, SR1_PointerBase ptr, ExportData exd)
+		{
+			int index = exd.readStartKeys.BinarySearch(ptr.Offset);
+			if (index >= 0)
+			{
+				SR1_PrimativeBase primative = exd.readStart[exd.readStartKeys[index]];
+				SR1_Structure structure = GetTopStructure(primative, false);
+
+				// Make sure the primitive was writen otherwise it can't be used.
+				if (structure != null && structure.MembersWritten.Count > 0)
+				{
+					wtr.BaseStream.Position = ptr.NewStart;
+					wtr.Write(structure.NewStart);
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		// Some pointers are used to mark the end of a series of structures.
 		// In these cases, the goal is to locate the end point of that series.
 		// There is a chance that the structure at the end of the series was
@@ -657,7 +804,7 @@ namespace Recombobulator
 			if (index >= 0)
 			{
 				SR1_PrimativeBase primative = exd.readEnd[exd.readEndKeys[index]];
-				SR1_Structure structure = GetTopStructure(primative);
+				SR1_Structure structure = GetTopStructure(primative, true);
 
 				// Make sure the primitive was writen otherwise it can't be used.
 				if (structure != null && structure.MembersWritten.Count > 0)
@@ -686,6 +833,13 @@ namespace Recombobulator
 			}
 
 			return false;
+		}
+
+		private bool ResolveExpStructPointer(SR1_Writer wtr, SR1_PointerBase ptr)
+		{
+			wtr.BaseStream.Position = ptr.NewStart;
+			wtr.Write(ptr.Offset);
+			return true;
 		}
 
 		public bool TestExport()
@@ -750,16 +904,26 @@ namespace Recombobulator
 			return nodes;
 		}
 
-		private SR1_Structure GetTopStructure(SR1_Structure structure)
+		private SR1_Structure GetTopStructure(SR1_Structure structure, bool findByEnd)
 		{
 			if (structure == null)
 			{
 				return null;
 			}
 
-			while (structure.Parent != null && structure.Parent.End == structure.End)
+			if (findByEnd)
 			{
-				structure = structure.Parent;
+				while (structure.Parent != null && structure.Parent.End == structure.End)
+				{
+					structure = structure.Parent;
+				}
+			}
+			else
+			{
+				while (structure.Parent != null && structure.Parent.Start == structure.Start)
+				{
+					structure = structure.Parent;
+				}
 			}
 
 			return structure;
@@ -775,11 +939,12 @@ namespace Recombobulator
 			return _ImportErrors.ToString();
 		}
 
-		public static string[] TestFolder(string folderName, TestFlags flags, ref int filesRead, ref int filesToRead, ref string recentMessage)
+		public static string[] TestFolder(string folderName, SR1_File.Version testVersion, TestFlags flags, ref int filesRead, ref int filesToRead, ref string recentMessage)
 		{
 			DirectoryInfo directoryInfo = new DirectoryInfo(folderName);
 			FileInfo[] fileInfos = directoryInfo.GetFiles("*.*", SearchOption.AllDirectories);
-			fileInfos = Array.FindAll(fileInfos, info => (info.Extension == ".pcm" || info.Extension == ".drm"));
+			fileInfos = Array.FindAll(fileInfos, info =>
+				(info.Extension.ToLower() == ".pcm" || info.Extension.ToLower() == ".drm"));
 
 			List<string> physObs = new List<string>();
 			List<string> genericTunes = new List<string>();
@@ -810,7 +975,7 @@ namespace Recombobulator
 				try
 				{
 					SR1_File file = new SR1_File();
-					file.Import(fileInfo.FullName, ImportFlags.LogErrors);
+					file.Import(fileInfo.FullName, ImportFlags.LogErrors, testVersion);
 					fileDesc = fileInfo.Name.PadRight(20) + "(Size = 0x" + file._FileLength.ToString("X8") + " bytes)";
 
 					if (file.TestExport())

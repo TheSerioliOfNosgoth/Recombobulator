@@ -137,12 +137,12 @@ namespace Recombobulator.SR1Structures
 				throwAnims.ReadFromPointer(reader, reader.ThrowAnimDictionary.Values[0]);
 			}
 
-			new SR1_StructureSeries<VAnim>((int)(virtualAnimSingle.Offset - virtualAnimations.Offset)).ReadFromPointer(reader, virtualAnimations);
+			new SR1_StructureSeries<VAnim>().ReadFromPointer(reader, virtualAnimations, virtualAnimSingle);
 
 			if (reader.SAnimDictionary.Count > 0)
 			{
-				new SR1_StructureSeries<SAnim>((int)(reader.BaseStream.Length - reader.SAnimDictionary.Values[0].Offset)).ReadFromPointer(reader, reader.SAnimDictionary.Values[0]);
-				new SR1_StructureSeries<VAnim>((int)(reader.SAnimDictionary.Values[0].Offset - virtualAnimSingle.Offset)).ReadFromPointer(reader, virtualAnimSingle);
+				new SR1_StructureSeries<VAnim>().ReadFromPointer(reader, virtualAnimSingle, reader.SAnimDictionary.Values[0]);
+				new SR1_StructureSeries<SAnim>().ReadFromPointer(reader, reader.SAnimDictionary.Values[0], (uint)reader.BaseStream.Length);
 			}
 		}
 

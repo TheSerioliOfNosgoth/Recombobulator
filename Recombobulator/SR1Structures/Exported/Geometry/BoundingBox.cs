@@ -5,12 +5,12 @@ namespace Recombobulator.SR1Structures
 {
 	class BoundingBox : SR1_Structure
 	{
-		SR1_Primative<short> minX = new SR1_Primative<short>();
-		SR1_Primative<short> minY = new SR1_Primative<short>();
-		SR1_Primative<short> minZ = new SR1_Primative<short>();
-		SR1_Primative<short> maxX = new SR1_Primative<short>();
-		SR1_Primative<short> maxY = new SR1_Primative<short>();
-		SR1_Primative<short> maxZ = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> minX = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> minY = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> minZ = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> maxX = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> maxY = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> maxZ = new SR1_Primative<short>();
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{

@@ -182,6 +182,20 @@ namespace Recombobulator.SR1Structures
 			HandleDecoupledTimer2,
 		}
 
+		public enum SignalTypeProto1
+		{
+			HandleCameraAdjust = 13,
+			HandleCameraMode = 14,
+			HandleCameraKey = 15,
+			HandleCameraSmooth = 17,
+			HandleCameraLock = 19,
+			HandleCameraUnlock = 20,
+			HandleFarPlane = 24,
+			HandleSoundStartSequence = 25,
+			HandleEnd = 60,
+			HandleStreamLevel = 78,
+		}
+
 		public readonly SR1_Primative<int> id = new SR1_Primative<int>();
 		public SignalData data = new SignalData();
 
@@ -376,7 +390,7 @@ namespace Recombobulator.SR1Structures
 						break;
 				}
 			}
-			else if (reader.File._Version >= SR1_File.Version.Feb04)
+			else if (reader.File._Version >= SR1_File.Version.First)
 			{
 				switch ((SignalTypeFeb16)id.Value)
 				{
@@ -521,6 +535,46 @@ namespace Recombobulator.SR1Structures
 						break;
 				}
 			}
+			else
+			{
+				switch ((SignalTypeProto1)id.Value)
+				{
+					case SignalTypeProto1.HandleCameraAdjust:
+						data = new SignalCameraAdjust();
+						break;
+					case SignalTypeProto1.HandleCameraMode:
+						data = new SignalCameraMode();
+						break;
+					case SignalTypeProto1.HandleCameraKey:
+						data = new SignalCameraKey();
+						break;
+					case SignalTypeProto1.HandleCameraSmooth:
+						data = new SignalCameraSmooth();
+						break;
+					case SignalTypeProto1.HandleCameraLock:
+						data = new SignalCameraLock();
+						break;
+					case SignalTypeProto1.HandleCameraUnlock:
+						data = new SignalCameraUnlock();
+						break;
+					case SignalTypeProto1.HandleFarPlane:
+						data = new SignalDepricated(1);
+						break;
+					case SignalTypeProto1.HandleSoundStartSequence:
+						data = new SignalDepricated(2);
+						break;
+					case SignalTypeProto1.HandleEnd:
+						data = new SignalEnd();
+						break;
+					case SignalTypeProto1.HandleStreamLevel:
+						data = new SignalStreamLevel();
+						break;
+					default:
+						// The lengths can be different. Check the length field in signalInfoList entries.
+						data = new SignalDepricated(GetSizeOfDepricated(reader, id.Value));
+						break;
+				}
+			}
 
 			data.SetPadding(4).Read(reader, this, "data");
 		}
@@ -643,7 +697,7 @@ namespace Recombobulator.SR1Structures
 						return 1;
 				}
 			}
-			else if (reader.File._Version >= SR1_File.Version.Feb04)
+			else if (reader.File._Version >= SR1_File.Version.First)
 			{
 				switch (id)
 				{
@@ -651,7 +705,12 @@ namespace Recombobulator.SR1Structures
 						return 1;
 				}
 			}
-			return 1;
+
+			switch (id)
+			{
+				default:
+					return 1;
+			}
 		}
 	}
 }

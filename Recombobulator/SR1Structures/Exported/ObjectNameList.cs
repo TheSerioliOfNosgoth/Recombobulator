@@ -8,7 +8,7 @@ namespace Recombobulator.SR1Structures
 	{
 		List<SR1_String> _List = new List<SR1_String>();
 		SR1_PrimativePointer<char> listStart = new SR1_PrimativePointer<char>();
-		SR1_Primative<int> pad = new SR1_Primative<int>();
+		SR1_Primative<int> pad = new SR1_Primative<int>().ShowAsHex(true);
 
 		public ObjectNameList()
 		{
@@ -39,7 +39,8 @@ namespace Recombobulator.SR1Structures
 				string objectName = _List[i].ToString();
 				if (objectName == "Shadow" ||
 					objectName == "Shadow2" ||
-					objectName == "Shadow3")
+					objectName == "Shadow3" ||
+					objectName == "fonts")
 				{
 					continue;
 				}
@@ -74,7 +75,8 @@ namespace Recombobulator.SR1Structures
 					string objectName = _List[i].ToString();
 					if (objectName == "Shadow" ||
 						objectName == "Shadow2" ||
-						objectName == "Shadow3")
+						objectName == "Shadow3" ||
+						objectName == "fonts")
 					{
 						_List.Remove(_List[i]);
 					}

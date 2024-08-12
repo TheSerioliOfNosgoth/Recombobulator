@@ -62,7 +62,7 @@ namespace Recombobulator.SR1Structures
 
 			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
 			{
-				pad.Value = 15;
+				pad.Value = (int)Signal.SignalTypeJun01.HandleEnd;
 			}
 		}
 

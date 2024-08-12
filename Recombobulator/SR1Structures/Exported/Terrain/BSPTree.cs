@@ -5,9 +5,9 @@ namespace Recombobulator.SR1Structures
 {
 	class BSPTree : SR1_Structure
 	{
-		public readonly SR1_Pointer<BSPNode> bspRoot = new SR1_Pointer<BSPNode>();
-		public readonly SR1_Pointer<BSPLeaf> startLeaves = new SR1_Pointer<BSPLeaf>();
-		public readonly SR1_Pointer<BSPLeaf> endLeaves = new SR1_Pointer<BSPLeaf>();
+		public readonly SR1_Pointer<BSPNode> bspRoot = new SR1_Pointer<BSPNode>(PtrHeuristic.Start);
+		public readonly SR1_Pointer<BSPLeaf> startLeaves = new SR1_Pointer<BSPLeaf>(PtrHeuristic.Start);
+		public readonly SR1_Pointer<BSPLeaf> endLeaves = new SR1_Pointer<BSPLeaf>(PtrHeuristic.End);
 		public readonly Position globalOffset = new Position();
 		public readonly SR1_Primative<short> flags = new SR1_Primative<short>().ShowAsHex(true);
 		public readonly Position localOffset = new Position();
@@ -30,15 +30,8 @@ namespace Recombobulator.SR1Structures
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
 		{
-			if ((int)(startLeaves.Offset - bspRoot.Offset) > 0)
-			{
-				new SR1_StructureSeries<BSPNode>((int)(startLeaves.Offset - bspRoot.Offset)).ReadFromPointer(reader, bspRoot);
-			}
-
-			if ((int)(endLeaves.Offset - startLeaves.Offset) > 0)
-			{
-				new SR1_StructureSeries<BSPLeaf>((int)(endLeaves.Offset - startLeaves.Offset)).ReadFromPointer(reader, startLeaves);
-			}
+			new SR1_StructureSeries<BSPNode>().ReadFromPointer(reader, bspRoot, startLeaves);
+			new SR1_StructureSeries<BSPLeaf>().ReadFromPointer(reader, startLeaves, endLeaves);
 		}
 
 		public override void WriteMembers(SR1_Writer writer)
@@ -75,7 +68,7 @@ namespace Recombobulator.SR1Structures
 						flags.Value |= 0x0003; // Invisible and no collision.
 					}
 
-					// Clise doors to adda1
+					// Close doors to adda1
 					if (ID.Value == 5 || ID.Value == 6)
 					{
 						flags.Value &= ~0x0003; // Invisible and no collision.

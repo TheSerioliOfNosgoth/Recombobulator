@@ -8,6 +8,7 @@ namespace Recombobulator.SR1Structures
 	{
 		public readonly SR1_String name = new SR1_String(16);
 		public readonly SR1_Primative<int> intronum = new SR1_Primative<int>();
+		public readonly SR1_Pointer<Object> sr1object = new SR1_Pointer<Object>();
 		public readonly SR1_Primative<int> UniqueID = new SR1_Primative<int>();
 		public readonly SR1_Pointer<Intro> link = new SR1_Pointer<Intro>();
 		public readonly Rotation rotation = new Rotation();
@@ -29,8 +30,9 @@ namespace Recombobulator.SR1Structures
 		{
 			name.SetReadMax(true).Read(reader, this, "name");
 			intronum.Read(reader, this, "intronum");
-			UniqueID.Read(reader, this, "UniqueID");
-			link.Read(reader, this, "link", SR1_File.Version.Feb04, SR1_File.Version.Feb16);
+			sr1object.Read(reader, this, "object", SR1_File.Version.First, SR1_File.Version.Jan23);
+			UniqueID.Read(reader, this, "UniqueID", SR1_File.Version.Jan23, SR1_File.Version.Next);
+			link.Read(reader, this, "link", SR1_File.Version.First, SR1_File.Version.Feb16);
 			rotation.Read(reader, this, "rotation");
 			position.Read(reader, this, "position");
 			maxRad.Read(reader, this, "maxRad");
@@ -42,24 +44,33 @@ namespace Recombobulator.SR1Structures
 			dsignal.Read(reader, this, "dsignal");
 			specturalLightGroup.Read(reader, this, "specturalLightGroup");
 			meshColor.Read(reader, this, "meshColor");
-			spectralPosition.Read(reader, this, "spectralPosition");
-			spad.Read(reader, this, "spad");
+			spectralPosition.Read(reader, this, "spectralPosition", SR1_File.Version.Jan23, SR1_File.Version.Next);
+			spad.Read(reader, this, "spad", SR1_File.Version.Jan23, SR1_File.Version.Next);
 
 			if (!reader.File._IntroNames.Contains(name.ToString()))
 			{
 				reader.File._IntroNames.Add(name.ToString());
 			}
 
-			int uniqueID = UniqueID.Value;
-			if (!reader.File._IntroIDs.Contains(uniqueID))
+			if (reader.File._Version < SR1_File.Version.Jan23)
 			{
+				// Just use the count as the ID so there's something to remap.
+				int uniqueID = reader.File._IntroIDs.Count;
 				reader.File._IntroIDs.Add(uniqueID);
+			}
+			else
+			{
+				int uniqueID = UniqueID.Value;
+				if (!reader.File._IntroIDs.Contains(uniqueID))
+				{
+					reader.File._IntroIDs.Add(uniqueID);
+				}
 			}
 		}
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
 		{
-			if (data.Offset != 0x00000000 && !reader.File._Structures.ContainsKey(data.Offset))
+			if (data.Offset != 0 && !reader.File._Structures.ContainsKey(data.Offset))
 			{
 				reader.BaseStream.Position = (long)data.Offset;
 				INICommand tempCMD = new INICommand();
@@ -70,7 +81,8 @@ namespace Recombobulator.SR1Structures
 				while (tempCMD.command.Value != 0);
 
 				int bufferLength = (int)reader.BaseStream.Position - (int)data.Offset;
-				SR1_StructureSeries<INICommand> commands = new SR1_StructureSeries<INICommand>(bufferLength);
+				SR1_StructureSeries<INICommand> commands = new SR1_StructureSeries<INICommand>();
+				commands.SetReadLength(bufferLength);
 
 				reader.BaseStream.Position = (long)data.Offset;
 				commands.Read(reader, null, "");
@@ -91,8 +103,9 @@ namespace Recombobulator.SR1Structures
 		{
 			name.Write(writer);
 			intronum.Write(writer);
-			UniqueID.Write(writer);
-			link.Write(writer, SR1_File.Version.Feb04, SR1_File.Version.Feb16);
+			sr1object.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
+			UniqueID.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
+			link.Write(writer, SR1_File.Version.First, SR1_File.Version.Feb16);
 			rotation.Write(writer);
 			position.Write(writer);
 			maxRad.Write(writer);
@@ -104,8 +117,8 @@ namespace Recombobulator.SR1Structures
 			dsignal.Write(writer);
 			specturalLightGroup.Write(writer);
 			meshColor.Write(writer);
-			spectralPosition.Write(writer);
-			spad.Write(writer);
+			spectralPosition.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
+			spad.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 		}
 
 		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
@@ -114,6 +127,11 @@ namespace Recombobulator.SR1Structures
 
 			if (file._Version != targetVersion)
 			{
+				//if (name.ToString() == "raziel")
+				//{
+					// Raziel always has this ID.
+					//UniqueID.Value = 2560;
+				//}
 				if (file._Overrides.NewIntroIDs.TryGetValue(UniqueID.Value, out int newIntroID))
 				{
 					UniqueID.Value = newIntroID;
@@ -122,6 +140,20 @@ namespace Recombobulator.SR1Structures
 				if (file._Overrides.NewObjectNames.ContainsKey(name.ToString()))
 				{
 					name.SetText(file._Overrides.NewObjectNames[name.ToString()], 16);
+				}
+			}
+
+			if (file._Version < SR1_File.Version.Jan23 && targetVersion >= SR1_File.Version.Jan23)
+			{
+				spectralPosition.x.Value = position.x.Value;
+				spectralPosition.y.Value = position.y.Value;
+				spectralPosition.z.Value = position.z.Value;
+				
+				// Remove the commands until I know they are the same as retail.
+				if (data.Offset != 0)
+				{
+					file._Structures.Remove(data.Offset);
+					data.Offset = 0;
 				}
 			}
 		}

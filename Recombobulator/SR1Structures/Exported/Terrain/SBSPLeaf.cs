@@ -5,7 +5,8 @@ namespace Recombobulator.SR1Structures
 {
 	class SBSPLeaf : SR1_Structure
 	{
-		Sphere_noSq sphere = new Sphere_noSq();
+		Sphere sphere = new Sphere();
+		Sphere_noSq sphereNoSq = new Sphere_noSq();
 		SR1_Pointer<Intro> introList = new SR1_Pointer<Intro>();
 		SR1_Primative<short> numIntros = new SR1_Primative<short>();
 		SR1_Primative<short> flags = new SR1_Primative<short>();
@@ -15,7 +16,8 @@ namespace Recombobulator.SR1Structures
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
-			sphere.Read(reader, this, "sphere");
+			sphere.Read(reader, this, "sphere", SR1_File.Version.First, SR1_File.Version.Jan23);
+			sphereNoSq.Read(reader, this, "sphere", SR1_File.Version.Jan23, SR1_File.Version.Next);
 			introList.Read(reader, this, "introList");
 			numIntros.Read(reader, this, "numIntros");
 			flags.Read(reader, this, "flags");
@@ -36,7 +38,8 @@ namespace Recombobulator.SR1Structures
 
 		public override void WriteMembers(SR1_Writer writer)
 		{
-			sphere.Write(writer);
+			sphere.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
+			sphereNoSq.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			introList.Write(writer);
 			numIntros.Write(writer);
 			flags.Write(writer);

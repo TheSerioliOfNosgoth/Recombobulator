@@ -56,5 +56,10 @@ namespace Recombobulator.SR1Structures
 		public SR1_Pointer()
 		{
 		}
+
+		public SR1_Pointer(PtrHeuristic heuristic)
+		{
+			Heuristic = heuristic;
+		}
 	}
 }

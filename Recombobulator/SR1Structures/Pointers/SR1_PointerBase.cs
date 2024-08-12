@@ -4,11 +4,21 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
+	public enum PtrHeuristic : int
+	{
+		Member = 0,
+		Start = 1,
+		End = 2,
+		Migration = 3,
+		Explicit = 4
+	}
+
 	public abstract class SR1_PointerBase : SR1_PrimativeBase
 	{
+
+		public PtrHeuristic Heuristic { get; set; } = PtrHeuristic.Member;
+
 		public uint Offset { get; set; }
-		public bool PointsToMigStruct { get; set; }
-		public bool PointsToEndOfStruct { get; set; }
 
 		public abstract object CreateObject(SR1_Structure parent, SR1_Reader reader);
 
@@ -35,10 +45,7 @@ namespace Recombobulator.SR1Structures
 			base.AddToWritten(writer);
 
 			// Store this pointer in the list so that it can be fixed.
-			if (Offset != 0)
-			{
-				writer.File._Pointers.Add(this);
-			}
+			writer.File._Pointers.Add(this);
 		}
 
 		public override string ToString()
@@ -70,7 +77,7 @@ namespace Recombobulator.SR1Structures
 
 		public bool PrepareToReadReference(SR1_Reader reader)
 		{
-			if (Offset != 0x00000000 && !reader.File._Structures.ContainsKey(Offset))
+			if (Offset != 0 && !reader.File._Structures.ContainsKey(Offset))
 			{
 				reader.BaseStream.Position = Offset;
 				return true;

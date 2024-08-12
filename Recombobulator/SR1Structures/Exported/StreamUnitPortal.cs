@@ -11,6 +11,7 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_Primative<short> minx = new SR1_Primative<short>();
 		public readonly SR1_Primative<short> miny = new SR1_Primative<short>();
 		public readonly SR1_Primative<short> minz = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> pad1 = new SR1_Primative<short>();
 		public readonly SR1_Primative<short> flags = new SR1_Primative<short>();
 		public readonly SR1_Primative<short> maxx = new SR1_Primative<short>();
 		public readonly SR1_Primative<short> maxy = new SR1_Primative<short>();
@@ -26,11 +27,12 @@ namespace Recombobulator.SR1Structures
 		{
 			tolevelname.SetReadMax(true).Read(reader, this, "tolevelname");
 			MSignalID.Read(reader, this, "MSignalID");
-			streamID.Read(reader, this, "streamID");
+			streamID.Read(reader, this, "streamID", SR1_File.Version.Jan23, SR1_File.Version.Next);
 			minx.Read(reader, this, "minx");
 			miny.Read(reader, this, "miny");
 			minz.Read(reader, this, "minz");
-			flags.Read(reader, this, "flags");
+			pad1.Read(reader, this, "pad1", SR1_File.Version.First, SR1_File.Version.Jan23);
+			flags.Read(reader, this, "flags", SR1_File.Version.Jan23, SR1_File.Version.Next);
 			maxx.Read(reader, this, "maxx");
 			maxy.Read(reader, this, "maxy");
 			maxz.Read(reader, this, "maxz");
@@ -48,11 +50,12 @@ namespace Recombobulator.SR1Structures
 		{
 			tolevelname.Write(writer);
 			MSignalID.Write(writer);
-			streamID.Write(writer);
+			streamID.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			minx.Write(writer);
 			miny.Write(writer);
 			minz.Write(writer);
-			flags.Write(writer);
+			pad1.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
+			flags.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			maxx.Write(writer);
 			maxy.Write(writer);
 			maxz.Write(writer);

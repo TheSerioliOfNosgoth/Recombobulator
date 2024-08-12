@@ -288,6 +288,12 @@ namespace Recombobulator
 
 		private void DetailedExportToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			VersionSelectForm versionSelectForm = new VersionSelectForm();
+			if (versionSelectForm.ShowDialog() != DialogResult.OK)
+			{
+				return;
+			}
+
 			FolderBrowserDialog dialog = new FolderBrowserDialog();
 			dialog.Description = "Select a folder to test.";
 			dialog.ShowNewFolderButton = false;
@@ -305,15 +311,22 @@ namespace Recombobulator
 
 				DoBulkTesting(
 					dialog.SelectedPath,
-						SR1_File.TestFlags.ListAllFiles |
-						SR1_File.TestFlags.IgnoreDuplicates | SR1_File.TestFlags.ListObjectTypes/* |
-                        SR1_File.TestFlags.ListRelocModules | SR1_File.TestFlags.ListObjectTypes*/
+					versionSelectForm.Version,
+					SR1_File.TestFlags.ListAllFiles |
+					SR1_File.TestFlags.IgnoreDuplicates | SR1_File.TestFlags.ListObjectTypes/* |
+					SR1_File.TestFlags.ListRelocModules | SR1_File.TestFlags.ListObjectTypes*/
 				);
 			}
 		}
 
 		private void BriefExportToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			VersionSelectForm versionSelectForm = new VersionSelectForm();
+			if (versionSelectForm.ShowDialog() != DialogResult.OK)
+			{
+				return;
+			}
+
 			FolderBrowserDialog dialog = new FolderBrowserDialog();
 			dialog.Description = "Select a folder to test.";
 			dialog.ShowNewFolderButton = false;
@@ -331,8 +344,9 @@ namespace Recombobulator
 
 				DoBulkTesting(
 					dialog.SelectedPath,
-						SR1_File.TestFlags.IgnoreDuplicates | SR1_File.TestFlags.ListObjectTypes/* |
-                        SR1_File.TestFlags.ListRelocModules | SR1_File.TestFlags.ListObjectTypes*/
+					versionSelectForm.Version,
+					SR1_File.TestFlags.IgnoreDuplicates | SR1_File.TestFlags.ListObjectTypes/* |
+					SR1_File.TestFlags.ListRelocModules | SR1_File.TestFlags.ListObjectTypes*/
 				);
 			}
 		}
@@ -455,7 +469,7 @@ namespace Recombobulator
 			_progressWindow.Dispose();
 		}
 
-		private void DoBulkTesting(string folderName, SR1_File.TestFlags flags)
+		private void DoBulkTesting(string folderName, SR1_File.Version testVersion, SR1_File.TestFlags flags)
 		{
 			testResults.Clear();
 
@@ -468,7 +482,7 @@ namespace Recombobulator
 			Thread loadingThread = new Thread((() =>
 			{
 				string testResults = "";
-				string[] exportTestResults = SR1_File.TestFolder(folderName, flags, ref filesRead, ref filesToRead, ref recentMessage);
+				string[] exportTestResults = SR1_File.TestFolder(folderName, testVersion, flags, ref filesRead, ref filesToRead, ref recentMessage);
 				foreach (string result in exportTestResults)
 				{
 					testResults += result + "\r\n";

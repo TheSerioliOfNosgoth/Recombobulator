@@ -18,8 +18,8 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_Primative<short> pad = new SR1_Primative<short>();
 		public readonly SR1_Primative<int> maxRadSq = new SR1_Primative<int>();
 		public readonly SR1_Pointer<MultiSpline> multiSpline = new SR1_Pointer<MultiSpline>();
-		public readonly SR1_Pointer<TextureMT3> startTextures = new SR1_Pointer<TextureMT3>();
-		public readonly SR1_Pointer<TextureMT3> endTextures = new SR1_Pointer<TextureMT3>();
+		public readonly SR1_Pointer<TextureMT3> startTextures = new SR1_Pointer<TextureMT3>(PtrHeuristic.Start);
+		public readonly SR1_Pointer<TextureMT3> endTextures = new SR1_Pointer<TextureMT3>(PtrHeuristic.End);
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
@@ -43,7 +43,6 @@ namespace Recombobulator.SR1Structures
 			multiSpline.Read(reader, this, "multiSpline");
 			startTextures.Read(reader, this, "startTextures");
 			endTextures.Read(reader, this, "endTextures");
-			endTextures.PointsToEndOfStruct = true;
 		}
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
@@ -63,8 +62,8 @@ namespace Recombobulator.SR1Structures
 
 			SR1_StructureArray<MFace> faces = new SR1_StructureArray<MFace>(numFaces.Value);
 			faces.ReadFromPointer(reader, faceList);
-			SR1_StructureSeries<TextureMT3> textures = new SR1_StructureSeries<TextureMT3>((int)(endTextures.Offset - startTextures.Offset));
-			textures.ReadFromPointer(reader, startTextures);
+			SR1_StructureSeries<TextureMT3> textures = new SR1_StructureSeries<TextureMT3>();
+			textures.ReadFromPointer(reader, startTextures, endTextures);
 
 			foreach (MFace face in faces)
 			{

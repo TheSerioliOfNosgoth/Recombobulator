@@ -28,6 +28,17 @@ namespace Recombobulator.SR1Structures
 		{
 		}
 
+		public static void Copy(MorphVertex to, MorphVertex from)
+		{
+			to.x.Value = from.x.Value;
+			to.y.Value = from.y.Value;
+			to.z.Value = from.z.Value;
+			to.vindex.Value = from.vindex.Value;
+			to.hx.Value = from.hx.Value;
+			to.hy.Value = from.hy.Value;
+			to.hz.Value = from.hz.Value;
+		}
+
 		public override void WriteMembers(SR1_Writer writer)
 		{
 			x.Write(writer);
