@@ -121,9 +121,7 @@ namespace Recombobulator
 				Filter = "Soul Reaver Files|*.pcm;*.drm",
 				DefaultExt = "pcm",
 				FilterIndex = 1,
-				FileName = Path.GetFileName(_file._FilePath),
-				InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
-				RestoreDirectory = true
+				FileName = Path.GetFileName(_file._FilePath)
 			};
 
 			if (dialog.ShowDialog() == DialogResult.OK)

@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class BoundingBox : SR1_Structure
+	public class BoundingBox : SR1_Structure
 	{
 		public readonly SR1_Primative<short> minX = new SR1_Primative<short>();
 		public readonly SR1_Primative<short> minY = new SR1_Primative<short>();

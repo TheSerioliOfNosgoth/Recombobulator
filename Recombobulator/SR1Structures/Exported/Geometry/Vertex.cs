@@ -3,11 +3,11 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class Vertex : SR1_Structure
+	public class Vertex : SR1_Structure
 	{
-		SR1_Primative<short> x = new SR1_Primative<short>();
-		SR1_Primative<short> y = new SR1_Primative<short>();
-		SR1_Primative<short> z = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> x = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> y = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> z = new SR1_Primative<short>();
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
