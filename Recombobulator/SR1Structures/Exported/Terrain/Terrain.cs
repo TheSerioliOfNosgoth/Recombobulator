@@ -603,9 +603,9 @@ namespace Recombobulator.SR1Structures
 					_sigLeaf.box.minX.Value = -4472;
 					_sigLeaf.box.minY.Value = -10880;
 					_sigLeaf.box.minZ.Value = -1921;
-					_sigLeaf.box.minX.Value = -2547;
-					_sigLeaf.box.minY.Value = 0;
-					_sigLeaf.box.minZ.Value = 224;
+					_sigLeaf.box.maxX.Value = -2547;
+					_sigLeaf.box.maxY.Value = 0;
+					_sigLeaf.box.maxZ.Value = 224;
 
 					_sigLeaf.spectralSphereNoSq.position.x.Value = -3496;
 					_sigLeaf.spectralSphereNoSq.position.y.Value = -5359;
@@ -614,9 +614,9 @@ namespace Recombobulator.SR1Structures
 					_sigLeaf.spectralBox.minX.Value = -4472;
 					_sigLeaf.spectralBox.minY.Value = -10880;
 					_sigLeaf.spectralBox.minZ.Value = -1921;
-					_sigLeaf.spectralBox.minX.Value = -2547;
-					_sigLeaf.spectralBox.minY.Value = 0;
-					_sigLeaf.spectralBox.minZ.Value = 224;
+					_sigLeaf.spectralBox.maxX.Value = -2547;
+					_sigLeaf.spectralBox.maxY.Value = 0;
+					_sigLeaf.spectralBox.maxZ.Value = 224;
 
 					#endregion
 
