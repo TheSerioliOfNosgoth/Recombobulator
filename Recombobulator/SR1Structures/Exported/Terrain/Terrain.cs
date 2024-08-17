@@ -187,7 +187,7 @@ namespace Recombobulator.SR1Structures
 			_textures = new SR1_StructureSeries<TextureFT3>();
 			_textures.ReadFromPointer(reader, StartTextureList, EndTextureList);
 
-			#region Morphs
+			#region Intros
 
 			if (reader.File._Version <= SR1_File.Version.May12)
 			{
@@ -205,6 +205,10 @@ namespace Recombobulator.SR1Structures
 					introListSet.ReadFromPointer(reader, sbspEndLeaves);
 				}
 			}
+
+			#endregion
+
+			#region Morphs
 
 			if (MorphDiffList.Offset != 0)
 			{
@@ -790,7 +794,7 @@ namespace Recombobulator.SR1Structures
 
 				_sigFaces = new List<TFace>();
 
-				bool needTerrainSignal = (_terrainSignal != null);
+				bool needTerrainSignal = (_terrainSignal == null);
 
 				foreach(TFace face in _faces)
 				{
