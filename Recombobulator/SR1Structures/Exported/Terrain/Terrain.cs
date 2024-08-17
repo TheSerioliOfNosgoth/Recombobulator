@@ -47,7 +47,7 @@ namespace Recombobulator.SR1Structures
 		StreamUnitPortalList _portalList = null;
 		SR1_StructureSeries<TextureFT3> _textures = null;
 		SR1_StructureSeries<MorphVertex> _morphVertices = null;
-		SR1_StructureArray<MorphColor> _morphColors = null;
+		SR1_StructureSeries<MorphColor> _morphColors = null;
 		SR1_PrimativeArray<ushort> _morphNormals = null;
 		SR1_StructureArray<BSPTree> _bspTrees = null;
 		BSPTree _sigTree = null;
@@ -206,18 +206,37 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
-			_morphVertices = new SR1_StructureSeries<MorphVertex>();
-			_morphVertices.ReadFromPointer(reader, MorphDiffList, MorphColorList);
+			if (MorphDiffList.Offset != 0)
+			{
+				int numMorphVerticies = 0;
+				MorphVertex morphVertex = new MorphVertex();
+
+				reader.BaseStream.Position = MorphDiffList.Offset;
+
+				do
+				{
+					morphVertex.ReadTemp(reader);
+					numMorphVerticies++;
+				}
+				while (morphVertex.vindex.Value != -1);
+
+				_morphVertices = new SR1_StructureSeries<MorphVertex>();
+				_morphVertices.ReadFromPointer(reader, MorphDiffList, numMorphVerticies);
+			}
+			else
+			{
+				_morphVertices = new SR1_StructureSeries<MorphVertex>();
+			}
 
 			if (reader.File._Version >= SR1_File.Version.Jan23)
 			{
-				_morphColors = new SR1_StructureArray<MorphColor>(numVertices.Value);
+				_morphColors = new SR1_StructureSeries<MorphColor>();
 
 				if (numVertices.Value > 0)
 				{
 					int morphColorPadding = (reader.File._Version >= SR1_File.Version.Apr14) ? 4 : 2;
 					_morphColors.SetPadding(morphColorPadding);
-					_morphColors.ReadFromPointer(reader, MorphColorList);
+					_morphColors.ReadFromPointer(reader, MorphColorList, numVertices.Value);
 				}
 			}
 			else if (MorphColorList.Offset != 0)
@@ -234,16 +253,12 @@ namespace Recombobulator.SR1Structures
 				}
 				while (morphColor.vindex.Value != -1);
 
-				_morphColors = new SR1_StructureArray<MorphColor>(numMorphColors);
-
-				if (numMorphColors > 0)
-				{
-					_morphColors.ReadFromPointer(reader, MorphColorList);
-				}
+				_morphColors = new SR1_StructureSeries<MorphColor>();
+				_morphColors.ReadFromPointer(reader, MorphColorList, numMorphColors);
 			}
 			else
 			{
-				_morphColors = new SR1_StructureArray<MorphColor>(0);
+				_morphColors = new SR1_StructureSeries<MorphColor>();
 			}
 
 			if (reader.File._Version < SR1_File.Version.Jan23)
@@ -904,7 +919,7 @@ namespace Recombobulator.SR1Structures
 				#region MorphColors
 
 				// Create a new array of morph colors with one per vertex.
-				SR1_StructureArray<MorphColor> newMorphColors = new SR1_StructureArray<MorphColor>(numVertices.Value);
+				SR1_StructureSeries<MorphColor> newMorphColors = new SR1_StructureSeries<MorphColor>();
 				newMorphColors.SetPadding(4);
 
 				// The morph colors originally applies to a subset of the vertices,
@@ -912,21 +927,20 @@ namespace Recombobulator.SR1Structures
 				// from the vertices, then overwrite any found in the old morph
 				// colors.
 				var vertices = (SR1_StructureSeries<TVertex>)file._Structures[vertexList.Offset];
-				int c = 0;
 				foreach (TVertex vertex in vertices)
 				{
-					MorphColor morphColor = (MorphColor)newMorphColors[c];
+					MorphColor morphColor = new MorphColor();
 					morphColor.morphColor15.Value = unchecked((short)vertex.rbg15.Value);
-					c++;
+					newMorphColors.Add(morphColor);
 				}
-				var oldMorphColors = (SR1_StructureArray<MorphColor>)file._Structures[MorphColorList.Offset];
+
+				var oldMorphColors = (SR1_StructureSeries<MorphColor>)file._Structures[MorphColorList.Offset];
 				foreach (MorphColor oldMorphColor in oldMorphColors)
 				{
-					c = oldMorphColor.vindex.Value;
-
-					if (c >= 0)
+					int vindex = oldMorphColor.vindex.Value;
+					if (vindex >= 0)
 					{
-						MorphColor morphColor = (MorphColor)newMorphColors[c];
+						MorphColor morphColor = (MorphColor)newMorphColors[vindex];
 
 						// MigrateVersion happens in Terrain before the MorphColors,
 						// so those won't have been converted yet, and the new ones

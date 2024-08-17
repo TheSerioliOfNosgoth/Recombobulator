@@ -5,13 +5,13 @@ namespace Recombobulator.SR1Structures
 {
 	class MorphVertex : SR1_Structure
 	{
-		SR1_Primative<short> x = new SR1_Primative<short>();
-		SR1_Primative<short> y = new SR1_Primative<short>();
-		SR1_Primative<short> z = new SR1_Primative<short>();
-		SR1_Primative<short> vindex = new SR1_Primative<short>();
-		SR1_Primative<short> hx = new SR1_Primative<short>();
-		SR1_Primative<short> hy = new SR1_Primative<short>();
-		SR1_Primative<short> hz = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> x = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> y = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> z = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> vindex = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> hx = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> hy = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> hz = new SR1_Primative<short>();
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
