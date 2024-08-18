@@ -136,6 +136,12 @@ namespace Recombobulator.SR1Structures
 				}
 				else
 				{
+					if (file._Version < SR1_File.Version.Jan23 &&
+						(attr0.Value & 0x0200) != 0)
+					{
+						attr.Value |= 0x08;
+					}
+
 					// Backface collision.
 					//if ((attr0.Value & 0x2000) != 0)
 					//{

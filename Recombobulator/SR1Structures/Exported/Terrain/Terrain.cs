@@ -556,6 +556,8 @@ namespace Recombobulator.SR1Structures
 			if (file._Version == SR1_File.Version.Retail_PC &&
 				targetVersion == SR1_File.Version.Retail_PC)
 			{
+				#region FixCity10
+
 				if ((migrateFlags & SR1_File.MigrateFlags.FixCity10) != 0 &&
 					file._Structures[0].Name == "city10")
 				{
@@ -771,6 +773,8 @@ namespace Recombobulator.SR1Structures
 
 					#endregion
 				}
+
+				#endregion
 			}
 
 			if (file._Version <= SR1_File.Version.May12 && targetVersion >= SR1_File.Version.Retail_PC)
