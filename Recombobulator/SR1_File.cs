@@ -493,7 +493,8 @@ namespace Recombobulator
 			if (_Version < Version.Jan23 && targetVersion >= Version.Jan23)
 			{
 				// These things aren't ready yet.
-				migrateFlags |= SR1_File.MigrateFlags.RemoveVertexMorphs;
+				migrateFlags |= MigrateFlags.RemoveVertexMorphs;
+				migrateFlags |= MigrateFlags.ForceWaterTranslucent;
 			}
 
 			_PrimsWritten.Clear();
