@@ -210,60 +210,15 @@ namespace Recombobulator.SR1Structures
 
 			#region Morphs
 
-			if (MorphDiffList.Offset != 0)
-			{
-				int numMorphVerticies = 0;
-				MorphVertex morphVertex = new MorphVertex();
+			int numMorphVerticies = GetMorphVertexCount(reader);
+			_morphVertices = new SR1_StructureSeries<MorphVertex>();
+			_morphVertices.ReadFromPointer(reader, MorphDiffList, numMorphVerticies);
 
-				reader.BaseStream.Position = MorphDiffList.Offset;
-
-				do
-				{
-					morphVertex.ReadTemp(reader);
-					numMorphVerticies++;
-				}
-				while (morphVertex.vindex.Value != -1);
-
-				_morphVertices = new SR1_StructureSeries<MorphVertex>();
-				_morphVertices.ReadFromPointer(reader, MorphDiffList, numMorphVerticies);
-			}
-			else
-			{
-				_morphVertices = new SR1_StructureSeries<MorphVertex>();
-			}
-
-			if (reader.File._Version >= SR1_File.Version.Jan23)
-			{
-				_morphColors = new SR1_StructureSeries<MorphColor>();
-
-				if (numVertices.Value > 0)
-				{
-					int morphColorPadding = (reader.File._Version >= SR1_File.Version.Apr14) ? 4 : 2;
-					_morphColors.SetPadding(morphColorPadding);
-					_morphColors.ReadFromPointer(reader, MorphColorList, numVertices.Value);
-				}
-			}
-			else if (MorphColorList.Offset != 0)
-			{
-				int numMorphColors = 0;
-				MorphColor morphColor = new MorphColor();
-
-				reader.BaseStream.Position = MorphColorList.Offset;
-
-				do
-				{
-					morphColor.ReadTemp(reader);
-					numMorphColors++;
-				}
-				while (morphColor.vindex.Value != -1);
-
-				_morphColors = new SR1_StructureSeries<MorphColor>();
-				_morphColors.ReadFromPointer(reader, MorphColorList, numMorphColors);
-			}
-			else
-			{
-				_morphColors = new SR1_StructureSeries<MorphColor>();
-			}
+			int numMorphColors = GetMorphColorCount(reader);
+			int morphColorPadding = GetMorphColorPadding(reader);
+			_morphColors = new SR1_StructureSeries<MorphColor>();
+			_morphColors.SetPadding(morphColorPadding);
+			_morphColors.ReadFromPointer(reader, MorphColorList, numMorphColors);
 
 			if (reader.File._Version < SR1_File.Version.Jan23)
 			{
@@ -418,6 +373,68 @@ namespace Recombobulator.SR1Structures
 			morphNormalIdx.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			signals.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			texAniAssocData.Write(writer, SR1_File.Version.Retail_PC, SR1_File.Version.Next);
+		}
+
+		private int GetMorphVertexCount(SR1_Reader reader)
+		{
+			int numMorphVerticies = 0;
+
+			if (MorphDiffList.Offset != 0)
+			{
+				MorphVertex morphVertex = new MorphVertex();
+
+				reader.BaseStream.Position = MorphDiffList.Offset;
+
+				do
+				{
+					morphVertex.ReadTemp(reader);
+					numMorphVerticies++;
+				}
+				while (morphVertex.vindex.Value != -1);
+			}
+
+			return numMorphVerticies;
+		}
+
+		private int GetMorphColorCount(SR1_Reader reader)
+		{
+			int numMorphColors = 0;
+
+			if (reader.File._Version >= SR1_File.Version.Jan23)
+			{
+				return numVertices.Value;
+			}
+
+			if (MorphColorList.Offset != 0)
+			{
+				MorphColor morphColor = new MorphColor();
+
+				reader.BaseStream.Position = MorphColorList.Offset;
+
+				do
+				{
+					morphColor.ReadTemp(reader);
+					numMorphColors++;
+				}
+				while (morphColor.vindex.Value != -1);
+			}
+
+			return numMorphColors;
+		}
+
+		private int GetMorphColorPadding(SR1_Reader reader)
+		{
+			int morphColorPadding = 0;
+			if (reader.File._Version >= SR1_File.Version.Apr14)
+			{
+				morphColorPadding = 4;
+			}
+			else if (reader.File._Version >= SR1_File.Version.Jan23)
+			{
+				morphColorPadding = 2;
+			}
+
+			return morphColorPadding;
 		}
 
 		private void MapSignalFaces(SR1_Reader reader)
