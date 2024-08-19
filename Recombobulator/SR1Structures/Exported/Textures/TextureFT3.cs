@@ -128,8 +128,8 @@ namespace Recombobulator.SR1Structures
 						tpage.Value |= 0x4000;
 						attr2.Value |= 0x0060;
 					}
-
-					if ((attr.Value & 0x0010) != 0)
+					else if (file._Version < SR1_File.Version.Jan23 ||
+						(attr.Value & 0x0010) != 0)
 					{
 						tpage.Value |= 0x2000; // UseAlphaMask
 					}
@@ -152,8 +152,7 @@ namespace Recombobulator.SR1Structures
 						tpage.Value |= 0x4000;
 						attr2.Value |= 0x0060;
 					}
-
-					if ((attr.Value & 0x0040) != 0)
+					else if ((attr.Value & 0x0040) != 0)
 					{
 						if (file._Structures[0].Name == "movie1")
 						{
