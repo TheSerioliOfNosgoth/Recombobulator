@@ -77,6 +77,11 @@ namespace Recombobulator.SR1Structures
 				spectralSphereNoSq.position.y.Value = spectralSphere.position.y.Value;
 				spectralSphereNoSq.position.z.Value = spectralSphere.position.z.Value;
 				spectralSphereNoSq.radius.Value = spectralSphere.radius.Value;
+
+				front_material_error.Value = 320;
+				back_material_error.Value = -320;
+				front_spectral_error.Value = 320;
+				back_spectral_error.Value = -320;
 			}
 		}
 	}
