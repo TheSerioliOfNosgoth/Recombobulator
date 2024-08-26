@@ -406,6 +406,15 @@ namespace Recombobulator
 					objectsNode.Nodes.Add(node);
 				}
 
+				TreeNode texSetTreeNode = projectTreeView.Nodes.Add("TextureSets", "TextureSets");
+				foreach (TexSet texSet in _repository.TextureSets.TexSets)
+				{
+					TreeNode node = new TreeNode();
+					node.Text = texSet.Name;
+					node.Tag = texSet;
+					texSetTreeNode.Nodes.Add(node);
+				}
+
 				projectTreeView.Sort();
 				displayModeTabs.SelectedTab = projectTab;
 			}
@@ -563,6 +572,15 @@ namespace Recombobulator
 					objectsNode.Nodes.Add(node);
 				}
 
+				TreeNode texSetTreeNode = projectTreeView.Nodes.Add("TextureSets", "TextureSets");
+				foreach (TexSet texSet in _repository.TextureSets.TexSets)
+				{
+					TreeNode node = new TreeNode();
+					node.Text = texSet.Name;
+					node.Tag = texSet;
+					texSetTreeNode.Nodes.Add(node);
+				}
+
 				projectTreeView.Sort();
 				displayModeTabs.SelectedTab = projectTab;
 			}
@@ -693,6 +711,15 @@ namespace Recombobulator
 					objectsNode.Nodes.Add(node);
 				}
 
+				TreeNode texSetTreeNode = projectTreeView.Nodes.Add("TextureSets", "TextureSets");
+				foreach (TexSet texSet in _repository.TextureSets.TexSets)
+				{
+					TreeNode node = new TreeNode();
+					node.Text = texSet.Name;
+					node.Tag = texSet;
+					texSetTreeNode.Nodes.Add(node);
+				}
+
 				projectTreeView.Sort();
 				displayModeTabs.SelectedTab = projectTab;
 			}
@@ -773,8 +800,8 @@ namespace Recombobulator
 				string text = "Unit Name: " + level.UnitName + "\r\n";
 				text += "Unit ID: " + level.UnitID.ToString() + "\r\n";
 				text += "Source Unit Name: " + level.SourceUnitName + "\r\n";
-                text += "Source Unit ID: " + level.SourceUnitID.ToString() + "\r\n";
-                text += "Source Version: 0x" + level.SourceVersion.ToString("X8") + "\r\n";
+				text += "Source Unit ID: " + level.SourceUnitID.ToString() + "\r\n";
+				text += "Source Version: 0x" + level.SourceVersion.ToString("X8") + "\r\n";
 				if (level.TextureSet != null && level.TextureSet != "")
 				{
 					text += "Texture Set (imported): " + level.TextureSet + "\r\n";
@@ -792,7 +819,7 @@ namespace Recombobulator
 					int signalID = portal.SignalID;
 
 					text += "\torigin { " + level.UnitName + ", " + signalID + " }, destination { " + destUnitName + ", " + portal.DestSignalID + " }, ";
-                    text += "old destination { " + portal.OldDestUnitName + ", " + portal.OldDestSignalID + ", 0x" + portal.OldDestVersion.ToString("X8") + " }\r\n";
+					text += "old destination { " + portal.OldDestUnitName + ", " + portal.OldDestSignalID + ", 0x" + portal.OldDestVersion.ToString("X8") + " }\r\n";
 				}
 
 				text += "Intros:\r\n";
@@ -811,7 +838,7 @@ namespace Recombobulator
 				}
 
 				text += "Events:\r\n";
-				foreach(Event srEvent in _repository.Events.Events)
+				foreach (Event srEvent in _repository.Events.Events)
 				{
 					if (srEvent.StreamUnitID == level.UnitID)
 					{
@@ -823,21 +850,21 @@ namespace Recombobulator
 							Intro intro = _repository.Intros.Find(x => x.IntroUniqueID == instance.IntroID);
 
 							string objectName = "missing " + instance.IntroID;
-                            string unitName = "missing";
+							string unitName = "missing";
 
-                            if (intro != null)
+							if (intro != null)
 							{
 								objectName = intro.ObjectName + " " + intro.IntroUniqueID;
-                                unitName = intro.UnitName;
+								unitName = intro.UnitName;
 							}
 
 							text += "\t\t\t" + objectName;
 							text += " { ";
-                            text += "unitName { " + unitName + " }, ";
-                            text += "unitID { " + instance.UnitID.ToString() + " }, ";
-                            text += "offset { 0x" + instance.EventInstanceOffset.ToString("X8") + " }";
-                            text += " }\r\n";
-                        }
+							text += "unitName { " + unitName + " }, ";
+							text += "unitID { " + instance.UnitID.ToString() + " }, ";
+							text += "offset { 0x" + instance.EventInstanceOffset.ToString("X8") + " }";
+							text += " }\r\n";
+						}
 
 						text += "\t\t}\r\n";
 						text += "\t}\r\n";
@@ -856,6 +883,18 @@ namespace Recombobulator
 				if (obj.TextureSet != null && obj.TextureSet != "")
 				{
 					text += "Texture Set (imported): " + obj.TextureSet + "\r\n";
+				}
+
+				projectTextBox.Text = text;
+			}
+			else if (e.Node.Parent.Text == "TextureSets")
+			{
+				TexSet texSet = (TexSet)e.Node.Tag;
+				string text = "Texture Set Name: " + texSet.Name + "\r\n";
+				text += "Texture IDs: " + texSet.Name + "\r\n";
+				for (int i = 0; i < texSet.TextureIDs.Length; i++)
+				{
+					text += "\ttexture" + i.ToString() + ": " + texSet.TextureIDs[i] + "\r\n";
 				}
 
 				projectTextBox.Text = text;
@@ -1194,56 +1233,67 @@ namespace Recombobulator
 			if (!File.Exists(filePath) || !File.Exists(textureFileName))
 			{
 				textureSet.TextureIDs = new ushort[0];
-				return textureSet;
 			}
-
-			try
+			else
 			{
-				CDC.ExportOptions options = new CDC.ExportOptions();
-				SR1File sr1File = new SR1File(filePath, CDC.Platform.PSX, options);
-				TPages tPages = sr1File.TPages;
-
-				SR1PSXTextureFile textureFile = new SR1PSXTextureFile(textureFileName);
-				textureFile.BuildTexturesFromPolygonData(tPages, false, true, options);
-
-				TexDesc[] textures = new TexDesc[textureFile.TextureCount];
-				textureSet.TextureIDs = new ushort[textureFile.TextureCount];
-
-				ushort textureIndex = (ushort)_repository.Textures.Count;
-				for (int t = 0; t < textures.Length; t++)
+				try
 				{
-					Bitmap bitmap;
-					if (t >= textureFile.TextureCount)
+					CDC.ExportOptions options = new CDC.ExportOptions();
+					SR1File sr1File = new SR1File(filePath, CDC.Platform.PSX, options);
+					TPages tPages = sr1File.TPages;
+
+					SR1PSXTextureFile textureFile = new SR1PSXTextureFile(textureFileName);
+					textureFile.BuildTexturesFromPolygonData(tPages, false, true, options);
+
+					TexDesc[] textures = new TexDesc[textureFile.TextureCount];
+					textureSet.TextureIDs = new ushort[textureFile.TextureCount];
+
+					ushort textureIndex = (ushort)_repository.Textures.Count;
+					for (int t = 0; t < textures.Length; t++)
 					{
-						textureSet.TextureIDs[t] = 0;
-					}
-					else
-					{
-						bitmap = textureFile.GetTextureAsBitmap(t);
+						Bitmap bitmap;
+						if (t >= textureFile.TextureCount)
+						{
+							textureSet.TextureIDs[t] = 0;
+						}
+						else
+						{
+							bitmap = textureFile.GetTextureAsBitmap(t);
 
-						int newTextureIndex = textureIndex + t;
+							int newTextureIndex = textureIndex + t;
 
-						string textureName = _repository.MakeTextureFilePath(newTextureIndex, true);
-						bitmap.Save(textureName);
+							string textureName = _repository.MakeTextureFilePath(newTextureIndex, true);
+							bitmap.Save(textureName);
 
-						textures[t] = new TexDesc();
-						textures[t].TextureIndex = textureIndex + t;
-						textures[t].FilePath = _repository.MakeTextureFilePath(newTextureIndex);
-						textures[t].IsNew = true;
-						textures[t].TPage = tPages[t].tPage;
+							textures[t] = new TexDesc();
+							textures[t].TextureIndex = textureIndex + t;
+							textures[t].FilePath = _repository.MakeTextureFilePath(newTextureIndex);
+							textures[t].IsNew = true;
+							textures[t].TPage = tPages[t].tPage;
 
-						_repository.Textures.Add(textures[t]);
+							_repository.Textures.Add(textures[t]);
 
-						textureSet.TextureIDs[t] = (ushort)newTextureIndex;
+							textureSet.TextureIDs[t] = (ushort)newTextureIndex;
+						}
 					}
 				}
+				catch (Exception ex)
+				{
 
-				_repository.TextureSets.Add(textureSet);
+				}
 			}
-			catch (Exception ex)
+
+			TreeNode[] nodes = projectTreeView.Nodes.Find("TextureSets", false);
+			if (nodes.Length > 0 && nodes[0] != null)
 			{
-
+				TreeNode node = new TreeNode();
+				node.Text = textureSet.Name;
+				node.Tag = textureSet;
+				nodes[0].Nodes.Add(node);
+				projectTreeView.Sort();
 			}
+
+			_repository.TextureSets.Add(textureSet);
 
 			return textureSet;
 		}
