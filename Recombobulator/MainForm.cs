@@ -95,7 +95,6 @@ namespace Recombobulator
 					_fileLoaded = true;
 
 					testExportToolStripMenuItem.Enabled = _fileLoaded;
-					addDataFileToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
 				}
 				catch (Exception ex)
 				{
@@ -371,7 +370,8 @@ namespace Recombobulator
 			this.Enabled = false;
 
 			addDataFileToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
-            compileProjectToolStripMenuItem.Enabled = (_repository != null);
+			addTextureFileToProjectToolStripMenuItem.Enabled = (_repository != null);
+			compileProjectToolStripMenuItem.Enabled = (_repository != null);
 			scriptedImportsToolStripMenuItem.Enabled = (_repository != null);
 			editPortalToolStripMenuItem.Enabled = false;
 
@@ -381,6 +381,7 @@ namespace Recombobulator
 		private void EndUnpacking()
 		{
 			addDataFileToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
+			addTextureFileToProjectToolStripMenuItem.Enabled = (_repository != null);
 			compileProjectToolStripMenuItem.Enabled = (_repository != null);
 			scriptedImportsToolStripMenuItem.Enabled = (_repository != null);
 			editPortalToolStripMenuItem.Enabled = false;
@@ -656,6 +657,7 @@ namespace Recombobulator
 			Properties.Settings.Default.Save();
 
 			addDataFileToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
+			addTextureFileToProjectToolStripMenuItem.Enabled = (_repository != null);
 			compileProjectToolStripMenuItem.Enabled = (_repository != null);
 			scriptedImportsToolStripMenuItem.Enabled = (_repository != null);
 			editPortalToolStripMenuItem.Enabled = false;
@@ -666,6 +668,7 @@ namespace Recombobulator
 				_repository = repository;
 
 				addDataFileToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
+				addTextureFileToProjectToolStripMenuItem.Enabled = (_repository != null);
 				compileProjectToolStripMenuItem.Enabled = (_repository != null);
 				scriptedImportsToolStripMenuItem.Enabled = (_repository != null);
 				editPortalToolStripMenuItem.Enabled = false;
@@ -1884,6 +1887,49 @@ namespace Recombobulator
 				catch (Exception ex)
 				{
 
+				}
+			}
+		}
+
+		private void addTextureFileToProjectToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if (_repository != null)
+			{
+				OpenFileDialog dialog = new OpenFileDialog
+				{
+					CheckFileExists = true,
+					CheckPathExists = true,
+					Filter =
+						"PNG (*.png)|*.png|" +
+						"Bitmap (*.bmp)|*.bmp",
+					DefaultExt = "png",
+					FilterIndex = 1
+				};
+
+				if (dialog.ShowDialog() != DialogResult.OK)
+				{
+					return;
+				}
+
+				Bitmap bitmap = new Bitmap(dialog.FileName);
+
+				if (bitmap.Width == 256 && bitmap.Height == 256)
+				{
+					int newTextureIndex = _repository.Textures.Count;
+
+					string textureName = _repository.MakeTextureFilePath(newTextureIndex, true);
+					bitmap.Save(textureName);
+
+					TexDesc texture = new TexDesc();
+					texture.TextureIndex = newTextureIndex;
+					texture.FilePath = _repository.MakeTextureFilePath(newTextureIndex);
+					texture.IsNew = true;
+
+					_repository.Textures.Add(texture);
+				}
+				else
+				{
+					MessageBox.Show("Image size must be 256x256 pixels.", "Invalid Size");
 				}
 			}
 		}
