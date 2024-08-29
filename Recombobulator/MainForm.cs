@@ -94,6 +94,7 @@ namespace Recombobulator
 
 					_fileLoaded = true;
 
+					addDataFileToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
 					testExportToolStripMenuItem.Enabled = _fileLoaded;
 				}
 				catch (Exception ex)
@@ -616,7 +617,10 @@ namespace Recombobulator
 
 			Thread loadingThread = new Thread((() =>
 			{
-				repository.UnpackRepository();
+				// If we want data from an existing bigfile.
+				// repository.UnpackRepository(false);
+				// If we want an empty repository.
+				repository.CreateRepository();
 				_repository = repository;
 
 				Invoke(new MethodInvoker(EndUnpacking));
