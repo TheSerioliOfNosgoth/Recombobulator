@@ -449,6 +449,30 @@ namespace Recombobulator
 			_progressWindow.Dispose();
 		}
 
+		private void BeginImportTextures()
+		{
+			if (_progressWindow != null)
+			{
+				_progressWindow.Dispose();
+			}
+			_progressWindow = new ProgressWindow();
+			_progressWindow.Title = "Importing Textures...";
+			_progressWindow.SetMessage("");
+			//_progressWindow.Icon = this.Icon;
+			_progressWindow.Owner = this;
+			_progressWindow.TopLevel = true;
+			_progressWindow.ShowInTaskbar = false;
+			this.Enabled = false;
+			_progressWindow.Show();
+		}
+
+		private void EndImportTextures()
+		{
+			Enabled = true;
+			_progressWindow.Hide();
+			_progressWindow.Dispose();
+		}
+
 		private void BeginBulkTesting()
 		{
 			if (_progressWindow != null)
@@ -1970,7 +1994,50 @@ namespace Recombobulator
 
 				if (dialog.FilterIndex == 1)
 				{
-					_repository.AddAdditionalTextures(dialog.FileName);
+					Repository repository = _repository;
+
+					Invoke(new MethodInvoker(BeginImportTextures));
+
+					Thread loadingThread = new Thread((() =>
+					{
+						repository.AddAdditionalTextures(dialog.FileName);
+						_repository = repository;
+
+						Invoke(new MethodInvoker(EndImportTextures));
+					}));
+
+					loadingThread.Name = "ImportTexturesThread";
+					loadingThread.SetApartmentState(ApartmentState.STA);
+					loadingThread.Start();
+					//loadingThread.Join();
+
+					Thread progressThread = new Thread((() =>
+					{
+						do
+						{
+							// Do I really want to be locking the whole thing?
+							lock (repository)
+							{
+								_progressWindow.SetMessage(repository.RecentMessage);
+								if (repository.FilesToRead > 0)
+								{
+									_progressWindow.SetProgress((100 * repository.FilesRead) / repository.FilesToRead);
+								}
+								else
+								{
+									_progressWindow.SetProgress(0);
+								}
+							}
+							Thread.Sleep(20);
+						}
+						while (loadingThread.IsAlive);
+					}));
+
+					progressThread.Name = "ProgressThread";
+					progressThread.SetApartmentState(ApartmentState.STA);
+					progressThread.Start();
+
+					//_repository.AddAdditionalTextures(dialog.FileName);
 					return;
 				}
 

@@ -394,6 +394,8 @@ namespace SR1Repository
 					return false;
 				}
 
+				FilesToRead = textures.Count;
+
 				FileStream sourceTexturesFile = new FileStream(texturesFileName, FileMode.Open, FileAccess.Read);
 				BinaryReader texturesReader = new BinaryReader(sourceTexturesFile);
 
