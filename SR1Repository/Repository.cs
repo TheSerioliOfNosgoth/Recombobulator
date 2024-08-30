@@ -170,7 +170,7 @@ namespace SR1Repository
 			try
 			{
 				if (File.Exists(bigfileName) &&
-					!LoadHashTable(out Hashtable hashTable))
+					LoadHashTable(out Hashtable hashTable))
 				{
 					FileStream sourceBigFile = new FileStream(bigfileName, FileMode.Open, FileAccess.Read);
 					BinaryReader bigFileReader = new BinaryReader(sourceBigFile);
