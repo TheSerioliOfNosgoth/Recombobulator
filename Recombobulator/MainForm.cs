@@ -617,7 +617,9 @@ namespace Recombobulator
 
 			Thread loadingThread = new Thread((() =>
 			{
-				// If we want data from an existing bigfile.
+				// If we want metadata from an existing bigfile.
+				// repository.UnpackRepository(true);
+				// If we want the assets from an existing bigfile.
 				// repository.UnpackRepository(false);
 				// If we want an empty repository.
 				repository.CreateRepository();
@@ -1954,14 +1956,21 @@ namespace Recombobulator
 					CheckFileExists = true,
 					CheckPathExists = true,
 					Filter =
+						"Texture Archive (*.big)|*.big|" +
 						"PNG (*.png)|*.png|" +
 						"Bitmap (*.bmp)|*.bmp",
-					DefaultExt = "png",
+					DefaultExt = "big",
 					FilterIndex = 1
 				};
 
 				if (dialog.ShowDialog() != DialogResult.OK)
 				{
+					return;
+				}
+
+				if (dialog.FilterIndex == 1)
+				{
+					_repository.AddAdditionalTextures(dialog.FileName);
 					return;
 				}
 

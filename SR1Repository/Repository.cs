@@ -165,22 +165,16 @@ namespace SR1Repository
 			return true;
 		}
 
-		bool InitializeAssets(AssetDescList assets, TexDescList textures)
+		List<AssetDesc> InitializeAssets(int startingIndex, string bigfileName)
 		{
-			if (!LoadHashTable(out Hashtable hashTable))
-			{
-				return false;
-			}
-
-			assets?.Clear();
-			textures?.Clear();
-
 			try
 			{
-				if (assets != null && File.Exists(_sourceBigfileName))
+				if (File.Exists(bigfileName) &&
+					!LoadHashTable(out Hashtable hashTable))
 				{
-					FileStream sourceBigFile = new FileStream(_sourceBigfileName, FileMode.Open, FileAccess.Read);
+					FileStream sourceBigFile = new FileStream(bigfileName, FileMode.Open, FileAccess.Read);
 					BinaryReader bigFileReader = new BinaryReader(sourceBigFile);
+					List<AssetDesc> assets = new List<AssetDesc>();
 
 					uint assetCount = bigFileReader.ReadUInt32();
 					while (assetCount > 0)
@@ -220,52 +214,66 @@ namespace SR1Repository
 
 					// Sort by offsets.
 					SortedList<uint, AssetDesc> sortedAssets = new SortedList<uint, AssetDesc>();
-					foreach (AssetDesc asset in assets.Assets)
+					foreach (AssetDesc asset in assets)
 					{
 						sortedAssets.Add(asset.FileOffset, asset);
 					}
 
 					// Fill indices according to their offset.
-					int assetIndex = 0;
+					int assetIndex = startingIndex;
 					foreach (AssetDesc asset in sortedAssets.Values)
 					{
 						asset.FileIndex = assetIndex;
 						assetIndex++;
 					}
-				}
 
-				if (textures != null && File.Exists(_sourceTexturesFileName))
+					return assets;
+				}
+			}
+			catch (Exception)
+			{
+				Console.WriteLine("Error: Couldn't initialize the asset list.");
+			}
+
+			return null;
+		}
+
+		List<TexDesc> InitializeTextures(int startingIndex, string texturesFileName)
+		{
+			try
+			{
+				if (File.Exists(texturesFileName))
 				{
-					FileStream sourceTexturesFile = new FileStream(_sourceTexturesFileName, FileMode.Open, FileAccess.Read);
+					FileStream sourceTexturesFile = new FileStream(texturesFileName, FileMode.Open, FileAccess.Read);
 					BinaryReader texturesReader = new BinaryReader(sourceTexturesFile);
+					List<TexDesc> textures = new List<TexDesc>();
 
 					texturesReader.BaseStream.Position = headerLength;
 					uint fileLength = (uint)sourceTexturesFile.Length;
 					uint textureCount = (uint)((fileLength - (long)headerLength) / (long)(textureWidth * textureHeight * 2) - 1);
 					for (int t = 0; t <= textureCount; t++)
 					{
-						string relativePath = MakeTextureFilePath(t);
+						string relativePath = MakeTextureFilePath(startingIndex + t);
 						string outputFileName = Path.Combine(_projectFolderName, relativePath);
 
 						TexDesc texDesc = new TexDesc();
-						texDesc.TextureIndex = textures.Count;
+						texDesc.TextureIndex = startingIndex + t;
 						texDesc.FilePath = relativePath;
 						textures.Add(texDesc);
 					}
 
 					texturesReader.Close();
 					sourceTexturesFile.Close();
+
+					return textures;
 				}
 			}
 			catch (Exception)
 			{
-				assets?.Clear();
-				textures?.Clear();
-				Console.WriteLine("Error: Couldn't initialize the file list.");
-				return false;
+				Console.WriteLine("Error: Couldn't initialize the texture list.");
 			}
-
-			return true;
+			
+			return null;
 		}
 
 		bool AddAdditionalAssets(AssetDescList assets)
@@ -363,6 +371,66 @@ namespace SR1Repository
 				Console.WriteLine("Error: Couldn't add additional textures.");
 				return false;
 			}
+
+			return true;
+		}
+
+		public bool AddAdditionalTextures(string texturesFileName)
+		{
+			FilesToRead = 0;
+			FilesRead = 0;
+
+			if (!File.Exists(texturesFileName))
+			{
+				Console.WriteLine("Error: Cannot find source textures file \"" + texturesFileName + "\".");
+				return false;
+			}
+
+			try
+			{
+				List<TexDesc> textures = InitializeTextures(_textures.Count, texturesFileName);
+				if (textures == null)
+				{
+					return false;
+				}
+
+				FileStream sourceTexturesFile = new FileStream(texturesFileName, FileMode.Open, FileAccess.Read);
+				BinaryReader texturesReader = new BinaryReader(sourceTexturesFile);
+
+				texturesReader.BaseStream.Position = headerLength;
+
+				foreach (TexDesc texture in textures)
+				{
+					string outputFileName = Path.Combine(_projectFolderName, texture.FilePath);
+					Bitmap bitmap = ReadTexture(texturesReader);
+					bitmap.Save(outputFileName, System.Drawing.Imaging.ImageFormat.Png);
+
+					Console.WriteLine("Extracted file: \"" + outputFileName + "\"");
+					RecentMessage = (string)texture.FilePath.Clone();
+					FilesRead++;
+				}
+
+				_textures.Add(textures);
+
+				texturesReader.Close();
+				sourceTexturesFile.Close();
+
+				SaveRepository();
+
+				Console.WriteLine("Extracted " + _textures.Count.ToString() + " files from \"" + texturesFileName + "\".");
+			}
+			catch (Exception)
+			{
+				ClearReposititory();
+
+				Console.WriteLine("Error: Couldn't unpack the repository.");
+				FilesToRead = 0;
+				FilesRead = 0;
+				return false;
+			}
+
+			FilesToRead = 0;
+			FilesRead = 0;
 
 			return true;
 		}
@@ -1137,20 +1205,23 @@ namespace SR1Repository
 			return true;
 		}
 
-		public bool UnpackRepository(bool importAll = true)
+		public bool UnpackRepository(bool discardSourceFiles = false)
 		{
 			ClearReposititory();
 
 			FilesToRead = 0;
 			FilesRead = 0;
 
-			if (!File.Exists(_sourceBigfileName))
+			bool loadAssets = true;
+			bool loadTextures = !discardSourceFiles;
+
+			if (loadAssets && !File.Exists(_sourceBigfileName))
 			{
 				Console.WriteLine("Error: Cannot find source bigfile \"" + _sourceBigfileName + "\".");
 				return false;
 			}
 
-			if (importAll && !File.Exists(_sourceTexturesFileName))
+			if (loadTextures && !File.Exists(_sourceTexturesFileName))
 			{
 				Console.WriteLine("Error: Cannot find source textures file \"" + _sourceTexturesFileName + "\".");
 				return false;
@@ -1167,151 +1238,179 @@ namespace SR1Repository
 				_textures = new TexDescList();
 				_textureSets = new TexSetList();
 
-				if (!InitializeAssets(_assets, importAll ? _textures : null))
+				List<AssetDesc> assets = null;
+				List<TexDesc> textures = null;
+
+				if (loadAssets)
 				{
-					return false;
+					assets = InitializeAssets(_assets.Count, _sourceBigfileName);
+					if (assets == null)
+					{
+						return false;
+					}
 				}
 
-				FilesToRead = _assets.Count + _textures.Count;
+				if (loadTextures)
+				{
+					textures = InitializeTextures(_textures.Count, _sourceTexturesFileName);
+					if (textures == null)
+					{
+						return false;
+					}
+				}
 
 				CreateDirectories();
 
-				#region Bigfile
+				FilesToRead = assets.Count + textures.Count;
 
-				FileStream sourceBigFile = new FileStream(_sourceBigfileName, FileMode.Open, FileAccess.Read);
+				#region Bigfile
 
 				SortedList<int, SFXClip> sortedSFXClips = new SortedList<int, SFXClip>();
 				FileStream allClipsFile = new FileStream(_allClipsFileName, FileMode.Create, FileAccess.ReadWrite);
 				allClipsFile.Write(new byte[16], 0, 16);
 
-				foreach (AssetDesc asset in _assets.Assets)
+				if (assets != null)
 				{
-					sourceBigFile.Position = asset.FileOffset;
+					FileStream sourceBigFile = new FileStream(_sourceBigfileName, FileMode.Open, FileAccess.Read);
 
-					string outputFileName = Path.Combine(_projectFolderName, asset.FilePath);
-					Stream outputFile;
-					if (importAll)
+					foreach (AssetDesc asset in assets)
 					{
-						string outputFileDirectory = Path.GetDirectoryName(outputFileName);
-						Directory.CreateDirectory(outputFileDirectory);
-						outputFile = new FileStream(outputFileName, FileMode.Create, FileAccess.ReadWrite);
-					}
-					else
-					{
-						outputFile = new MemoryStream();
-					}
-					CopyTo(outputFile, sourceBigFile, (int)asset.FileLength);
-					outputFile.Flush();
+						sourceBigFile.Position = asset.FileOffset;
 
-					#region Metadata
-					string ext = Path.GetExtension(outputFileName);
-					if (importAll && ext == ".pcm")
-					{
-						BinaryReader reader = new BinaryReader(outputFile, System.Text.Encoding.ASCII);
-						reader.BaseStream.Position = 0;
-
-						uint dataStart = ((reader.ReadUInt32() >> 9) << 11) + 0x00000800;
-
-						bool isLevel = (reader.ReadUInt32() == 0x00000000);
-						if (isLevel)
+						string outputFileName = Path.Combine(_projectFolderName, asset.FilePath);
+						Stream outputFile;
+						if (!discardSourceFiles)
 						{
-							Level level = new Level();
-							ProcessLevel(level, reader, dataStart);
+							string outputFileDirectory = Path.GetDirectoryName(outputFileName);
+							Directory.CreateDirectory(outputFileDirectory);
+							outputFile = new FileStream(outputFileName, FileMode.Create, FileAccess.ReadWrite);
 						}
 						else
 						{
-							Object obj = new Object();
-							ProcessObject(obj, reader, dataStart);
+							outputFile = new MemoryStream();
 						}
-					}
-					else if (ext == ".pmf")
-					{
-						BinaryReader reader = new BinaryReader(outputFile, System.Text.Encoding.ASCII);
-						reader.BaseStream.Position = 0;
+						CopyTo(outputFile, sourceBigFile, (int)asset.FileLength);
+						outputFile.Flush();
 
-						uint header = reader.ReadUInt32();
-						if (header == 0x61504D46 /*&& entry.FileHash == 0xf2c83bb8*/) // 0xf2c83bb8 for just raziel.pnf
+						#region Metadata
+						string ext = Path.GetExtension(outputFileName);
+						if (!discardSourceFiles && ext == ".pcm")
 						{
-							reader.BaseStream.Position += 4;
-							int clipCount = (int)reader.ReadUInt32();
-							reader.BaseStream.Position = 16;
+							BinaryReader reader = new BinaryReader(outputFile, System.Text.Encoding.ASCII);
+							reader.BaseStream.Position = 0;
 
-							for (int clipNum = 0; clipNum < clipCount; clipNum++)
+							uint dataStart = ((reader.ReadUInt32() >> 9) << 11) + 0x00000800;
+
+							bool isLevel = (reader.ReadUInt32() == 0x00000000);
+							if (isLevel)
 							{
-								long clipHeaderStart = reader.BaseStream.Position;
-
-								ushort sfxID = reader.ReadUInt16();
-								ushort waveID = reader.ReadUInt16();
-
-								reader.BaseStream.Position += 16;
-								long currentPosition = reader.BaseStream.Position;
-								long currentClipLength = reader.ReadUInt32() - 4;
-								long currentClipStart = reader.BaseStream.Position + 4;
-
-								long nextClipStart = currentClipStart + currentClipLength;
-
-								reader.BaseStream.Position = clipHeaderStart;
-								byte[] clipBuffer = reader.ReadBytes((int)(nextClipStart - clipHeaderStart));
-								SHA256 s256 = SHA256.Create();
-								byte[] s256Hash = s256.ComputeHash(clipBuffer);
-								string s256String = ByteArrayToHexString(s256Hash);
-
-								//string outputClipFileName = Path.Combine(_sfxFolderName, "clip-" + sfxID + "-" + waveID + "-" + s256String + ".sfx");
-								string outputClipFileName = Path.Combine(_sfxFolderName, "clip-" + sfxID + ".sfx");
-								FileStream outputClipFile = new FileStream(outputClipFileName, FileMode.Create);
-								outputClipFile.Write(clipBuffer, 0, clipBuffer.Length);
-								outputClipFile.Close();
-
-								if (!sortedSFXClips.ContainsKey(sfxID))
-								{
-									SFXClip clip = new SFXClip();
-									clip.SFXID = sfxID;
-									clip.SFXName = "clip-" + sfxID;
-									sortedSFXClips.Add(clip.SFXID, clip);
-								}
-
-								allClipsFile.Write(clipBuffer, 0, clipBuffer.Length);
-
-								Console.WriteLine("\tExtracted clip: \"" + outputClipFileName + "\"");
-
-								reader.BaseStream.Position = nextClipStart;
+								Level level = new Level();
+								ProcessLevel(level, reader, dataStart);
+							}
+							else
+							{
+								Object obj = new Object();
+								ProcessObject(obj, reader, dataStart);
 							}
 						}
+						else if (ext == ".pmf")
+						{
+							BinaryReader reader = new BinaryReader(outputFile, System.Text.Encoding.ASCII);
+							reader.BaseStream.Position = 0;
+
+							uint header = reader.ReadUInt32();
+							if (header == 0x61504D46 /*&& entry.FileHash == 0xf2c83bb8*/) // 0xf2c83bb8 for just raziel.pnf
+							{
+								reader.BaseStream.Position += 4;
+								int clipCount = (int)reader.ReadUInt32();
+								reader.BaseStream.Position = 16;
+
+								for (int clipNum = 0; clipNum < clipCount; clipNum++)
+								{
+									long clipHeaderStart = reader.BaseStream.Position;
+
+									ushort sfxID = reader.ReadUInt16();
+									ushort waveID = reader.ReadUInt16();
+
+									reader.BaseStream.Position += 16;
+									long currentPosition = reader.BaseStream.Position;
+									long currentClipLength = reader.ReadUInt32() - 4;
+									long currentClipStart = reader.BaseStream.Position + 4;
+
+									long nextClipStart = currentClipStart + currentClipLength;
+
+									reader.BaseStream.Position = clipHeaderStart;
+									byte[] clipBuffer = reader.ReadBytes((int)(nextClipStart - clipHeaderStart));
+									SHA256 s256 = SHA256.Create();
+									byte[] s256Hash = s256.ComputeHash(clipBuffer);
+									string s256String = ByteArrayToHexString(s256Hash);
+
+									//string outputClipFileName = Path.Combine(_sfxFolderName, "clip-" + sfxID + "-" + waveID + "-" + s256String + ".sfx");
+									string outputClipFileName = Path.Combine(_sfxFolderName, "clip-" + sfxID + ".sfx");
+									FileStream outputClipFile = new FileStream(outputClipFileName, FileMode.Create);
+									outputClipFile.Write(clipBuffer, 0, clipBuffer.Length);
+									outputClipFile.Close();
+
+									if (!sortedSFXClips.ContainsKey(sfxID))
+									{
+										SFXClip clip = new SFXClip();
+										clip.SFXID = sfxID;
+										clip.SFXName = "clip-" + sfxID;
+										sortedSFXClips.Add(clip.SFXID, clip);
+									}
+
+									allClipsFile.Write(clipBuffer, 0, clipBuffer.Length);
+
+									Console.WriteLine("\tExtracted clip: \"" + outputClipFileName + "\"");
+
+									reader.BaseStream.Position = nextClipStart;
+								}
+							}
+						}
+
+						#endregion
+
+						outputFile.Close();
+
+						Console.WriteLine("Extracted file: \"" + outputFileName + "\"");
+						RecentMessage = (string)asset.FilePath.Clone();
+						FilesRead++;
 					}
 
-					#endregion
+					foreach (SFXClip clip in sortedSFXClips.Values)
+					{
+						_sfxClips.Add(clip);
+					}
 
-					outputFile.Close();
+					if (!discardSourceFiles)
+					{
+						_assets.Add(assets);
+					}
 
-					Console.WriteLine("Extracted file: \"" + outputFileName + "\"");
-					RecentMessage = (string)asset.FilePath.Clone();
-					FilesRead++;
+					sourceBigFile.Close();
 				}
 
-				foreach (SFXClip clip in sortedSFXClips.Values)
-				{
-					_sfxClips.Add(clip);
-				}
-
-				if (!importAll)
-				{
-					_assets.Clear();
-				}
-
-				sourceBigFile.Close();
+				allClipsFile.Position = 0;
+				allClipsFile.Write(BitConverter.GetBytes(0x61504D46), 0, 4);
+				allClipsFile.Write(BitConverter.GetBytes((short)256), 0, 2);
+				allClipsFile.Write(BitConverter.GetBytes((short)0), 0, 2);
+				allClipsFile.Write(BitConverter.GetBytes((short)sortedSFXClips.Count), 0, 2);
+				allClipsFile.Write(BitConverter.GetBytes((short)0), 0, 2);
+				allClipsFile.Write(BitConverter.GetBytes(0x00000000), 0, 4);
+				allClipsFile.Close();
 
 				#endregion
 
 				#region Textures
 
-				if (importAll)
+				if (textures != null)
 				{
 					FileStream sourceTexturesFile = new FileStream(_sourceTexturesFileName, FileMode.Open, FileAccess.Read);
 					BinaryReader texturesReader = new BinaryReader(sourceTexturesFile);
 	
 					texturesReader.BaseStream.Position = headerLength;
 
-					foreach (TexDesc texture in _textures.Textures)
+					foreach (TexDesc texture in textures)
 					{
 						string outputFileName = Path.Combine(_projectFolderName, texture.FilePath);
 						Bitmap bitmap = ReadTexture(texturesReader);
@@ -1322,20 +1421,13 @@ namespace SR1Repository
 						FilesRead++;
 					}
 
+					_textures.Add(textures);
+
 					texturesReader.Close();
 					sourceTexturesFile.Close();
 				}
 
 				#endregion
-
-				allClipsFile.Position = 0;
-				allClipsFile.Write(BitConverter.GetBytes(0x61504D46), 0, 4);
-				allClipsFile.Write(BitConverter.GetBytes((short)256), 0, 2);
-				allClipsFile.Write(BitConverter.GetBytes((short)0), 0, 2);
-				allClipsFile.Write(BitConverter.GetBytes((short)sortedSFXClips.Count), 0, 2);
-				allClipsFile.Write(BitConverter.GetBytes((short)0), 0, 2);
-				allClipsFile.Write(BitConverter.GetBytes(0x00000000), 0, 4);
-				allClipsFile.Close();
 
 				SaveRepository();
 
