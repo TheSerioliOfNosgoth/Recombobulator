@@ -1546,6 +1546,26 @@ namespace SR1Repository
 			}
 		}
 
+		public TexSet CreateTextureSet(string textureSetName)
+		{
+			TexSet textureSet = new TexSet();
+			textureSet.Name = textureSetName;
+			textureSet.Index = TextureSets.Count;
+
+			ushort index = (ushort)Textures.Count;
+
+			textureSet.TextureIDs[0] = (ushort)(index + 0);
+			textureSet.TextureIDs[1] = (ushort)(index + 1);
+			textureSet.TextureIDs[2] = (ushort)(index + 2);
+			textureSet.TextureIDs[3] = (ushort)(index + 3);
+			textureSet.TextureIDs[4] = (ushort)(index + 4);
+			textureSet.TextureIDs[5] = (ushort)(index + 5);
+			textureSet.TextureIDs[6] = (ushort)(index + 6);
+			textureSet.TextureIDs[7] = (ushort)(index + 7);
+
+			return textureSet;
+		}
+
 		public string MakeObjectFilePath(string objectName, bool absolute = false)
 		{
 			string folderName = objectName.TrimEnd("0123456789".ToCharArray());

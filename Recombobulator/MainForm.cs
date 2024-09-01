@@ -191,7 +191,14 @@ namespace Recombobulator
 					TexSet textureSet = _repository.TextureSets.TexSets.Find(x => x.Index == addFileDialog.TextureSet);
 					if (textureSet == null)
 					{
-						textureSet = ImportTextureSet(fileName, _file._FilePath);
+						if (addFileDialog.ImportTextures)
+						{
+							textureSet = ImportTextureSet(fileName, _file._FilePath);
+						}
+						else if (addFileDialog.PromptTextures)
+						{
+							textureSet = CreateTextureSet(fileName, _file._FilePath);
+						}
 					}
 
 					SR1_File.MigrateFlags migrateFlags = SR1_File.MigrateFlags.None;
@@ -199,9 +206,16 @@ namespace Recombobulator
 					SR1_File.Overrides overrides = new SR1_File.Overrides();
 					overrides.NewName = fileName;
 
-					for (int t = 0; t < textureSet.TextureIDs.Length; t++)
+					if (textureSet != null)
 					{
-						overrides.NewTextureIDs.Add(_repository.Textures[textureSet.TextureIDs[t]].TPage, textureSet.TextureIDs[t]);
+						for (int t = 0; t < textureSet.TextureIDs.Length; t++)
+						{
+							ushort tPage = _repository.Textures[textureSet.TextureIDs[t]].TPage;
+							if (overrides.NewTextureIDs.ContainsKey(tPage))
+							{
+								overrides.NewTextureIDs.Add(tPage, textureSet.TextureIDs[t]);
+							}
+						}
 					}
 
 					object newObject = null;
@@ -1267,6 +1281,17 @@ namespace Recombobulator
 
 		private TexSet ImportTextureSet(string textureSetName, string filePath)
 		{
+			TexSet oldTextureSet;
+			do
+			{
+				oldTextureSet = _repository.TextureSets.TexSets.Find(x => x.Name == textureSetName);
+				if (oldTextureSet != null)
+				{
+					_repository.TextureSets.TexSets.Remove(oldTextureSet);
+				}
+			}
+			while (oldTextureSet != null);
+
 			TexSet textureSet = new TexSet();
 			textureSet.Name = textureSetName;
 			textureSet.Index = _repository.TextureSets.Count;
@@ -1318,6 +1343,70 @@ namespace Recombobulator
 							textureSet.TextureIDs[t] = (ushort)newTextureIndex;
 						}
 					}
+				}
+				catch (Exception ex)
+				{
+
+				}
+			}
+
+			TreeNode[] nodes = projectTreeView.Nodes.Find("TextureSets", false);
+			if (nodes.Length > 0 && nodes[0] != null)
+			{
+				TreeNode node = new TreeNode();
+				node.Text = textureSet.Name;
+				node.Tag = textureSet;
+				nodes[0].Nodes.Add(node);
+				projectTreeView.Sort();
+			}
+
+			_repository.TextureSets.Add(textureSet);
+
+			return textureSet;
+		}
+
+		private TexSet CreateTextureSet(string textureSetName, string filePath)
+		{
+			TexSet oldTextureSet;
+			do
+			{
+				oldTextureSet = _repository.TextureSets.TexSets.Find(x => x.Name == textureSetName);
+				if (oldTextureSet != null)
+				{
+					_repository.TextureSets.TexSets.Remove(oldTextureSet);
+				}
+			}
+			while (oldTextureSet != null);
+
+			TexSet textureSet = new TexSet();
+			textureSet.Name = textureSetName;
+			textureSet.Index = _repository.TextureSets.Count;
+			string textureFileName = Path.ChangeExtension(filePath, "crm");
+
+			if (!File.Exists(filePath) || !File.Exists(textureFileName))
+			{
+				textureSet.TextureIDs = new ushort[0];
+			}
+			else
+			{
+				try
+				{
+					CDC.ExportOptions options = new CDC.ExportOptions();
+					SR1File sr1File = new SR1File(filePath, CDC.Platform.PSX, options);
+					TPages tPages = sr1File.TPages;
+
+					SR1PSXTextureFile textureFile = new SR1PSXTextureFile(textureFileName);
+					textureFile.BuildTexturesFromPolygonData(tPages, false, true, options);
+
+					textureSet.TextureIDs = new ushort[textureFile.TextureCount];
+                    for (int t = 0; t < textureFile.TextureCount; t++)
+                    {
+						textureSet.TextureIDs[t] = ushort.MaxValue;
+                    }
+
+                    TextureSetForm textureSetForm = new TextureSetForm();
+					textureSetForm.Initialize(_repository, textureSet);
+					textureSetForm.ShowDialog();
 				}
 				catch (Exception ex)
 				{
