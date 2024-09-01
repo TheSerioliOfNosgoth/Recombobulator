@@ -1151,6 +1151,8 @@ namespace SR1Repository
 					{
 						return false;
 					}
+
+					FilesToRead += assets.Count;
 				}
 
 				if (loadTextures)
@@ -1160,11 +1162,11 @@ namespace SR1Repository
 					{
 						return false;
 					}
+
+					FilesToRead += textures.Count;
 				}
 
 				CreateDirectories();
-
-				FilesToRead = assets.Count + textures.Count;
 
 				#region Bigfile
 

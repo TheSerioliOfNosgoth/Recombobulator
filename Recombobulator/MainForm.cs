@@ -617,6 +617,12 @@ namespace Recombobulator
 
 		private void NewProjectToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			CreateProjectForm createProjectDialog = new CreateProjectForm();
+			if (createProjectDialog.ShowDialog() != DialogResult.OK)
+			{
+				return;
+			}
+
 			FolderBrowserDialog folderDialog = new FolderBrowserDialog();
 			folderDialog.ShowNewFolderButton = false;
 
@@ -626,8 +632,7 @@ namespace Recombobulator
 				folderDialog.SelectedPath = recentFolder;
 			}
 
-			DialogResult dialogResult = folderDialog.ShowDialog();
-			if (dialogResult != DialogResult.OK)
+			if (folderDialog.ShowDialog() != DialogResult.OK)
 			{
 				return;
 			}
@@ -641,12 +646,19 @@ namespace Recombobulator
 
 			Thread loadingThread = new Thread((() =>
 			{
-				// If we want metadata from an existing bigfile.
-				// repository.UnpackRepository(true);
-				// If we want the assets from an existing bigfile.
-				// repository.UnpackRepository(false);
-				// If we want an empty repository.
-				repository.CreateRepository();
+				switch (createProjectDialog.CreateProjectType)
+				{
+					case CreateProjectForm.ProjectType.Metadata:
+						repository.UnpackRepository(true);
+						break;
+					case CreateProjectForm.ProjectType.Assets:
+						repository.UnpackRepository(false);
+						break;
+					default:
+						repository.CreateRepository();
+						break;
+				}
+
 				_repository = repository;
 
 				Invoke(new MethodInvoker(EndUnpacking));
