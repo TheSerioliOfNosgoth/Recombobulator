@@ -210,8 +210,13 @@ namespace Recombobulator
 					{
 						for (int t = 0; t < textureSet.TextureIDs.Length; t++)
 						{
+							if (textureSet.TextureIDs[t] >= _repository.Textures.Count)
+							{
+								continue;
+							}
+
 							ushort tPage = _repository.Textures[textureSet.TextureIDs[t]].TPage;
-							if (overrides.NewTextureIDs.ContainsKey(tPage))
+							if (!overrides.NewTextureIDs.ContainsKey(tPage))
 							{
 								overrides.NewTextureIDs.Add(tPage, textureSet.TextureIDs[t]);
 							}

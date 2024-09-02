@@ -142,12 +142,15 @@ namespace CDC
 				reader.BaseStream.Position = drMoveAniTex;
 
 				uint aniTexSrcCount = reader.ReadUInt32();
-				uint aniTexSrcPtrStart = reader.ReadUInt32();
+				uint aniTexSrcPtrStart = (uint)reader.BaseStream.Position;
 
 				_aniTextures = new AniTextureDest[aniTexSrcCount];
 				for (int a = 0; a < aniTexSrcCount; a++)
 				{
 					reader.BaseStream.Position = aniTexSrcPtrStart + (a * 4);
+
+					uint aniTexDstStart = reader.ReadUInt32();
+					reader.BaseStream.Position = aniTexDstStart;
 
 					AniTextureDest aniTextureDst = new AniTextureDest();
 
