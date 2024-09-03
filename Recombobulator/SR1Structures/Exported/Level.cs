@@ -529,6 +529,12 @@ namespace Recombobulator.SR1Structures
 				foreach (Intro intro in introsToRemove)
 				{
 					intros.RemoveAt(intro);
+
+					if (intro.data.Offset != 0)
+					{
+						file._Structures.Remove(intro.data.Offset);
+						intro.data.Offset = 0;
+					}
 				}
 			}
 
