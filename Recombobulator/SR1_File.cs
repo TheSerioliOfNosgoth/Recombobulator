@@ -71,6 +71,7 @@ namespace Recombobulator
 			public int OldStreamUnitID;
 			public int NewStreamUnitID;
 			public readonly Dictionary<int, int> NewIntroIDs = new Dictionary<int, int>();
+			public readonly List<int> IntrosToRemove = new List<int>();
 			public readonly Dictionary<string, string> NewObjectNames = new Dictionary<string, string>();
 		}
 

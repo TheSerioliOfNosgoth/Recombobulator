@@ -28,7 +28,7 @@ namespace Recombobulator.SR1Structures
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
 		{
 			Level level = (Level)reader.File._Structures[0];
-			SR1_StructureArray<Intro> intros = (SR1_StructureArray<Intro>)reader.File._Structures[level.introList.Offset];
+			SR1_StructureSeries<Intro> intros = (SR1_StructureSeries<Intro>)reader.File._Structures[level.introList.Offset];
 			foreach (Intro intro in intros)
 			{
 				if (intro.UniqueID.Value == introUniqueID.Value)

@@ -299,7 +299,11 @@ namespace Recombobulator.SR1Structures
 
 			new SR1_StructureArray<CameraKey>(numCameras.Value).ReadFromPointer(reader, cameraList);
 			new SR1_StructureArray<VGroup>(numVGroups.Value).ReadFromPointer(reader, vGroupList);
-			new SR1_StructureArray<Intro>(numIntros.Value).ReadFromPointer(reader, introList);
+
+			SR1_StructureSeries<Intro> intros = new SR1_StructureSeries<Intro>();
+			intros.SetReadCount(numIntros.Value);
+			intros.ReadFromPointer(reader, introList);
+
 			SR1_Structure objectNameListStruct = new ObjectNameList().ReadFromPointer(reader, objectNameList);
 			new SR1_StructureArray<PlanMkr>(NumberOfPlanMarkers.Value).SetPadding(4).ReadFromPointer(reader, PlanMarkerList);
 			new SR1_StructureArray<SFXMkr>(NumberOfSFXMarkers.Value).ReadFromPointer(reader, SFXMarkerList);
@@ -509,6 +513,22 @@ namespace Recombobulator.SR1Structures
 				if (file._Overrides.NewStreamUnitID != 0)
 				{
 					streamUnitID.Value = file._Overrides.NewStreamUnitID;
+				}
+
+				SR1_StructureSeries<Intro> intros = (SR1_StructureSeries<Intro>)file._Structures[introList.Offset];
+				List<Intro> introsToRemove = new List<Intro>();
+
+				foreach (Intro intro in intros)
+				{
+					if (file._Overrides.IntrosToRemove.Contains(intro.intronum.Value))
+					{
+						introsToRemove.Add(intro);
+					}
+				}
+
+				foreach (Intro intro in introsToRemove)
+				{
+					intros.RemoveAt(intro);
 				}
 			}
 
