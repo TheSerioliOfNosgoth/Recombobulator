@@ -136,10 +136,16 @@ namespace Recombobulator.SR1Structures
 				}
 				else
 				{
-					if (file._Version < SR1_File.Version.Jan23 &&
-						(attr0.Value & 0x0200) != 0)
+					if (file._Version < SR1_File.Version.Jan23)
 					{
-						attr.Value |= 0x08;
+						if ((attr0.Value & 0x0200) != 0)
+						{
+							attr.Value |= 0x08;
+						}
+						else if ((attr0.Value & 0x0040) != 0)
+						{
+							// Sunlight.
+						}
 					}
 
 					// Backface collision.

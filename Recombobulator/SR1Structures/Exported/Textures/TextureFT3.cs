@@ -19,7 +19,8 @@ namespace Recombobulator.SR1Structures
 
 		public int NumReferences = 0;
 		public int AniTexIndex = -1;
-		public bool HasTranslucentPolygon = false;
+		public bool HasWater = false;
+		public bool HasSunlight = false;
 
 		bool IsPSX = false;
 
@@ -121,15 +122,33 @@ namespace Recombobulator.SR1Structures
 				}
 				attr2.Value = 0x0108;
 
-				if (file._Version < SR1_File.Version.Apr14)
+				if (file._Version < SR1_File.Version.Jan23)
 				{
-					if ((migrateFlags & SR1_File.MigrateFlags.ForceWaterTranslucent) != 0 && HasTranslucentPolygon)
+					if ((migrateFlags & SR1_File.MigrateFlags.ForceWaterTranslucent) != 0 && HasWater)
 					{
 						tpage.Value |= 0x4000;
 						attr2.Value |= 0x0060;
 					}
-					else if (file._Version < SR1_File.Version.Jan23 ||
-						(attr.Value & 0x0010) != 0)
+					else if ((migrateFlags & SR1_File.MigrateFlags.ForceSunlightTranslucent) != 0 && HasSunlight)
+					{
+						tpage.Value |= 0x4000;
+						attr2.Value |= 0x0060;
+					}
+					else
+					{
+						tpage.Value |= 0x2000; // UseAlphaMask
+					}
+
+					attr.Value = 0;
+				}
+				else if (file._Version < SR1_File.Version.Apr14)
+				{
+					if ((migrateFlags & SR1_File.MigrateFlags.ForceWaterTranslucent) != 0 && HasWater)
+					{
+						tpage.Value |= 0x4000;
+						attr2.Value |= 0x0060;
+					}
+					else if ((attr.Value & 0x0010) != 0)
 					{
 						tpage.Value |= 0x2000; // UseAlphaMask
 					}
@@ -147,7 +166,7 @@ namespace Recombobulator.SR1Structures
 				}
 				else
 				{
-					if ((migrateFlags & SR1_File.MigrateFlags.ForceWaterTranslucent) != 0 && HasTranslucentPolygon)
+					if ((migrateFlags & SR1_File.MigrateFlags.ForceWaterTranslucent) != 0 && HasWater)
 					{
 						tpage.Value |= 0x4000;
 						attr2.Value |= 0x0060;

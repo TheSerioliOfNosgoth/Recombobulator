@@ -533,14 +533,20 @@ namespace Recombobulator.SR1Structures
 				{
 					face.Texture.NumReferences++;
 
-					if (reader.File._Version < SR1_File.Version.Jan23 &&
-						(face.attr0.Value & 0x0200) != 0)
+					if (reader.File._Version < SR1_File.Version.Jan23)
 					{
-						face.Texture.HasTranslucentPolygon = true;
+						if ((face.attr0.Value & 0x0200) != 0)
+						{
+							face.Texture.HasWater = true;
+						}
+						else if ((face.attr0.Value & 0x0040) != 0)
+						{
+							face.Texture.HasSunlight = true;
+						}
 					}
 					else if ((face.attr.Value & 0x08) != 0)
 					{
-						face.Texture.HasTranslucentPolygon = true;
+						face.Texture.HasWater = true;
 					}
 				}
 			}
