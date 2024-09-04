@@ -19,8 +19,8 @@ namespace Recombobulator.SR1Structures
 
 		public int NumReferences = 0;
 		public int AniTexIndex = -1;
-		public bool HasWater = false;
-		public bool HasSunlight = false;
+		public bool IsWater = false;
+		public bool IsSunlight = false;
 
 		bool IsPSX = false;
 
@@ -124,12 +124,12 @@ namespace Recombobulator.SR1Structures
 
 				if (file._Version < SR1_File.Version.Jan23)
 				{
-					if ((migrateFlags & SR1_File.MigrateFlags.ForceWaterTranslucent) != 0 && HasWater)
+					if ((migrateFlags & SR1_File.MigrateFlags.ForceWaterTranslucent) != 0 && IsWater)
 					{
 						tpage.Value |= 0x4000;
 						attr2.Value |= 0x0060;
 					}
-					else if ((migrateFlags & SR1_File.MigrateFlags.ForceSunlightTranslucent) != 0 && HasSunlight)
+					else if ((migrateFlags & SR1_File.MigrateFlags.ForceSunlightTranslucent) != 0 && IsSunlight)
 					{
 						tpage.Value |= 0x4000;
 						attr2.Value |= 0x0060;
@@ -143,7 +143,7 @@ namespace Recombobulator.SR1Structures
 				}
 				else if (file._Version < SR1_File.Version.Apr14)
 				{
-					if ((migrateFlags & SR1_File.MigrateFlags.ForceWaterTranslucent) != 0 && HasWater)
+					if ((migrateFlags & SR1_File.MigrateFlags.ForceWaterTranslucent) != 0 && IsWater)
 					{
 						tpage.Value |= 0x4000;
 						attr2.Value |= 0x0060;
@@ -166,7 +166,7 @@ namespace Recombobulator.SR1Structures
 				}
 				else
 				{
-					if ((migrateFlags & SR1_File.MigrateFlags.ForceWaterTranslucent) != 0 && HasWater)
+					if ((migrateFlags & SR1_File.MigrateFlags.ForceWaterTranslucent) != 0 && IsWater)
 					{
 						tpage.Value |= 0x4000;
 						attr2.Value |= 0x0060;

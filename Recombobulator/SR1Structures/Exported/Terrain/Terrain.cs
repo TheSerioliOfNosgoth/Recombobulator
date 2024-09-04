@@ -58,6 +58,7 @@ namespace Recombobulator.SR1Structures
 		BSPNode _bspRoot = null;
 		SR1_StructureSeries<BSPNode> _bspNodes = null;
 		SR1_StructureSeries<BSPLeaf> _bspLeaves = null;
+		bool HasSunlight = false;
 
 		// Added when converting to proto builds.
 		BSPTree _envTree = null;
@@ -537,16 +538,20 @@ namespace Recombobulator.SR1Structures
 					{
 						if ((face.attr0.Value & 0x0200) != 0)
 						{
-							face.Texture.HasWater = true;
+							face.IsWater = true;
+							face.Texture.IsWater = true;
 						}
 						else if ((face.attr0.Value & 0x0040) != 0)
 						{
-							face.Texture.HasSunlight = true;
+							face.IsSunlight = true;
+							face.Texture.IsSunlight = true;
+							HasSunlight = true;
 						}
 					}
 					else if ((face.attr.Value & 0x08) != 0)
 					{
-						face.Texture.HasWater = true;
+						face.IsWater = true;
+						face.Texture.IsWater = true;
 					}
 				}
 			}
