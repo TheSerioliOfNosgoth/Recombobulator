@@ -60,7 +60,7 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_Primative<int> flags = new SR1_Primative<int>();
 		public readonly SR1_Pointer<MultiSignal> startSignal = new SR1_Pointer<MultiSignal>();
 		public readonly SR1_Primative<int> numIntros = new SR1_Primative<int>();
-		public readonly SR1_Pointer<Intro> introList = new SR1_Pointer<Intro>();
+		public readonly SR1_Pointer<Intro> introList = new SR1_Pointer<Intro>(PtrHeuristic.Start);
 		public readonly SR1_Pointer<DrMoveAniTex> bgAniList = new SR1_Pointer<DrMoveAniTex>();
 		public readonly SR1_Primative<int> numHotSpots = new SR1_Primative<int>();
 		public readonly SR1_Pointer<HotSpot> hotSpotList = new SR1_Pointer<HotSpot>();
@@ -520,17 +520,14 @@ namespace Recombobulator.SR1Structures
 					SR1_StructureSeries<Intro> intros = (SR1_StructureSeries<Intro>)file._Structures[introList.Offset];
 					List<Intro> introsToRemove = new List<Intro>();
 
-					foreach (Intro intro in intros)
+					foreach (int i in file._Overrides.IntrosToRemove)
 					{
-						if (file._Overrides.IntrosToRemove.Contains(intro.intronum.Value))
-						{
-							introsToRemove.Add(intro);
-						}
+						introsToRemove.Add((Intro)intros[i]);
 					}
 
 					foreach (Intro intro in introsToRemove)
 					{
-						intros.RemoveAt(intro);
+						intros.Remove(intro);
 
 						if (intro.data.Offset != 0)
 						{
@@ -538,6 +535,8 @@ namespace Recombobulator.SR1Structures
 							intro.data.Offset = 0;
 						}
 					}
+
+					numIntros.Value = intros.Count;
 				}
 			}
 

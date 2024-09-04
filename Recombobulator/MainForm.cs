@@ -1032,6 +1032,7 @@ namespace Recombobulator
 			public Flags flags = Flags.Default;
 			public string[] removePortals = null;
 			public ReplaceObject[] replaceObjects = null;
+			public int[] removeIntros = null;
 		};
 
 		struct ReplaceObject
@@ -1210,6 +1211,17 @@ namespace Recombobulator
 						foreach (ReplaceObject replaceObject in importFile.replaceObjects)
 						{
 							overrides.NewObjectNames.Add(replaceObject.oldObject, replaceObject.newObject);
+						}
+					}
+
+					if (importFile.removeIntros != null)
+					{
+						foreach (int i in importFile.removeIntros)
+						{
+							if (!overrides.IntrosToRemove.Contains(i))
+							{
+								overrides.IntrosToRemove.Add(i);
+							}
 						}
 					}
 

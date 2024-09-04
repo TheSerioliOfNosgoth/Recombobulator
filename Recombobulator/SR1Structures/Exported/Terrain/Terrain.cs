@@ -15,7 +15,7 @@ namespace Recombobulator.SR1Structures
 		SR1_Primative<short> spad = new SR1_Primative<short>();
 		SR1_Primative<int> lpad2 = new SR1_Primative<int>();
 		SR1_Primative<int> numIntros = new SR1_Primative<int>();
-		SR1_Pointer<Intro> introList = new SR1_Pointer<Intro>();
+		SR1_Pointer<Intro> introList = new SR1_Pointer<Intro>(PtrHeuristic.Start);
 		SR1_Primative<int> numVertices = new SR1_Primative<int>();
 		SR1_Primative<int> numFaces = new SR1_Primative<int>();
 		SR1_Primative<int> numNormals = new SR1_Primative<int>();
@@ -558,6 +558,13 @@ namespace Recombobulator.SR1Structures
 			uint position = lastStructure.End;
 
 			base.MigrateVersion(file, targetVersion, migrateFlags);
+
+			Level level = (Level)file._Structures[0];
+			if (level.introList.Offset != 0)
+			{
+				SR1_StructureSeries<Intro> intros = (SR1_StructureSeries<Intro>)file._Structures[level.introList.Offset];
+				numIntros.Value = intros.Count;
+			}
 
 			if (file._Version == SR1_File.Version.Retail_PC &&
 				targetVersion == SR1_File.Version.Retail_PC)
