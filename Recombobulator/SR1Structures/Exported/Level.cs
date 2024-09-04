@@ -515,25 +515,28 @@ namespace Recombobulator.SR1Structures
 					streamUnitID.Value = file._Overrides.NewStreamUnitID;
 				}
 
-				SR1_StructureSeries<Intro> intros = (SR1_StructureSeries<Intro>)file._Structures[introList.Offset];
-				List<Intro> introsToRemove = new List<Intro>();
-
-				foreach (Intro intro in intros)
+				if (introList.Offset != 0)
 				{
-					if (file._Overrides.IntrosToRemove.Contains(intro.intronum.Value))
+					SR1_StructureSeries<Intro> intros = (SR1_StructureSeries<Intro>)file._Structures[introList.Offset];
+					List<Intro> introsToRemove = new List<Intro>();
+
+					foreach (Intro intro in intros)
 					{
-						introsToRemove.Add(intro);
+						if (file._Overrides.IntrosToRemove.Contains(intro.intronum.Value))
+						{
+							introsToRemove.Add(intro);
+						}
 					}
-				}
 
-				foreach (Intro intro in introsToRemove)
-				{
-					intros.RemoveAt(intro);
-
-					if (intro.data.Offset != 0)
+					foreach (Intro intro in introsToRemove)
 					{
-						file._Structures.Remove(intro.data.Offset);
-						intro.data.Offset = 0;
+						intros.RemoveAt(intro);
+
+						if (intro.data.Offset != 0)
+						{
+							file._Structures.Remove(intro.data.Offset);
+							intro.data.Offset = 0;
+						}
 					}
 				}
 			}
