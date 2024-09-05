@@ -58,7 +58,8 @@ namespace Recombobulator.SR1Structures
 		BSPNode _bspRoot = null;
 		SR1_StructureSeries<BSPNode> _bspNodes = null;
 		SR1_StructureSeries<BSPLeaf> _bspLeaves = null;
-		bool HasSunlight = false;
+		bool HasSignalTree = false;
+		bool HasSunlightTree = false;
 
 		// Added when converting to proto builds.
 		BSPTree _envTree = null;
@@ -469,6 +470,10 @@ namespace Recombobulator.SR1Structures
 						{
 							continue;
 						}
+						else
+						{
+							HasSignalTree = true;
+						}
 					}
 
 					foreach (MultiSignal mSignal in _multiSignals)
@@ -549,7 +554,7 @@ namespace Recombobulator.SR1Structures
 						{
 							face.IsSunlight = true;
 							face.Texture.IsSunlight = true;
-							HasSunlight = true;
+							HasSunlightTree = true;
 						}
 					}
 					else if ((face.attr.Value & 0x08) != 0)
@@ -865,7 +870,7 @@ namespace Recombobulator.SR1Structures
 
 				#region SunTree
 
-				if (HasSunlight)
+				if (HasSunlightTree)
 				{
 					_sunFaces = new List<TFace>();
 
@@ -877,6 +882,7 @@ namespace Recombobulator.SR1Structures
 
 							TFace.Copy(sunFace, face);
 							sunFace.textoff.Value = 0xFFFF;
+							sunFace.sortPush.Value = 1;
 
 							_sunFaces.Add(sunFace);
 						}
@@ -926,103 +932,106 @@ namespace Recombobulator.SR1Structures
 
 				#region SigTree
 
-				_sigFaces = new List<TFace>();
-
-				bool needTerrainSignal = (_terrainSignal == null);
-
-				foreach(TFace face in _faces)
+				if (HasSignalTree)
 				{
-					if (face.IsInSignalGroup)
+					_sigFaces = new List<TFace>();
+
+					bool needTerrainSignal = (_terrainSignal == null);
+
+					foreach (TFace face in _faces)
 					{
-						TFace sigFace = new TFace();
-
-						Face.Copy(sigFace.face, face.face);
-						sigFace.attr.Value = 0x40; // 0x44?
-						sigFace.normal.Value = face.normal.Value;
-						sigFace.textoff.Value = 0xFFFF;
-
-						sigFace.IsInSignalGroup = true;
-
-						sigFace.MultiSignal = face.MultiSignal;
-						sigFace.Signal = face.Signal;
-						sigFace.Portal = face.Portal;
-
-						bool removeSignal = false;
-
-						removeSignal |= sigFace.MultiSignal != null && sigFace.MultiSignal.OmitFromMigration;
-						removeSignal |= sigFace.Signal != null && sigFace.Signal.OmitFromMigration;
-						removeSignal |= sigFace.Portal != null && sigFace.Portal.OmitFromMigration;
-
-						if (removeSignal)
+						if (face.IsInSignalGroup)
 						{
-							sigFace.attr.Value = 0;
+							TFace sigFace = new TFace();
 
-							sigFace.MultiSignal = null;
-							sigFace.Signal = null;
-							sigFace.Portal = null;
-						}
+							Face.Copy(sigFace.face, face.face);
+							sigFace.attr.Value = 0x40; // 0x44?
+							sigFace.normal.Value = face.normal.Value;
+							sigFace.textoff.Value = 0xFFFF;
 
-						_sigFaces.Add(sigFace);
+							sigFace.IsInSignalGroup = true;
 
-						if (needTerrainSignal && _multiSignals != null)
-						{
-							foreach (MultiSignal mSignal in _multiSignals)
+							sigFace.MultiSignal = face.MultiSignal;
+							sigFace.Signal = face.Signal;
+							sigFace.Portal = face.Portal;
+
+							bool removeSignal = false;
+
+							removeSignal |= sigFace.MultiSignal != null && sigFace.MultiSignal.OmitFromMigration;
+							removeSignal |= sigFace.Signal != null && sigFace.Signal.OmitFromMigration;
+							removeSignal |= sigFace.Portal != null && sigFace.Portal.OmitFromMigration;
+
+							if (removeSignal)
 							{
-								if (face.MultiSignal != null && face.MultiSignal == mSignal)
-								{
-									if (_terrainSignal == null || mSignal.Start < _terrainSignal.Start)
-									{
-										_terrainSignal = mSignal;
-									}
+								sigFace.attr.Value = 0;
 
-									break;
+								sigFace.MultiSignal = null;
+								sigFace.Signal = null;
+								sigFace.Portal = null;
+							}
+
+							_sigFaces.Add(sigFace);
+
+							if (needTerrainSignal && _multiSignals != null)
+							{
+								foreach (MultiSignal mSignal in _multiSignals)
+								{
+									if (face.MultiSignal != null && face.MultiSignal == mSignal)
+									{
+										if (_terrainSignal == null || mSignal.Start < _terrainSignal.Start)
+										{
+											_terrainSignal = mSignal;
+										}
+
+										break;
+									}
 								}
 							}
 						}
 					}
+
+					if (_terrainSignal != null)
+					{
+						signals.Offset = _terrainSignal.Start;
+					}
+
+					foreach (TFace sigFace in _sigFaces)
+					{
+						_faces.Add(sigFace);
+					}
+
+					// Create a leaf for the signal tree. Only one is needed.
+					_sigLeaf = new BSPLeaf();
+
+					CopyBSPRootToLoaf(_sigLeaf);
+
+					// Leaves need flag 2!
+					_sigLeaf.flags.Value = 2;
+
+					_sigLeaf.faceList.Offset = 0;
+					_sigLeaf.faceList.Heuristic = PtrHeuristic.Explicit;
+					_sigLeaf.numFaces.Value = (short)_sigFaces.Count;
+
+					// MigrateVersion is only called on MembersRead, which won't include
+					// this new one, so do that here.
+					_sigLeaf.MigrateVersion(file, targetVersion, migrateFlags);
+
+					// Insert the BSPLeaf at the end of the leaves list.
+					_bspLeaves.Add(_sigLeaf);
+
+					_sigTree = new BSPTree();
+
+					// Set the signal BSPTree fields to the new signal leaves.
+					_sigTree.bspRoot.Offset = 0;
+					_sigTree.bspRoot.Heuristic = PtrHeuristic.Explicit;
+					_sigTree.startLeaves.Offset = 0;
+					_sigTree.startLeaves.Heuristic = PtrHeuristic.Explicit;
+					_sigTree.endLeaves.Offset = 0;
+					_sigTree.endLeaves.Heuristic = PtrHeuristic.Explicit;
+					_sigTree.ID.Value = -1;
+
+					_bspTrees.Add(_sigTree);
 				}
-
-				if (_terrainSignal != null)
-				{
-					signals.Offset = _terrainSignal.Start;
-				}
-
-				foreach (TFace sigFace in _sigFaces)
-				{
-					_faces.Add(sigFace);
-				}
-
-				// Create a leaf for the signal tree. Only one is needed.
-				_sigLeaf = new BSPLeaf();
-
-				CopyBSPRootToLoaf(_sigLeaf);
-
-				// Leaves need flag 2!
-				_sigLeaf.flags.Value = 2;
-
-				_sigLeaf.faceList.Offset = 0;
-				_sigLeaf.faceList.Heuristic = PtrHeuristic.Explicit;
-				_sigLeaf.numFaces.Value = (short)_sigFaces.Count;
-
-				// MigrateVersion is only called on MembersRead, which won't include
-				// this new one, so do that here.
-				_sigLeaf.MigrateVersion(file, targetVersion, migrateFlags);
-
-				// Insert the BSPLeaf at the end of the leaves list.
-				_bspLeaves.Add(_sigLeaf);
-
-				_sigTree = new BSPTree();
-
-				// Set the signal BSPTree fields to the new signal leaves.
-				_sigTree.bspRoot.Offset = 0;
-				_sigTree.bspRoot.Heuristic = PtrHeuristic.Explicit;
-				_sigTree.startLeaves.Offset = 0;
-				_sigTree.startLeaves.Heuristic = PtrHeuristic.Explicit;
-				_sigTree.endLeaves.Offset = 0;
-				_sigTree.endLeaves.Heuristic = PtrHeuristic.Explicit;
-				_sigTree.ID.Value = -1;
-
-				_bspTrees.Add(_sigTree);
 
 				#endregion
 
@@ -1200,19 +1209,25 @@ namespace Recombobulator.SR1Structures
 
 			if (sourceVersion < SR1_File.Version.Jan23 && writer.File._Version >= SR1_File.Version.Jan23)
 			{
-				BSPLeaf firstNewLeaf = _sigLeaf;
-				if (HasSunlight)
+				uint endLeavesOffset = _bspLeaves.NewEnd;
+				
+				if (HasSignalTree)
 				{
-					firstNewLeaf = _sunLeaf;
+					endLeavesOffset = _sigLeaf.NewStart;
+				}
+
+				if (HasSunlightTree)
+				{
+					endLeavesOffset = _sunLeaf.NewStart;
 				}
 
 				BSPTreeArray.Offset = _bspTrees.NewStart;
 
 				_envTree.bspRoot.Offset = _bspRoot.NewStart;
 				_envTree.startLeaves.Offset = _bspLeaves.NewStart;
-				_envTree.endLeaves.Offset = firstNewLeaf.NewStart;
+				_envTree.endLeaves.Offset = endLeavesOffset;
 
-				if (HasSunlight)
+				if (HasSunlightTree)
 				{
 					_sunTree.bspRoot.Offset = _sunLeaf.NewStart;
 					_sunTree.startLeaves.Offset = _sunLeaf.NewStart;
@@ -1228,17 +1243,20 @@ namespace Recombobulator.SR1Structures
 					}
 				}
 
-				_sigTree.bspRoot.Offset = _sigLeaf.NewStart;
-				_sigTree.startLeaves.Offset = _sigLeaf.NewStart;
-				_sigTree.endLeaves.Offset = _sigLeaf.NewEnd;
+				if (HasSignalTree)
+				{
+					_sigTree.bspRoot.Offset = _sigLeaf.NewStart;
+					_sigTree.startLeaves.Offset = _sigLeaf.NewStart;
+					_sigTree.endLeaves.Offset = _sigLeaf.NewEnd;
 
-				if (_sigFaces.Count > 0)
-				{
-					_sigLeaf.faceList.Offset = _sigFaces[0].NewStart;
-				}
-				else
-				{
-					_sigLeaf.faceList.Offset = _faces.NewEnd;
+					if (_sigFaces.Count > 0)
+					{
+						_sigLeaf.faceList.Offset = _sigFaces[0].NewStart;
+					}
+					else
+					{
+						_sigLeaf.faceList.Offset = _faces.NewEnd;
+					}
 				}
 			}
 		}
