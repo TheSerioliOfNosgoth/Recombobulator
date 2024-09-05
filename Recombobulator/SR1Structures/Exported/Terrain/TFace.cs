@@ -63,6 +63,8 @@ namespace Recombobulator.SR1Structures
 			to.textoff.Value = from.textoff.Value;
 
 			to.IsInSignalGroup = from.IsInSignalGroup;
+			to.IsWater = from.IsWater;
+			to.IsSunlight = from.IsSunlight;
 			to.MultiSignal = from.MultiSignal;
 			to.Signal = from.Signal;
 			to.Portal = from.Portal;

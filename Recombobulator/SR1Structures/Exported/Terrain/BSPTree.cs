@@ -71,7 +71,7 @@ namespace Recombobulator.SR1Structures
 					// Close doors to adda1
 					if (ID.Value == 5 || ID.Value == 6)
 					{
-						flags.Value &= ~0x0003; // Invisible and no collision.
+						flags.Value &= ~0x0003; // Visible and collision.
 					}
 				}
 
@@ -83,7 +83,7 @@ namespace Recombobulator.SR1Structures
                     }
 					else if (ID.Value == 2 || ID.Value == 5)
 					{
-						flags.Value &= unchecked((short)0xFFFC); // Visible and collision.
+						flags.Value &= ~0x0003; // Visible and collision.
 					}
                 }
 

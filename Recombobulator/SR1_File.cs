@@ -496,7 +496,6 @@ namespace Recombobulator
 			{
 				// These things aren't ready yet.
 				migrateFlags |= MigrateFlags.RemoveVertexMorphs;
-				migrateFlags |= MigrateFlags.ForceWaterTranslucent;
 				migrateFlags |= MigrateFlags.ForceSunlightTranslucent;
 			}
 
