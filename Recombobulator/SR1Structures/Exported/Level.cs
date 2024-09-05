@@ -622,6 +622,17 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
+			if (file._Version < SR1_File.Version.Jan23 && targetVersion >= SR1_File.Version.Retail_PC)
+			{
+				SR1_String musicName = new SR1_String();
+				musicName.SetReadMax(true);
+				// Length is 4, so I don't need to track down everything to align.
+				musicName.SetText("ct\0", 4);
+				file._MigrationStructures.Add(End, musicName);
+				dynamicMusicName.Offset = End;
+				dynamicMusicName.Heuristic = PtrHeuristic.Migration;
+			}
+
 			/*if (Name == "city12")
 			{
 				SR1_StructureSeries<MultiSignal> multiSignals =
