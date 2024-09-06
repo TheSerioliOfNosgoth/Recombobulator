@@ -300,14 +300,25 @@ namespace CDC
 			int v3 = reader.ReadUInt16();
 
 			// unsigned char attr;
-			byte attr = reader.ReadByte();
-			if (options.IgnoreBackfacingFlagForTerrain)
-			{
-				attr &= (byte)~PolygonFlags.Backfacing;
-			}
+			ushort attr;
+			byte sortPush;
 
-			// char sortPush;
-			byte sortPush = reader.ReadByte();
+			if (_version == SR1File.PROTO_19981025_VERSION)
+			{
+				attr = reader.ReadUInt16();
+				sortPush = 0;
+			}
+			else
+			{
+				attr = reader.ReadByte();
+				if (options.IgnoreBackfacingFlagForTerrain)
+				{
+					attr &= (ushort)~PolygonFlags.Backfacing;
+				}
+
+				// char sortPush;
+				sortPush = reader.ReadByte();
+			}
 
 			// unsigned short normal;
 			ushort normal = reader.ReadUInt16();
@@ -387,17 +398,17 @@ namespace CDC
 				return;
 			}
 
-			if ((material.polygonFlags & (byte)PolygonFlags.Hidden0) != 0)
+			if ((material.polygonFlags & (ushort)PolygonFlags.Hidden0) != 0)
 			{
 				material.visible = false;
 			}
 
-			if ((material.polygonFlags & (byte)PolygonFlags.Emissive) != 0)
+			if ((material.polygonFlags & (ushort)PolygonFlags.Emissive) != 0)
 			{
 				material.isEmissive = true;
 			}
 
-			if ((material.polygonFlags & (byte)PolygonFlags.Translucent) != 0)
+			if ((material.polygonFlags & (ushort)PolygonFlags.Translucent) != 0)
 			{
 				material.isTranslucent = true;
 			}
