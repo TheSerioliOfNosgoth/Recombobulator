@@ -144,7 +144,7 @@ namespace Recombobulator.SR1Structures
 			return tPage;
 		}
 
-		public Rectangle GetRectangle()
+		public Rectangle GetBounds()
 		{
 			short newPixDstX;
 			short newPixDstY;
@@ -166,7 +166,7 @@ namespace Recombobulator.SR1Structures
 				newPixH = (short)(pixH.Value);
 			}
 
-			Rectangle rectangle = new Rectangle
+			Rectangle bounds = new Rectangle
 			{
 				X = newPixDstX,
 				Y = newPixDstY,
@@ -174,7 +174,7 @@ namespace Recombobulator.SR1Structures
 				Height = newPixH
 			};
 
-			return rectangle;
+			return bounds;
 		}
 
 		public bool IsTextureAnimated(TextureFT3 texture)
@@ -201,7 +201,7 @@ namespace Recombobulator.SR1Structures
 				return false;
 			}
 
-			Rectangle rectangle = GetRectangle();
+			Rectangle rectangle = GetBounds();
 
 			if (!rectangle.Contains(texture.u0.Value, texture.v0.Value) ||
 				!rectangle.Contains(texture.u1.Value, texture.v1.Value) ||
@@ -218,14 +218,14 @@ namespace Recombobulator.SR1Structures
 			string result = base.ToString();
 
 			ushort tPage = GetTPage();
-			Rectangle rectangle = GetRectangle();
+			Rectangle bounds = GetBounds();
 
 			result += "{ tpage = 0x" + tPage.ToString("X4"); // + ", clut = " + clut;
-			result += ", rectangle = ";
-			result += "{ X = " + rectangle.X;
-			result += ", Y = " + rectangle.Y;
-			result += ", W = " + rectangle.Width;
-			result += ", H = " + rectangle.Height + " } }";
+			result += ", bounds = ";
+			result += "{ X = " + bounds.X;
+			result += ", Y = " + bounds.Y;
+			result += ", W = " + bounds.Width;
+			result += ", H = " + bounds.Height + " } }";
 
 			return result;
 		}
