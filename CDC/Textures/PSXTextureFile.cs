@@ -500,27 +500,46 @@ namespace BenLincoln.TheLostWorlds.CDTextures
 			if (quantizeBounds)
 			{
 				int quantizeRes = 16;
-				while ((boundingRectangle.uMin % quantizeRes) > 0)
+				int uMin = boundingRectangle.uMin;
+				int uMax = boundingRectangle.uMax;
+				int vMin = boundingRectangle.vMin;
+				int vMax = boundingRectangle.vMax;
+
+				while ((uMin % quantizeRes) > 0)
 				{
-					boundingRectangle.uMin--;
+					uMin--;
 				}
 
-				while ((boundingRectangle.uMax % quantizeRes) < (quantizeRes - 1))
-				//while ((boundingRectangle.uMax % quantizeRes) > 0)
+				while ((uMax % quantizeRes) < (quantizeRes - 1))
 				{
-					boundingRectangle.uMax++;
+					uMax++;
 				}
 
-				while ((boundingRectangle.vMin % quantizeRes) > 0)
+				if (poly.animated && uMax == (boundingRectangle.uMax + (quantizeRes - 1)))
 				{
-					boundingRectangle.vMin--;
+					uMax -= quantizeRes;
 				}
 
-				while ((boundingRectangle.vMax % quantizeRes) < (quantizeRes - 1))
-				//while ((boundingRectangle.vMax % quantizeRes) > 0)
+				boundingRectangle.uMin = uMin;
+				boundingRectangle.uMax = uMax;
+
+				while ((vMin % quantizeRes) > 0)
 				{
-					boundingRectangle.vMax++;
+					vMin--;
 				}
+
+				while ((vMax % quantizeRes) < (quantizeRes - 1))
+				{
+					vMax++;
+				}
+
+				if (poly.animated && vMax == (boundingRectangle.vMax + (quantizeRes - 1)))
+				{
+					vMax -= quantizeRes;
+				}
+
+				boundingRectangle.vMin = vMin;
+				boundingRectangle.vMax = vMax;
 
 				if (boundingRectangle.uMin < 0)
 				{
