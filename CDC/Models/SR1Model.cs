@@ -719,6 +719,7 @@ namespace CDC
 					clut = clut,
 					textureUsed = true,
 					visible = true,
+					animated = true,
 					u = new int[3],
 					v = new int[3],
 				};

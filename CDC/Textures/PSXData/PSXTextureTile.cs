@@ -13,6 +13,7 @@ namespace BenLincoln.TheLostWorlds.CDTextures
 		public ushort clut;
 		public bool textureUsed;
 		public bool visible;
+		public bool animated;
 		public int[] u;             // 0-255 each
 		public int[] v;             // 0-255 each 
 	}

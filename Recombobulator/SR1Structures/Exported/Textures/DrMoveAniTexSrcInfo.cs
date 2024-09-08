@@ -88,7 +88,7 @@ namespace Recombobulator.SR1Structures
 
 			if (IsPSX)
 			{
-				newPixSrcX = (short)((pixSrcX.Value & 0x7F) << 2);
+				newPixSrcX = (short)((pixSrcX.Value & 0x3F) << 2);
 				newPixSrcY = (short)((pixSrcY.Value & 0xFF));
 			}
 			else
