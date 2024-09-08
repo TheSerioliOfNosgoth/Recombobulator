@@ -40,6 +40,7 @@ namespace Recombobulator.SR1Structures
 				if (objectName == "Shadow" ||
 					objectName == "Shadow2" ||
 					objectName == "Shadow3" ||
+					objectName == "cptrcha" ||
 					objectName == "fonts")
 				{
 					continue;
@@ -76,6 +77,7 @@ namespace Recombobulator.SR1Structures
 					if (objectName == "Shadow" ||
 						objectName == "Shadow2" ||
 						objectName == "Shadow3" ||
+						objectName == "cptrcha" ||
 						objectName == "fonts")
 					{
 						_List.Remove(_List[i]);

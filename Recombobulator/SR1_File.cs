@@ -498,6 +498,13 @@ namespace Recombobulator
 				migrateFlags |= MigrateFlags.RemoveVertexMorphs;
 				migrateFlags |= MigrateFlags.ForceWaterTranslucent;
 				migrateFlags |= MigrateFlags.ForceSunlightTranslucent;
+
+				Level level = _Structures[0] as Level;
+				if (level != null && level.Name == "tower7")
+				{
+					overrides.IntrosToRemove.Add(1);
+					overrides.IntrosToRemove.Add(2);
+				}
 			}
 
 			_PrimsWritten.Clear();
