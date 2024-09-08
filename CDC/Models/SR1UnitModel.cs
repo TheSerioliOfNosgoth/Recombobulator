@@ -27,6 +27,7 @@ namespace CDC
 		protected UInt32 _bspTreeStart;
 		protected UInt32 _spectralVertexStart;
 		protected UInt32 _spectralColourStart;
+		protected UInt32 _aniList;
 
 		public SR1UnitModel(BinaryReader reader, DataFile dataFile, UInt32 dataStart, UInt32 modelData, String modelName, Platform ePlatform, UInt32 version, TPages tPages)
 			: base(reader, dataFile, dataStart, modelData, modelName, ePlatform, version, tPages)
@@ -82,7 +83,7 @@ namespace CDC
 			// struct _Normal *normalList;
 			uint normalStart = reader.ReadUInt32();
 			// struct DrMoveAniTex *aniList;
-			uint drMoveAniTex = _dataStart + reader.ReadUInt32();
+			_aniList = _dataStart + reader.ReadUInt32();
 			// 1999-02-16: struct _BSPNode *sbspRoot; // size=44, offset=44 
 			// 1999-07-14: long pad 
 			uint sbspRoot = reader.ReadUInt32();
@@ -134,11 +135,14 @@ namespace CDC
 			}
 
 			_trees = new Tree[_groupCount];
+		}
 
+		public override void ReadData(BinaryReader reader, ExportOptions options)
+		{
 			if (_platform == Platform.PSX &&
-				drMoveAniTex != 0)
+				_aniList != 0)
 			{
-				reader.BaseStream.Position = drMoveAniTex;
+				reader.BaseStream.Position = _aniList;
 
 				uint aniTexSrcCount = reader.ReadUInt32();
 				uint aniTexSrcPtrStart = (uint)reader.BaseStream.Position;
@@ -175,16 +179,7 @@ namespace CDC
 						aniTextureSrc.clutX = reader.ReadInt16();
 						aniTextureSrc.clutY = reader.ReadInt16();
 
-						// Subtract 512 from tPageX and clutX to account for framebuffer.
-						short tPageX = (short)Math.Max(0, (int)aniTextureSrc.tPageX);
-						short clutX = (short)Math.Max(0, (int)aniTextureSrc.clutX);
-
-						// The last line is intentionally the w and h of the dest, not the source.
-						AddAniTextureTile(
-							tPageX, aniTextureSrc.tPageY,
-							clutX, aniTextureSrc.clutY,
-							aniTextureDst.tPageW, aniTextureDst.tPageH
-						);
+						AddAniTextureTile(aniTextureSrc, aniTextureDst);
 
 						aniTextureDst.frames[f] = aniTextureSrc;
 					}
@@ -192,6 +187,8 @@ namespace CDC
 					_aniTextures[a] = aniTextureDst;
 				}
 			}
+
+			base.ReadData(reader, options);
 		}
 
 		protected override void ReadVertex(BinaryReader reader, int v, ExportOptions options)
