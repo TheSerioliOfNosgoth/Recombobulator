@@ -249,6 +249,21 @@ namespace Recombobulator
 							migrateFlags |= SR1_File.MigrateFlags.RemoveAnimatedTextures;
 						}
 
+						if (addLevelDialog.ApplyWaterFlags)
+						{
+							migrateFlags |= SR1_File.MigrateFlags.ApplyWaterFlags;
+						}
+
+						if (addLevelDialog.ApplySunlightFlags)
+						{
+							migrateFlags |= SR1_File.MigrateFlags.ApplySunlightFlags;
+						}
+
+						if (addLevelDialog.ApplyTranslucency)
+						{
+							migrateFlags |= SR1_File.MigrateFlags.ApplyTranslucency;
+						}
+
 						SR1Structures.Level level = (SR1Structures.Level)_file._Structures[0];
 						uint sourceVersion = level.versionNumber.Value;
 
@@ -273,6 +288,13 @@ namespace Recombobulator
 					}
 					else
 					{
+						AddObjectForm addObjectDialog = (AddObjectForm)addFileDialog;
+
+						if (addObjectDialog.ApplyTranslucency)
+						{
+							migrateFlags |= SR1_File.MigrateFlags.ApplyTranslucency;
+						}
+
 						_file.Export(addFileDialog.FullPath, SR1_File.Version.Retail_PC, migrateFlags, overrides);
 						newObject = _repository.AddNewObject(fileName, textureSet.Name);
 						category = "Objects";
@@ -1021,8 +1043,10 @@ namespace Recombobulator
 				RemovePortals = 4,
 				RemoveVertexMorphs = 8,
 				RemoveAnimatedTextures = 16,
-				ForceWaterTranslucent = 32,
-				Default = RemoveEvents | RemoveAnimatedTextures | ForceWaterTranslucent,
+				ApplyWaterFlags = 32,
+				ApplySunlightFlags = 64,
+				ApplyTranslucency = 128,
+				Default = RemoveEvents | RemoveAnimatedTextures | ApplyWaterFlags | ApplySunlightFlags | ApplyTranslucency,
 			}
 
 			public string importName = null;
@@ -1185,12 +1209,22 @@ namespace Recombobulator
 						migrateFlags |= SR1_File.MigrateFlags.RemoveAnimatedTextures;
 					}
 
-					if ((importFile.flags & ImportFile.Flags.ForceWaterTranslucent) != 0)
+					if ((importFile.flags & ImportFile.Flags.ApplyWaterFlags) != 0)
 					{
-						migrateFlags |= SR1_File.MigrateFlags.ForceWaterTranslucent;
+						migrateFlags |= SR1_File.MigrateFlags.ApplyWaterFlags;
 					}
 
-                    SR1Structures.Level level = (SR1Structures.Level)file._Structures[0];
+					if ((importFile.flags & ImportFile.Flags.ApplySunlightFlags) != 0)
+					{
+						migrateFlags |= SR1_File.MigrateFlags.ApplySunlightFlags;
+					}
+
+					if ((importFile.flags & ImportFile.Flags.ApplyTranslucency) != 0)
+					{
+						migrateFlags |= SR1_File.MigrateFlags.ApplyTranslucency;
+					}
+
+					SR1Structures.Level level = (SR1Structures.Level)file._Structures[0];
                     uint sourceVersion = level.versionNumber.Value;
 
                     overrides.OldStreamUnitID = level.streamUnitID.Value;
@@ -1996,7 +2030,7 @@ namespace Recombobulator
 
 			List<ImportFile> importFiles = importScript.ImportFiles;
 
-			importFiles.Add(new ImportFile { importName = "movie1", isLevel = true, flags = ImportFile.Flags.ForceWaterTranslucent });
+			importFiles.Add(new ImportFile { importName = "movie1", isLevel = true, flags = ImportFile.Flags.ApplyWaterFlags });
 			importFiles.Add(new ImportFile { importName = "movie2", isLevel = true, flags = ImportFile.Flags.RemoveAnimatedTextures });
 			importFiles.Add(new ImportFile { importName = "movie3", isLevel = true, flags = ImportFile.Flags.RemoveAnimatedTextures });
 			importFiles.Add(new ImportFile { importName = "movie4", isLevel = true, flags = ImportFile.Flags.RemoveAnimatedTextures });

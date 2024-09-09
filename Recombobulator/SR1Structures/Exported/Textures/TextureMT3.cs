@@ -107,6 +107,14 @@ namespace Recombobulator.SR1Structures
 
 			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
 			{
+				bool isTranslucent = false;
+
+				if ((migrateFlags & SR1_File.MigrateFlags.ApplyTranslucency) != 0 &&
+					(tpage.Value & 0x0020) != 0)
+				{
+					isTranslucent = true;
+				}
+
 				ushort tPage = (ushort)(tpage.Value & (0x001F | 0x0010 | 0x0800));
 				if (file._Overrides.NewTextureIDs.ContainsKey(tPage))
 				{
@@ -117,7 +125,14 @@ namespace Recombobulator.SR1Structures
 					tpage.Value = 0;
 				}
 
-				//tpage.Value |= 0x2000; // UseAlphaMask
+				if (isTranslucent)
+				{
+					tpage.Value |= 0x4000;
+				}
+				else
+				{
+					tpage.Value |= 0x2000; // UseAlphaMask
+				}
 
 				pad.Value = 264;
 			}

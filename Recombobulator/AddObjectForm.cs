@@ -9,6 +9,8 @@ namespace Recombobulator
 	{
 		public override string RelativePath { get { return pathTextBox.Text; } }
 
+		public bool ApplyTranslucency { get { return applyTranslucencyCheckBox.Checked; } }
+
 		public AddObjectForm()
 		{
 			InitializeComponent();

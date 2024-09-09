@@ -17,6 +17,12 @@ namespace Recombobulator
 
 		public bool RemoveAnimatedTextures { get { return removeAniTexCheckBox.Checked; } }
 
+		public bool ApplyWaterFlags { get { return applyWaterFlagsCheckBox.Checked; } }
+
+		public bool ApplySunlightFlags { get { return applySunlightFlagsCheckBox.Checked; } }
+
+		public bool ApplyTranslucency { get { return applyTranslucencyCheckBox.Checked; } }
+
 		SR1Structures.SR1_StructureSeries<SR1Structures.MultiSignal> _multiSignals = null;
 		SR1Structures.StreamUnitPortalList _portalList = null;
 

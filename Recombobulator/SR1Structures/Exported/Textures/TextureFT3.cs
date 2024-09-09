@@ -111,6 +111,14 @@ namespace Recombobulator.SR1Structures
 
 			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
 			{
+				bool isTranslucent = false;
+
+				if ((migrateFlags & SR1_File.MigrateFlags.ApplyTranslucency) != 0 &&
+					(tpage.Value & 0x0020) != 0)
+				{
+					isTranslucent = true;
+				}
+
 				ushort tPage = (ushort)(tpage.Value & (0x001F | 0x0010 | 0x0800));
 				if (file._Overrides.NewTextureIDs.ContainsKey(tPage))
 				{
@@ -122,71 +130,45 @@ namespace Recombobulator.SR1Structures
 				}
 				attr2.Value = 0x0108;
 
-				if (file._Version < SR1_File.Version.Jan23)
+				if (file._Structures[0].Name == "movie1" &&
+					(attr.Value & 0x0040) != 0)
 				{
-					if ((migrateFlags & SR1_File.MigrateFlags.ForceWaterTranslucent) != 0 && IsWater)
-					{
-						tpage.Value |= 0x4000;
-						attr2.Value |= 0x0060;
-					}
-					else if ((migrateFlags & SR1_File.MigrateFlags.ForceSunlightTranslucent) != 0 && IsSunlight)
-					{
-						tpage.Value |= 0x4000;
-						attr2.Value |= 0x0060;
-					}
-					else
-					{
-						tpage.Value |= 0x2000; // UseAlphaMask
-					}
-
-					attr.Value = 0;
+					isTranslucent = true;
 				}
-				else if (file._Version < SR1_File.Version.Apr14)
+				else if ((migrateFlags & SR1_File.MigrateFlags.ApplyWaterFlags) != 0 && IsWater)
 				{
-					if ((migrateFlags & SR1_File.MigrateFlags.ForceWaterTranslucent) != 0 && IsWater)
-					{
-						tpage.Value |= 0x4000;
-						attr2.Value |= 0x0060;
-					}
-					else if ((attr.Value & 0x0010) != 0)
-					{
-						tpage.Value |= 0x2000; // UseAlphaMask
-					}
+					isTranslucent = true;
+				}
+				else if ((migrateFlags & SR1_File.MigrateFlags.ApplySunlightFlags) != 0 && IsSunlight)
+				{
+					isTranslucent = true;
+				}
 
-					// Alpha builds:
-					// - UseAlphaMask is in TextureFT3.attr // See bridges and chains in undrct 1.
-					// - Water is in TFace.attr. Looks like 0x08. // See undrct 1, 20, 21.
-					// - Doublesided is in TFace.attr. Looks like 0x10. // See chains in undrct 1, 20, 21.
-					// - Phasethrough is in TextureFT3.attr. Looks like 0x1000. // pillars 8 and city 9.
-					// - Climbable walls. Looks like 0x0200. // See city 2.
-					// - Burn in sunlight and set on fire are in BSPTree.flags. // See train 9.
-
-					attr.Value &= unchecked((ushort)0x1000);
-					//attr.Value |= 0x0001; // DoubleSided?
+				if (isTranslucent)
+				{
+					tpage.Value |= 0x4000;
+					attr2.Value |= 0x0060;
 				}
 				else
 				{
-					if ((migrateFlags & SR1_File.MigrateFlags.ForceWaterTranslucent) != 0 && IsWater)
-					{
-						tpage.Value |= 0x4000;
-						attr2.Value |= 0x0060;
-					}
-					else if ((attr.Value & 0x0040) != 0)
-					{
-						if (file._Structures[0].Name == "movie1")
-						{
-							tpage.Value |= 0x4000;
-							attr2.Value |= 0x0060;
-						}
-						else
-						{
-							tpage.Value |= 0x2000; // UseAlphaMask
-						}
-					}
-
-					attr.Value &= unchecked((ushort)0x1000);
-					//attr.Value |= 0x0001; // DoubleSided?
+					tpage.Value |= 0x2000; // UseAlphaMask
 				}
+				
+				// Alpha builds:
+				// - UseAlphaMask is in TextureFT3.attr // See bridges and chains in undrct 1.
+				// - Water is in TFace.attr. Looks like 0x08. // See undrct 1, 20, 21.
+				// - Doublesided is in TFace.attr. Looks like 0x10. // See chains in undrct 1, 20, 21.
+				// - Phasethrough is in TextureFT3.attr. Looks like 0x1000. // pillars 8 and city 9.
+				// - Climbable walls. Looks like 0x0200. // See city 2.
+				// - Burn in sunlight and set on fire are in BSPTree.flags. // See train 9.
+
+				if (file._Version >= SR1_File.Version.Jan23)
+				{
+					// Phase through
+					attr.Value &= unchecked((ushort)0x1000);
+				}
+
+				//attr.Value |= 0x0001; // DoubleSided?
 			}
 		}
 

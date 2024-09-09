@@ -36,12 +36,13 @@
 			this.versionComboBox = new System.Windows.Forms.ComboBox();
 			this.versionLabel = new System.Windows.Forms.Label();
 			this.textureSetLabel = new System.Windows.Forms.Label();
+			this.applyTranslucencyCheckBox = new System.Windows.Forms.CheckBox();
 			this.SuspendLayout();
 			// 
 			// continueButton
 			// 
 			this.continueButton.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this.continueButton.Location = new System.Drawing.Point(10, 360);
+			this.continueButton.Location = new System.Drawing.Point(14, 111);
 			this.continueButton.Name = "continueButton";
 			this.continueButton.Size = new System.Drawing.Size(75, 23);
 			this.continueButton.TabIndex = 6;
@@ -51,7 +52,7 @@
 			// cancelButton
 			// 
 			this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.cancelButton.Location = new System.Drawing.Point(91, 360);
+			this.cancelButton.Location = new System.Drawing.Point(95, 111);
 			this.cancelButton.Name = "cancelButton";
 			this.cancelButton.Size = new System.Drawing.Size(75, 23);
 			this.cancelButton.TabIndex = 7;
@@ -114,14 +115,27 @@
 			this.textureSetLabel.TabIndex = 4;
 			this.textureSetLabel.Text = "Texture Set";
 			// 
+			// applyTranslucencyCheckBox
+			// 
+			this.applyTranslucencyCheckBox.AutoSize = true;
+			this.applyTranslucencyCheckBox.Checked = true;
+			this.applyTranslucencyCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.applyTranslucencyCheckBox.Location = new System.Drawing.Point(16, 88);
+			this.applyTranslucencyCheckBox.Name = "applyTranslucencyCheckBox";
+			this.applyTranslucencyCheckBox.Size = new System.Drawing.Size(119, 17);
+			this.applyTranslucencyCheckBox.TabIndex = 19;
+			this.applyTranslucencyCheckBox.Text = "Apply Translucency";
+			this.applyTranslucencyCheckBox.UseVisualStyleBackColor = true;
+			// 
 			// AddObjectForm
 			// 
 			this.AcceptButton = this.continueButton;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.cancelButton;
-			this.ClientSize = new System.Drawing.Size(284, 396);
+			this.ClientSize = new System.Drawing.Size(284, 148);
 			this.ControlBox = false;
+			this.Controls.Add(this.applyTranslucencyCheckBox);
 			this.Controls.Add(this.renameButton);
 			this.Controls.Add(this.textureSetCombo);
 			this.Controls.Add(this.pathTextBox);
@@ -152,5 +166,6 @@
 		private System.Windows.Forms.TextBox pathTextBox;
 		private System.Windows.Forms.ComboBox textureSetCombo;
 		private System.Windows.Forms.Button renameButton;
+		private System.Windows.Forms.CheckBox applyTranslucencyCheckBox;
 	}
 }

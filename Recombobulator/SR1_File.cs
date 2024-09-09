@@ -51,9 +51,10 @@ namespace Recombobulator
 			RemovePortals = 4,
 			RemoveVertexMorphs = 8,
 			RemoveAnimatedTextures = 16,
-			ForceWaterTranslucent = 32,
-			ForceSunlightTranslucent = 64,
-			FixCity10 = 128,
+			ApplyWaterFlags = 32,
+			ApplySunlightFlags = 64,
+			ApplyTranslucency = 128,
+			FixCity10 = 256,
 		}
 
 		public enum TestFlags : int
@@ -496,8 +497,6 @@ namespace Recombobulator
 			{
 				// These things aren't ready yet.
 				migrateFlags |= MigrateFlags.RemoveVertexMorphs;
-				migrateFlags |= MigrateFlags.ForceWaterTranslucent;
-				migrateFlags |= MigrateFlags.ForceSunlightTranslucent;
 			}
 
 			_PrimsWritten.Clear();

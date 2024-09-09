@@ -44,12 +44,15 @@
 			this.removeSignalsCheckBox = new System.Windows.Forms.CheckBox();
 			this.renameButton = new System.Windows.Forms.Button();
 			this.portalListLabel = new System.Windows.Forms.Label();
+			this.applyWaterFlagsCheckBox = new System.Windows.Forms.CheckBox();
+			this.applySunlightFlagsCheckBox = new System.Windows.Forms.CheckBox();
+			this.applyTranslucencyCheckBox = new System.Windows.Forms.CheckBox();
 			this.SuspendLayout();
 			// 
 			// continueButton
 			// 
 			this.continueButton.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this.continueButton.Location = new System.Drawing.Point(12, 378);
+			this.continueButton.Location = new System.Drawing.Point(12, 429);
 			this.continueButton.Name = "continueButton";
 			this.continueButton.Size = new System.Drawing.Size(75, 23);
 			this.continueButton.TabIndex = 14;
@@ -59,7 +62,7 @@
 			// cancelButton
 			// 
 			this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.cancelButton.Location = new System.Drawing.Point(93, 378);
+			this.cancelButton.Location = new System.Drawing.Point(93, 429);
 			this.cancelButton.Name = "cancelButton";
 			this.cancelButton.Size = new System.Drawing.Size(75, 23);
 			this.cancelButton.TabIndex = 15;
@@ -164,14 +167,14 @@
 			this.removePortalsCheckBox.UseVisualStyleBackColor = true;
 			this.removePortalsCheckBox.CheckedChanged += new System.EventHandler(this.removePortalsCheckBox_CheckedChanged);
 			// 
-			// removeVMOsCheckBox
+			// removeAniTexCheckBox
 			// 
 			this.removeAniTexCheckBox.AutoSize = true;
 			this.removeAniTexCheckBox.Checked = true;
 			this.removeAniTexCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.removeAniTexCheckBox.Location = new System.Drawing.Point(13, 337);
 			this.removeAniTexCheckBox.Name = "removeAniTexCheckBox";
-			this.removeAniTexCheckBox.Size = new System.Drawing.Size(171, 17);
+			this.removeAniTexCheckBox.Size = new System.Drawing.Size(157, 17);
 			this.removeAniTexCheckBox.TabIndex = 13;
 			this.removeAniTexCheckBox.Text = "Remove Animated Textures";
 			this.removeAniTexCheckBox.UseVisualStyleBackColor = true;
@@ -205,14 +208,53 @@
 			this.portalListLabel.TabIndex = 6;
 			this.portalListLabel.Text = "Portals";
 			// 
+			// applyWaterFlagsCheckBox
+			// 
+			this.applyWaterFlagsCheckBox.AutoSize = true;
+			this.applyWaterFlagsCheckBox.Checked = true;
+			this.applyWaterFlagsCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.applyWaterFlagsCheckBox.Location = new System.Drawing.Point(13, 360);
+			this.applyWaterFlagsCheckBox.Name = "applyWaterFlagsCheckBox";
+			this.applyWaterFlagsCheckBox.Size = new System.Drawing.Size(112, 17);
+			this.applyWaterFlagsCheckBox.TabIndex = 16;
+			this.applyWaterFlagsCheckBox.Text = "Apply Water Flags";
+			this.applyWaterFlagsCheckBox.UseVisualStyleBackColor = true;
+			// 
+			// applySunlightFlagsCheckBox
+			// 
+			this.applySunlightFlagsCheckBox.AutoSize = true;
+			this.applySunlightFlagsCheckBox.Checked = true;
+			this.applySunlightFlagsCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.applySunlightFlagsCheckBox.Location = new System.Drawing.Point(13, 383);
+			this.applySunlightFlagsCheckBox.Name = "applySunlightFlagsCheckBox";
+			this.applySunlightFlagsCheckBox.Size = new System.Drawing.Size(121, 17);
+			this.applySunlightFlagsCheckBox.TabIndex = 17;
+			this.applySunlightFlagsCheckBox.Text = "Apply Sunlight Flags";
+			this.applySunlightFlagsCheckBox.UseVisualStyleBackColor = true;
+			// 
+			// applyTranslucencyCheckBox
+			// 
+			this.applyTranslucencyCheckBox.AutoSize = true;
+			this.applyTranslucencyCheckBox.Checked = true;
+			this.applyTranslucencyCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.applyTranslucencyCheckBox.Location = new System.Drawing.Point(12, 406);
+			this.applyTranslucencyCheckBox.Name = "applyTranslucencyCheckBox";
+			this.applyTranslucencyCheckBox.Size = new System.Drawing.Size(119, 17);
+			this.applyTranslucencyCheckBox.TabIndex = 18;
+			this.applyTranslucencyCheckBox.Text = "Apply Translucency";
+			this.applyTranslucencyCheckBox.UseVisualStyleBackColor = true;
+			// 
 			// AddLevelForm
 			// 
 			this.AcceptButton = this.continueButton;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.cancelButton;
-			this.ClientSize = new System.Drawing.Size(284, 413);
+			this.ClientSize = new System.Drawing.Size(284, 466);
 			this.ControlBox = false;
+			this.Controls.Add(this.applyTranslucencyCheckBox);
+			this.Controls.Add(this.applySunlightFlagsCheckBox);
+			this.Controls.Add(this.applyWaterFlagsCheckBox);
 			this.Controls.Add(this.portalListLabel);
 			this.Controls.Add(this.renameButton);
 			this.Controls.Add(this.removeSignalsCheckBox);
@@ -259,5 +301,8 @@
 		private System.Windows.Forms.CheckBox removeSignalsCheckBox;
 		private System.Windows.Forms.Button renameButton;
 		private System.Windows.Forms.Label portalListLabel;
+		private System.Windows.Forms.CheckBox applyWaterFlagsCheckBox;
+		private System.Windows.Forms.CheckBox applySunlightFlagsCheckBox;
+		private System.Windows.Forms.CheckBox applyTranslucencyCheckBox;
 	}
 }
