@@ -675,16 +675,20 @@ namespace CDC
 			return textureName;
 		}
 
-		protected void AddAniTextureTile(
-			short tX, short tY,
-			short cX, short cY,
-			short tW, short tH)
+		protected void AddAniTextureTile(AniTextureSource aniTextureSrc, AniTextureDest aniTextureDst)
 		{
-			if (_version != SR1File.RETAIL_VERSION &&
-				_platform != Platform.PSX)
+			if (_platform != Platform.PSX)
 			{
 				return;
 			}
+
+			// The last line is intentionally the w and h of the dest, not the source.
+			short tX = (short)Math.Max(0, (int)aniTextureSrc.tPageX);
+			short tY = aniTextureSrc.tPageY;
+			short cX = (short)Math.Max(0, (int)aniTextureSrc.clutX);
+			short cY = aniTextureSrc.clutY;
+			short tW = aniTextureDst.tPageW;
+			short tH = aniTextureDst.tPageH;
 
 			short x = (short)((tX & 0x7F) << 2);
 			short y = (short)(tY & 0xFF);
@@ -715,6 +719,7 @@ namespace CDC
 					clut = clut,
 					textureUsed = true,
 					visible = true,
+					animated = true,
 					u = new int[3],
 					v = new int[3],
 				};

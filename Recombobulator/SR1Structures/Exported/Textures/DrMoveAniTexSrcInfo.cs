@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 
 namespace Recombobulator.SR1Structures
@@ -78,6 +79,46 @@ namespace Recombobulator.SR1Structures
 			int tPageY = (pixSrcY.Value & 0x0100) >> 4 | (pixSrcY.Value & 0x0200) << 2;
 			ushort tPage = (ushort)(tPageX | tPageY);
 			return tPage;
+		}
+
+		public Point GetPosition()
+		{
+			short newPixSrcX;
+			short newPixSrcY;
+
+			if (IsPSX)
+			{
+				newPixSrcX = (short)((pixSrcX.Value & 0x3F) << 2);
+				newPixSrcY = (short)((pixSrcY.Value & 0xFF));
+			}
+			else
+			{
+				newPixSrcX = (short)((pixSrcX.Value & 0xFF));
+				newPixSrcY = (short)((pixSrcY.Value & 0xFF));
+			}
+
+			Point position = new Point
+			{
+				X = newPixSrcX,
+				Y = newPixSrcY
+			};
+
+			return position;
+		}
+
+		public override string ToString()
+		{
+			string result = base.ToString();
+
+			ushort tPage = GetTPage();
+			Point position = GetPosition();
+
+			result += "{ tpage = 0x" + tPage.ToString("X4"); // + ", clut = " + clut;
+			result += ", position = ";
+			result += "{ X = " + position.X;
+			result += ", Y = " + position.Y + " } }";
+
+			return result;
 		}
 	}
 }

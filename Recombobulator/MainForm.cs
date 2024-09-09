@@ -94,6 +94,7 @@ namespace Recombobulator
 
 					_fileLoaded = true;
 
+					addDataFileToProjectToolStripMenuItem.Enabled = (_fileLoaded && _repository != null);
 					testExportToolStripMenuItem.Enabled = _fileLoaded;
 				}
 				catch (Exception ex)
@@ -190,7 +191,14 @@ namespace Recombobulator
 					TexSet textureSet = _repository.TextureSets.TexSets.Find(x => x.Index == addFileDialog.TextureSet);
 					if (textureSet == null)
 					{
-						textureSet = ImportTextureSet(fileName, _file._FilePath);
+						if (addFileDialog.ImportTextures)
+						{
+							textureSet = ImportTextureSet(fileName, _file._FilePath);
+						}
+						else if (addFileDialog.PromptTextures)
+						{
+							textureSet = CreateTextureSet(fileName, _file._FilePath);
+						}
 					}
 
 					SR1_File.MigrateFlags migrateFlags = SR1_File.MigrateFlags.None;
@@ -198,9 +206,21 @@ namespace Recombobulator
 					SR1_File.Overrides overrides = new SR1_File.Overrides();
 					overrides.NewName = fileName;
 
-					for (int t = 0; t < textureSet.TextureIDs.Length; t++)
+					if (textureSet != null)
 					{
-						overrides.NewTextureIDs.Add(_repository.Textures[textureSet.TextureIDs[t]].TPage, textureSet.TextureIDs[t]);
+						for (int t = 0; t < textureSet.TextureIDs.Length; t++)
+						{
+							if (textureSet.TextureIDs[t] >= _repository.Textures.Count)
+							{
+								continue;
+							}
+
+							ushort tPage = _repository.Textures[textureSet.TextureIDs[t]].TPage;
+							if (!overrides.NewTextureIDs.ContainsKey(tPage))
+							{
+								overrides.NewTextureIDs.Add(tPage, textureSet.TextureIDs[t]);
+							}
+						}
 					}
 
 					object newObject = null;
@@ -448,6 +468,30 @@ namespace Recombobulator
 			_progressWindow.Dispose();
 		}
 
+		private void BeginImportTextures()
+		{
+			if (_progressWindow != null)
+			{
+				_progressWindow.Dispose();
+			}
+			_progressWindow = new ProgressWindow();
+			_progressWindow.Title = "Importing Textures...";
+			_progressWindow.SetMessage("");
+			//_progressWindow.Icon = this.Icon;
+			_progressWindow.Owner = this;
+			_progressWindow.TopLevel = true;
+			_progressWindow.ShowInTaskbar = false;
+			this.Enabled = false;
+			_progressWindow.Show();
+		}
+
+		private void EndImportTextures()
+		{
+			Enabled = true;
+			_progressWindow.Hide();
+			_progressWindow.Dispose();
+		}
+
 		private void BeginBulkTesting()
 		{
 			if (_progressWindow != null)
@@ -592,6 +636,12 @@ namespace Recombobulator
 
 		private void NewProjectToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			CreateProjectForm createProjectDialog = new CreateProjectForm();
+			if (createProjectDialog.ShowDialog() != DialogResult.OK)
+			{
+				return;
+			}
+
 			FolderBrowserDialog folderDialog = new FolderBrowserDialog();
 			folderDialog.ShowNewFolderButton = false;
 
@@ -601,8 +651,7 @@ namespace Recombobulator
 				folderDialog.SelectedPath = recentFolder;
 			}
 
-			DialogResult dialogResult = folderDialog.ShowDialog();
-			if (dialogResult != DialogResult.OK)
+			if (folderDialog.ShowDialog() != DialogResult.OK)
 			{
 				return;
 			}
@@ -616,7 +665,19 @@ namespace Recombobulator
 
 			Thread loadingThread = new Thread((() =>
 			{
-				repository.UnpackRepository();
+				switch (createProjectDialog.CreateProjectType)
+				{
+					case CreateProjectForm.ProjectType.Metadata:
+						repository.UnpackRepository(true);
+						break;
+					case CreateProjectForm.ProjectType.Assets:
+						repository.UnpackRepository(false);
+						break;
+					default:
+						repository.CreateRepository();
+						break;
+				}
+
 				_repository = repository;
 
 				Invoke(new MethodInvoker(EndUnpacking));
@@ -971,6 +1032,7 @@ namespace Recombobulator
 			public Flags flags = Flags.Default;
 			public string[] removePortals = null;
 			public ReplaceObject[] replaceObjects = null;
+			public int[] removeIntros = null;
 		};
 
 		struct ReplaceObject
@@ -1152,6 +1214,17 @@ namespace Recombobulator
 						}
 					}
 
+					if (importFile.removeIntros != null)
+					{
+						foreach (int i in importFile.removeIntros)
+						{
+							if (!overrides.IntrosToRemove.Contains(i))
+							{
+								overrides.IntrosToRemove.Add(i);
+							}
+						}
+					}
+
 					RemovePortals(file, importFile);
 					file.Export(exportPath, SR1_File.Version.Retail_PC, migrateFlags, overrides);
 
@@ -1225,6 +1298,17 @@ namespace Recombobulator
 
 		private TexSet ImportTextureSet(string textureSetName, string filePath)
 		{
+			TexSet oldTextureSet;
+			do
+			{
+				oldTextureSet = _repository.TextureSets.TexSets.Find(x => x.Name == textureSetName);
+				if (oldTextureSet != null)
+				{
+					_repository.TextureSets.TexSets.Remove(oldTextureSet);
+				}
+			}
+			while (oldTextureSet != null);
+
 			TexSet textureSet = new TexSet();
 			textureSet.Name = textureSetName;
 			textureSet.Index = _repository.TextureSets.Count;
@@ -1276,6 +1360,70 @@ namespace Recombobulator
 							textureSet.TextureIDs[t] = (ushort)newTextureIndex;
 						}
 					}
+				}
+				catch (Exception ex)
+				{
+
+				}
+			}
+
+			TreeNode[] nodes = projectTreeView.Nodes.Find("TextureSets", false);
+			if (nodes.Length > 0 && nodes[0] != null)
+			{
+				TreeNode node = new TreeNode();
+				node.Text = textureSet.Name;
+				node.Tag = textureSet;
+				nodes[0].Nodes.Add(node);
+				projectTreeView.Sort();
+			}
+
+			_repository.TextureSets.Add(textureSet);
+
+			return textureSet;
+		}
+
+		private TexSet CreateTextureSet(string textureSetName, string filePath)
+		{
+			TexSet oldTextureSet;
+			do
+			{
+				oldTextureSet = _repository.TextureSets.TexSets.Find(x => x.Name == textureSetName);
+				if (oldTextureSet != null)
+				{
+					_repository.TextureSets.TexSets.Remove(oldTextureSet);
+				}
+			}
+			while (oldTextureSet != null);
+
+			TexSet textureSet = new TexSet();
+			textureSet.Name = textureSetName;
+			textureSet.Index = _repository.TextureSets.Count;
+			string textureFileName = Path.ChangeExtension(filePath, "crm");
+
+			if (!File.Exists(filePath) || !File.Exists(textureFileName))
+			{
+				textureSet.TextureIDs = new ushort[0];
+			}
+			else
+			{
+				try
+				{
+					CDC.ExportOptions options = new CDC.ExportOptions();
+					SR1File sr1File = new SR1File(filePath, CDC.Platform.PSX, options);
+					TPages tPages = sr1File.TPages;
+
+					SR1PSXTextureFile textureFile = new SR1PSXTextureFile(textureFileName);
+					textureFile.BuildTexturesFromPolygonData(tPages, false, true, options);
+
+					textureSet.TextureIDs = new ushort[textureFile.TextureCount];
+                    for (int t = 0; t < textureFile.TextureCount; t++)
+                    {
+						textureSet.TextureIDs[t] = ushort.MaxValue;
+                    }
+
+                    TextureSetForm textureSetForm = new TextureSetForm();
+					textureSetForm.Initialize(_repository, textureSet);
+					textureSetForm.ShowDialog();
 				}
 				catch (Exception ex)
 				{
@@ -1950,14 +2098,64 @@ namespace Recombobulator
 					CheckFileExists = true,
 					CheckPathExists = true,
 					Filter =
+						"Texture Archive (*.big)|*.big|" +
 						"PNG (*.png)|*.png|" +
 						"Bitmap (*.bmp)|*.bmp",
-					DefaultExt = "png",
+					DefaultExt = "big",
 					FilterIndex = 1
 				};
 
 				if (dialog.ShowDialog() != DialogResult.OK)
 				{
+					return;
+				}
+
+				if (dialog.FilterIndex == 1)
+				{
+					Repository repository = _repository;
+
+					Invoke(new MethodInvoker(BeginImportTextures));
+
+					Thread loadingThread = new Thread((() =>
+					{
+						repository.AddAdditionalTextures(dialog.FileName);
+						_repository = repository;
+
+						Invoke(new MethodInvoker(EndImportTextures));
+					}));
+
+					loadingThread.Name = "ImportTexturesThread";
+					loadingThread.SetApartmentState(ApartmentState.STA);
+					loadingThread.Start();
+					//loadingThread.Join();
+
+					Thread progressThread = new Thread((() =>
+					{
+						do
+						{
+							// Do I really want to be locking the whole thing?
+							lock (repository)
+							{
+								_progressWindow.SetMessage(repository.RecentMessage);
+								if (repository.FilesToRead > 0)
+								{
+									_progressWindow.SetProgress((100 * repository.FilesRead) / repository.FilesToRead);
+								}
+								else
+								{
+									_progressWindow.SetProgress(0);
+								}
+							}
+							Thread.Sleep(20);
+						}
+						while (loadingThread.IsAlive);
+					}));
+
+					progressThread.Name = "ProgressThread";
+					progressThread.SetApartmentState(ApartmentState.STA);
+					progressThread.Start();
+
+					//_repository.AddAdditionalTextures(dialog.FileName);
 					return;
 				}
 

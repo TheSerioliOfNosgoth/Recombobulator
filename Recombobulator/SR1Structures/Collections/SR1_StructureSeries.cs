@@ -93,7 +93,7 @@ namespace Recombobulator.SR1Structures
 			_List.Insert(index, entry);
 		}
 
-		public void RemoveAt(T entry)
+		public void Remove(T entry)
 		{
 			_List.Remove(entry);
 		}

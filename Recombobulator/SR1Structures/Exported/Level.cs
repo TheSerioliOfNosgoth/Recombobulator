@@ -60,7 +60,7 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_Primative<int> flags = new SR1_Primative<int>();
 		public readonly SR1_Pointer<MultiSignal> startSignal = new SR1_Pointer<MultiSignal>();
 		public readonly SR1_Primative<int> numIntros = new SR1_Primative<int>();
-		public readonly SR1_Pointer<Intro> introList = new SR1_Pointer<Intro>();
+		public readonly SR1_Pointer<Intro> introList = new SR1_Pointer<Intro>(PtrHeuristic.Start);
 		public readonly SR1_Pointer<DrMoveAniTex> bgAniList = new SR1_Pointer<DrMoveAniTex>();
 		public readonly SR1_Primative<int> numHotSpots = new SR1_Primative<int>();
 		public readonly SR1_Pointer<HotSpot> hotSpotList = new SR1_Pointer<HotSpot>();
@@ -299,7 +299,11 @@ namespace Recombobulator.SR1Structures
 
 			new SR1_StructureArray<CameraKey>(numCameras.Value).ReadFromPointer(reader, cameraList);
 			new SR1_StructureArray<VGroup>(numVGroups.Value).ReadFromPointer(reader, vGroupList);
-			new SR1_StructureArray<Intro>(numIntros.Value).ReadFromPointer(reader, introList);
+
+			SR1_StructureSeries<Intro> intros = new SR1_StructureSeries<Intro>();
+			intros.SetReadCount(numIntros.Value);
+			intros.ReadFromPointer(reader, introList);
+
 			SR1_Structure objectNameListStruct = new ObjectNameList().ReadFromPointer(reader, objectNameList);
 			new SR1_StructureArray<PlanMkr>(NumberOfPlanMarkers.Value).SetPadding(4).ReadFromPointer(reader, PlanMarkerList);
 			new SR1_StructureArray<SFXMkr>(NumberOfSFXMarkers.Value).ReadFromPointer(reader, SFXMarkerList);
@@ -510,6 +514,30 @@ namespace Recombobulator.SR1Structures
 				{
 					streamUnitID.Value = file._Overrides.NewStreamUnitID;
 				}
+
+				if (introList.Offset != 0)
+				{
+					SR1_StructureSeries<Intro> intros = (SR1_StructureSeries<Intro>)file._Structures[introList.Offset];
+					List<Intro> introsToRemove = new List<Intro>();
+
+					foreach (int i in file._Overrides.IntrosToRemove)
+					{
+						introsToRemove.Add((Intro)intros[i]);
+					}
+
+					foreach (Intro intro in introsToRemove)
+					{
+						intros.Remove(intro);
+
+						if (intro.data.Offset != 0)
+						{
+							file._Structures.Remove(intro.data.Offset);
+							intro.data.Offset = 0;
+						}
+					}
+
+					numIntros.Value = intros.Count;
+				}
 			}
 
 			if (file._Version < SR1_File.Version.Retail_PC && targetVersion >= SR1_File.Version.Retail_PC)
@@ -592,6 +620,17 @@ namespace Recombobulator.SR1Structures
 				{
 					unitFlags.Value = 0;
 				}
+			}
+
+			if (file._Version < SR1_File.Version.Jan23 && targetVersion >= SR1_File.Version.Retail_PC)
+			{
+				SR1_String musicName = new SR1_String();
+				musicName.SetReadMax(true);
+				// Length is 4, so I don't need to track down everything to align.
+				musicName.SetText("ct\0", 4);
+				file._MigrationStructures.Add(End, musicName);
+				dynamicMusicName.Offset = End;
+				dynamicMusicName.Heuristic = PtrHeuristic.Migration;
 			}
 
 			/*if (Name == "city12")

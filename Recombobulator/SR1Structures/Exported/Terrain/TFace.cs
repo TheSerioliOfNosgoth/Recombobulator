@@ -16,6 +16,8 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_Primative<ushort> textoff = new SR1_Primative<ushort>().ShowAsHex(true);
 
 		public bool IsInSignalGroup = false;
+		public bool IsWater = false;
+		public bool IsSunlight = false;
 		public MultiSignal MultiSignal = null;
 		public Signal Signal = null;
 		public StreamUnitPortal Portal = null;
@@ -61,6 +63,8 @@ namespace Recombobulator.SR1Structures
 			to.textoff.Value = from.textoff.Value;
 
 			to.IsInSignalGroup = from.IsInSignalGroup;
+			to.IsWater = from.IsWater;
+			to.IsSunlight = from.IsSunlight;
 			to.MultiSignal = from.MultiSignal;
 			to.Signal = from.Signal;
 			to.Portal = from.Portal;
@@ -136,10 +140,19 @@ namespace Recombobulator.SR1Structures
 				}
 				else
 				{
-					if (file._Version < SR1_File.Version.Jan23 &&
-						(attr0.Value & 0x0200) != 0)
+					if (file._Version < SR1_File.Version.Jan23)
 					{
-						attr.Value |= 0x08;
+						if (IsWater)
+						{
+							attr.Value |= 0x08;
+						}
+						else if (IsSunlight)
+						{
+							// Effectively disable the FFace.
+							// This doesn't apply to the new tFaces created in Texture.MigrateVersion.
+							face.v2.Value = face.v1.Value;
+							Texture = null;
+						}
 					}
 
 					// Backface collision.

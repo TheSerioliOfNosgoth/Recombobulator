@@ -52,7 +52,8 @@ namespace Recombobulator
 			RemoveVertexMorphs = 8,
 			RemoveAnimatedTextures = 16,
 			ForceWaterTranslucent = 32,
-			FixCity10 = 64,
+			ForceSunlightTranslucent = 64,
+			FixCity10 = 128,
 		}
 
 		public enum TestFlags : int
@@ -71,6 +72,7 @@ namespace Recombobulator
 			public int OldStreamUnitID;
 			public int NewStreamUnitID;
 			public readonly Dictionary<int, int> NewIntroIDs = new Dictionary<int, int>();
+			public readonly List<int> IntrosToRemove = new List<int>();
 			public readonly Dictionary<string, string> NewObjectNames = new Dictionary<string, string>();
 		}
 
@@ -495,6 +497,7 @@ namespace Recombobulator
 				// These things aren't ready yet.
 				migrateFlags |= MigrateFlags.RemoveVertexMorphs;
 				migrateFlags |= MigrateFlags.ForceWaterTranslucent;
+				migrateFlags |= MigrateFlags.ForceSunlightTranslucent;
 			}
 
 			_PrimsWritten.Clear();

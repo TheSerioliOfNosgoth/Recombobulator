@@ -20,43 +20,26 @@ namespace Recombobulator
 			FileName = fileName;
 			_repository = repository;
 
-			string textureSetName = fileName;
-
 			pathTextBox.Text = _repository.MakeObjectFilePath(fileName);
 			FullPath = _repository.MakeObjectFilePath(fileName, true);
 
-			SR1Repository.Object existingObject = repository.Objects.Objects.Find(x => x.ObjectName == fileName);
-			if (existingObject != null && existingObject.TextureSet != "")
-			{
-				textureSetName = existingObject.TextureSet;
-			}
-
-			TexSet currentTextureSet = null;
 			foreach (TexSet textureSet in _repository.TextureSets.TexSets)
 			{
 				textureSetCombo.Items.Add(textureSet.Name);
-
-				if (textureSet.Name == textureSetName)
-				{
-					currentTextureSet = textureSet;
-				}
 			}
 
-			if (currentTextureSet != null)
-			{
-				textureSetCombo.SelectedIndex = currentTextureSet.Index;
-			}
-			else
-			{
-				textureSetCombo.Items.Add(fileName);
-				textureSetCombo.SelectedIndex = _repository.TextureSets.Count;
-			}
+			textureSetCombo.Items.Add("[Import]");
+			textureSetCombo.SelectedIndex = _repository.TextureSets.Count;
+			textureSetCombo.Items.Add("[Prompt]");
 		}
 
 		private void textureSetCombo_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			int selectedIndex = ((ComboBox)sender).SelectedIndex;
+
 			TextureSet = selectedIndex;
+			ImportTextures = (TextureSet == _repository.TextureSets.Count);
+			PromptTextures = (TextureSet > _repository.TextureSets.Count);
 		}
 
 		private void textureList_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)

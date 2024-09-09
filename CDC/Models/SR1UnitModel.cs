@@ -27,6 +27,7 @@ namespace CDC
 		protected UInt32 _bspTreeStart;
 		protected UInt32 _spectralVertexStart;
 		protected UInt32 _spectralColourStart;
+		protected UInt32 _aniList;
 
 		public SR1UnitModel(BinaryReader reader, DataFile dataFile, UInt32 dataStart, UInt32 modelData, String modelName, Platform ePlatform, UInt32 version, TPages tPages)
 			: base(reader, dataFile, dataStart, modelData, modelName, ePlatform, version, tPages)
@@ -82,7 +83,7 @@ namespace CDC
 			// struct _Normal *normalList;
 			uint normalStart = reader.ReadUInt32();
 			// struct DrMoveAniTex *aniList;
-			uint drMoveAniTex = _dataStart + reader.ReadUInt32();
+			_aniList = _dataStart + reader.ReadUInt32();
 			// 1999-02-16: struct _BSPNode *sbspRoot; // size=44, offset=44 
 			// 1999-07-14: long pad 
 			uint sbspRoot = reader.ReadUInt32();
@@ -134,20 +135,25 @@ namespace CDC
 			}
 
 			_trees = new Tree[_groupCount];
+		}
 
-			if (_version == SR1File.RETAIL_VERSION &&
-				_platform == Platform.PSX &&
-				drMoveAniTex != 0)
+		public override void ReadData(BinaryReader reader, ExportOptions options)
+		{
+			if (_platform == Platform.PSX &&
+				_aniList != 0)
 			{
-				reader.BaseStream.Position = drMoveAniTex;
+				reader.BaseStream.Position = _aniList;
 
 				uint aniTexSrcCount = reader.ReadUInt32();
-				uint aniTexSrcPtrStart = reader.ReadUInt32();
+				uint aniTexSrcPtrStart = (uint)reader.BaseStream.Position;
 
 				_aniTextures = new AniTextureDest[aniTexSrcCount];
 				for (int a = 0; a < aniTexSrcCount; a++)
 				{
 					reader.BaseStream.Position = aniTexSrcPtrStart + (a * 4);
+
+					uint aniTexDstStart = reader.ReadUInt32();
+					reader.BaseStream.Position = aniTexDstStart;
 
 					AniTextureDest aniTextureDst = new AniTextureDest();
 
@@ -173,16 +179,7 @@ namespace CDC
 						aniTextureSrc.clutX = reader.ReadInt16();
 						aniTextureSrc.clutY = reader.ReadInt16();
 
-						// Subtract 512 from tPageX and clutX to account for framebuffer.
-						short tPageX = (short)Math.Max(0, (int)aniTextureSrc.tPageX);
-						short clutX = (short)Math.Max(0, (int)aniTextureSrc.clutX);
-
-						// The last line is intentionally the w and h of the dest, not the source.
-						AddAniTextureTile(
-							tPageX, aniTextureSrc.tPageY,
-							clutX, aniTextureSrc.clutY,
-							aniTextureDst.tPageW, aniTextureDst.tPageH
-						);
+						AddAniTextureTile(aniTextureSrc, aniTextureDst);
 
 						aniTextureDst.frames[f] = aniTextureSrc;
 					}
@@ -190,6 +187,8 @@ namespace CDC
 					_aniTextures[a] = aniTextureDst;
 				}
 			}
+
+			base.ReadData(reader, options);
 		}
 
 		protected override void ReadVertex(BinaryReader reader, int v, ExportOptions options)
@@ -297,14 +296,25 @@ namespace CDC
 			int v3 = reader.ReadUInt16();
 
 			// unsigned char attr;
-			byte attr = reader.ReadByte();
-			if (options.IgnoreBackfacingFlagForTerrain)
-			{
-				attr &= (byte)~PolygonFlags.Backfacing;
-			}
+			ushort attr;
+			byte sortPush;
 
-			// char sortPush;
-			byte sortPush = reader.ReadByte();
+			if (_version == SR1File.PROTO_19981025_VERSION)
+			{
+				attr = reader.ReadUInt16();
+				sortPush = 0;
+			}
+			else
+			{
+				attr = reader.ReadByte();
+				if (options.IgnoreBackfacingFlagForTerrain)
+				{
+					attr &= (ushort)~PolygonFlags.Backfacing;
+				}
+
+				// char sortPush;
+				sortPush = reader.ReadByte();
+			}
 
 			// unsigned short normal;
 			ushort normal = reader.ReadUInt16();
@@ -384,17 +394,17 @@ namespace CDC
 				return;
 			}
 
-			if ((material.polygonFlags & (byte)PolygonFlags.Hidden0) != 0)
+			if ((material.polygonFlags & (ushort)PolygonFlags.Hidden0) != 0)
 			{
 				material.visible = false;
 			}
 
-			if ((material.polygonFlags & (byte)PolygonFlags.Emissive) != 0)
+			if ((material.polygonFlags & (ushort)PolygonFlags.Emissive) != 0)
 			{
 				material.isEmissive = true;
 			}
 
-			if ((material.polygonFlags & (byte)PolygonFlags.Translucent) != 0)
+			if ((material.polygonFlags & (ushort)PolygonFlags.Translucent) != 0)
 			{
 				material.isTranslucent = true;
 			}
