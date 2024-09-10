@@ -13,10 +13,6 @@ namespace Recombobulator.SR1Structures
 		protected int _ReadCount;
 		protected int _ReadLength;
 
-		public SR1_StructureSeries()
-		{
-		}
-
 		public SR1_Structure SetReadCount(int count)
 		{
 			_UseReadCount = true;
@@ -36,8 +32,6 @@ namespace Recombobulator.SR1Structures
 
 			return this;
 		}
-
-
 
 		public SR1_Structure ReadFromPointer(SR1_Reader reader, SR1_PointerBase startPointer, int count)
 		{
@@ -154,7 +148,8 @@ namespace Recombobulator.SR1Structures
 			long endPosition = reader.BaseStream.Position + _ReadLength;
 			int i = 0;
 
-			if (_UseReadCount || _UseReadLength)
+			bool readPreset = (_UseReadCount || _UseReadLength);
+			if (readPreset)
 			{
 				_List.Clear();
 			}
@@ -172,7 +167,11 @@ namespace Recombobulator.SR1Structures
 					break;
 				}
 
-				bool readPreset = (_UseReadCount || _UseReadLength);
+				if (!readPreset && i >= _List.Count)
+				{
+					break;
+				}
+
 				long oldPosition = reader.BaseStream.Position;
 				T tempEntry = (readPreset) ? new T() : (T)_List[i];
 				T newEntry = CreateReplacementObject(reader, in tempEntry);

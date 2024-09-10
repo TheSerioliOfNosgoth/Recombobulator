@@ -263,7 +263,9 @@ namespace Recombobulator.SR1Structures
 
 			if (reader.File._Version < SR1_File.Version.Jan23)
 			{
-				new SR1_StructureArray<VMObject>(numVMObjects.Value).ReadFromPointer(reader, vmobjectList);
+				var vmoList = new SR1_StructureSeries<VMObject>();
+				vmoList.SetReadCount(numVMObjects.Value);
+				ReadFromPointer(reader, vmobjectList);
 			}
 			else
 			{
