@@ -91,25 +91,26 @@ namespace Recombobulator.SR1Structures
 			}
 			else
 			{
-				if (numVMOffsetTables.Value > 0)
+				var offsetTables = new SR1_PointerSeries<VMMoveOffsetTable>();
+				offsetTables.SetReadCount(numVMOffsetTables.Value);
+				offsetTables.ReadFromPointer(reader, vmoffsetTableList);
+				foreach (SR1_PointerBase tablePtr in offsetTables)
 				{
-					var offsetTables = new SR1_PointerSeries<VMMoveOffsetTable>();
-					offsetTables.SetReadCount(numVMOffsetTables.Value);
+					VMMoveOffsetTable moveOffsetTable = new VMMoveOffsetTable();
+					moveOffsetTable.Align = 4;
+					moveOffsetTable.ReadFromPointer(reader, tablePtr);
 				}
 
-				if (numVMVertices.Value > 0)
-				{
-					var vertices = new SR1_StructureSeries<VMMoveVertex>();
-					vertices.SetReadCount(numVMVertices.Value);
-				}
+				var vertices = new SR1_StructureSeries<VMMoveVertex>();
+				vertices.SetReadCount(numVMVertices.Value);
+				vertices.ReadFromPointer(reader, vmvertexList);
 
-				if (numVMInterpolated.Value > 0)
-				{
-					var interps = new SR1_StructureSeries<VMInterpolated>();
-					interps.SetReadCount(numVMInterpolated.Value);
-				}
+				var interps = new SR1_StructureSeries<VMInterpolated>();
+				interps.SetReadCount(numVMInterpolated.Value);
+				interps.ReadFromPointer(reader, vminterpolatedList);
 
-				// vmObjectData.VMObjectNames.Add(new SR1_String(12));
+				var vmoName = new SR1_String(12);
+				vmoName.ReadFromPointer(reader, name);
 			}
 		}
 
