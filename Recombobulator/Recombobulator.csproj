@@ -308,7 +308,6 @@
     <Compile Include="SR1Structures\Exported\Geometry\VecS.cs" />
     <Compile Include="SR1Structures\Exported\VMObject\VMVertex.cs" />
     <Compile Include="SR1Structures\Exported\VMObject\VMOffsetTable.cs" />
-    <Compile Include="SR1Structures\Exported\VMObject\VMObjectList.cs" />
     <Compile Include="SR1Structures\Pointers\SR1_PointerBase.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>

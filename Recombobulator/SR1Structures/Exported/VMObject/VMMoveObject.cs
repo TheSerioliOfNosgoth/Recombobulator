@@ -91,11 +91,25 @@ namespace Recombobulator.SR1Structures
 			}
 			else
 			{
-				VMObjectList vmObjectData = (VMObjectList)parent.Parent;
-				if (numVMOffsetTables.Value > 0) vmObjectData.VMOffsetTableLists.Add(new SR1_PointerSeries<VMMoveOffsetTable>().SetReadCount(numVMOffsetTables.Value));
-				if (numVMVertices.Value > 0) vmObjectData.VMVertexLists.Add(new SR1_StructureSeries<VMMoveVertex>().SetReadCount(numVMVertices.Value));
-				if (numVMInterpolated.Value > 0) vmObjectData.VMInterpolatedLists.Add(new SR1_StructureSeries<VMInterpolated>().SetReadCount(numVMInterpolated.Value));
-				vmObjectData.VMObjectNames.Add(new SR1_String(12));
+				if (numVMOffsetTables.Value > 0)
+				{
+					var offsetTables = new SR1_PointerSeries<VMMoveOffsetTable>();
+					offsetTables.SetReadCount(numVMOffsetTables.Value);
+				}
+
+				if (numVMVertices.Value > 0)
+				{
+					var vertices = new SR1_StructureSeries<VMMoveVertex>();
+					vertices.SetReadCount(numVMVertices.Value);
+				}
+
+				if (numVMInterpolated.Value > 0)
+				{
+					var interps = new SR1_StructureSeries<VMInterpolated>();
+					interps.SetReadCount(numVMInterpolated.Value);
+				}
+
+				// vmObjectData.VMObjectNames.Add(new SR1_String(12));
 			}
 		}
 
