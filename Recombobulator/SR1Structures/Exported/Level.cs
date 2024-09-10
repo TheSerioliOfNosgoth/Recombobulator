@@ -261,16 +261,9 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
-			if (reader.File._Version < SR1_File.Version.Jan23)
-			{
-				var vmoList = new SR1_StructureSeries<VMObject>();
-				vmoList.SetReadCount(numVMObjects.Value);
-				ReadFromPointer(reader, vmobjectList);
-			}
-			else
-			{
-				new VMObjectList(numVMObjects.Value).ReadFromPointer(reader, vmobjectList);
-			}
+			var vmoList = new SR1_StructureSeries<VMObject>();
+			vmoList.SetReadCount(numVMObjects.Value);
+			ReadFromPointer(reader, vmobjectList);
 
 			// Why only before May? They still seem supported.
 			if (reader.File._Version <= SR1_File.Version.May12)
