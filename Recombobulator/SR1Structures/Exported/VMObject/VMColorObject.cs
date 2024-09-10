@@ -61,21 +61,24 @@ namespace Recombobulator.SR1Structures
 
 				if (numVMOffsets.Value > 0)
 				{
-					var offsets = new SR1_StructureArray<VMColorOffset>(numVMOffsets.Value);
+					var offsets = new SR1_StructureSeries<VMColorOffset>();
+					offsets.SetReadCount(numVMOffsets.Value);
 					offsets.ReadFromPointer(reader, vmoffsetList);
 					end = Math.Max(end, offsets.End);
 				}
 
 				if (numVMVertices.Value > 0)
 				{
-					var vertices = new SR1_StructureArray<VMColorVertex>(numVMVertices.Value);
+					var vertices = new SR1_StructureSeries<VMColorVertex>();
+					vertices.SetReadCount(numVMVertices.Value);
 					vertices.ReadFromPointer(reader, vmvertexList);
 					end = Math.Max(end, vertices.End);
 				}
 
 				if (numVMInterpolated.Value > 0)
 				{
-					var interps = new SR1_StructureArray<VMInterpolated>(numVMInterpolated.Value);
+					var interps = new SR1_StructureSeries<VMInterpolated>();
+					interps.SetReadCount(numVMInterpolated.Value);
 					interps.ReadFromPointer(reader, vminterpolatedList);
 					end = Math.Max(end, interps.End);
 				}
@@ -89,9 +92,9 @@ namespace Recombobulator.SR1Structures
 			else
 			{
 				VMObjectList vmObjectData = (VMObjectList)parent.Parent;
-				if (numVMOffsetTables.Value > 0) vmObjectData.VMOffsetTableLists.Add(new SR1_PointerArray<VMColorOffsetTable>(numVMOffsetTables.Value, false));
-				if (numVMVertices.Value > 0) vmObjectData.VMVertexLists.Add(new SR1_StructureArray<VMColorVertex>(numVMVertices.Value));
-				if (numVMInterpolated.Value > 0) vmObjectData.VMInterpolatedLists.Add(new SR1_StructureArray<VMInterpolated>(numVMInterpolated.Value));
+				if (numVMOffsetTables.Value > 0) vmObjectData.VMOffsetTableLists.Add(new SR1_PointerSeries<VMColorOffsetTable>().SetReadCount(numVMOffsetTables.Value));
+				if (numVMVertices.Value > 0) vmObjectData.VMVertexLists.Add(new SR1_StructureSeries<VMColorVertex>().SetReadCount(numVMVertices.Value));
+				if (numVMInterpolated.Value > 0) vmObjectData.VMInterpolatedLists.Add(new SR1_StructureSeries<VMInterpolated>().SetReadCount(numVMInterpolated.Value));
 				vmObjectData.VMObjectNames.Add(new SR1_String(12));
 			}
 		}

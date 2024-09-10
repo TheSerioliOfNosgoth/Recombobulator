@@ -8,14 +8,14 @@ namespace Recombobulator.SR1Structures
 	{
 		int _NumObjects;
 
-		public readonly SR1_StructureList<VMObject> VMObjects = new SR1_StructureList<VMObject>();
-		public readonly SR1_StructureList<SR1_PointerArray<VMOffsetTable>> VMOffsetTableLists = new SR1_StructureList<SR1_PointerArray<VMOffsetTable>>();
-		public readonly SR1_StructureList<SR1_StructureArray<VMVertex>> VMVertexLists = new SR1_StructureList<SR1_StructureArray<VMVertex>>();
-		public readonly SR1_StructureList<SR1_StructureArray<VMInterpolated>> VMInterpolatedLists = new SR1_StructureList<SR1_StructureArray<VMInterpolated>>();
+		public readonly SR1_StructureSeries<VMObject> VMObjects = new SR1_StructureSeries<VMObject>();
+		public readonly SR1_StructureList<SR1_PointerSeries<VMOffsetTable>> VMOffsetTableLists = new SR1_StructureList<SR1_PointerSeries<VMOffsetTable>>();
+		public readonly SR1_StructureList<SR1_StructureSeries<VMVertex>> VMVertexLists = new SR1_StructureList<SR1_StructureSeries<VMVertex>>();
+		public readonly SR1_StructureList<SR1_StructureSeries<VMInterpolated>> VMInterpolatedLists = new SR1_StructureList<SR1_StructureSeries<VMInterpolated>>();
 		private SR1_PrimativeArray<byte> pad0 = new SR1_PrimativeArray<byte>(0);
-		public readonly SR1_StructureList<SR1_String> VMObjectNames = new SR1_StructureList<SR1_String>();
+		public readonly SR1_StructureSeries<SR1_String> VMObjectNames = new SR1_StructureSeries<SR1_String>();
 		private SR1_PrimativeArray<byte> pad1 = new SR1_PrimativeArray<byte>(0);
-		public readonly SR1_StructureList<VMOffsetTable> VMOffsetTables = new SR1_StructureList<VMOffsetTable>();
+		public readonly SR1_StructureSeries<VMOffsetTable> VMOffsetTables = new SR1_StructureSeries<VMOffsetTable>();
 
 		public VMObjectList(int numObjects)
 		{
@@ -24,11 +24,7 @@ namespace Recombobulator.SR1Structures
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
-			for (int i = 0; i < _NumObjects; i++)
-			{
-				VMObjects.Add(new VMObject());
-			}
-
+			VMObjects.SetReadCount(_NumObjects);
 			VMObjects.Read(reader, this, "VMObjects");
 			VMOffsetTableLists.Read(reader, this, "VMOffsetTableLists");
 			VMVertexLists.Read(reader, this, "VMVertexLists");
@@ -53,7 +49,7 @@ namespace Recombobulator.SR1Structures
 			pad1.Read(reader, this, "pad1");
 
 			SortedDictionary<uint, SR1_PointerBase> dictionary = new SortedDictionary<uint, SR1_PointerBase>();
-			foreach (SR1_PointerArray tableList in VMOffsetTableLists)
+			foreach (SR1_StructureSeries tableList in VMOffsetTableLists)
 			{
 				foreach (SR1_PointerBase tablePointer in tableList)
 				{
