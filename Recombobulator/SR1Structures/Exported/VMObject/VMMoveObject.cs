@@ -6,27 +6,27 @@ namespace Recombobulator.SR1Structures
 {
 	class VMMoveObject : VMObject
 	{
-		SR1_Primative<int> flags0 = new SR1_Primative<int>();
-		SR1_Primative<ushort> flags = new SR1_Primative<ushort>();
-		SR1_Primative<short> bspIdx = new SR1_Primative<short>();
-		SR1_Primative<short> materialIdx = new SR1_Primative<short>();
-		SR1_Primative<short> spectralIdx = new SR1_Primative<short>();
-		SR1_Primative<short> currentIdx = new SR1_Primative<short>();
-		SR1_Primative<short> timeScale = new SR1_Primative<short>();
-		SR1_Primative<int> timer = new SR1_Primative<int>();
-		Position position = new Position();
-		SR1_Primative<short> radius = new SR1_Primative<short>();
-		SR1_Primative<int> radiusSquared = new SR1_Primative<int>();
-		SR1_Primative<int> numVMOffsets = new SR1_Primative<int>();
-		SR1_Pointer<VMMoveOffset> vmoffsetList = new SR1_Pointer<VMMoveOffset>();
-		SR1_Primative<int> numVMOffsetTables = new SR1_Primative<int>();
-		SR1_PointerArrayPointer<VMMoveOffsetTable> vmoffsetTableList = new SR1_PointerArrayPointer<VMMoveOffsetTable>();
-		SR1_Pointer<VMMoveOffsetTable> curVMOffsetTable = new SR1_Pointer<VMMoveOffsetTable>();
-		SR1_Primative<int> numVMVertices = new SR1_Primative<int>();
-		SR1_Pointer<VMMoveVertex> vmvertexList = new SR1_Pointer<VMMoveVertex>();
-		SR1_Primative<int> numVMInterpolated = new SR1_Primative<int>();
-		SR1_Pointer<VMInterpolated> vminterpolatedList = new SR1_Pointer<VMInterpolated>();
-		SR1_Pointer<SR1_String> name = new SR1_Pointer<SR1_String>();
+		public readonly SR1_Primative<int> flags0 = new SR1_Primative<int>();
+		public readonly SR1_Primative<ushort> flags = new SR1_Primative<ushort>();
+		public readonly SR1_Primative<short> bspIdx = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> materialIdx = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> spectralIdx = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> currentIdx = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> timeScale = new SR1_Primative<short>();
+		public readonly SR1_Primative<int> timer = new SR1_Primative<int>();
+		public readonly Position position = new Position();
+		public readonly SR1_Primative<short> radius = new SR1_Primative<short>();
+		public readonly SR1_Primative<int> radiusSquared = new SR1_Primative<int>();
+		public readonly SR1_Primative<int> numVMOffsets = new SR1_Primative<int>();
+		public readonly SR1_Pointer<VMMoveOffset> vmoffsetList = new SR1_Pointer<VMMoveOffset>();
+		public readonly SR1_Primative<int> numVMOffsetTables = new SR1_Primative<int>();
+		public readonly SR1_PointerArrayPointer<VMMoveOffsetTable> vmoffsetTableList = new SR1_PointerArrayPointer<VMMoveOffsetTable>();
+		public readonly SR1_Pointer<VMMoveOffsetTable> curVMOffsetTable = new SR1_Pointer<VMMoveOffsetTable>();
+		public readonly SR1_Primative<int> numVMVertices = new SR1_Primative<int>();
+		public readonly SR1_Pointer<VMMoveVertex> vmvertexList = new SR1_Pointer<VMMoveVertex>();
+		public readonly SR1_Primative<int> numVMInterpolated = new SR1_Primative<int>();
+		public readonly SR1_Pointer<VMInterpolated> vminterpolatedList = new SR1_Pointer<VMInterpolated>();
+		public readonly SR1_Pointer<SR1_String> name = new SR1_Pointer<SR1_String>();
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
