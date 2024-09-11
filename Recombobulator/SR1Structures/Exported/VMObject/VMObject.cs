@@ -5,7 +5,7 @@ namespace Recombobulator.SR1Structures
 {
 	public class VMObject : SR1_Structure
 	{
-		SR1_Primative<ushort> flags = new SR1_Primative<ushort>();
+		public readonly SR1_Primative<ushort> flags = new SR1_Primative<ushort>();
 
 		public object CreateReplacementObject()
 		{
