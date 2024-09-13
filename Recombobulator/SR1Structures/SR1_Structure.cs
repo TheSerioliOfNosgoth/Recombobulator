@@ -426,5 +426,17 @@ namespace Recombobulator.SR1Structures
 
 			return "";
 		}
+
+		public T[] MakeArray<T>(int count) where T : new()
+		{
+			T[] array = new T[count];
+
+			for (int i = 0; i < count; i++)
+			{
+				array[i] = new T();
+			}
+
+			return array;
+		}
 	}
 }

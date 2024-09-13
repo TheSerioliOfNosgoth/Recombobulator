@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class VMColorOffset : SR1_Structure
+	class VMColorOffset : VMOffset
 	{
 		SR1_Primative<short> dr0 = new SR1_Primative<short>();
 		SR1_Primative<short> dg0 = new SR1_Primative<short>();

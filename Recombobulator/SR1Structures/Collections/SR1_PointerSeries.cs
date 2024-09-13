@@ -27,6 +27,17 @@ namespace Recombobulator.SR1Structures
 			return this;
 		}
 
+		public SR1_Structure SetReadQueue()
+		{
+			_NullTerminated = false;
+			_UseReadCount = false;
+			_UseReadLength = false;
+			_ReadCount = 0;
+			_ReadLength = 0;
+
+			return this;
+		}
+
 		public SR1_Structure SetReadCount(int count)
 		{
 			_NullTerminated = false;
@@ -93,17 +104,22 @@ namespace Recombobulator.SR1Structures
 			return this;
 		}
 
-		public void Add(SR1_Pointer<T> entry)
+		public void Add<U>(SR1_Pointer<U> entry) where U : T, new()
 		{
 			_List.Add(entry);
 		}
 
-		public void InsertAt(int index, SR1_Pointer<T> entry)
+		public void Add<U>(SR1_Pointer<U>[] entries) where U : T, new()
+		{
+			_List.AddRange(entries);
+		}
+
+		public void InsertAt<U>(int index, SR1_Pointer<U> entry) where U : T, new()
 		{
 			_List.Insert(index, entry);
 		}
 
-		public void Remove(SR1_Pointer<T> entry)
+		public void Remove<U>(SR1_Pointer<U> entry) where U : T, new()
 		{
 			_List.Remove(entry);
 		}
@@ -157,7 +173,7 @@ namespace Recombobulator.SR1Structures
 				}
 
 				long oldPosition = reader.BaseStream.Position;
-				SR1_Pointer<T> newEntry = (readPreset) ? new SR1_Pointer<T>() : (SR1_Pointer<T>)_List[i];
+				SR1_PointerBase newEntry = (readPreset) ? new SR1_Pointer<T>() : _List[i];
 
 				if (_UseReadLength &&
 					reader.BaseStream.Position > endPosition)

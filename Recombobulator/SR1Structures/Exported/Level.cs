@@ -1,6 +1,7 @@
 ﻿using CDC;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Recombobulator.SR1Structures
 {
@@ -261,9 +262,7 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
-			var vmoList = new SR1_StructureSeries<VMObject>();
-			vmoList.SetReadCount(numVMObjects.Value);
-			vmoList.ReadFromPointer(reader, vmobjectList);
+			ReadVMOReferences(reader);
 
 			// Why only before May? They still seem supported.
 			if (reader.File._Version <= SR1_File.Version.May12)
@@ -380,6 +379,191 @@ namespace Recombobulator.SR1Structures
 			{
                 SR1_StructureArray<MultiSpline> multiSplines = new SR1_StructureArray<MultiSpline>(reader.MultiSplineDictionary.Count);
                 multiSplines.ReadFromPointer(reader, reader.MultiSplineDictionary.Values[0]);
+			}
+		}
+
+		private void ReadVMOReferences(SR1_Reader reader)
+		{
+			var vmObjects = new SR1_StructureSeries<VMObject>();
+			vmObjects.SetReadCount(numVMObjects.Value);
+			vmObjects.ReadFromPointer(reader, vmobjectList);
+
+			var vmOffsetTablePtrs = new SR1_PointerSeries<VMOffsetTable>();
+			var vmOffsetTables = new SR1_StructureSeries<VMOffsetTable>();
+			var vmOffsets = new SR1_StructureSeries<VMOffset>();
+			var vmVertices = new SR1_StructureSeries<VMVertex>();
+			var vmInterps = new SR1_StructureSeries<VMInterpolated>();
+			var vmObjectNames = new SR1_StructureSeries<SR1_String>();
+
+			uint vmOffsetTablePtrsStart = 0;
+			uint vmOffsetTablesStart = 0;
+			uint vmOffsetsStart = 0;
+			uint vmVerticesStart = 0;
+			uint vmInterpsStart = 0;
+			uint vmObjectNamesStart = 0;
+
+			#region BuildArrays
+
+			foreach (VMObject vmObject in vmObjects)
+			{
+				if ((vmObject.flags.Value & 8) == 0)
+				{
+					var colorObject = vmObject as VMColorObject;
+					if (reader.File._Version < SR1_File.Version.Jan23)
+					{
+						if (vmOffsetsStart == 0)
+						{
+							vmOffsetsStart = colorObject.vmoffsetList.Offset;
+						}
+
+						var colorOffsets = MakeArray<VMColorOffset>(colorObject.numVMOffsets.Value);
+						vmOffsets.Add(colorOffsets);
+					}
+					else
+					{
+						if (vmOffsetTablePtrsStart == 0)
+						{
+							vmOffsetTablePtrsStart = colorObject.vmoffsetTableList.Offset;
+						}
+
+						var colorOffsetTables = MakeArray<SR1_Pointer<VMColorOffsetTable>>(colorObject.numVMOffsetTables.Value);
+						vmOffsetTablePtrs.Add(colorOffsetTables);
+					}
+
+					if (vmVerticesStart == 0)
+					{
+						vmVerticesStart = colorObject.vmvertexList.Offset;
+					}
+
+					var colorVertices = MakeArray<VMColorVertex>(colorObject.numVMVertices.Value);
+					vmVertices.Add(colorVertices);
+
+					if (vmInterpsStart == 0)
+					{
+						vmInterpsStart = colorObject.vminterpolatedList.Offset;
+					}
+
+					var colorInterps = MakeArray<VMInterpolated>(colorObject.numVMInterpolated.Value);
+					vmInterps.Add(colorInterps);
+
+					if (vmObjectNamesStart == 0)
+					{
+						vmObjectNamesStart = colorObject.name.Offset;
+					}
+
+					var vmObjectName = new SR1_String(12);
+					vmObjectNames.Add(vmObjectName);
+				}
+				else
+				{
+					var moveObject = vmObject as VMMoveObject;
+					if (reader.File._Version < SR1_File.Version.Jan23)
+					{
+						if (vmOffsetsStart == 0)
+						{
+							vmOffsetsStart = moveObject.vmoffsetList.Offset;
+						}
+
+						var moveOffsets = MakeArray<VMMoveOffset>(moveObject.numVMOffsets.Value);
+						vmOffsets.Add(moveOffsets);
+					}
+					else
+					{
+						if (vmOffsetTablePtrsStart == 0)
+						{
+							vmOffsetTablePtrsStart = moveObject.vmoffsetTableList.Offset;
+						}
+
+						var moveOffsetTables = MakeArray<SR1_Pointer<VMMoveOffsetTable>>(moveObject.numVMOffsetTables.Value);
+						vmOffsetTablePtrs.Add(moveOffsetTables);
+					}
+
+					if (vmVerticesStart == 0)
+					{
+						vmVerticesStart = moveObject.vmvertexList.Offset;
+					}
+
+					var moveVertices = MakeArray<VMMoveVertex>(moveObject.numVMVertices.Value);
+					vmVertices.Add(moveVertices);
+
+					if (vmInterpsStart == 0)
+					{
+						vmInterpsStart = moveObject.vminterpolatedList.Offset;
+					}
+
+					var moveInterps = MakeArray<VMInterpolated>(moveObject.numVMInterpolated.Value);
+					vmInterps.Add(moveInterps);
+
+					if (vmObjectNamesStart == 0)
+					{
+						vmObjectNamesStart = moveObject.name.Offset;
+					}
+
+					var vmObjectName = new SR1_String(12);
+					vmObjectNames.Add(vmObjectName);
+				}
+			}
+
+			#endregion
+
+			#region ReadArrays
+
+			if (vmOffsetsStart != 0 && vmOffsets.Count > 0)
+			{
+				reader.BaseStream.Position = vmOffsetsStart;
+				vmOffsets.Read(reader, null, "");
+			}
+
+			if (vmOffsetTablePtrsStart != 0 && vmOffsetTablePtrs.Count > 0)
+			{
+				reader.BaseStream.Position = vmOffsetTablePtrsStart;
+				vmOffsetTablePtrs.SetReadQueue();
+				vmOffsetTablePtrs.Read(reader, null, "");
+			}
+
+			if (vmVerticesStart != 0 && vmVertices.Count > 0)
+			{
+				reader.BaseStream.Position = vmVerticesStart;
+				vmVertices.Read(reader, null, "");
+			}
+
+			if (vmInterpsStart != 0 && vmInterps.Count > 0)
+			{
+				reader.BaseStream.Position = vmInterpsStart;
+				vmInterps.Read(reader, null, "");
+			}
+
+			if (vmObjectNamesStart != 0 && vmObjectNames.Count > 0)
+			{
+				reader.BaseStream.Position = vmObjectNamesStart;
+				vmObjectNames.Align = 4;
+				vmObjectNames.Read(reader, null, "");
+			}
+
+			#endregion
+
+			SortedDictionary<uint, VMOffsetTable> vmOffsetTableDict = new SortedDictionary<uint, VMOffsetTable>();
+			foreach (var vmTablePtr in vmOffsetTablePtrs)
+			{
+				if (!vmOffsetTableDict.ContainsKey(vmTablePtr.Offset))
+				{
+					VMOffsetTable vmTable = (VMOffsetTable)vmTablePtr.CreateObject(null, reader);
+					vmOffsetTableDict.Add(vmTablePtr.Offset, vmTable);
+				}
+			}
+
+			vmOffsetTables.Add(vmOffsetTableDict.Values.ToArray());
+
+			if (vmOffsetTables.Count > 0)
+			{
+				vmOffsetTablesStart = vmOffsetTableDict.Keys.First();
+			}
+
+			if (vmOffsetTablesStart != 0)
+			{
+				reader.BaseStream.Position = vmOffsetTablesStart;
+				vmOffsetTables.Align = 4;
+				vmOffsetTables.Read(reader, null, "");
 			}
 		}
 
