@@ -6,9 +6,6 @@ namespace Recombobulator.SR1Structures
 {
 	class VMColorObject : VMObject
 	{
-		public readonly SR1_Primative<int> flags0 = new SR1_Primative<int>();
-		// flags is inherited.
-		// public readonly SR1_Primative<ushort> flags = new SR1_Primative<ushort>();
 		public readonly SR1_Primative<short> bspIdx = new SR1_Primative<short>();
 		public readonly SR1_Primative<short> materialIdx = new SR1_Primative<short>();
 		public readonly SR1_Primative<short> spectralIdx = new SR1_Primative<short>();
@@ -31,8 +28,8 @@ namespace Recombobulator.SR1Structures
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
-			flags0.Read(reader, this, "flags", SR1_File.Version.First, SR1_File.Version.Jan23);
-			flags.Read(reader, this, "flags", SR1_File.Version.Jan23, SR1_File.Version.Next);
+			base.ReadMembers(reader, parent);
+
 			bspIdx.Read(reader, this, "bspIdx", SR1_File.Version.Jan23, SR1_File.Version.Next);
 			materialIdx.Read(reader, this, "materialIdx", SR1_File.Version.Jan23, SR1_File.Version.Next);
 			spectralIdx.Read(reader, this, "spectralIdx", SR1_File.Version.Jan23, SR1_File.Version.Next);
@@ -60,8 +57,8 @@ namespace Recombobulator.SR1Structures
 
 		public override void WriteMembers(SR1_Writer writer)
 		{
-			flags0.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
-			flags.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
+			base.WriteMembers(writer);
+
 			bspIdx.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			materialIdx.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			spectralIdx.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);

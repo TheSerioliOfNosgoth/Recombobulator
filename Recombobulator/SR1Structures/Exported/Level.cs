@@ -404,20 +404,21 @@ namespace Recombobulator.SR1Structures
 
 			#region BuildArrays
 
+			SortedDictionary<uint, VMOffsetTable> vmOffsetTableDict = new SortedDictionary<uint, VMOffsetTable>();
+
 			foreach (VMObject vmObject in vmObjects)
 			{
-				if ((vmObject.flags.Value & 8) == 0)
+				if (vmObject.IsColorObject)
 				{
 					var colorObject = vmObject as VMColorObject;
 					if (reader.File._Version < SR1_File.Version.Jan23)
 					{
-						if (vmOffsetsStart == 0)
+						var colorOffsets = new VMColorOffsetTable(colorObject.numVMOffsets.Value);
+						uint listStart = colorObject.vmoffsetList.Offset;
+						if (!vmOffsetTableDict.ContainsKey(listStart))
 						{
-							vmOffsetsStart = colorObject.vmoffsetList.Offset;
+							vmOffsetTableDict.Add(listStart, colorOffsets);
 						}
-
-						var colorOffsets = MakeArray<VMColorOffset>(colorObject.numVMOffsets.Value);
-						vmOffsets.Add(colorOffsets);
 					}
 					else
 					{
@@ -459,13 +460,12 @@ namespace Recombobulator.SR1Structures
 					var moveObject = vmObject as VMMoveObject;
 					if (reader.File._Version < SR1_File.Version.Jan23)
 					{
-						if (vmOffsetsStart == 0)
+						var moveOffsets = new VMMoveOffsetTable(moveObject.numVMOffsets.Value);
+						uint listStart = moveObject.vmoffsetList.Offset;
+						if (!vmOffsetTableDict.ContainsKey(listStart))
 						{
-							vmOffsetsStart = moveObject.vmoffsetList.Offset;
+							vmOffsetTableDict.Add(listStart, moveOffsets);
 						}
-
-						var moveOffsets = MakeArray<VMMoveOffset>(moveObject.numVMOffsets.Value);
-						vmOffsets.Add(moveOffsets);
 					}
 					else
 					{
@@ -519,6 +519,15 @@ namespace Recombobulator.SR1Structures
 				reader.BaseStream.Position = vmOffsetTablePtrsStart;
 				vmOffsetTablePtrs.SetReadQueue();
 				vmOffsetTablePtrs.Read(reader, null, "");
+
+				foreach (var vmTablePtr in vmOffsetTablePtrs)
+				{
+					if (!vmOffsetTableDict.ContainsKey(vmTablePtr.Offset))
+					{
+						VMOffsetTable vmTable = (VMOffsetTable)vmTablePtr.CreateObject(null, reader);
+						vmOffsetTableDict.Add(vmTablePtr.Offset, vmTable);
+					}
+				}
 			}
 
 			if (vmVerticesStart != 0 && vmVertices.Count > 0)
@@ -541,16 +550,6 @@ namespace Recombobulator.SR1Structures
 			}
 
 			#endregion
-
-			SortedDictionary<uint, VMOffsetTable> vmOffsetTableDict = new SortedDictionary<uint, VMOffsetTable>();
-			foreach (var vmTablePtr in vmOffsetTablePtrs)
-			{
-				if (!vmOffsetTableDict.ContainsKey(vmTablePtr.Offset))
-				{
-					VMOffsetTable vmTable = (VMOffsetTable)vmTablePtr.CreateObject(null, reader);
-					vmOffsetTableDict.Add(vmTablePtr.Offset, vmTable);
-				}
-			}
 
 			vmOffsetTables.Add(vmOffsetTableDict.Values.ToArray());
 
