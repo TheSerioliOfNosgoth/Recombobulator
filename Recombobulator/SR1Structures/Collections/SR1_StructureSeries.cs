@@ -82,6 +82,11 @@ namespace Recombobulator.SR1Structures
 			_List.Add(entry);
 		}
 
+		public void Add(T[] entries)
+		{
+			_List.AddRange(entries);
+		}
+
 		public void InsertAt(int index, T entry)
 		{
 			_List.Insert(index, entry);
@@ -100,8 +105,8 @@ namespace Recombobulator.SR1Structures
 		protected T CreateReplacementObject(SR1_Reader reader, in T original)
 		{
 			Type type = original.GetType();
-			T temp = new T();
-			T replacement = new T();
+			T temp = (T)Activator.CreateInstance(type);
+			T replacement = original;
 			long oldPosition = reader.BaseStream.Position;
 
 			if (type == typeof(EventBasicObject))
@@ -202,6 +207,11 @@ namespace Recombobulator.SR1Structures
 		public override string GetTypeName(bool includeDimensions)
 		{
 			string typeName = typeof(T).Name;
+
+			if (typeof(T) == typeof(SR1_String))
+			{
+				typeName = GetPrimativeTypeName(Type.GetTypeCode(typeof(char))) + "*";
+			}
 
 			if (_List.Count == 0)
 			{

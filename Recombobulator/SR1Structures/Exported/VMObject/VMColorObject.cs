@@ -7,7 +7,8 @@ namespace Recombobulator.SR1Structures
 	class VMColorObject : VMObject
 	{
 		public readonly SR1_Primative<int> flags0 = new SR1_Primative<int>();
-		public readonly SR1_Primative<ushort> flags = new SR1_Primative<ushort>();
+		// flags is inherited.
+		// public readonly SR1_Primative<ushort> flags = new SR1_Primative<ushort>();
 		public readonly SR1_Primative<short> bspIdx = new SR1_Primative<short>();
 		public readonly SR1_Primative<short> materialIdx = new SR1_Primative<short>();
 		public readonly SR1_Primative<short> spectralIdx = new SR1_Primative<short>();
@@ -55,63 +56,6 @@ namespace Recombobulator.SR1Structures
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
 		{
-			if (reader.File._Version < SR1_File.Version.Jan23)
-			{
-				uint end = 0;
-
-				if (numVMOffsets.Value > 0)
-				{
-					var offsets = new SR1_StructureSeries<VMColorOffset>();
-					offsets.SetReadCount(numVMOffsets.Value);
-					offsets.ReadFromPointer(reader, vmoffsetList);
-					end = Math.Max(end, offsets.End);
-				}
-
-				if (numVMVertices.Value > 0)
-				{
-					var vertices = new SR1_StructureSeries<VMColorVertex>();
-					vertices.SetReadCount(numVMVertices.Value);
-					vertices.ReadFromPointer(reader, vmvertexList);
-					end = Math.Max(end, vertices.End);
-				}
-
-				if (numVMInterpolated.Value > 0)
-				{
-					var interps = new SR1_StructureSeries<VMInterpolated>();
-					interps.SetReadCount(numVMInterpolated.Value);
-					interps.ReadFromPointer(reader, vminterpolatedList);
-					end = Math.Max(end, interps.End);
-				}
-
-				if ((end % 4) != 0)
-				{
-					reader.BaseStream.Position = end;
-					new SR1_Primative<ushort>().Read(reader, null, "");
-				}
-			}
-			else
-			{
-				var offsetTables = new SR1_PointerSeries<VMColorOffsetTable>();
-				offsetTables.SetReadCount(numVMOffsetTables.Value);
-				offsetTables.ReadFromPointer(reader, vmoffsetTableList);
-				foreach (SR1_PointerBase tablePtr in offsetTables)
-				{
-					VMColorOffsetTable colorOffsetTable = new VMColorOffsetTable();
-					colorOffsetTable.Align = 4;
-					colorOffsetTable.ReadFromPointer(reader, tablePtr);
-				}
-
-				var vertices = new SR1_StructureSeries<VMColorVertex>();
-				vertices.SetReadCount(numVMVertices.Value);
-				vertices.ReadFromPointer(reader, vmvertexList);
-
-				var interps = new SR1_StructureSeries<VMInterpolated>();
-				interps.SetReadCount(numVMInterpolated.Value);
-				interps.ReadFromPointer(reader, vminterpolatedList);
-
-				var vmoName = new SR1_String(12);
-				vmoName.ReadFromPointer(reader, name);
-			}
 		}
 
 		public override void WriteMembers(SR1_Writer writer)
