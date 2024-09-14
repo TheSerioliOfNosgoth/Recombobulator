@@ -123,6 +123,14 @@ namespace Recombobulator.SR1Structures
 		LightList lightListStruct1 = new LightList();
 		SR1_PrimativeArray<byte> push6Padding = new SR1_PrimativeArray<byte>(8);
 
+		SR1_StructureSeries<VMObject> _vmObjects = null;
+		SR1_PointerSeries<VMOffsetTable> _vmOffsetTablePtrs = null;
+		SR1_StructureSeries<VMOffsetTable> _vmOffsetTables = null;
+		SR1_StructureSeries<VMOffset> _vmOffsets = null;
+		SR1_StructureSeries<VMVertex> _vmVertices = null;
+		SR1_StructureSeries<VMInterpolated> _vmInterps = null;
+		SR1_StructureSeries<SR1_String> _vmObjectNames = null;
+
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
 			reader.Level = this;
@@ -377,23 +385,20 @@ namespace Recombobulator.SR1Structures
 
 			if (reader.MultiSplineDictionary.Count > 0)
 			{
-                SR1_StructureArray<MultiSpline> multiSplines = new SR1_StructureArray<MultiSpline>(reader.MultiSplineDictionary.Count);
-                multiSplines.ReadFromPointer(reader, reader.MultiSplineDictionary.Values[0]);
+				SR1_StructureArray<MultiSpline> multiSplines = new SR1_StructureArray<MultiSpline>(reader.MultiSplineDictionary.Count);
+				multiSplines.ReadFromPointer(reader, reader.MultiSplineDictionary.Values[0]);
 			}
 		}
 
 		private void ReadVMOReferences(SR1_Reader reader)
 		{
-			var vmObjects = new SR1_StructureSeries<VMObject>();
-			vmObjects.SetReadCount(numVMObjects.Value);
-			vmObjects.ReadFromPointer(reader, vmobjectList);
-
-			var vmOffsetTablePtrs = new SR1_PointerSeries<VMOffsetTable>();
-			var vmOffsetTables = new SR1_StructureSeries<VMOffsetTable>();
-			var vmOffsets = new SR1_StructureSeries<VMOffset>();
-			var vmVertices = new SR1_StructureSeries<VMVertex>();
-			var vmInterps = new SR1_StructureSeries<VMInterpolated>();
-			var vmObjectNames = new SR1_StructureSeries<SR1_String>();
+			_vmObjects = new SR1_StructureSeries<VMObject>();
+			_vmOffsetTablePtrs = new SR1_PointerSeries<VMOffsetTable>();
+			_vmOffsetTables = new SR1_StructureSeries<VMOffsetTable>();
+			_vmOffsets = new SR1_StructureSeries<VMOffset>();
+			_vmVertices = new SR1_StructureSeries<VMVertex>();
+			_vmInterps = new SR1_StructureSeries<VMInterpolated>();
+			_vmObjectNames = new SR1_StructureSeries<SR1_String>();
 
 			uint vmOffsetTablePtrsStart = 0;
 			uint vmOffsetTablesStart = 0;
@@ -402,11 +407,14 @@ namespace Recombobulator.SR1Structures
 			uint vmInterpsStart = 0;
 			uint vmObjectNamesStart = 0;
 
+			_vmObjects.SetReadCount(numVMObjects.Value);
+			_vmObjects.ReadFromPointer(reader, vmobjectList);
+
 			#region BuildArrays
 
 			SortedDictionary<uint, VMOffsetTable> vmOffsetTableDict = new SortedDictionary<uint, VMOffsetTable>();
 
-			foreach (VMObject vmObject in vmObjects)
+			foreach (VMObject vmObject in _vmObjects)
 			{
 				if (vmObject.IsColorObject)
 				{
@@ -428,7 +436,7 @@ namespace Recombobulator.SR1Structures
 						}
 
 						var colorOffsetTables = MakeArray<SR1_Pointer<VMColorOffsetTable>>(colorObject.numVMOffsetTables.Value);
-						vmOffsetTablePtrs.Add(colorOffsetTables);
+						_vmOffsetTablePtrs.Add(colorOffsetTables);
 					}
 
 					if (vmVerticesStart == 0)
@@ -437,7 +445,7 @@ namespace Recombobulator.SR1Structures
 					}
 
 					var colorVertices = MakeArray<VMColorVertex>(colorObject.numVMVertices.Value);
-					vmVertices.Add(colorVertices);
+					_vmVertices.Add(colorVertices);
 
 					if (vmInterpsStart == 0)
 					{
@@ -445,7 +453,7 @@ namespace Recombobulator.SR1Structures
 					}
 
 					var colorInterps = MakeArray<VMInterpolated>(colorObject.numVMInterpolated.Value);
-					vmInterps.Add(colorInterps);
+					_vmInterps.Add(colorInterps);
 
 					if (vmObjectNamesStart == 0)
 					{
@@ -453,7 +461,7 @@ namespace Recombobulator.SR1Structures
 					}
 
 					var vmObjectName = new SR1_String(12);
-					vmObjectNames.Add(vmObjectName);
+					_vmObjectNames.Add(vmObjectName);
 				}
 				else
 				{
@@ -475,7 +483,7 @@ namespace Recombobulator.SR1Structures
 						}
 
 						var moveOffsetTables = MakeArray<SR1_Pointer<VMMoveOffsetTable>>(moveObject.numVMOffsetTables.Value);
-						vmOffsetTablePtrs.Add(moveOffsetTables);
+						_vmOffsetTablePtrs.Add(moveOffsetTables);
 					}
 
 					if (vmVerticesStart == 0)
@@ -484,7 +492,7 @@ namespace Recombobulator.SR1Structures
 					}
 
 					var moveVertices = MakeArray<VMMoveVertex>(moveObject.numVMVertices.Value);
-					vmVertices.Add(moveVertices);
+					_vmVertices.Add(moveVertices);
 
 					if (vmInterpsStart == 0)
 					{
@@ -492,7 +500,7 @@ namespace Recombobulator.SR1Structures
 					}
 
 					var moveInterps = MakeArray<VMInterpolated>(moveObject.numVMInterpolated.Value);
-					vmInterps.Add(moveInterps);
+					_vmInterps.Add(moveInterps);
 
 					if (vmObjectNamesStart == 0)
 					{
@@ -500,7 +508,7 @@ namespace Recombobulator.SR1Structures
 					}
 
 					var vmObjectName = new SR1_String(12);
-					vmObjectNames.Add(vmObjectName);
+					_vmObjectNames.Add(vmObjectName);
 				}
 			}
 
@@ -508,19 +516,19 @@ namespace Recombobulator.SR1Structures
 
 			#region ReadArrays
 
-			if (vmOffsetsStart != 0 && vmOffsets.Count > 0)
+			if (vmOffsetsStart != 0 && _vmOffsets.Count > 0)
 			{
 				reader.BaseStream.Position = vmOffsetsStart;
-				vmOffsets.Read(reader, null, "");
+				_vmOffsets.Read(reader, null, "");
 			}
 
-			if (vmOffsetTablePtrsStart != 0 && vmOffsetTablePtrs.Count > 0)
+			if (vmOffsetTablePtrsStart != 0 && _vmOffsetTablePtrs.Count > 0)
 			{
 				reader.BaseStream.Position = vmOffsetTablePtrsStart;
-				vmOffsetTablePtrs.SetReadQueue();
-				vmOffsetTablePtrs.Read(reader, null, "");
+				_vmOffsetTablePtrs.SetReadQueue();
+				_vmOffsetTablePtrs.Read(reader, null, "");
 
-				foreach (var vmTablePtr in vmOffsetTablePtrs)
+				foreach (var vmTablePtr in _vmOffsetTablePtrs)
 				{
 					if (!vmOffsetTableDict.ContainsKey(vmTablePtr.Offset))
 					{
@@ -530,30 +538,30 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
-			if (vmVerticesStart != 0 && vmVertices.Count > 0)
+			if (vmVerticesStart != 0 && _vmVertices.Count > 0)
 			{
 				reader.BaseStream.Position = vmVerticesStart;
-				vmVertices.Read(reader, null, "");
+				_vmVertices.Read(reader, null, "");
 			}
 
-			if (vmInterpsStart != 0 && vmInterps.Count > 0)
+			if (vmInterpsStart != 0 && _vmInterps.Count > 0)
 			{
 				reader.BaseStream.Position = vmInterpsStart;
-				vmInterps.Read(reader, null, "");
+				_vmInterps.Read(reader, null, "");
 			}
 
-			if (vmObjectNamesStart != 0 && vmObjectNames.Count > 0)
+			if (vmObjectNamesStart != 0 && _vmObjectNames.Count > 0)
 			{
 				reader.BaseStream.Position = vmObjectNamesStart;
-				vmObjectNames.Align = 4;
-				vmObjectNames.Read(reader, null, "");
+				_vmObjectNames.Align = 4;
+				_vmObjectNames.Read(reader, null, "");
 			}
 
 			#endregion
 
-			vmOffsetTables.Add(vmOffsetTableDict.Values.ToArray());
+			_vmOffsetTables.Add(vmOffsetTableDict.Values.ToArray());
 
-			if (vmOffsetTables.Count > 0)
+			if (_vmOffsetTables.Count > 0)
 			{
 				vmOffsetTablesStart = vmOffsetTableDict.Keys.First();
 			}
@@ -561,8 +569,8 @@ namespace Recombobulator.SR1Structures
 			if (vmOffsetTablesStart != 0)
 			{
 				reader.BaseStream.Position = vmOffsetTablesStart;
-				vmOffsetTables.Align = 4;
-				vmOffsetTables.Read(reader, null, "");
+				_vmOffsetTables.Align = 4;
+				_vmOffsetTables.Read(reader, null, "");
 			}
 		}
 
@@ -784,10 +792,41 @@ namespace Recombobulator.SR1Structures
 				if ((migrateFlags & SR1_File.MigrateFlags.RemoveVertexMorphs) != 0)
 				{
 					numVMObjects.Value = 0;
-					if (vmobjectList.Offset != 0)
+					vmobjectList.Offset = 0;
+
+					if (_vmObjects.Start != 0)
 					{
-						file._Structures.Remove(vmobjectList.Offset);
-						vmobjectList.Offset = 0;
+						file._Structures.Remove(_vmObjects.Start);
+					}
+
+					if (_vmOffsetTablePtrs.Start != 0)
+					{
+						file._Structures.Remove(_vmOffsetTablePtrs.Start);
+					}
+
+					if (_vmOffsetTables.Start != 0)
+					{
+						file._Structures.Remove(_vmOffsetTables.Start);
+					}
+
+					if (_vmOffsets.Start != 0)
+					{
+						file._Structures.Remove(_vmOffsets.Start);
+					}
+
+					if (_vmVertices.Start != 0)
+					{
+						file._Structures.Remove(_vmVertices.Start);
+					}
+
+					if (_vmInterps.Start != 0)
+					{
+						file._Structures.Remove(_vmInterps.Start);
+					}
+
+					if (_vmObjectNames.Start != 0)
+					{
+						file._Structures.Remove(_vmObjectNames.Start);
 					}
 				}
 			}
@@ -809,6 +848,48 @@ namespace Recombobulator.SR1Structures
 				file._MigrationStructures.Add(End, musicName);
 				dynamicMusicName.Offset = End;
 				dynamicMusicName.Heuristic = PtrHeuristic.Migration;
+
+				if ((migrateFlags & SR1_File.MigrateFlags.RemoveVertexMorphs) == 0)
+				{
+					foreach (VMObject vmObject in _vmObjects)
+					{
+						if (vmObject.IsColorObject)
+						{
+							var vmColorObject = (VMColorObject)vmObject;
+
+							vmColorObject.flags.Value = 4;
+							vmColorObject.numVMOffsetTables.Value = 1;
+							vmColorObject.vmoffsetTableList.Offset = 0;
+							vmColorObject.vmoffsetTableList.Heuristic = PtrHeuristic.Explicit;
+							vmColorObject.curVMOffsetTable.Offset = vmColorObject.vmoffsetList.Offset;
+							vmColorObject.curVMOffsetTable.Heuristic = PtrHeuristic.Start;
+
+							var vmColorOffsetTablePtr = new SR1_Pointer<VMColorOffsetTable>();
+							vmColorOffsetTablePtr.Offset = vmColorObject.vmoffsetList.Offset;
+							vmColorOffsetTablePtr.Heuristic = PtrHeuristic.Start;
+							_vmOffsetTablePtrs.Add(vmColorOffsetTablePtr);
+
+						}
+						else
+						{
+							var vmMoveObject = (VMMoveObject)vmObject;
+
+							vmMoveObject.flags.Value = 8;
+							vmMoveObject.numVMOffsetTables.Value = 1;
+							vmMoveObject.vmoffsetTableList.Offset = 0;
+							vmMoveObject.vmoffsetTableList.Heuristic = PtrHeuristic.Explicit;
+							vmMoveObject.curVMOffsetTable.Offset = vmMoveObject.vmoffsetList.Offset;
+							vmMoveObject.curVMOffsetTable.Heuristic = PtrHeuristic.Start;
+
+							var vmMoveOffsetTablePtr = new SR1_Pointer<VMMoveOffsetTable>();
+							vmMoveOffsetTablePtr.Heuristic = PtrHeuristic.Start;
+							vmMoveOffsetTablePtr.Offset = vmMoveObject.vmoffsetList.Offset;
+							_vmOffsetTablePtrs.Add(vmMoveOffsetTablePtr);
+						}
+					}
+
+					file._MigrationStructures.Add(_vmObjects.End, _vmOffsetTablePtrs);
+				}
 			}
 
 			/*if (Name == "city12")
@@ -837,6 +918,33 @@ namespace Recombobulator.SR1Structures
 				signalB.id.Value = (int)Signal.SignalTypeJun01.HandleStreamLevel;
 				multiSignalB.signalList.Add(signalB);
 			}*/
+		}
+		public override void MigratePointers(SR1_Writer writer, SR1_File.Version sourceVersion, SR1_File.MigrateFlags migrateFlags)
+		{
+			base.MigratePointers(writer, sourceVersion, migrateFlags);
+
+			if (sourceVersion < SR1_File.Version.Jan23 && writer.File._Version >= SR1_File.Version.Jan23)
+			{
+				if ((migrateFlags & SR1_File.MigrateFlags.RemoveVertexMorphs) == 0)
+				{
+					for (int v = 0; v < _vmObjects.Count; v++)
+					{
+						VMObject vmObject = (VMObject)_vmObjects[v];
+						SR1_PointerBase vmOffSetTablePtr = _vmOffsetTablePtrs[v];
+
+						if (vmObject.IsColorObject)
+						{
+							var vmColorObject = (VMColorObject)vmObject;
+							vmColorObject.vmoffsetTableList.Offset = vmOffSetTablePtr.NewStart;
+						}
+						else
+						{
+							var vmMoveObject = (VMMoveObject)vmObject;
+							vmMoveObject.vmoffsetTableList.Offset = vmOffSetTablePtr.NewStart;
+						}
+					}
+				}
+			}
 		}
 	}
 }
