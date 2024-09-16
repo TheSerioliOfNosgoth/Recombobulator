@@ -924,7 +924,10 @@ namespace Recombobulator.SR1Structures
 						}
 					}
 
-					file._MigrationStructures.Add(_vmObjects.End, _vmOffsetTablePtrs);
+					if (_vmOffsetTablePtrs.Count > 0)
+					{
+						file._MigrationStructures.Add(_vmObjects.End, _vmOffsetTablePtrs);
+					}
 				}
 			}
 
