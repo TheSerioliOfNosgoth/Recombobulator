@@ -80,6 +80,16 @@ namespace Recombobulator.SR1Structures
 			name.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 		}
 
+		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
+		{
+			base.MigrateVersion(file, targetVersion, migrateFlags);
+
+			if (file._Version < SR1_File.Version.Jan23 && targetVersion >= SR1_File.Version.Jan23)
+			{
+				timeScale.Value = 4096;
+			}
+		}
+
 		public override string ToString()
 		{
 			string result = base.ToString();
