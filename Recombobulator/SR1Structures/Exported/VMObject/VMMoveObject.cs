@@ -79,5 +79,32 @@ namespace Recombobulator.SR1Structures
 			vminterpolatedList.Write(writer);
 			name.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 		}
+
+		public override string ToString()
+		{
+			string result = base.ToString();
+
+			if (vmoffsetList.Start != 0)
+			{
+				result += " { offsets = 0x" + vmoffsetList.ToString() + " }";
+			}
+
+			if (vmoffsetTableList.Start != 0)
+			{
+				result += " { offsetTables = 0x" + vmoffsetTableList.ToString() + " }";
+			}
+
+			if (vmvertexList.Start != 0)
+			{
+				result += " { vertices = 0x" + vmvertexList.ToString() + " }";
+			}
+
+			if (vminterpolatedList.Start != 0)
+			{
+				result += " { interps = 0x" + vminterpolatedList.ToString() + " }";
+			}
+
+			return result;
+		}
 	}
 }

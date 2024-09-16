@@ -5,6 +5,8 @@ namespace Recombobulator.SR1Structures
 {
 	class VMVertex : SR1_Structure
 	{
+		public int VertexIndex = -1;
+
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
 		}

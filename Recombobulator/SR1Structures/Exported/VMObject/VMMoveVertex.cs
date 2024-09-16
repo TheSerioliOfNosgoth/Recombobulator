@@ -5,10 +5,10 @@ namespace Recombobulator.SR1Structures
 {
 	class VMMoveVertex : VMVertex
 	{
-		SR1_Pointer<TVertex> tv = new SR1_Pointer<TVertex>();
-		SR1_Primative<short> tvIdx = new SR1_Primative<short>();
-		Position basePos = new Position();
-		SR1_Primative<short> offset = new SR1_Primative<short>();
+		public readonly SR1_Pointer<TVertex> tv = new SR1_Pointer<TVertex>();
+		public readonly SR1_Primative<short> tvIdx = new SR1_Primative<short>();
+		public readonly Position basePos = new Position();
+		public readonly SR1_Primative<short> offset = new SR1_Primative<short>();
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
@@ -28,6 +28,16 @@ namespace Recombobulator.SR1Structures
 			tvIdx.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			basePos.Write(writer);
 			offset.Write(writer);
+		}
+
+		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
+		{
+			base.MigrateVersion(file, targetVersion, migrateFlags);
+
+			if (file._Version < SR1_File.Version.Jan23 && targetVersion >= SR1_File.Version.Jan23)
+			{
+				tvIdx.Value = (short)VertexIndex;
+			}
 		}
 	}
 }
