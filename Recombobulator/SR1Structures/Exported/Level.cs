@@ -123,6 +123,8 @@ namespace Recombobulator.SR1Structures
 		LightList lightListStruct1 = new LightList();
 		SR1_PrimativeArray<byte> push6Padding = new SR1_PrimativeArray<byte>(8);
 
+		Terrain _terrain = null;
+
 		SR1_StructureSeries<VMObject> _vmObjects = null;
 		SR1_PointerSeries<VMOffsetTable> _vmOffsetTablePtrs = null;
 		SR1_StructureSeries<VMOffsetTable> _vmOffsetTables = null;
@@ -252,7 +254,8 @@ namespace Recombobulator.SR1Structures
 			Name = worldNameString.ToString();
 
 			new SR1_StructureSeries<MultiSignal>().ReadFromPointer(reader, SignalListStart, SignalListEnd);
-			SR1_Structure terrainStruct = new Terrain().ReadFromPointer(reader, terrain);
+			_terrain = new Terrain();
+			_terrain.ReadFromPointer(reader, terrain);
 
 			lightListStruct0.ReadFromPointer(reader, lightList);
 			if (reader.File._Version < SR1_File.Version.Apr14 &&
@@ -349,7 +352,7 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
-			if (terrainStruct.End != 0)
+			if (_terrain.End != 0)
 			{
 				foreach (SR1_Pointer<SFXFileData> pointer in reader.SFXDictionary.Values)
 				{
@@ -357,7 +360,7 @@ namespace Recombobulator.SR1Structures
 					if (!reader.File._Structures.ContainsKey(sfxFileDataList.End))
 					{
 						reader.BaseStream.Position = sfxFileDataList.End;
-						new SR1_PrimativeArray<byte>((int)(terrainStruct.Start - sfxFileDataList.End)).Read(reader, null, "");
+						new SR1_PrimativeArray<byte>((int)(_terrain.Start - sfxFileDataList.End)).Read(reader, null, "");
 					}
 					break;
 				}
@@ -542,6 +545,39 @@ namespace Recombobulator.SR1Structures
 			{
 				reader.BaseStream.Position = vmVerticesStart;
 				_vmVertices.Read(reader, null, "");
+
+				if (_terrain != null)
+				{
+					uint verticesStart = _terrain.vertexList.Offset;
+					foreach (var vmVertex in _vmVertices)
+					{
+						var vmColorVertex = vmVertex as VMColorVertex;
+						if (vmColorVertex != null)
+						{
+							int vertexIndex = vmColorVertex.tvIdx.Value;
+							if (reader.File._Version < SR1_File.Version.Jan23)
+							{
+								vertexIndex = (int)(vmColorVertex.tv.Offset - verticesStart) / 12;
+							}
+
+							vmColorVertex.VertexIndex = vertexIndex;
+							continue;
+						}
+
+						var vmMoveVertex = vmVertex as VMMoveVertex;
+						if (vmMoveVertex != null)
+						{
+							int vertexIndex = vmMoveVertex.tvIdx.Value;
+							if (reader.File._Version < SR1_File.Version.Jan23)
+							{
+								vertexIndex = (int)(vmMoveVertex.tv.Offset - verticesStart) / 12;
+							}
+
+							vmMoveVertex.VertexIndex = vertexIndex;
+							continue;
+						}
+					}
+				}
 			}
 
 			if (vmInterpsStart != 0 && _vmInterps.Count > 0)

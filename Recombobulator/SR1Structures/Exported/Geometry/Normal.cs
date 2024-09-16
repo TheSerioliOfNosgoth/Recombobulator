@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class Normal : SR1_Structure
+	public class Normal : SR1_Structure
 	{
 		SR1_Primative<short> x = new SR1_Primative<short>();
 		SR1_Primative<short> y = new SR1_Primative<short>();

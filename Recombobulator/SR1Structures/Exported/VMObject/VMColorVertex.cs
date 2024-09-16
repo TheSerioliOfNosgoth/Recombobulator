@@ -5,12 +5,12 @@ namespace Recombobulator.SR1Structures
 {
 	class VMColorVertex : VMVertex
 	{
-		SR1_Pointer<TVertex> tv = new SR1_Pointer<TVertex>();
-		SR1_Primative<short> r = new SR1_Primative<short>();
-		SR1_Primative<short> g = new SR1_Primative<short>();
-		SR1_Primative<short> b = new SR1_Primative<short>();
-		SR1_Primative<short> tvIdx = new SR1_Primative<short>();
-		SR1_Primative<short> offset = new SR1_Primative<short>();
+		public readonly SR1_Pointer<TVertex> tv = new SR1_Pointer<TVertex>();
+		public readonly SR1_Primative<short> r = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> g = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> b = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> tvIdx = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> offset = new SR1_Primative<short>();
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
@@ -34,6 +34,16 @@ namespace Recombobulator.SR1Structures
 			b.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
 			tvIdx.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			offset.Write(writer);
+		}
+
+		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
+		{
+			base.MigrateVersion(file, targetVersion, migrateFlags);
+
+			if (file._Version < SR1_File.Version.Jan23 && targetVersion >= SR1_File.Version.Jan23)
+			{
+				tvIdx.Value = (short)VertexIndex;
+			}
 		}
 	}
 }
