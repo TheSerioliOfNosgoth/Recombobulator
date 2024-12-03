@@ -604,228 +604,296 @@ namespace Recombobulator.SR1Structures
 				numIntros.Value = intros.Count;
 			}
 
-			if (file._Version == SR1_File.Version.Retail_PC &&
-				targetVersion == SR1_File.Version.Retail_PC)
+			if (_portalList != null)
 			{
-				#region FixCity10
+				SR1_StructureList<StreamUnitPortal> portals = _portalList.portals;
 
-				if ((migrateFlags & SR1_File.MigrateFlags.FixCity10) != 0 &&
-					file._Structures[0].Name == "city10")
+				int newNumPortals = 0;
+				while (newNumPortals < portals.Count)
 				{
-					#region Signal0
+					if (((StreamUnitPortal)portals[newNumPortals]).OmitFromMigration)
+					{
+						portals.RemoveAt(newNumPortals);
+					}
+					else
+					{
+						newNumPortals++;
+					}
+				}
 
-					var v196 = (TVertex)_vertices[196];
-					var v197 = (TVertex)_vertices[197];
-					var v198 = (TVertex)_vertices[198];
-					var v199 = (TVertex)_vertices[199];
+				if (file._Version == SR1_File.Version.Retail_PC &&
+					targetVersion == SR1_File.Version.Retail_PC)
+				{
+					#region FixCity10
 
-					v196.vertex.x.Value = -2547;
-					v196.vertex.y.Value = 0;
-					v196.vertex.z.Value = 224;
+					if ((migrateFlags & SR1_File.MigrateFlags.FixCity10) != 0 &&
+						file._Structures[0].Name == "city10")
+					{
+						#region Signal0
 
-					v197.vertex.x.Value = -4467;
-					v197.vertex.y.Value = 0;
-					v197.vertex.z.Value = 224;
+						var v196 = (TVertex)_vertices[196];
+						var v197 = (TVertex)_vertices[197];
+						var v198 = (TVertex)_vertices[198];
+						var v199 = (TVertex)_vertices[199];
 
-					v198.vertex.x.Value = -4467;
-					v198.vertex.y.Value = 0;
-					v198.vertex.z.Value = -1921;
+						v196.vertex.x.Value = -2547;
+						v196.vertex.y.Value = 0;
+						v196.vertex.z.Value = 224;
 
-					v199.vertex.x.Value = -2547;
-					v199.vertex.y.Value = 0;
-					v199.vertex.z.Value = -1921;
+						v197.vertex.x.Value = -4467;
+						v197.vertex.y.Value = 0;
+						v197.vertex.z.Value = 224;
+
+						v198.vertex.x.Value = -4467;
+						v198.vertex.y.Value = 0;
+						v198.vertex.z.Value = -1921;
+
+						v199.vertex.x.Value = -2547;
+						v199.vertex.y.Value = 0;
+						v199.vertex.z.Value = -1921;
+
+						#endregion
+
+						#region Signal1
+
+						var v200 = (TVertex)_vertices[200];
+						var v201 = (TVertex)_vertices[201];
+						var v202 = (TVertex)_vertices[202];
+						var v203 = (TVertex)_vertices[203];
+
+						v200.vertex.x.Value = -4467;
+						v200.vertex.y.Value = -5120;
+						v200.vertex.z.Value = 217;
+
+						v201.vertex.x.Value = -2547;
+						v201.vertex.y.Value = -5120;
+						v201.vertex.z.Value = 217;
+
+						v202.vertex.x.Value = -4467;
+						v202.vertex.y.Value = -5120;
+						v202.vertex.z.Value = -642;
+
+						v203.vertex.x.Value = -2547;
+						v203.vertex.y.Value = -5120;
+						v203.vertex.z.Value = -642;
+
+						#endregion
+
+						#region Signal2
+
+						var v204 = (TVertex)_vertices[204];
+						var v205 = (TVertex)_vertices[205];
+						var v206 = (TVertex)_vertices[206];
+						var v207 = (TVertex)_vertices[207];
+
+						v204.vertex.x.Value = -4467;
+						v204.vertex.y.Value = -5120;
+						v204.vertex.z.Value = -642;
+
+						v205.vertex.x.Value = -2547;
+						v205.vertex.y.Value = -5120;
+						v205.vertex.z.Value = -642;
+
+						v206.vertex.x.Value = -2552;
+						v206.vertex.y.Value = -10880;
+						v206.vertex.z.Value = -646;
+
+						v207.vertex.x.Value = -4472;
+						v207.vertex.y.Value = -10880;
+						v207.vertex.z.Value = -646;
+
+						#endregion
+
+						#region SigLeaf
+
+						_sigLeaf.sphereNoSq.position.x.Value = -3496;
+						_sigLeaf.sphereNoSq.position.y.Value = -5359;
+						_sigLeaf.sphereNoSq.position.z.Value = -1261;
+						_sigLeaf.sphereNoSq.radius.Value = 5646;
+						_sigLeaf.box.minX.Value = -4472;
+						_sigLeaf.box.minY.Value = -10880;
+						_sigLeaf.box.minZ.Value = -1921;
+						_sigLeaf.box.maxX.Value = -2547;
+						_sigLeaf.box.maxY.Value = 0;
+						_sigLeaf.box.maxZ.Value = 224;
+
+						_sigLeaf.spectralSphereNoSq.position.x.Value = -3496;
+						_sigLeaf.spectralSphereNoSq.position.y.Value = -5359;
+						_sigLeaf.spectralSphereNoSq.position.z.Value = -1261;
+						_sigLeaf.spectralSphereNoSq.radius.Value = 5646;
+						_sigLeaf.spectralBox.minX.Value = -4472;
+						_sigLeaf.spectralBox.minY.Value = -10880;
+						_sigLeaf.spectralBox.minZ.Value = -1921;
+						_sigLeaf.spectralBox.maxX.Value = -2547;
+						_sigLeaf.spectralBox.maxY.Value = 0;
+						_sigLeaf.spectralBox.maxZ.Value = 224;
+
+						#endregion
+
+						#region Portal0
+
+						StreamUnitPortal portal0 = (StreamUnitPortal)_portalList.portals[0];
+
+						portal0.minx.Value = -4472;
+						portal0.miny.Value = -10880;
+						portal0.minz.Value = -646;
+						portal0.maxx.Value = -2547;
+						portal0.maxy.Value = -5120;
+						portal0.maxz.Value = -642;
+
+						((SVector)portal0.t1[0]).x.Value = -4472;
+						((SVector)portal0.t1[0]).y.Value = -10880;
+						((SVector)portal0.t1[0]).z.Value = -646;
+
+						((SVector)portal0.t1[1]).x.Value = -4467;
+						((SVector)portal0.t1[1]).y.Value = -5120;
+						((SVector)portal0.t1[1]).z.Value = -642;
+
+						((SVector)portal0.t1[2]).x.Value = -2547;
+						((SVector)portal0.t1[2]).y.Value = -5120;
+						((SVector)portal0.t1[2]).z.Value = -642;
+
+						((SVector)portal0.t2[0]).x.Value = -2547;
+						((SVector)portal0.t2[0]).y.Value = -5120;
+						((SVector)portal0.t2[0]).z.Value = -642;
+
+						((SVector)portal0.t2[1]).x.Value = -2552;
+						((SVector)portal0.t2[1]).y.Value = -10880;
+						((SVector)portal0.t2[1]).z.Value = -646;
+
+						((SVector)portal0.t2[2]).x.Value = -4472;
+						((SVector)portal0.t2[2]).y.Value = -10880;
+						((SVector)portal0.t2[2]).z.Value = -646;
+
+						#endregion
+
+						#region Portal1
+
+						StreamUnitPortal portal1 = (StreamUnitPortal)_portalList.portals[1];
+
+						portal1.minx.Value = -4467;
+						portal1.miny.Value = -5120;
+						portal1.minz.Value = -642;
+						portal1.maxx.Value = -2547;
+						portal1.maxy.Value = -5120;
+						portal1.maxz.Value = 217;
+
+						((SVector)portal1.t1[0]).x.Value = -2547;
+						((SVector)portal1.t1[0]).y.Value = -5120;
+						((SVector)portal1.t1[0]).z.Value = -642;
+
+						((SVector)portal1.t1[1]).x.Value = -4467;
+						((SVector)portal1.t1[1]).y.Value = -5120;
+						((SVector)portal1.t1[1]).z.Value = -642;
+
+						((SVector)portal1.t1[2]).x.Value = -2547;
+						((SVector)portal1.t1[2]).y.Value = -5120;
+						((SVector)portal1.t1[2]).z.Value = 217;
+
+						((SVector)portal1.t2[0]).x.Value = -4467;
+						((SVector)portal1.t2[0]).y.Value = -5120;
+						((SVector)portal1.t2[0]).z.Value = 217;
+
+						((SVector)portal1.t2[1]).x.Value = -2547;
+						((SVector)portal1.t2[1]).y.Value = -5120;
+						((SVector)portal1.t2[1]).z.Value = 217;
+
+						((SVector)portal1.t2[2]).x.Value = -4467;
+						((SVector)portal1.t2[2]).y.Value = -5120;
+						((SVector)portal1.t2[2]).z.Value = -642;
+
+						#endregion
+
+						#region Portal2
+
+						StreamUnitPortal portal2 = (StreamUnitPortal)_portalList.portals[2];
+
+						portal2.minx.Value = -4467;
+						portal2.miny.Value = 0;
+						portal2.minz.Value = -1921;
+						portal2.maxx.Value = -2547;
+						portal2.maxy.Value = 0;
+						portal2.maxz.Value = 224;
+
+						((SVector)portal2.t1[0]).x.Value = -4467;
+						((SVector)portal2.t1[0]).y.Value = 0;
+						((SVector)portal2.t1[0]).z.Value = -1921;
+
+						((SVector)portal2.t1[1]).x.Value = -2547;
+						((SVector)portal2.t1[1]).y.Value = 0;
+						((SVector)portal2.t1[1]).z.Value = -1921;
+
+						((SVector)portal2.t1[2]).x.Value = -2547;
+						((SVector)portal2.t1[2]).y.Value = 0;
+						((SVector)portal2.t1[2]).z.Value = 224;
+
+						((SVector)portal2.t2[0]).x.Value = -2547;
+						((SVector)portal2.t2[0]).y.Value = 0;
+						((SVector)portal2.t2[0]).z.Value = 224;
+
+						((SVector)portal2.t2[1]).x.Value = -4467;
+						((SVector)portal2.t2[1]).y.Value = 0;
+						((SVector)portal2.t2[1]).z.Value = 224;
+
+						((SVector)portal2.t2[2]).x.Value = -4467;
+						((SVector)portal2.t2[2]).y.Value = 0;
+						((SVector)portal2.t2[2]).z.Value = -1921;
+
+						#endregion
+					}
 
 					#endregion
 
-					#region Signal1
+					#region FixCity11
 
-					var v200 = (TVertex)_vertices[200];
-					var v201 = (TVertex)_vertices[201];
-					var v202 = (TVertex)_vertices[202];
-					var v203 = (TVertex)_vertices[203];
+					if ((migrateFlags & SR1_File.MigrateFlags.FixCity11) != 0 &&
+						file._Structures[0].Name == "city11")
+					{
+						StreamUnitPortal newPortal = new StreamUnitPortal();
+						newPortal.tolevelname.SetReadMax(true);
+						newPortal.tolevelname.SetText("city12,1", 16);
+						newPortal.streamID.Value = 171;
+						newPortal.MSignalID.Value = 2;
 
-					v200.vertex.x.Value = -4467;
-					v200.vertex.y.Value = -5120;
-					v200.vertex.z.Value = 217;
+						newPortal.minx.Value = -660;
+						newPortal.miny.Value = 2342;
+						newPortal.minz.Value = -7144;
+						newPortal.maxx.Value = -660;
+						newPortal.maxy.Value = 3700;
+						newPortal.maxz.Value = -5786;
 
-					v201.vertex.x.Value = -2547;
-					v201.vertex.y.Value = -5120;
-					v201.vertex.z.Value = 217;
+						((SVector)newPortal.t1[0]).x.Value = -660;
+						((SVector)newPortal.t1[0]).y.Value = 2342;
+						((SVector)newPortal.t1[0]).z.Value = -5786;
 
-					v202.vertex.x.Value = -4467;
-					v202.vertex.y.Value = -5120;
-					v202.vertex.z.Value = -642;
+						((SVector)newPortal.t1[1]).x.Value = -660;
+						((SVector)newPortal.t1[1]).y.Value = 3700;
+						((SVector)newPortal.t1[1]).z.Value = -5786;
 
-					v203.vertex.x.Value = -2547;
-					v203.vertex.y.Value = -5120;
-					v203.vertex.z.Value = -642;
+						((SVector)newPortal.t1[2]).x.Value = -660;
+						((SVector)newPortal.t1[2]).y.Value = 3700;
+						((SVector)newPortal.t1[2]).z.Value = -7144;
 
-					#endregion
+						((SVector)newPortal.t2[0]).x.Value = -660;
+						((SVector)newPortal.t2[0]).y.Value = 3700;
+						((SVector)newPortal.t2[0]).z.Value = -7144;
 
-					#region Signal2
+						((SVector)newPortal.t2[1]).x.Value = -660;
+						((SVector)newPortal.t2[1]).y.Value = 2342;
+						((SVector)newPortal.t2[1]).z.Value = -7144;
 
-					var v204 = (TVertex)_vertices[204];
-					var v205 = (TVertex)_vertices[205];
-					var v206 = (TVertex)_vertices[206];
-					var v207 = (TVertex)_vertices[207];
+						((SVector)newPortal.t2[2]).x.Value = -660;
+						((SVector)newPortal.t2[2]).y.Value = 2342;
+						((SVector)newPortal.t2[2]).z.Value = -5786;
 
-					v204.vertex.x.Value = -4467;
-					v204.vertex.y.Value = -5120;
-					v204.vertex.z.Value = -642;
-
-					v205.vertex.x.Value = -2547;
-					v205.vertex.y.Value = -5120;
-					v205.vertex.z.Value = -642;
-
-					v206.vertex.x.Value = -2552;
-					v206.vertex.y.Value = -10880;
-					v206.vertex.z.Value = -646;
-
-					v207.vertex.x.Value = -4472;
-					v207.vertex.y.Value = -10880;
-					v207.vertex.z.Value = -646;
-
-					#endregion
-
-					#region SigLeaf
-
-					_sigLeaf.sphereNoSq.position.x.Value = -3496;
-					_sigLeaf.sphereNoSq.position.y.Value = -5359;
-					_sigLeaf.sphereNoSq.position.z.Value = -1261;
-					_sigLeaf.sphereNoSq.radius.Value = 5646;
-					_sigLeaf.box.minX.Value = -4472;
-					_sigLeaf.box.minY.Value = -10880;
-					_sigLeaf.box.minZ.Value = -1921;
-					_sigLeaf.box.maxX.Value = -2547;
-					_sigLeaf.box.maxY.Value = 0;
-					_sigLeaf.box.maxZ.Value = 224;
-
-					_sigLeaf.spectralSphereNoSq.position.x.Value = -3496;
-					_sigLeaf.spectralSphereNoSq.position.y.Value = -5359;
-					_sigLeaf.spectralSphereNoSq.position.z.Value = -1261;
-					_sigLeaf.spectralSphereNoSq.radius.Value = 5646;
-					_sigLeaf.spectralBox.minX.Value = -4472;
-					_sigLeaf.spectralBox.minY.Value = -10880;
-					_sigLeaf.spectralBox.minZ.Value = -1921;
-					_sigLeaf.spectralBox.maxX.Value = -2547;
-					_sigLeaf.spectralBox.maxY.Value = 0;
-					_sigLeaf.spectralBox.maxZ.Value = 224;
-
-					#endregion
-
-					#region Portal0
-
-					StreamUnitPortal portal0 = (StreamUnitPortal)_portalList.portals[0];
-
-					portal0.minx.Value = -4472;
-					portal0.miny.Value = -10880;
-					portal0.minz.Value = -646;
-					portal0.maxx.Value = -2547;
-					portal0.maxy.Value = -5120;
-					portal0.maxz.Value = -642;
-
-					((SVector)portal0.t1[0]).x.Value = -4472;
-					((SVector)portal0.t1[0]).y.Value = -10880;
-					((SVector)portal0.t1[0]).z.Value = -646;
-
-					((SVector)portal0.t1[1]).x.Value = -4467;
-					((SVector)portal0.t1[1]).y.Value = -5120;
-					((SVector)portal0.t1[1]).z.Value = -642;
-
-					((SVector)portal0.t1[2]).x.Value = -2547;
-					((SVector)portal0.t1[2]).y.Value = -5120;
-					((SVector)portal0.t1[2]).z.Value = -642;
-
-					((SVector)portal0.t2[0]).x.Value = -2547;
-					((SVector)portal0.t2[0]).y.Value = -5120;
-					((SVector)portal0.t2[0]).z.Value = -642;
-
-					((SVector)portal0.t2[1]).x.Value = -2552;
-					((SVector)portal0.t2[1]).y.Value = -10880;
-					((SVector)portal0.t2[1]).z.Value = -646;
-
-					((SVector)portal0.t2[2]).x.Value = -4472;
-					((SVector)portal0.t2[2]).y.Value = -10880;
-					((SVector)portal0.t2[2]).z.Value = -646;
-
-					#endregion
-
-					#region Portal1
-
-					StreamUnitPortal portal1 = (StreamUnitPortal)_portalList.portals[1];
-
-					portal1.minx.Value = -4467;
-					portal1.miny.Value = -5120;
-					portal1.minz.Value = -642;
-					portal1.maxx.Value = -2547;
-					portal1.maxy.Value = -5120;
-					portal1.maxz.Value = 217;
-
-					((SVector)portal1.t1[0]).x.Value = -2547;
-					((SVector)portal1.t1[0]).y.Value = -5120;
-					((SVector)portal1.t1[0]).z.Value = -642;
-
-					((SVector)portal1.t1[1]).x.Value = -4467;
-					((SVector)portal1.t1[1]).y.Value = -5120;
-					((SVector)portal1.t1[1]).z.Value = -642;
-
-					((SVector)portal1.t1[2]).x.Value = -2547;
-					((SVector)portal1.t1[2]).y.Value = -5120;
-					((SVector)portal1.t1[2]).z.Value = 217;
-
-					((SVector)portal1.t2[0]).x.Value = -4467;
-					((SVector)portal1.t2[0]).y.Value = -5120;
-					((SVector)portal1.t2[0]).z.Value = 217;
-
-					((SVector)portal1.t2[1]).x.Value = -2547;
-					((SVector)portal1.t2[1]).y.Value = -5120;
-					((SVector)portal1.t2[1]).z.Value = 217;
-
-					((SVector)portal1.t2[2]).x.Value = -4467;
-					((SVector)portal1.t2[2]).y.Value = -5120;
-					((SVector)portal1.t2[2]).z.Value = -642;
-
-					#endregion
-
-					#region Portal2
-
-					StreamUnitPortal portal2 = (StreamUnitPortal)_portalList.portals[2];
-
-					portal2.minx.Value = -4467;
-					portal2.miny.Value = 0;
-					portal2.minz.Value = -1921;
-					portal2.maxx.Value = -2547;
-					portal2.maxy.Value = 0;
-					portal2.maxz.Value = 224;
-
-					((SVector)portal2.t1[0]).x.Value = -4467;
-					((SVector)portal2.t1[0]).y.Value = 0;
-					((SVector)portal2.t1[0]).z.Value = -1921;
-
-					((SVector)portal2.t1[1]).x.Value = -2547;
-					((SVector)portal2.t1[1]).y.Value = 0;
-					((SVector)portal2.t1[1]).z.Value = -1921;
-
-					((SVector)portal2.t1[2]).x.Value = -2547;
-					((SVector)portal2.t1[2]).y.Value = 0;
-					((SVector)portal2.t1[2]).z.Value = 224;
-
-					((SVector)portal2.t2[0]).x.Value = -2547;
-					((SVector)portal2.t2[0]).y.Value = 0;
-					((SVector)portal2.t2[0]).z.Value = 224;
-
-					((SVector)portal2.t2[1]).x.Value = -4467;
-					((SVector)portal2.t2[1]).y.Value = 0;
-					((SVector)portal2.t2[1]).z.Value = 224;
-
-					((SVector)portal2.t2[2]).x.Value = -4467;
-					((SVector)portal2.t2[2]).y.Value = 0;
-					((SVector)portal2.t2[2]).z.Value = -1921;
+						portals.Add(newPortal);
+						newNumPortals++;
+					}
 
 					#endregion
 				}
 
-				#endregion
+				_portalList.numPortals.Value = newNumPortals;
 			}
 
 			if (file._Version <= SR1_File.Version.May12 && targetVersion >= SR1_File.Version.Retail_PC)

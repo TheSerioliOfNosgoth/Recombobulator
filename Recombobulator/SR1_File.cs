@@ -55,6 +55,7 @@ namespace Recombobulator
 			ApplySunlightFlags = 64,
 			ApplyTranslucency = 128,
 			FixCity10 = 256,
+			FixCity11 = 512,
 		}
 
 		public enum TestFlags : int
