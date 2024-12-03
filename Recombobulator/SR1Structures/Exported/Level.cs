@@ -632,33 +632,6 @@ namespace Recombobulator.SR1Structures
 				dynamicMusicName.Offset = End;
 				dynamicMusicName.Heuristic = PtrHeuristic.Migration;
 			}
-
-			/*if (Name == "city12")
-			{
-				SR1_StructureSeries<MultiSignal> multiSignals =
-					(SR1_StructureSeries<MultiSignal>)file._Structures[SignalListStart.Offset];
-
-				MultiSignal multiSignalA = (MultiSignal)multiSignals[0];
-				Signal signalA = new Signal();
-				SignalStreamLevel signalStreamLevelA = new SignalStreamLevel();
-				signalStreamLevelA.currentnum.Value = multiSignalA.signalNum.Value;
-				signalStreamLevelA.toname.SetReadMax(true);
-				signalStreamLevelA.toname.SetText("city11,2", 16);
-				signalStreamLevelA.streamID.Value = 154;
-				signalA.data = signalStreamLevelA;
-				signalA.id.Value = (int)Signal.SignalTypeJun01.HandleStreamLevel;
-				multiSignalA.signalList.Add(signalA);
-
-				MultiSignal multiSignalB = (MultiSignal)multiSignals[1];
-				Signal signalB = new Signal();
-				SignalStreamLevel signalStreamLevelB = new SignalStreamLevel();
-				signalStreamLevelB.currentnum.Value = multiSignalB.signalNum.Value;
-				signalStreamLevelB.toname.SetText("city16,97", 16);
-				signalStreamLevelB.streamID.Value = 215;
-				signalB.data = signalStreamLevelB;
-				signalB.id.Value = (int)Signal.SignalTypeJun01.HandleStreamLevel;
-				multiSignalB.signalList.Add(signalB);
-			}*/
 		}
 	}
 }

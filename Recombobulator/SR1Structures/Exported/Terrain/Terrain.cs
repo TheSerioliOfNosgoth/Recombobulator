@@ -888,6 +888,26 @@ namespace Recombobulator.SR1Structures
 
 						portals.Add(newPortal);
 						newNumPortals++;
+
+						MultiSignal newMultiSignal = new MultiSignal();
+						newMultiSignal.numSignals.Value = 1;
+						newMultiSignal.signalNum.Value = 2;
+						newMultiSignal.flags.Value = 0;
+						Signal newSignal = new Signal();
+						newSignal.id.Value = 18;
+						SignalStreamLevel newSignalStreamLevel = new SignalStreamLevel();
+						newSignalStreamLevel.currentnum.Value = 2;
+						newSignalStreamLevel.streamID.Value = 171;
+						newSignalStreamLevel.toname.SetText("city12,1", 8);
+						newSignal.data = newSignalStreamLevel;
+						newMultiSignal.signalList.Add(newSignal);
+						newMultiSignal.pad.Value = 15;
+
+						// Not safe to insert, only add at the end.
+						_multiSignals.Add(newMultiSignal);
+
+						// TODO - Fix up the tFaces to point to the signal.
+						// TODO - Check startSignal, SignalListStart, and SignalListEnd in Level.cs
 					}
 
 					#endregion
