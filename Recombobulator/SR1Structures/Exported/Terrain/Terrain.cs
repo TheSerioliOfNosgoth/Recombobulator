@@ -903,11 +903,19 @@ namespace Recombobulator.SR1Structures
 						newMultiSignal.signalList.Add(newSignal);
 						newMultiSignal.pad.Value = 15;
 
-						// Not safe to insert, only add at the end.
-						_multiSignals.Add(newMultiSignal);
+						_multiSignals.InsertAt(0, newMultiSignal);
+						_terrainSignal = newMultiSignal;
 
-						// TODO - Fix up the tFaces to point to the signal.
-						// TODO - Check startSignal, SignalListStart, and SignalListEnd in Level.cs
+						signals.Offset = 0;
+						signals.Heuristic = PtrHeuristic.Explicit;
+
+						// TODO - Fix up the normals on the tFaces.
+						TFace face = (TFace)_faces[1676];
+						face.Portal = newPortal;
+						face.MultiSignal = newMultiSignal;
+						face = (TFace)_faces[1677];
+						face.Portal = newPortal;
+						face.MultiSignal = newMultiSignal;
 					}
 
 					#endregion
@@ -1270,6 +1278,20 @@ namespace Recombobulator.SR1Structures
 		{
 			base.MigratePointers(writer, sourceVersion, migrateFlags);
 
+			if (sourceVersion == SR1_File.Version.Retail_PC &&
+				writer.File._Version == SR1_File.Version.Retail_PC)
+			{
+				#region FixCity11
+
+				if ((migrateFlags & SR1_File.MigrateFlags.FixCity11) != 0 &&
+					writer.File._Structures[0].Name == "city11")
+				{
+					signals.Offset = _terrainSignal.NewStart;
+				}
+
+				#endregion
+			}
+
 			if (_faces != null)
 			{
 				foreach (TFace face in _faces)
@@ -1295,7 +1317,8 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
-			if (sourceVersion < SR1_File.Version.Jan23 && writer.File._Version >= SR1_File.Version.Jan23)
+			if (sourceVersion < SR1_File.Version.Jan23 &&
+				writer.File._Version >= SR1_File.Version.Jan23)
 			{
 				uint endLeavesOffset = _bspLeaves.NewEnd;
 				
