@@ -898,7 +898,8 @@ namespace Recombobulator.SR1Structures
 						SignalStreamLevel newSignalStreamLevel = new SignalStreamLevel();
 						newSignalStreamLevel.currentnum.Value = 2;
 						newSignalStreamLevel.streamID.Value = 171;
-						newSignalStreamLevel.toname.SetText("city12,1", 8);
+						newSignalStreamLevel.toname.SetReadMax(true);
+						newSignalStreamLevel.toname.SetText("city12,1", 16);
 						newSignal.data = newSignalStreamLevel;
 						newMultiSignal.signalList.Add(newSignal);
 						newMultiSignal.pad.Value = 15;
@@ -909,7 +910,6 @@ namespace Recombobulator.SR1Structures
 						signals.Offset = 0;
 						signals.Heuristic = PtrHeuristic.Explicit;
 
-						// TODO - Fix up the normals on the tFaces.
 						TFace face = (TFace)_faces[1676];
 						face.Portal = newPortal;
 						face.MultiSignal = newMultiSignal;
