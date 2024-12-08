@@ -76,6 +76,7 @@
 			this.particlesPanel = new Recombobulator.ParticlePanels.MainParticlesPanel();
 			this.projectContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.editPortalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.patchRetailAssetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.textureFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.addTextureFileToProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this._mainMenu.SuspendLayout();
@@ -506,7 +507,7 @@
 			// projectContextMenu
 			// 
 			this.projectContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.editPortalToolStripMenuItem});
+            this.editPortalToolStripMenuItem, this.patchRetailAssetToolStripMenuItem});
 			this.projectContextMenu.Name = "projectContextMenu";
 			this.projectContextMenu.Size = new System.Drawing.Size(138, 26);
 			// 
@@ -517,6 +518,14 @@
 			this.editPortalToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
 			this.editPortalToolStripMenuItem.Text = "Edit Portal...";
 			this.editPortalToolStripMenuItem.Click += new System.EventHandler(this.EditPortalToolStripMenuItem_Click);
+			// 
+			// patchRetailAssetToolStripMenuItem
+			// 
+			this.patchRetailAssetToolStripMenuItem.Enabled = false;
+			this.patchRetailAssetToolStripMenuItem.Name = "patchRetailAssetToolStripMenuItem";
+			this.patchRetailAssetToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.patchRetailAssetToolStripMenuItem.Text = "Patch Retail Asset...";
+			this.patchRetailAssetToolStripMenuItem.Click += new System.EventHandler(this.patchRetailAssetToolStripMenuItem_Click);
 			// 
 			// toolStripMenuItem1
 			// 
@@ -600,6 +609,7 @@
 		private System.Windows.Forms.TextBox projectTextBox;
 		private System.Windows.Forms.ContextMenuStrip projectContextMenu;
 		private System.Windows.Forms.ToolStripMenuItem editPortalToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem patchRetailAssetToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem scriptedImportsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem importUndercityFeb04ToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem importSmokestackToolStripMenuItem;

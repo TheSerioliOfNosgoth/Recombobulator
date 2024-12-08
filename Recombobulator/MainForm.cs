@@ -416,6 +416,7 @@ namespace Recombobulator
 			compileProjectToolStripMenuItem.Enabled = (_repository != null);
 			scriptedImportsToolStripMenuItem.Enabled = (_repository != null);
 			editPortalToolStripMenuItem.Enabled = false;
+			patchRetailAssetToolStripMenuItem.Enabled = false;
 
 			_progressWindow.Show();
 		}
@@ -427,6 +428,7 @@ namespace Recombobulator
 			compileProjectToolStripMenuItem.Enabled = (_repository != null);
 			scriptedImportsToolStripMenuItem.Enabled = (_repository != null);
 			editPortalToolStripMenuItem.Enabled = false;
+			patchRetailAssetToolStripMenuItem.Enabled = false;
 
 			if (_repository != null)
 			{
@@ -762,6 +764,7 @@ namespace Recombobulator
 			compileProjectToolStripMenuItem.Enabled = (_repository != null);
 			scriptedImportsToolStripMenuItem.Enabled = (_repository != null);
 			editPortalToolStripMenuItem.Enabled = false;
+			patchRetailAssetToolStripMenuItem.Enabled = false;
 
 			Repository repository = new Repository(folderDialog.SelectedPath);
 			if (repository != null && repository.LoadRepository())
@@ -773,6 +776,7 @@ namespace Recombobulator
 				compileProjectToolStripMenuItem.Enabled = (_repository != null);
 				scriptedImportsToolStripMenuItem.Enabled = (_repository != null);
 				editPortalToolStripMenuItem.Enabled = false;
+				patchRetailAssetToolStripMenuItem.Enabled = false;
 
 				projectTreeView.Nodes.Clear();
 
@@ -865,6 +869,7 @@ namespace Recombobulator
 		private void projectTreeView_AfterSelect(object sender, TreeViewEventArgs e)
 		{
 			editPortalToolStripMenuItem.Enabled = false;
+			patchRetailAssetToolStripMenuItem.Enabled = false;
 
 			if (_repository == null)
 			{
@@ -877,9 +882,14 @@ namespace Recombobulator
 			}
 			else if (e.Node.Parent.Text == "Levels")
 			{
+				Level level = (Level)e.Node.Tag;
+
 				editPortalToolStripMenuItem.Enabled = true;
 
-				Level level = (Level)e.Node.Tag;
+				if (!level.IsNew && !level.IsOverwritten)
+				{
+					patchRetailAssetToolStripMenuItem.Enabled = true;
+				}
 				string text = "Unit Name: " + level.UnitName + "\r\n";
 				text += "Unit ID: " + level.UnitID.ToString() + "\r\n";
 				text += "Source Unit Name: " + level.SourceUnitName + "\r\n";
@@ -959,6 +969,12 @@ namespace Recombobulator
 			else if (e.Node.Parent.Text == "Objects")
 			{
 				SR1Repository.Object obj = (SR1Repository.Object)e.Node.Tag;
+
+				if (!obj.IsNew && !obj.IsOverwritten)
+				{
+					patchRetailAssetToolStripMenuItem.Enabled = true;
+				}
+
 				string text = "Object Name: " + obj.ObjectName + "\r\n";
 				text += "Models: " + obj.NumModels + "\r\n";
 				text += "Animations: " + obj.NumAnimations + "\r\n";
@@ -983,6 +999,7 @@ namespace Recombobulator
 				projectTextBox.Text = text;
 			}
 		}
+
 		private void projectTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
 		{
 			if (_repository == null)
@@ -1025,6 +1042,62 @@ namespace Recombobulator
 			}
 
 			editPortalForm.Dispose();
+		}
+
+		private void patchRetailAssetToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if (_repository == null)
+			{
+				return;
+			}
+
+			TreeNode treeNode = projectTreeView.SelectedNode;
+			if (treeNode == null || treeNode.Parent == null)
+			{
+				return;
+			}
+
+			string fullPath;
+			Level level = treeNode.Tag as Level;
+			SR1Repository.Object obj = treeNode.Tag as SR1Repository.Object;
+
+			if (treeNode.Parent.Text == "Levels")
+			{
+				fullPath = _repository.MakeLevelFilePath(treeNode.Text, true);
+			}
+			else if (treeNode.Parent.Text == "Objects")
+			{
+				fullPath = _repository.MakeObjectFilePath(treeNode.Text, true);
+			}
+			else
+			{
+				return;
+			}
+
+			SR1_File file = new SR1_File();
+
+			file.Import(fullPath, SR1_File.ImportFlags.None, SR1_File.Version.Retail_PC);
+
+			SR1_File.MigrateFlags migrateFlags = SR1_File.MigrateFlags.None;
+			migrateFlags |= SR1_File.MigrateFlags.FixCity10;
+			migrateFlags |= SR1_File.MigrateFlags.FixCity11;
+			SR1_File.Version version = SR1_File.Version.Retail_PC;
+			file.Export(fullPath, version, migrateFlags, new SR1_File.Overrides());
+
+			if (level != null)
+			{
+				_repository.UpdateExistingLevel(treeNode.Text);
+				level.IsOverwritten = true;
+			}
+
+			if (obj != null)
+			{
+				obj.IsOverwritten = true;
+			}
+
+			_repository.SaveRepository();
+
+			patchRetailAssetToolStripMenuItem.Enabled = false;
 		}
 
 		class ImportScript

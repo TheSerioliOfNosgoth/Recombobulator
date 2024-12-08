@@ -427,7 +427,7 @@ namespace SR1Repository
 			{
 				// On converting from an earlier version, this will have been overwritten with the latest.
 				// It's supposed to be the original version, so reset it here.
-				fromPortal.OldDestVersion = sourceVersion;
+				fromPortal.OldDestVersion = level.SourceVersion;
 
 				Level targetLevel = _levels.Levels.Find(x => x.SourceUnitName == fromPortal.OldDestUnitName.ToLower() && x.SourceVersion == fromPortal.OldDestVersion);
 				if (targetLevel != null)
@@ -463,6 +463,67 @@ namespace SR1Repository
 			UpdateLevelPortals(level);
 
 			level.IsNew = true;
+			return level;
+		}
+
+		public Level UpdateExistingLevel(string unitName)
+		{
+			string fullPath = MakeLevelFilePath(unitName, true);
+			if (!File.Exists(fullPath))
+			{
+				return null;
+			}
+
+			Level level = _levels.Levels.Find(x => x.UnitName == unitName);
+			if (level == null)
+			{
+				return null;
+			}
+
+			FileStream levelFile = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
+			BinaryReader reader = new BinaryReader(levelFile, System.Text.Encoding.ASCII);
+			uint dataStart = ((reader.ReadUInt32() >> 9) << 11) + 0x00000800;
+			ProcessExistingLevel(level, reader, dataStart);
+
+			foreach (Portal fromPortal in level.Portals.Portals)
+			{
+				// On converting from an earlier version, this will have been overwritten with the latest.
+				// It's supposed to be the original version, so reset it here.
+				fromPortal.OldDestVersion = level.SourceVersion;
+
+				Level targetLevel = _levels.Levels.Find(x => x.SourceUnitName == fromPortal.OldDestUnitName.ToLower() && x.SourceVersion == fromPortal.OldDestVersion);
+				if (targetLevel != null)
+				{
+					fromPortal.DestUnitName = targetLevel.UnitName;
+					fromPortal.DestUnitID = targetLevel.UnitID;
+
+					foreach (Portal toPortal in targetLevel.Portals.Portals)
+					{
+						if (toPortal.OldDestVersion == level.SourceVersion &&
+							toPortal.OldDestUnitName.ToLower() == level.SourceUnitName &&
+							toPortal.OldDestSignalID == fromPortal.SignalID)
+						{
+							toPortal.DestUnitName = level.UnitName;
+							toPortal.DestUnitID = level.UnitID;
+							toPortal.DestSignalID = fromPortal.SignalID;
+						}
+					}
+
+					UpdateLevelPortals(targetLevel);
+				}
+				else
+				{
+					fromPortal.DestUnitName = "";
+					fromPortal.DestUnitID = 0;
+					fromPortal.DestSignalID = 0;
+				}
+			}
+
+			reader.Close();
+			levelFile.Close();
+
+			UpdateLevelPortals(level);
+
 			return level;
 		}
 
@@ -649,6 +710,60 @@ namespace SR1Repository
 			#endregion
 		}
 
+		void ProcessExistingLevel(Level level, BinaryReader reader, uint dataStart)
+		{
+			reader.BaseStream.Position = dataStart;
+			uint terrainPos = reader.ReadUInt32();
+			if (terrainPos != 0)
+			{
+				reader.BaseStream.Position = dataStart + terrainPos + 0x30;
+				uint portalListPos = reader.ReadUInt32();
+				if (portalListPos != 0)
+				{
+					List<Portal> existingPortals = new List<Portal>();
+					existingPortals.AddRange(level.Portals.Portals);
+					level.Portals.Portals.Clear();
+
+					reader.BaseStream.Position = dataStart + portalListPos;
+					int numPortals = reader.ReadInt32();
+					for (int p = 0; p < numPortals; p++)
+					{
+						string portalString = new string(reader.ReadChars(16));
+						string destUnit = portalString.Substring(0, portalString.IndexOf(','));
+						string destSignal = portalString.Substring(portalString.IndexOf(',') + 1);
+						int signalID = reader.ReadInt32();
+						int streamUnitID = reader.ReadInt32();
+
+						Portal existingPortal = existingPortals.Find(x => x.SignalID == signalID);
+						Portal portal = new Portal();
+
+						portal.SignalID = signalID;
+
+						portal.DestUnitName = destUnit;
+						portal.OldDestUnitName = existingPortal?.OldDestUnitName ?? destUnit;
+
+						portal.DestUnitID = streamUnitID;
+						portal.OldDestUnitID = existingPortal?.OldDestUnitID ?? streamUnitID;
+
+						if (Int32.TryParse(destSignal, out int destSignalID))
+						{
+							portal.DestSignalID = destSignalID;
+							portal.OldDestSignalID = existingPortal?.OldDestSignalID ?? destSignalID;
+						}
+
+						// If this level was in the project to begin with, the source version is the value that was read from the file.
+						// Otherwise it needs to be reset after this function returns.
+						portal.OldDestVersion = existingPortal?.OldDestVersion ?? level.SourceVersion;
+
+						level.Portals.Add(portal);
+						reader.BaseStream.Position += 0x44;
+					}
+				}
+			}
+
+			// Add Instances and Events here if needed.
+		}
+
 		public void EditPortal(string fromLevelName, string toLevelName, int fromSignalID, int toSignalID)
 		{
 			Level fromLevel = _levels.Find(x => x.UnitName == fromLevelName);
@@ -679,6 +794,7 @@ namespace SR1Repository
 			}
 		}
 
+		// Applies the portal data to the actual level asset.
 		void UpdateLevelPortals(Level level)
 		{
 			string fullPath = MakeLevelFilePath(level.UnitName, true);

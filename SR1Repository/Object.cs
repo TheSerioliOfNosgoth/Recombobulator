@@ -13,6 +13,7 @@ namespace SR1Repository
 		public short NumAnimations { get; set; } = 0;
 		public short NumSections { get; set; } = 0;
 		public bool IsNew { get; set; } = false;
+		public bool IsOverwritten { get; set; } = false;
 		public string TextureSet { get; set; } = "";
 	}
 }
