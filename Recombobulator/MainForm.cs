@@ -193,11 +193,11 @@ namespace Recombobulator
 					{
 						if (addFileDialog.ImportTextures)
 						{
-							textureSet = ImportTextureSet(fileName, _file._FilePath);
+							textureSet = ImportTextureSet(fileName, _file._FilePath, false);
 						}
 						else if (addFileDialog.PromptTextures)
 						{
-							textureSet = CreateTextureSet(fileName, _file._FilePath);
+							textureSet = CreateTextureSet(fileName, _file._FilePath, false);
 						}
 					}
 
@@ -1247,7 +1247,7 @@ namespace Recombobulator
 
 				if (textureSet == null)
 				{
-					textureSet = ImportTextureSet(exportName, importPath);
+					textureSet = ImportTextureSet(exportName, importPath, true);
 				}
 
 				SR1_File.MigrateFlags migrateFlags = SR1_File.MigrateFlags.None;
@@ -1403,7 +1403,7 @@ namespace Recombobulator
 			}
 		}
 
-		private TexSet ImportTextureSet(string textureSetName, string filePath)
+		private TexSet ImportTextureSet(string textureSetName, string filePath, bool isThreaded)
 		{
 			TexSet oldTextureSet;
 			do
@@ -1474,14 +1474,17 @@ namespace Recombobulator
 				}
 			}
 
-			TreeNode[] nodes = projectTreeView.Nodes.Find("TextureSets", false);
-			if (nodes.Length > 0 && nodes[0] != null)
+			if (!isThreaded)
 			{
-				TreeNode node = new TreeNode();
-				node.Text = textureSet.Name;
-				node.Tag = textureSet;
-				nodes[0].Nodes.Add(node);
-				projectTreeView.Sort();
+				TreeNode[] nodes = projectTreeView.Nodes.Find("TextureSets", false);
+				if (nodes.Length > 0 && nodes[0] != null)
+				{
+					TreeNode node = new TreeNode();
+					node.Text = textureSet.Name;
+					node.Tag = textureSet;
+					nodes[0].Nodes.Add(node);
+					projectTreeView.Sort();
+				}
 			}
 
 			_repository.TextureSets.Add(textureSet);
@@ -1489,7 +1492,7 @@ namespace Recombobulator
 			return textureSet;
 		}
 
-		private TexSet CreateTextureSet(string textureSetName, string filePath)
+		private TexSet CreateTextureSet(string textureSetName, string filePath, bool isThreaded)
 		{
 			TexSet oldTextureSet;
 			do
@@ -1538,14 +1541,17 @@ namespace Recombobulator
 				}
 			}
 
-			TreeNode[] nodes = projectTreeView.Nodes.Find("TextureSets", false);
-			if (nodes.Length > 0 && nodes[0] != null)
+			if (!isThreaded)
 			{
-				TreeNode node = new TreeNode();
-				node.Text = textureSet.Name;
-				node.Tag = textureSet;
-				nodes[0].Nodes.Add(node);
-				projectTreeView.Sort();
+				TreeNode[] nodes = projectTreeView.Nodes.Find("TextureSets", false);
+				if (nodes.Length > 0 && nodes[0] != null)
+				{
+					TreeNode node = new TreeNode();
+					node.Text = textureSet.Name;
+					node.Tag = textureSet;
+					nodes[0].Nodes.Add(node);
+					projectTreeView.Sort();
+				}
 			}
 
 			_repository.TextureSets.Add(textureSet);
