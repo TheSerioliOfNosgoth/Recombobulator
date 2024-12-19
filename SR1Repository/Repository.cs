@@ -468,6 +468,7 @@ namespace SR1Repository
 
 		public Level UpdateExistingLevel(string unitName)
 		{
+			string path = MakeLevelFilePath(unitName);
 			string fullPath = MakeLevelFilePath(unitName, true);
 			if (!File.Exists(fullPath))
 			{
@@ -480,8 +481,17 @@ namespace SR1Repository
 				return null;
 			}
 
+			AssetDesc assetDesc = _assets.Find(x => x.FilePath == path);
+			if (assetDesc == null)
+			{
+				return null;
+			}
+
 			FileStream levelFile = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
 			BinaryReader reader = new BinaryReader(levelFile, System.Text.Encoding.ASCII);
+
+			assetDesc.FileLength = (uint)levelFile.Length;
+
 			uint dataStart = ((reader.ReadUInt32() >> 9) << 11) + 0x00000800;
 			ProcessExistingLevel(level, reader, dataStart);
 
