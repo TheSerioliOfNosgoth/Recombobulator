@@ -919,6 +919,119 @@ namespace Recombobulator.SR1Structures
 					}
 
 					#endregion
+
+					#region FixRetreat6
+
+					if (//(migrateFlags & SR1_File.MigrateFlags.FixRetreat6) != 0 &&
+						file._Structures[0].Name == "retreat6")
+					{
+						StreamUnitPortal newPortal;
+
+						#region Portal1
+
+						newPortal = new StreamUnitPortal();
+						newPortal.tolevelname.SetReadMax(true);
+						newPortal.tolevelname.SetText("lair33,74", 16);
+						newPortal.streamID.Value = -29623;
+						newPortal.MSignalID.Value = 75;
+
+						newPortal.minx.Value = -660;
+						newPortal.miny.Value = 2342;
+						newPortal.minz.Value = -7144;
+						newPortal.maxx.Value = -660;
+						newPortal.maxy.Value = 3700;
+						newPortal.maxz.Value = -5786;
+
+						((SVector)newPortal.t1[0]).x.Value = -660;
+						((SVector)newPortal.t1[0]).y.Value = 2342;
+						((SVector)newPortal.t1[0]).z.Value = -5786;
+
+						((SVector)newPortal.t1[1]).x.Value = -660;
+						((SVector)newPortal.t1[1]).y.Value = 3700;
+						((SVector)newPortal.t1[1]).z.Value = -5786;
+
+						((SVector)newPortal.t1[2]).x.Value = -660;
+						((SVector)newPortal.t1[2]).y.Value = 3700;
+						((SVector)newPortal.t1[2]).z.Value = -7144;
+
+						((SVector)newPortal.t2[0]).x.Value = -660;
+						((SVector)newPortal.t2[0]).y.Value = 3700;
+						((SVector)newPortal.t2[0]).z.Value = -7144;
+
+						((SVector)newPortal.t2[1]).x.Value = -660;
+						((SVector)newPortal.t2[1]).y.Value = 2342;
+						((SVector)newPortal.t2[1]).z.Value = -7144;
+
+						((SVector)newPortal.t2[2]).x.Value = -660;
+						((SVector)newPortal.t2[2]).y.Value = 2342;
+						((SVector)newPortal.t2[2]).z.Value = -5786;
+
+						portals.Add(newPortal);
+						newNumPortals++;
+
+						#endregion
+
+						#region Portal2
+
+						newPortal = new StreamUnitPortal();
+						newPortal.tolevelname.SetReadMax(true);
+						newPortal.tolevelname.SetText("lair33,76", 16);
+						newPortal.streamID.Value = -29623;
+						newPortal.MSignalID.Value = 77;
+
+						newPortal.minx.Value = 2734;
+						newPortal.miny.Value = -3333;
+						newPortal.minz.Value = 2779;
+						newPortal.maxx.Value = 3208;
+						newPortal.maxy.Value = -2829;
+						newPortal.maxz.Value = 4705;
+
+						((SVector)newPortal.t1[0]).x.Value = 2734;
+						((SVector)newPortal.t1[0]).y.Value = -3144;
+						((SVector)newPortal.t1[0]).z.Value = 2785;
+
+						((SVector)newPortal.t1[1]).x.Value = 3208;
+						((SVector)newPortal.t1[1]).y.Value = -2988;
+						((SVector)newPortal.t1[1]).z.Value = 4705;
+
+						((SVector)newPortal.t1[2]).x.Value = 2833;
+						((SVector)newPortal.t1[2]).y.Value = -3333;
+						((SVector)newPortal.t1[2]).z.Value = 4705;
+
+						((SVector)newPortal.t2[0]).x.Value = 3208;
+						((SVector)newPortal.t2[0]).y.Value = -2988;
+						((SVector)newPortal.t2[0]).z.Value = 4705;
+
+						((SVector)newPortal.t2[1]).x.Value = 2734;
+						((SVector)newPortal.t2[1]).y.Value = -3144;
+						((SVector)newPortal.t2[1]).z.Value = 2785;
+
+						((SVector)newPortal.t2[2]).x.Value = 3027;
+						((SVector)newPortal.t2[2]).y.Value = -2829;
+						((SVector)newPortal.t2[2]).z.Value = 2779;
+
+						portals.Add(newPortal);
+						newNumPortals++;
+
+						#endregion
+
+						//MultiSignal newMultiSignal = new MultiSignal();
+						//newMultiSignal.numSignals.Value = 1;
+						//newMultiSignal.signalNum.Value = 2;
+						//newMultiSignal.flags.Value = 0;
+						//Signal newSignal = new Signal();
+						//newSignal.id.Value = 18;
+						//SignalStreamLevel newSignalStreamLevel = new SignalStreamLevel();
+						//newSignalStreamLevel.currentnum.Value = 2;
+						//newSignalStreamLevel.streamID.Value = 171;
+						//newSignalStreamLevel.toname.SetReadMax(true);
+						//newSignalStreamLevel.toname.SetText("city12,1", 16);
+						//newSignal.data = newSignalStreamLevel;
+						//newMultiSignal.signalList.Add(newSignal);
+						//newMultiSignal.pad.Value = 15;
+					}
+
+					#endregion
 				}
 
 				_portalList.numPortals.Value = newNumPortals;
