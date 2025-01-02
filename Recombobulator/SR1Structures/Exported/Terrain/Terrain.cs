@@ -935,36 +935,36 @@ namespace Recombobulator.SR1Structures
 						newPortal.streamID.Value = -29623;
 						newPortal.MSignalID.Value = 75;
 
-						newPortal.minx.Value = -660;
-						newPortal.miny.Value = 2342;
-						newPortal.minz.Value = -7144;
-						newPortal.maxx.Value = -660;
-						newPortal.maxy.Value = 3700;
-						newPortal.maxz.Value = -5786;
+						newPortal.minx.Value = 4085;
+						newPortal.miny.Value = -1257;
+						newPortal.minz.Value = 2785;
+						newPortal.maxx.Value = 4354;
+						newPortal.maxy.Value = -722;
+						newPortal.maxz.Value = 4705;
 
-						((SVector)newPortal.t1[0]).x.Value = -660;
-						((SVector)newPortal.t1[0]).y.Value = 2342;
-						((SVector)newPortal.t1[0]).z.Value = -5786;
+						((SVector)newPortal.t1[0]).x.Value = 4085;
+						((SVector)newPortal.t1[0]).y.Value = -1185;
+						((SVector)newPortal.t1[0]).z.Value = 2785;
 
-						((SVector)newPortal.t1[1]).x.Value = -660;
-						((SVector)newPortal.t1[1]).y.Value = 3700;
-						((SVector)newPortal.t1[1]).z.Value = -5786;
+						((SVector)newPortal.t1[1]).x.Value = 4354;
+						((SVector)newPortal.t1[1]).y.Value = -766;
+						((SVector)newPortal.t1[1]).z.Value = 4705;
 
-						((SVector)newPortal.t1[2]).x.Value = -660;
-						((SVector)newPortal.t1[2]).y.Value = 3700;
-						((SVector)newPortal.t1[2]).z.Value = -7144;
+						((SVector)newPortal.t1[2]).x.Value = 4234;
+						((SVector)newPortal.t1[2]).y.Value = -1257;
+						((SVector)newPortal.t1[2]).z.Value = 4705;
 
-						((SVector)newPortal.t2[0]).x.Value = -660;
-						((SVector)newPortal.t2[0]).y.Value = 3700;
-						((SVector)newPortal.t2[0]).z.Value = -7144;
+						((SVector)newPortal.t2[0]).x.Value = 4201;
+						((SVector)newPortal.t2[0]).y.Value = -722;
+						((SVector)newPortal.t2[0]).z.Value = 2785;
 
-						((SVector)newPortal.t2[1]).x.Value = -660;
-						((SVector)newPortal.t2[1]).y.Value = 2342;
-						((SVector)newPortal.t2[1]).z.Value = -7144;
+						((SVector)newPortal.t2[1]).x.Value = 4354;
+						((SVector)newPortal.t2[1]).y.Value = -766;
+						((SVector)newPortal.t2[1]).z.Value = 4705;
 
-						((SVector)newPortal.t2[2]).x.Value = -660;
-						((SVector)newPortal.t2[2]).y.Value = 2342;
-						((SVector)newPortal.t2[2]).z.Value = -5786;
+						((SVector)newPortal.t2[2]).x.Value = 4085;
+						((SVector)newPortal.t2[2]).y.Value = -1185;
+						((SVector)newPortal.t2[2]).z.Value = 2785;
 
 						portals.Add(newPortal);
 						newNumPortals++;

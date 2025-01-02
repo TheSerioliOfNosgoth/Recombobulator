@@ -23,5 +23,10 @@ namespace Recombobulator.SR1Structures
 			vertex.Write(writer);
 			normal.Write(writer);
 		}
+
+		public override string ToString()
+		{
+			return vertex.ToString();
+		}
 	}
 }
