@@ -920,6 +920,22 @@ namespace Recombobulator.SR1Structures
 
 					#endregion
 
+					#region FixLair33
+
+					if (//(migrateFlags & SR1_File.MigrateFlags.FixLair33) != 0 &&
+						file._Structures[0].Name == "lair33")
+					{
+						StreamUnitPortal portal1 = (StreamUnitPortal)_portalList.portals[1];
+						portal1.tolevelname.SetReadMax(true);
+						portal1.tolevelname.SetText("retreat6,75", 16);
+
+						StreamUnitPortal portal2 = (StreamUnitPortal)_portalList.portals[2];
+						portal2.tolevelname.SetReadMax(true);
+						portal2.tolevelname.SetText("retreat6,77", 16);
+					}
+
+					#endregion
+
 					#region FixRetreat6
 
 					if (//(migrateFlags & SR1_File.MigrateFlags.FixRetreat6) != 0 &&
@@ -928,50 +944,6 @@ namespace Recombobulator.SR1Structures
 						StreamUnitPortal newPortal;
 
 						#region Portal1
-
-						newPortal = new StreamUnitPortal();
-						newPortal.tolevelname.SetReadMax(true);
-						newPortal.tolevelname.SetText("lair33,74", 16);
-						newPortal.streamID.Value = -4575;
-						newPortal.MSignalID.Value = 75;
-
-						newPortal.minx.Value = 4085;
-						newPortal.miny.Value = -1257;
-						newPortal.minz.Value = 2785;
-						newPortal.maxx.Value = 4354;
-						newPortal.maxy.Value = -722;
-						newPortal.maxz.Value = 4705;
-
-						((SVector)newPortal.t1[0]).x.Value = 4085;
-						((SVector)newPortal.t1[0]).y.Value = -1185;
-						((SVector)newPortal.t1[0]).z.Value = 2785;
-
-						((SVector)newPortal.t1[1]).x.Value = 4354;
-						((SVector)newPortal.t1[1]).y.Value = -766;
-						((SVector)newPortal.t1[1]).z.Value = 4705;
-
-						((SVector)newPortal.t1[2]).x.Value = 4234;
-						((SVector)newPortal.t1[2]).y.Value = -1257;
-						((SVector)newPortal.t1[2]).z.Value = 4705;
-
-						((SVector)newPortal.t2[0]).x.Value = 4201;
-						((SVector)newPortal.t2[0]).y.Value = -722;
-						((SVector)newPortal.t2[0]).z.Value = 2785;
-
-						((SVector)newPortal.t2[1]).x.Value = 4354;
-						((SVector)newPortal.t2[1]).y.Value = -766;
-						((SVector)newPortal.t2[1]).z.Value = 4705;
-
-						((SVector)newPortal.t2[2]).x.Value = 4085;
-						((SVector)newPortal.t2[2]).y.Value = -1185;
-						((SVector)newPortal.t2[2]).z.Value = 2785;
-
-						portals.Add(newPortal);
-						newNumPortals++;
-
-						#endregion
-
-						#region Portal2
 
 						newPortal = new StreamUnitPortal();
 						newPortal.tolevelname.SetReadMax(true);
@@ -1009,6 +981,50 @@ namespace Recombobulator.SR1Structures
 						((SVector)newPortal.t2[2]).x.Value = 3027;
 						((SVector)newPortal.t2[2]).y.Value = -2829;
 						((SVector)newPortal.t2[2]).z.Value = 2779;
+
+						portals.Add(newPortal);
+						newNumPortals++;
+
+						#endregion
+
+						#region Portal2
+
+						newPortal = new StreamUnitPortal();
+						newPortal.tolevelname.SetReadMax(true);
+						newPortal.tolevelname.SetText("lair33,74", 16);
+						newPortal.streamID.Value = -4575;
+						newPortal.MSignalID.Value = 75;
+
+						newPortal.minx.Value = 4085;
+						newPortal.miny.Value = -1257;
+						newPortal.minz.Value = 2785;
+						newPortal.maxx.Value = 4354;
+						newPortal.maxy.Value = -722;
+						newPortal.maxz.Value = 4705;
+
+						((SVector)newPortal.t1[0]).x.Value = 4085;
+						((SVector)newPortal.t1[0]).y.Value = -1185;
+						((SVector)newPortal.t1[0]).z.Value = 2785;
+
+						((SVector)newPortal.t1[1]).x.Value = 4354;
+						((SVector)newPortal.t1[1]).y.Value = -766;
+						((SVector)newPortal.t1[1]).z.Value = 4705;
+
+						((SVector)newPortal.t1[2]).x.Value = 4234;
+						((SVector)newPortal.t1[2]).y.Value = -1257;
+						((SVector)newPortal.t1[2]).z.Value = 4705;
+
+						((SVector)newPortal.t2[0]).x.Value = 4201;
+						((SVector)newPortal.t2[0]).y.Value = -722;
+						((SVector)newPortal.t2[0]).z.Value = 2785;
+
+						((SVector)newPortal.t2[1]).x.Value = 4354;
+						((SVector)newPortal.t2[1]).y.Value = -766;
+						((SVector)newPortal.t2[1]).z.Value = 4705;
+
+						((SVector)newPortal.t2[2]).x.Value = 4085;
+						((SVector)newPortal.t2[2]).y.Value = -1185;
+						((SVector)newPortal.t2[2]).z.Value = 2785;
 
 						portals.Add(newPortal);
 						newNumPortals++;

@@ -625,6 +625,28 @@ namespace Recombobulator.SR1Structures
 				}
 			}
 
+			#region FixLair33
+
+			if (//(migrateFlags & SR1_File.MigrateFlags.FixLair33) != 0 &&
+				Name == "lair33")
+			{
+				MultiSignal multiSignal1 = (MultiSignal)_multiSignals[1];
+				Signal signal1 = (Signal)multiSignal1.signalList[0];
+				SignalStreamLevel signalStreamLevel1 = (SignalStreamLevel)signal1.data;
+				signalStreamLevel1.toname.SetReadMax(true);
+				signalStreamLevel1.toname.SetText("retreat6,77", 16);
+
+				MultiSignal multiSignal2 = (MultiSignal)_multiSignals[2];
+				Signal signal2 = (Signal)multiSignal2.signalList[0];
+				SignalStreamLevel signalStreamLevel2 = (SignalStreamLevel)signal2.data;
+				signalStreamLevel2.toname.SetReadMax(true);
+				signalStreamLevel2.toname.SetText("retreat6,75", 16);
+			}
+
+			#endregion
+
+			#region FixRetreat6
+
 			if (//(migrateFlags & SR1_File.MigrateFlags.FixRetreat6) != 0 &&
 				Name == "retreat6")
 			{
@@ -662,6 +684,8 @@ namespace Recombobulator.SR1Structures
 				multiSignal3.signalList.Add(signal3);
 				multiSignal3.pad.Value = 15;
 			}
+
+			#endregion
 
 			if (file._Version < SR1_File.Version.Jan23 && targetVersion >= SR1_File.Version.Retail_PC)
 			{
