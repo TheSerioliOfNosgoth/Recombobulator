@@ -932,7 +932,7 @@ namespace Recombobulator.SR1Structures
 						newPortal = new StreamUnitPortal();
 						newPortal.tolevelname.SetReadMax(true);
 						newPortal.tolevelname.SetText("lair33,74", 16);
-						newPortal.streamID.Value = -29623;
+						newPortal.streamID.Value = -4575;
 						newPortal.MSignalID.Value = 75;
 
 						newPortal.minx.Value = 4085;
@@ -976,7 +976,7 @@ namespace Recombobulator.SR1Structures
 						newPortal = new StreamUnitPortal();
 						newPortal.tolevelname.SetReadMax(true);
 						newPortal.tolevelname.SetText("lair33,76", 16);
-						newPortal.streamID.Value = -29623;
+						newPortal.streamID.Value = -4575;
 						newPortal.MSignalID.Value = 77;
 
 						newPortal.minx.Value = 2734;

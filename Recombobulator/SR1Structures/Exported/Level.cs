@@ -116,6 +116,8 @@ namespace Recombobulator.SR1Structures
 		public readonly SR1_Pointer<LightGroup> razielLightGroup = new SR1_Pointer<LightGroup>();
 		public readonly SR1_Pointer<LightGroup> razielSpectralLightGroup = new SR1_Pointer<LightGroup>();
 
+		SR1_StructureSeries<MultiSignal> _multiSignals = null;
+
 		SR1_String worldNameString = new SR1_String(12);
 		Events events = new Events(0);
 		LightList lightListStruct0 = new LightList();
@@ -242,7 +244,8 @@ namespace Recombobulator.SR1Structures
 			worldNameString.SetPadding(4).ReadFromPointer(reader, worldName);
 			Name = worldNameString.ToString();
 
-			new SR1_StructureSeries<MultiSignal>().ReadFromPointer(reader, SignalListStart, SignalListEnd);
+			_multiSignals = new SR1_StructureSeries<MultiSignal>();
+			_multiSignals.ReadFromPointer(reader, SignalListStart, SignalListEnd);
 			SR1_Structure terrainStruct = new Terrain().ReadFromPointer(reader, terrain);
 
 			lightListStruct0.ReadFromPointer(reader, lightList);
@@ -620,6 +623,44 @@ namespace Recombobulator.SR1Structures
 				{
 					unitFlags.Value = 0;
 				}
+			}
+
+			if (//(migrateFlags & SR1_File.MigrateFlags.FixRetreat6) != 0 &&
+				Name == "retreat6")
+			{
+				SignalStreamLevel signalStreamLevel2 = new SignalStreamLevel();
+				signalStreamLevel2.currentnum.Value = 77;
+				signalStreamLevel2.streamID.Value = -4575;
+				signalStreamLevel2.toname.SetReadMax(true);
+				signalStreamLevel2.toname.SetText("lair33,76", 16);
+
+				Signal signal2 = new Signal();
+				signal2.id.Value = 18;
+				signal2.data = signalStreamLevel2;
+
+				MultiSignal multiSignal2 = (MultiSignal)_multiSignals[2];
+				multiSignal2.numSignals.Value = 1;
+				multiSignal2.signalNum.Value = 77;
+				multiSignal2.flags.Value = 0;
+				multiSignal2.signalList.Add(signal2);
+				multiSignal2.pad.Value = 15;
+
+				SignalStreamLevel signalStreamLevel3 = new SignalStreamLevel();
+				signalStreamLevel3.currentnum.Value = 75;
+				signalStreamLevel3.streamID.Value = -4575;
+				signalStreamLevel3.toname.SetReadMax(true);
+				signalStreamLevel3.toname.SetText("lair33,74", 16);
+
+				Signal signal3 = new Signal();
+				signal3.id.Value = 18;
+				signal3.data = signalStreamLevel3;
+
+				MultiSignal multiSignal3 = (MultiSignal)_multiSignals[3];
+				multiSignal3.numSignals.Value = 1;
+				multiSignal3.signalNum.Value = 75;
+				multiSignal3.flags.Value = 0;
+				multiSignal3.signalList.Add(signal3);
+				multiSignal3.pad.Value = 15;
 			}
 
 			if (file._Version < SR1_File.Version.Jan23 && targetVersion >= SR1_File.Version.Retail_PC)
