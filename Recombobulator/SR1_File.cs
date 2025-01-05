@@ -58,6 +58,7 @@ namespace Recombobulator
 			FixCity11 = 512,
 			FixLair33 = 1024,
 			FixRetreat6 = 2048,
+			FixCathy56 = 4096,
 		}
 
 		public enum TestFlags : int

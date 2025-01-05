@@ -1030,25 +1030,82 @@ namespace Recombobulator.SR1Structures
 						newNumPortals++;
 
 						#endregion
-
-						//MultiSignal newMultiSignal = new MultiSignal();
-						//newMultiSignal.numSignals.Value = 1;
-						//newMultiSignal.signalNum.Value = 2;
-						//newMultiSignal.flags.Value = 0;
-						//Signal newSignal = new Signal();
-						//newSignal.id.Value = 18;
-						//SignalStreamLevel newSignalStreamLevel = new SignalStreamLevel();
-						//newSignalStreamLevel.currentnum.Value = 2;
-						//newSignalStreamLevel.streamID.Value = 171;
-						//newSignalStreamLevel.toname.SetReadMax(true);
-						//newSignalStreamLevel.toname.SetText("city12,1", 16);
-						//newSignal.data = newSignalStreamLevel;
-						//newMultiSignal.signalList.Add(newSignal);
-						//newMultiSignal.pad.Value = 15;
 					}
 
 					#endregion
 				}
+
+				#region FixCathy56
+
+				if (file._Version == SR1_File.Version.Feb16 &&
+					targetVersion == SR1_File.Version.Retail_PC &&
+					//(migrateFlags & SR1_File.MigrateFlags.FixCathy56) != 0 &&
+					file._Structures[0].Name == "cathy56")
+				{
+					StreamUnitPortal newPortal = new StreamUnitPortal();
+					newPortal.tolevelname.SetReadMax(true);
+					newPortal.tolevelname.SetText("cathy63,103", 16);
+					newPortal.streamID.Value = 413;
+					newPortal.MSignalID.Value = 104;
+
+					newPortal.minx.Value = 6476;
+					newPortal.miny.Value = 13025;
+					newPortal.minz.Value = 15031;
+					newPortal.maxx.Value = 6476;
+					newPortal.maxy.Value = 16022;
+					newPortal.maxz.Value = 17492;
+
+					((SVector)newPortal.t1[0]).x.Value = 6476;
+					((SVector)newPortal.t1[0]).y.Value = 16022;
+					((SVector)newPortal.t1[0]).z.Value = 15031;
+
+					((SVector)newPortal.t1[1]).x.Value = 6476;
+					((SVector)newPortal.t1[1]).y.Value = 13025;
+					((SVector)newPortal.t1[1]).z.Value = 15032;
+
+					((SVector)newPortal.t1[2]).x.Value = 6476;
+					((SVector)newPortal.t1[2]).y.Value = 13025;
+					((SVector)newPortal.t1[2]).z.Value = 17492;
+
+					((SVector)newPortal.t2[0]).x.Value = 6476;
+					((SVector)newPortal.t2[0]).y.Value = 16022;
+					((SVector)newPortal.t2[0]).z.Value = 15031;
+
+					((SVector)newPortal.t2[1]).x.Value = 6476;
+					((SVector)newPortal.t2[1]).y.Value = 13025;
+					((SVector)newPortal.t2[1]).z.Value = 17492;
+
+					((SVector)newPortal.t2[2]).x.Value = 6476;
+					((SVector)newPortal.t2[2]).y.Value = 16022;
+					((SVector)newPortal.t2[2]).z.Value = 17491;
+
+					portals.Add(newPortal);
+					newNumPortals++;
+
+					MultiSignal multiSignal2 = (MultiSignal)_multiSignals[2];
+					multiSignal2.numSignals.Value = 1;
+					multiSignal2.signalNum.Value = 104;
+					multiSignal2.flags.Value = 0;
+					Signal newSignal = new Signal();
+					newSignal.id.Value = 18;
+					SignalStreamLevel newSignalStreamLevel = new SignalStreamLevel();
+					newSignalStreamLevel.currentnum.Value = 104;
+					newSignalStreamLevel.streamID.Value = 413;
+					newSignalStreamLevel.toname.SetReadMax(true);
+					newSignalStreamLevel.toname.SetText("cathy63,103", 16);
+					newSignal.data = newSignalStreamLevel;
+					multiSignal2.signalList.Add(newSignal);
+					multiSignal2.pad.Value = 15;
+
+					TFace face = (TFace)_faces[5315];
+					face.Portal = newPortal;
+					face.MultiSignal = multiSignal2;
+					face = (TFace)_faces[5316];
+					face.Portal = newPortal;
+					face.MultiSignal = multiSignal2;
+				}
+
+				#endregion
 
 				_portalList.numPortals.Value = newNumPortals;
 			}
