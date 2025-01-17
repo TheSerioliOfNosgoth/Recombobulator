@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class TFace : SR1_Structure
+	public class TFace : SR1_Structure
 	{
 		public readonly Face face = new Face();
 		public readonly SR1_Primative<ushort> attr0 = new SR1_Primative<ushort>().ShowAsHex(true);

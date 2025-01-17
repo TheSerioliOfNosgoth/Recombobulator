@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class VMMoveOffset : SR1_Structure
+	class VMMoveOffset : VMOffset
 	{
 		SR1_Primative<short> dx = new SR1_Primative<short>();
 		SR1_Primative<short> dy = new SR1_Primative<short>();

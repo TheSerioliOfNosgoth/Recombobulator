@@ -493,12 +493,6 @@ namespace Recombobulator
 		{
 			_Overrides = overrides;
 
-			if (_Version < Version.Jan23 && targetVersion >= Version.Jan23)
-			{
-				// These things aren't ready yet.
-				migrateFlags |= MigrateFlags.RemoveVertexMorphs;
-			}
-
 			_PrimsWritten.Clear();
 			_MigrationStructures.Clear();
 			_Pointers.Clear();

@@ -6,32 +6,30 @@ namespace Recombobulator.SR1Structures
 {
 	class VMColorObject : VMObject
 	{
-		SR1_Primative<int> flags0 = new SR1_Primative<int>();
-		SR1_Primative<ushort> flags = new SR1_Primative<ushort>();
-		SR1_Primative<short> bspIdx = new SR1_Primative<short>();
-		SR1_Primative<short> materialIdx = new SR1_Primative<short>();
-		SR1_Primative<short> spectralIdx = new SR1_Primative<short>();
-		SR1_Primative<short> currentIdx = new SR1_Primative<short>();
-		SR1_Primative<short> timeScale = new SR1_Primative<short>();
-		SR1_Primative<int> timer = new SR1_Primative<int>();
-		Position position = new Position();
-		SR1_Primative<short> radius = new SR1_Primative<short>();
-		SR1_Primative<int> radiusSquared = new SR1_Primative<int>();
-		SR1_Primative<int> numVMOffsets = new SR1_Primative<int>();
-		SR1_Pointer<VMMoveOffset> vmoffsetList = new SR1_Pointer<VMMoveOffset>();
-		SR1_Primative<int> numVMOffsetTables = new SR1_Primative<int>();
-		SR1_PointerArrayPointer<VMColorOffsetTable> vmoffsetTableList = new SR1_PointerArrayPointer<VMColorOffsetTable>();
-		SR1_Pointer<VMColorOffsetTable> curVMOffsetTable = new SR1_Pointer<VMColorOffsetTable>();
-		SR1_Primative<int> numVMVertices = new SR1_Primative<int>();
-		SR1_Pointer<VMColorVertex> vmvertexList = new SR1_Pointer<VMColorVertex>();
-		SR1_Primative<int> numVMInterpolated = new SR1_Primative<int>();
-		SR1_Pointer<VMInterpolated> vminterpolatedList = new SR1_Pointer<VMInterpolated>();
-		SR1_Pointer<SR1_String> name = new SR1_Pointer<SR1_String>();
+		public readonly SR1_Primative<short> bspIdx = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> materialIdx = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> spectralIdx = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> currentIdx = new SR1_Primative<short>();
+		public readonly SR1_Primative<short> timeScale = new SR1_Primative<short>();
+		public readonly SR1_Primative<int> timer = new SR1_Primative<int>();
+		public readonly Position position = new Position();
+		public readonly SR1_Primative<short> radius = new SR1_Primative<short>();
+		public readonly SR1_Primative<int> radiusSquared = new SR1_Primative<int>();
+		public readonly SR1_Primative<int> numVMOffsets = new SR1_Primative<int>();
+		public readonly SR1_Pointer<VMMoveOffset> vmoffsetList = new SR1_Pointer<VMMoveOffset>();
+		public readonly SR1_Primative<int> numVMOffsetTables = new SR1_Primative<int>();
+		public readonly SR1_PointerArrayPointer<VMColorOffsetTable> vmoffsetTableList = new SR1_PointerArrayPointer<VMColorOffsetTable>();
+		public readonly SR1_Pointer<VMColorOffsetTable> curVMOffsetTable = new SR1_Pointer<VMColorOffsetTable>();
+		public readonly SR1_Primative<int> numVMVertices = new SR1_Primative<int>();
+		public readonly SR1_Pointer<VMColorVertex> vmvertexList = new SR1_Pointer<VMColorVertex>();
+		public readonly SR1_Primative<int> numVMInterpolated = new SR1_Primative<int>();
+		public readonly SR1_Pointer<VMInterpolated> vminterpolatedList = new SR1_Pointer<VMInterpolated>();
+		public readonly SR1_Pointer<SR1_String> name = new SR1_Pointer<SR1_String>();
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
-			flags0.Read(reader, this, "flags", SR1_File.Version.First, SR1_File.Version.Jan23);
-			flags.Read(reader, this, "flags", SR1_File.Version.Jan23, SR1_File.Version.Next);
+			base.ReadMembers(reader, parent);
+
 			bspIdx.Read(reader, this, "bspIdx", SR1_File.Version.Jan23, SR1_File.Version.Next);
 			materialIdx.Read(reader, this, "materialIdx", SR1_File.Version.Jan23, SR1_File.Version.Next);
 			spectralIdx.Read(reader, this, "spectralIdx", SR1_File.Version.Jan23, SR1_File.Version.Next);
@@ -55,51 +53,12 @@ namespace Recombobulator.SR1Structures
 
 		protected override void ReadReferences(SR1_Reader reader, SR1_Structure parent)
 		{
-			if (reader.File._Version < SR1_File.Version.Jan23)
-			{
-				uint end = 0;
-
-				if (numVMOffsets.Value > 0)
-				{
-					var offsets = new SR1_StructureArray<VMColorOffset>(numVMOffsets.Value);
-					offsets.ReadFromPointer(reader, vmoffsetList);
-					end = Math.Max(end, offsets.End);
-				}
-
-				if (numVMVertices.Value > 0)
-				{
-					var vertices = new SR1_StructureArray<VMColorVertex>(numVMVertices.Value);
-					vertices.ReadFromPointer(reader, vmvertexList);
-					end = Math.Max(end, vertices.End);
-				}
-
-				if (numVMInterpolated.Value > 0)
-				{
-					var interps = new SR1_StructureArray<VMInterpolated>(numVMInterpolated.Value);
-					interps.ReadFromPointer(reader, vminterpolatedList);
-					end = Math.Max(end, interps.End);
-				}
-
-				if ((end % 4) != 0)
-				{
-					reader.BaseStream.Position = end;
-					new SR1_Primative<ushort>().Read(reader, null, "");
-				}
-			}
-			else
-			{
-				VMObjectList vmObjectData = (VMObjectList)parent.Parent;
-				if (numVMOffsetTables.Value > 0) vmObjectData.VMOffsetTableLists.Add(new SR1_PointerArray<VMColorOffsetTable>(numVMOffsetTables.Value, false));
-				if (numVMVertices.Value > 0) vmObjectData.VMVertexLists.Add(new SR1_StructureArray<VMColorVertex>(numVMVertices.Value));
-				if (numVMInterpolated.Value > 0) vmObjectData.VMInterpolatedLists.Add(new SR1_StructureArray<VMInterpolated>(numVMInterpolated.Value));
-				vmObjectData.VMObjectNames.Add(new SR1_String(12));
-			}
 		}
 
 		public override void WriteMembers(SR1_Writer writer)
 		{
-			flags0.Write(writer, SR1_File.Version.First, SR1_File.Version.Jan23);
-			flags.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
+			base.WriteMembers(writer);
+
 			bspIdx.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			materialIdx.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			spectralIdx.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
@@ -119,6 +78,43 @@ namespace Recombobulator.SR1Structures
 			numVMInterpolated.Write(writer);
 			vminterpolatedList.Write(writer);
 			name.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
+		}
+
+		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
+		{
+			base.MigrateVersion(file, targetVersion, migrateFlags);
+
+			if (file._Version < SR1_File.Version.Jan23 && targetVersion >= SR1_File.Version.Jan23)
+			{
+				timeScale.Value = 4096;
+			}
+		}
+
+		public override string ToString()
+		{
+			string result = base.ToString();
+
+			if (vmoffsetList.Start != 0)
+			{
+				result += " { offsets = 0x" + vmoffsetList.ToString() + " }";
+			}
+
+			if (vmoffsetTableList.Start != 0)
+			{
+				result += " { offsetTables = 0x" + vmoffsetTableList.ToString() + " }";
+			}
+
+			if (vmvertexList.Start != 0)
+			{
+				result += " { vertices = 0x" + vmvertexList.ToString() + " }";
+			}
+
+			if (vminterpolatedList.Start != 0)
+			{
+				result += " { interps = 0x" + vminterpolatedList.ToString() + " }";
+			}
+
+			return result;
 		}
 	}
 }

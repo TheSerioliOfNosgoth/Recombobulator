@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class VMColorOffset : SR1_Structure
+	class VMColorOffset : VMOffset
 	{
 		SR1_Primative<short> dr0 = new SR1_Primative<short>();
 		SR1_Primative<short> dg0 = new SR1_Primative<short>();
@@ -34,6 +34,18 @@ namespace Recombobulator.SR1Structures
 			dr.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			dg.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
 			db.Write(writer, SR1_File.Version.Jan23, SR1_File.Version.Next);
+		}
+
+		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
+		{
+			base.MigrateVersion(file, targetVersion, migrateFlags);
+
+			if (file._Version < SR1_File.Version.Jan23 && targetVersion >= SR1_File.Version.Jan23)
+			{
+				dr.Value = (sbyte)dr0.Value;
+				dg.Value = (sbyte)dg0.Value;
+				db.Value = (sbyte)db0.Value;
+			}
 		}
 	}
 }

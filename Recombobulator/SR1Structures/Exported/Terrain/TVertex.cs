@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
-	class TVertex : SR1_Structure
+	public class TVertex : SR1_Structure
 	{
 		public readonly Vertex vertex = new Vertex();
 		public readonly SR1_Primative<ushort> unknown0 = new SR1_Primative<ushort>().ShowAsHex(true);
