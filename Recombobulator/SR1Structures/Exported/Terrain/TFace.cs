@@ -125,6 +125,7 @@ namespace Recombobulator.SR1Structures
 						}
 
 						removeSignal |= MultiSignal != null && MultiSignal.OmitFromMigration;
+						removeSignal |= MultiSignal != null && MultiSignal.numSignals.Value <= 0;
 						removeSignal |= Signal != null && Signal.OmitFromMigration;
 						removeSignal |= Portal != null && Portal.OmitFromMigration;
 
