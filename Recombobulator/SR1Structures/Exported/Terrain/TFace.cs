@@ -88,6 +88,9 @@ namespace Recombobulator.SR1Structures
 						// Effectively disable the FFace.
 						// This doesn't apply to the new tFaces created in Texture.MigrateVersion.
 						face.v2.Value = face.v1.Value;
+
+						attr.Value = 0;
+
 						MultiSignal = null;
 						Signal = null;
 						Portal = null;
