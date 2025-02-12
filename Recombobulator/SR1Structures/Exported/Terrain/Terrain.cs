@@ -970,8 +970,10 @@ namespace Recombobulator.SR1Structures
 								sigFace.Signal = null;
 								sigFace.Portal = null;
 							}
-
-							_sigFaces.Add(sigFace);
+							else
+							{
+								_sigFaces.Add(sigFace);
+							}
 
 							if (needTerrainSignal && _multiSignals != null)
 							{
