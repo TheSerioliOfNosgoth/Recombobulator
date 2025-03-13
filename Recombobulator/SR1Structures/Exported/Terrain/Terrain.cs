@@ -1042,42 +1042,63 @@ namespace Recombobulator.SR1Structures
 					//(migrateFlags & SR1_File.MigrateFlags.FixCathy56) != 0 &&
 					file._Structures[0].Name == "cathy56")
 				{
+					// Leaves to remove. Make numPolys 0.
+					// 0x0000E7D8 (132) 0x0000CC1C // This one has top vert. tFace 1398, vert 734, 735, 726.
+					// 0x0000E808 (133) 0x0000CC4C
+					// 0x0000E838 (134) 0x0000CC7C
+					// 0x0000E868 (135) 0x0000CCAC
+					// 0x0000E898 (136) 0x0000CCDC
+					// 0x0000E8C8 (137) 0x0000CD0C
+					// 0x0000E958 (140) 0x0000CD9C // This one has top vert.
+					// 0x0000E988 (141) 0x0000CDCC // Useful, but not the very top.
+					// 0x0000EC28 (155) 0x0000D06C
+
+					// vertex 735
+					// vertex 736
+					// vertex 739 - Front
+					// vertex 760
+					// vertex 761
+
 					StreamUnitPortal newPortal = new StreamUnitPortal();
 					newPortal.tolevelname.SetReadMax(true);
 					newPortal.tolevelname.SetText("cathy63,103", 16);
 					newPortal.streamID.Value = 413;
 					newPortal.MSignalID.Value = 104;
 
-					newPortal.minx.Value = 6476;
-					newPortal.miny.Value = 13025;
-					newPortal.minz.Value = 15031;
-					newPortal.maxx.Value = 6476;
-					newPortal.maxy.Value = 16022;
-					newPortal.maxz.Value = 17492;
+					short offsetX = 1400;
+					short offsetY = 0;
+					short offsetZ = 0;
 
-					((SVector)newPortal.t1[0]).x.Value = 6476;
-					((SVector)newPortal.t1[0]).y.Value = 16022;
-					((SVector)newPortal.t1[0]).z.Value = 15031;
+					newPortal.minx.Value = (short)(6476 + offsetX);
+					newPortal.miny.Value = (short)(13025 + offsetY);
+					newPortal.minz.Value = (short)(15031 + offsetZ);
+					newPortal.maxx.Value = (short)(6476 + offsetX);
+					newPortal.maxy.Value = (short)(16022 + offsetY);
+					newPortal.maxz.Value = (short)(17492 + offsetZ);
 
-					((SVector)newPortal.t1[1]).x.Value = 6476;
-					((SVector)newPortal.t1[1]).y.Value = 13025;
-					((SVector)newPortal.t1[1]).z.Value = 15032;
+					((SVector)newPortal.t1[0]).x.Value = (short)(6476 + offsetX);
+					((SVector)newPortal.t1[0]).y.Value = (short)(16022 + offsetY);
+					((SVector)newPortal.t1[0]).z.Value = (short)(15031 + offsetZ);
 
-					((SVector)newPortal.t1[2]).x.Value = 6476;
-					((SVector)newPortal.t1[2]).y.Value = 13025;
-					((SVector)newPortal.t1[2]).z.Value = 17492;
+					((SVector)newPortal.t1[1]).x.Value = (short)(6476 + offsetX);
+					((SVector)newPortal.t1[1]).y.Value = (short)(13025 + offsetY);
+					((SVector)newPortal.t1[1]).z.Value = (short)(17492 + offsetZ);
 
-					((SVector)newPortal.t2[0]).x.Value = 6476;
-					((SVector)newPortal.t2[0]).y.Value = 16022;
-					((SVector)newPortal.t2[0]).z.Value = 15031;
+					((SVector)newPortal.t1[2]).x.Value = (short)(6476 + offsetX);
+					((SVector)newPortal.t1[2]).y.Value = (short)(16022 + offsetY);
+					((SVector)newPortal.t1[2]).z.Value = (short)(17491 + offsetZ);
 
-					((SVector)newPortal.t2[1]).x.Value = 6476;
-					((SVector)newPortal.t2[1]).y.Value = 13025;
-					((SVector)newPortal.t2[1]).z.Value = 17492;
+					((SVector)newPortal.t2[0]).x.Value = (short)(6476 + offsetX);
+					((SVector)newPortal.t2[0]).y.Value = (short)(16022 + offsetY);
+					((SVector)newPortal.t2[0]).z.Value = (short)(15031 + offsetZ);
 
-					((SVector)newPortal.t2[2]).x.Value = 6476;
-					((SVector)newPortal.t2[2]).y.Value = 16022;
-					((SVector)newPortal.t2[2]).z.Value = 17491;
+					((SVector)newPortal.t2[1]).x.Value = (short)(6476 + offsetX);
+					((SVector)newPortal.t2[1]).y.Value = (short)(13025 + offsetY);
+					((SVector)newPortal.t2[1]).z.Value = (short)(15031 + offsetZ);
+
+					((SVector)newPortal.t2[2]).x.Value = (short)(6476 + offsetX);
+					((SVector)newPortal.t2[2]).y.Value = (short)(13025 + offsetY);
+					((SVector)newPortal.t2[2]).z.Value = (short)(17492 + offsetZ);
 
 					portals.Add(newPortal);
 					newNumPortals++;
@@ -1097,12 +1118,63 @@ namespace Recombobulator.SR1Structures
 					multiSignal2.signalList.Add(newSignal);
 					multiSignal2.pad.Value = 15;
 
-					TFace face = (TFace)_faces[5315];
+					TFace face;
+
+					face = (TFace)_faces[5315];
 					face.Portal = newPortal;
 					face.MultiSignal = multiSignal2;
+
 					face = (TFace)_faces[5316];
 					face.Portal = newPortal;
 					face.MultiSignal = multiSignal2;
+
+					Vertex vertex;
+
+					vertex = ((TVertex)_vertices[1042]).vertex;
+					vertex.x.Value = (short)(6476 + offsetX);
+					vertex.y.Value = (short)(16022 + offsetY);
+					vertex.z.Value = (short)(15031 + offsetZ);
+
+					vertex = ((TVertex)_vertices[1841]).vertex;
+					vertex.x.Value = (short)(6476 + offsetX);
+					vertex.y.Value = (short)(13025 + offsetY);
+					vertex.z.Value = (short)(15031 + offsetZ);
+
+					vertex = ((TVertex)_vertices[2701]).vertex;
+					vertex.x.Value = (short)(6476 + offsetX);
+					vertex.y.Value = (short)(13025 + offsetY);
+					vertex.z.Value = (short)(17492 + offsetZ);
+
+					vertex = ((TVertex)_vertices[2702]).vertex;
+					vertex.x.Value = (short)(6476 + offsetX);
+					vertex.y.Value = (short)(16022 + offsetY);
+					vertex.z.Value = (short)(17491 + offsetZ);
+
+					Position materialSpherePos = _sigLeaf.sphereNoSq.position;
+					materialSpherePos.x.Value = (short)(6476 + offsetX);
+					materialSpherePos.y.Value = (short)(14524 + offsetY);
+					materialSpherePos.z.Value = (short)(16261 + offsetZ);
+
+					BoundingBox materialBox = _sigLeaf.box;
+					materialBox.minX.Value = (short)(6476 + offsetX);
+					materialBox.minY.Value = (short)(13025 + offsetY);
+					materialBox.minZ.Value = (short)(15031 + offsetZ);
+					materialBox.maxX.Value = (short)(6476 + offsetX);
+					materialBox.maxY.Value = (short)(16022 + offsetY);
+					materialBox.maxZ.Value = (short)(17492 + offsetZ);
+
+					Position spectralSpherePos = _sigLeaf.spectralSphereNoSq.position;
+					spectralSpherePos.x.Value = (short)(6476 + offsetX);
+					spectralSpherePos.y.Value = (short)(14524 + offsetY);
+					spectralSpherePos.z.Value = (short)(16261 + offsetZ);
+
+					BoundingBox spectralBox = _sigLeaf.spectralBox;
+					spectralBox.minX.Value = (short)(6476 + offsetX);
+					spectralBox.minY.Value = (short)(13025 + offsetY);
+					spectralBox.minZ.Value = (short)(15031 + offsetZ);
+					spectralBox.maxX.Value = (short)(6476 + offsetX);
+					spectralBox.maxY.Value = (short)(16022 + offsetY);
+					spectralBox.maxZ.Value = (short)(17492 + offsetZ);
 				}
 
 				#endregion
