@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Recombobulator.SR1Structures
 {
@@ -74,6 +76,14 @@ namespace Recombobulator.SR1Structures
 		// Used to remember where to insert the morph normals, on migrating from Proto1
 		// because of weird padding at the end of them.
 		uint NormalListEnd = 0;
+
+		struct ObjFace
+		{
+			public int v0, v1, v2;
+			public int n0, n1, n2;
+			public int uv0, uv1, uv2;
+			public int mtl;
+		}
 
 		protected override void ReadMembers(SR1_Reader reader, SR1_Structure parent)
 		{
@@ -1175,6 +1185,133 @@ namespace Recombobulator.SR1Structures
 					spectralBox.maxX.Value = (short)(6476 + offsetX);
 					spectralBox.maxY.Value = (short)(16022 + offsetY);
 					spectralBox.maxZ.Value = (short)(17492 + offsetZ);
+				}
+
+				#endregion
+
+				#region FixCathy63
+
+				if (file._Version == SR1_File.Version.Feb16 &&
+					targetVersion == SR1_File.Version.Retail_PC &&
+					//(migrateFlags & SR1_File.MigrateFlags.FixCathy63) != 0 &&
+					file._Structures[0].Name == "cathy63")
+				{
+					List<TVertex> newVertices = new List<TVertex>();
+					List<Normal> newNormals = new List<Normal>();
+					List<(byte, byte)> newUVs = new List<(byte, byte)>();
+					List<ObjFace> objFaces = new List<ObjFace>();
+					List<TFace> newFaces = new List<TFace>();
+					List<TextureFT3> newTextures = new List<TextureFT3>();
+					int currentMtl = 0;
+
+					#region Parsing
+
+					System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+					string resourceName = "Recombobulator.Resources.cathy63mod.obj";
+					using (System.IO.Stream stream = assembly.GetManifestResourceStream(resourceName))
+					using (System.IO.StreamReader reader = new System.IO.StreamReader(stream))
+					{
+						string line;
+						while (!reader.EndOfStream)
+						{
+							line = reader.ReadLine();
+
+							if (line.StartsWith("mtllib "))
+							{
+								continue;
+							}
+
+							if (line.StartsWith("o "))
+							{
+								continue;
+							}
+
+							if (line.StartsWith("v "))
+							{
+								string[] parts = line.Split(new char[] { ' ' }, 4);
+								Console.WriteLine(string.Format("v = {0}, {1}, {2}", parts[1], parts[2], parts[3]));
+
+								TVertex v = new TVertex();
+								v.vertex.x.Value = (short)(1000f * float.Parse(parts[1]));
+								v.vertex.y.Value = (short)(1000f * float.Parse(parts[2]));
+								v.vertex.z.Value = (short)(1000f * float.Parse(parts[3]));
+								newVertices.Add(v);
+								continue;
+							}
+
+							if (line.StartsWith("vn "))
+							{
+								string[] parts = line.Split(new char[] { ' ' }, 4);
+								Console.WriteLine(string.Format("vn = {0}, {1}, {2}", parts[1], parts[2], parts[3]));
+
+								Normal n = new Normal();
+								n.x.Value = (short)(1000f * float.Parse(parts[1]));
+								n.y.Value = (short)(1000f * float.Parse(parts[2]));
+								n.z.Value = (short)(1000f * float.Parse(parts[3]));
+								newNormals.Add(n);
+								continue;
+							}
+
+							if (line.StartsWith("vt "))
+							{
+								string[] parts = line.Split(new char[] { ' ', '_' }, 3);
+								Console.WriteLine(string.Format("vt = {0}, {1}", parts[1], parts[2]));
+
+								byte u = (byte)(255f * float.Parse(parts[1]));
+								byte v = (byte)(255f * float.Parse(parts[1]));
+								newUVs.Add((u, v));
+								continue;
+							}
+
+							if (line.StartsWith("s "))
+							{
+								continue;
+							}
+
+							if (line.StartsWith("usemtl "))
+							{
+								string[] parts = line.Split(new char[] { ' ', '_' }, 3);
+								Console.WriteLine(string.Format("usemtl = {0}", parts[2]));
+
+								currentMtl = int.Parse(parts[2]);
+								continue;
+							}
+
+							if (line.StartsWith("f "))
+							{
+								string[] parts = line.Split(new char[] { ' ', '/' }, 10);
+								Console.WriteLine(string.Format("f = [ {0}, {1}, {2} ], [ {3}, {4}, {5} ], [ {6}, {7}, {8} ]", parts[1], parts[2], parts[3], parts[4], parts[5], parts[6], parts[7], parts[8], parts[9]));
+
+								ObjFace f = new ObjFace();
+								f.v0 = int.Parse(parts[1]) - 1;
+								f.n0 = int.Parse(parts[2]) - 1;
+								f.uv0 = int.Parse(parts[3]) - 1;
+								f.v1 = int.Parse(parts[4]) - 1;
+								f.n1 = int.Parse(parts[5]) - 1;
+								f.uv1 = int.Parse(parts[6]) - 1;
+								f.v2 = int.Parse(parts[7]) - 1;
+								f.n2 = int.Parse(parts[8]) - 1;
+								f.uv2 = int.Parse(parts[9]) - 1;
+								f.mtl = currentMtl;
+								objFaces.Add(f);
+								continue;
+							}
+
+							if (line.StartsWith("l "))
+							{
+								string[] parts = line.Split(new char[] { ' ' }, 3);
+								Console.WriteLine(string.Format("l = {0}, {1}", parts[1], parts[2]));
+								continue;
+							}
+						}
+					}
+
+					Console.WriteLine(string.Format("Vertices: {0}", newVertices.Count));
+					Console.WriteLine(string.Format("Normals: {0}", newNormals.Count));
+					Console.WriteLine(string.Format("UVs: {0}", newUVs.Count));
+					Console.WriteLine(string.Format("Faces: {0}", objFaces.Count));
+
+					#endregion
 				}
 
 				#endregion
