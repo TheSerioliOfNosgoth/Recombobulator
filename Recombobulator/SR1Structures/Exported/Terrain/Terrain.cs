@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Recombobulator.SR1Structures
 {
@@ -63,12 +62,16 @@ namespace Recombobulator.SR1Structures
 		bool HasSignalTree = false;
 		bool HasSunlightTree = false;
 
-		// Added when converting to proto builds.
+		// Added when converting proto builds.
 		BSPTree _envTree = null;
 		BSPTree _sunTree = null;
 		BSPLeaf _sunLeaf = null;
 		List<TFace> _sunFaces = null;
 		List<TFace> _sigFaces = null;
+
+		// Added when converting cathy63 to fit cathy56.
+		BSPTree _moddedTree = null;
+		BSPLeaf _moddedLeaf = null;
 
 		// The first signal referenced by the terrain.
 		MultiSignal _terrainSignal = null;
@@ -80,7 +83,6 @@ namespace Recombobulator.SR1Structures
 		struct ObjFace
 		{
 			public int v0, v1, v2;
-			public int n0, n1, n2;
 			public int uv0, uv1, uv2;
 			public int mtl;
 		}
@@ -576,7 +578,7 @@ namespace Recombobulator.SR1Structures
 			}
 		}
 
-		private void CopyBSPRootToLoaf(BSPLeaf leaf)
+		private void CopyBSPRootToLeaf(BSPLeaf leaf)
 		{
 			Sphere.Copy(leaf.sphere, _bspRoot.sphere);
 			Sphere.Copy(leaf.spectralSphere, _bspRoot.spectralSphere);
@@ -1197,21 +1199,19 @@ namespace Recombobulator.SR1Structures
 					file._Structures[0].Name == "cathy63")
 				{
 					List<TVertex> newVertices = new List<TVertex>();
-					List<Normal> newNormals = new List<Normal>();
+					List<MorphColor> newMorphColors = new List<MorphColor>();
 					List<(byte, byte)> newUVs = new List<(byte, byte)>();
-					List<ObjFace> objFaces = new List<ObjFace>();
-					List<TFace> newFaces = new List<TFace>();
-					List<TextureFT3> newTextures = new List<TextureFT3>();
-					int currentMtl = 0;
+					List<ObjFace> newFaces = new List<ObjFace>();
 
 					#region Parsing
 
-					System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
 					string resourceName = "Recombobulator.Resources.cathy63mod.obj";
+					System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
 					using (System.IO.Stream stream = assembly.GetManifestResourceStream(resourceName))
 					using (System.IO.StreamReader reader = new System.IO.StreamReader(stream))
 					{
 						string line;
+						int currentMtl = 0;
 						while (!reader.EndOfStream)
 						{
 							line = reader.ReadLine();
@@ -1235,7 +1235,14 @@ namespace Recombobulator.SR1Structures
 								v.vertex.x.Value = (short)(1000f * float.Parse(parts[1]));
 								v.vertex.y.Value = (short)(1000f * float.Parse(parts[2]));
 								v.vertex.z.Value = (short)(1000f * float.Parse(parts[3]));
+								v.r0.Value = 0x80;
+								v.g0.Value = 0x80;
+								v.b0.Value = 0x80;
+								v.code.Value = 0x34;
 								newVertices.Add(v);
+								MorphColor mc = new MorphColor();
+								mc.morphColor15.Value = 0;
+								newMorphColors.Add(mc);
 								continue;
 							}
 
@@ -1244,11 +1251,6 @@ namespace Recombobulator.SR1Structures
 								string[] parts = line.Split(new char[] { ' ' }, 4);
 								Console.WriteLine(string.Format("vn = {0}, {1}, {2}", parts[1], parts[2], parts[3]));
 
-								Normal n = new Normal();
-								n.x.Value = (short)(1000f * float.Parse(parts[1]));
-								n.y.Value = (short)(1000f * float.Parse(parts[2]));
-								n.z.Value = (short)(1000f * float.Parse(parts[3]));
-								newNormals.Add(n);
 								continue;
 							}
 
@@ -1282,18 +1284,15 @@ namespace Recombobulator.SR1Structures
 								string[] parts = line.Split(new char[] { ' ', '/' }, 10);
 								Console.WriteLine(string.Format("f = [ {0}, {1}, {2} ], [ {3}, {4}, {5} ], [ {6}, {7}, {8} ]", parts[1], parts[2], parts[3], parts[4], parts[5], parts[6], parts[7], parts[8], parts[9]));
 
-								ObjFace f = new ObjFace();
-								f.v0 = int.Parse(parts[1]) - 1;
-								f.n0 = int.Parse(parts[2]) - 1;
-								f.uv0 = int.Parse(parts[3]) - 1;
-								f.v1 = int.Parse(parts[4]) - 1;
-								f.n1 = int.Parse(parts[5]) - 1;
-								f.uv1 = int.Parse(parts[6]) - 1;
-								f.v2 = int.Parse(parts[7]) - 1;
-								f.n2 = int.Parse(parts[8]) - 1;
-								f.uv2 = int.Parse(parts[9]) - 1;
-								f.mtl = currentMtl;
-								objFaces.Add(f);
+								ObjFace of = new ObjFace();
+								of.v0 = int.Parse(parts[1]) - 1;
+								of.uv0 = int.Parse(parts[3]) - 1;
+								of.v1 = int.Parse(parts[4]) - 1;
+								of.uv1 = int.Parse(parts[6]) - 1;
+								of.v2 = int.Parse(parts[7]) - 1;
+								of.uv2 = int.Parse(parts[9]) - 1;
+								of.mtl = currentMtl;
+								newFaces.Add(of);
 								continue;
 							}
 
@@ -1307,11 +1306,71 @@ namespace Recombobulator.SR1Structures
 					}
 
 					Console.WriteLine(string.Format("Vertices: {0}", newVertices.Count));
-					Console.WriteLine(string.Format("Normals: {0}", newNormals.Count));
 					Console.WriteLine(string.Format("UVs: {0}", newUVs.Count));
-					Console.WriteLine(string.Format("Faces: {0}", objFaces.Count));
+					Console.WriteLine(string.Format("Faces: {0}", newFaces.Count));
 
 					#endregion
+
+					foreach (TVertex v in newVertices)
+					{
+						_vertices.Add(v);
+					}
+
+					foreach (MorphColor mc in newMorphColors)
+					{
+						_morphColors.Add(mc);
+					}
+
+					numVertices.Value = _vertices.Count;
+
+					foreach (ObjFace face in newFaces)
+					{
+						Normal n = new Normal();
+						n.x.Value = 4096;
+						n.y.Value = 0;
+						n.z.Value = 0;
+						_normals.Add(n);
+
+						TextureFT3 t = new TextureFT3();
+						t.tpage.Value = (ushort)face.mtl;
+						var uv0 = newUVs[face.uv0];
+						var uv1 = newUVs[face.uv1];
+						var uv2 = newUVs[face.uv2];
+						t.u0.Value = uv0.Item1;
+						t.v0.Value = uv0.Item2;
+						t.u1.Value = uv1.Item1;
+						t.v1.Value = uv1.Item2;
+						t.u2.Value = uv2.Item1;
+						t.v2.Value = uv2.Item2;
+						_textures.Add(t);
+
+						TFace f = new TFace();
+						f.face.v0.Value = (ushort)face.v0;
+						f.face.v1.Value = (ushort)face.v1;
+						f.face.v2.Value = (ushort)face.v2;
+						f.textoff.Value = 0xFFFF;
+						f.Texture = t;
+						_faces.Add(f);
+					}
+
+					numFaces.Value = _faces.Count;
+					numNormals.Value = _normals.Count;
+
+					/*
+					// Create a leaf for the modded section. Only one is needed.
+					_moddedLeaf = new BSPLeaf();
+
+					// Leaves need flag 2!
+					_moddedLeaf.flags.Value = 2;
+
+					// Insert the BSPLeaf just before the signal leaf.
+					uint position = _sigLeaf.Start;
+					file._MigrationStructures.Add(position, _moddedLeaf);
+
+					_moddedTree = new BSPTree();
+
+					_bspTrees.InsertAt(_bspTrees.Count - 2, _moddedTree);
+					*/
 				}
 
 				#endregion
@@ -1387,7 +1446,7 @@ namespace Recombobulator.SR1Structures
 					// Create a leaf for the sun tree. Only one is needed.
 					_sunLeaf = new BSPLeaf();
 
-					CopyBSPRootToLoaf(_sunLeaf);
+					CopyBSPRootToLeaf(_sunLeaf);
 
 					// Leaves need flag 2!
 					_sunLeaf.flags.Value = 2;
@@ -1494,7 +1553,7 @@ namespace Recombobulator.SR1Structures
 					// Create a leaf for the signal tree. Only one is needed.
 					_sigLeaf = new BSPLeaf();
 
-					CopyBSPRootToLoaf(_sigLeaf);
+					CopyBSPRootToLeaf(_sigLeaf);
 
 					// Leaves need flag 2!
 					_sigLeaf.flags.Value = 2;
