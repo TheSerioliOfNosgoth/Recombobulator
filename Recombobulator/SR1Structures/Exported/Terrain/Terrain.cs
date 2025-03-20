@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Recombobulator.SR1Structures
 {
@@ -1202,6 +1203,7 @@ namespace Recombobulator.SR1Structures
 					List<MorphColor> newMorphColors = new List<MorphColor>();
 					List<(byte, byte)> newUVs = new List<(byte, byte)>();
 					List<ObjFace> newFaces = new List<ObjFace>();
+					ushort[] textureIDs = file._Overrides.NewTextureIDs.Values.ToArray();
 
 					#region Parsing
 
@@ -1286,11 +1288,11 @@ namespace Recombobulator.SR1Structures
 
 								ObjFace of = new ObjFace();
 								of.v0 = int.Parse(parts[1]) - 1;
-								of.uv0 = int.Parse(parts[3]) - 1;
+								of.uv0 = int.Parse(parts[2]) - 1;
 								of.v1 = int.Parse(parts[4]) - 1;
-								of.uv1 = int.Parse(parts[6]) - 1;
+								of.uv1 = int.Parse(parts[5]) - 1;
 								of.v2 = int.Parse(parts[7]) - 1;
-								of.uv2 = int.Parse(parts[9]) - 1;
+								of.uv2 = int.Parse(parts[8]) - 1;
 								of.mtl = currentMtl;
 								newFaces.Add(of);
 								continue;
@@ -1332,7 +1334,17 @@ namespace Recombobulator.SR1Structures
 						_normals.Add(n);
 
 						TextureFT3 t = new TextureFT3();
-						t.tpage.Value = (ushort)face.mtl;
+						if (face.mtl > 0 &&
+							face.mtl < textureIDs.Length)
+						{
+							t.tpage.Value = textureIDs[face.mtl];
+						}
+						else
+						{
+							t.tpage.Value = 0;
+						}
+						t.tpage.Value |= 0x2000; // UseAlphaMask
+						t.attr2.Value = 0x0108;
 						var uv0 = newUVs[face.uv0];
 						var uv1 = newUVs[face.uv1];
 						var uv2 = newUVs[face.uv2];
