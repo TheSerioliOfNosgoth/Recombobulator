@@ -52,6 +52,16 @@ namespace Recombobulator.SR1Structures
 			return this;
 		}
 
+		public int GetPadding()
+		{
+			if (_padding == null)
+			{
+				return 0;
+			}
+
+			return _padding.Length;
+		}
+
 		protected static object ReadPrimativeType<T>(SR1_Reader reader)
 		{
 			TypeCode typeCode = Type.GetTypeCode(typeof(T));

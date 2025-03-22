@@ -50,7 +50,7 @@ namespace Recombobulator.SR1Structures
 		SR1_StructureSeries<TextureFT3> _textures = null;
 		SR1_StructureSeries<MorphVertex> _morphVertices = null;
 		SR1_StructureSeries<MorphColor> _morphColors = null;
-		SR1_PrimativeArray<ushort> _morphNormals = null;
+		SR1_PrimativeSeries<ushort> _morphNormals = null;
 		SR1_StructureSeries<BSPTree> _bspTrees = null;
 		BSPTree _sigTree = null;
 		BSPLeaf _sigLeaf = null;
@@ -238,21 +238,13 @@ namespace Recombobulator.SR1Structures
 			_morphColors.SetPadding(morphColorPadding);
 			_morphColors.ReadFromPointer(reader, MorphColorList, numMorphColors);
 
-			if (reader.File._Version < SR1_File.Version.Jan23)
-			{
-				_morphNormals = new SR1_PrimativeArray<ushort>(0);
-			}
-			else
-			{
-				_morphNormals = new SR1_PrimativeArray<ushort>(numFaces.Value);
-
-				if (numFaces.Value > 0)
-				{
-					_morphNormals.SetPadding(4);
-					_morphNormals.Align = 2;
-					_morphNormals.ReadFromPointer(reader, morphNormalIdx);
-				}
-			}
+			int numMorphNormals = GetMorphNormalCount(reader);
+			int morphNormalPadding = GetMorphNormalPadding(reader);
+			int morphNormalAlign = GetMorphNormalAlign(reader);
+			_morphNormals = new SR1_PrimativeSeries<ushort>();
+			_morphNormals.SetPadding(morphNormalPadding);
+			_morphNormals.Align = morphNormalAlign;
+			_morphNormals.ReadFromPointer(reader, morphNormalIdx, numMorphNormals);
 
 			#endregion
 
@@ -444,6 +436,7 @@ namespace Recombobulator.SR1Structures
 		private int GetMorphColorPadding(SR1_Reader reader)
 		{
 			int morphColorPadding = 0;
+
 			if (reader.File._Version >= SR1_File.Version.Apr14)
 			{
 				morphColorPadding = 4;
@@ -454,6 +447,26 @@ namespace Recombobulator.SR1Structures
 			}
 
 			return morphColorPadding;
+		}
+
+		private int GetMorphNormalCount(SR1_Reader reader)
+		{
+			if (reader.File._Version >= SR1_File.Version.Jan23)
+			{
+				return numFaces.Value;
+			}
+
+			return 0;
+		}
+
+		private int GetMorphNormalPadding(SR1_Reader reader)
+		{
+			return 4;
+		}
+
+		private int GetMorphNormalAlign(SR1_Reader reader)
+		{
+			return 2;
 		}
 
 		private void MapSignalFaces(SR1_Reader reader)
@@ -605,12 +618,13 @@ namespace Recombobulator.SR1Structures
 
 		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
 		{
+			Level level = (Level)file._Structures[0];
+
 			SR1_Structure lastStructure = file._Structures.Values[file._Structures.Count - 1];
 			uint position = lastStructure.End;
 
 			base.MigrateVersion(file, targetVersion, migrateFlags);
 
-			Level level = (Level)file._Structures[0];
 			if (level.introList.Offset != 0)
 			{
 				SR1_StructureSeries<Intro> intros = (SR1_StructureSeries<Intro>)file._Structures[level.introList.Offset];
@@ -640,7 +654,7 @@ namespace Recombobulator.SR1Structures
 					#region FixCity10
 
 					if ((migrateFlags & SR1_File.MigrateFlags.FixCity10) != 0 &&
-						file._Structures[0].Name == "city10")
+						level.Name == "city10")
 					{
 						#region Signal0
 
@@ -860,7 +874,7 @@ namespace Recombobulator.SR1Structures
 					#region FixCity11
 
 					if ((migrateFlags & SR1_File.MigrateFlags.FixCity11) != 0 &&
-						file._Structures[0].Name == "city11")
+						level.Name == "city11")
 					{
 						StreamUnitPortal newPortal = new StreamUnitPortal();
 						newPortal.tolevelname.SetReadMax(true);
@@ -936,7 +950,7 @@ namespace Recombobulator.SR1Structures
 					#region FixLair33
 
 					if (//(migrateFlags & SR1_File.MigrateFlags.FixLair33) != 0 &&
-						file._Structures[0].Name == "lair33")
+						level.Name == "lair33")
 					{
 						StreamUnitPortal portal1 = (StreamUnitPortal)_portalList.portals[1];
 						portal1.tolevelname.SetReadMax(true);
@@ -952,7 +966,7 @@ namespace Recombobulator.SR1Structures
 					#region FixRetreat6
 
 					if (//(migrateFlags & SR1_File.MigrateFlags.FixRetreat6) != 0 &&
-						file._Structures[0].Name == "retreat6")
+						level.Name == "retreat6")
 					{
 						StreamUnitPortal newPortal;
 
@@ -1053,7 +1067,7 @@ namespace Recombobulator.SR1Structures
 				if (file._Version == SR1_File.Version.Feb16 &&
 					targetVersion == SR1_File.Version.Retail_PC &&
 					//(migrateFlags & SR1_File.MigrateFlags.FixCathy56) != 0 &&
-					file._Structures[0].Name == "cathy56")
+					level.Name == "cathy56")
 				{
 					// Leaves to remove. Make numPolys 0.
 					// 0x0000E7D8 (132) 0x0000CC1C // This one has top vert. tFace 1398, vert 734, 735, 726.
@@ -1197,7 +1211,7 @@ namespace Recombobulator.SR1Structures
 				if (file._Version == SR1_File.Version.Feb16 &&
 					targetVersion == SR1_File.Version.Retail_PC &&
 					//(migrateFlags & SR1_File.MigrateFlags.FixCathy63) != 0 &&
-					file._Structures[0].Name == "cathy63")
+					level.Name == "cathy63")
 				{
 					List<TVertex> newVertices = new List<TVertex>();
 					List<MorphColor> newMorphColors = new List<MorphColor>();
@@ -1333,6 +1347,8 @@ namespace Recombobulator.SR1Structures
 						n.z.Value = 0;
 						_normals.Add(n);
 
+						_morphNormals.Add(0);
+
 						TextureFT3 t = new TextureFT3();
 						if (face.mtl > 0 &&
 							face.mtl < textureIDs.Length)
@@ -1360,13 +1376,15 @@ namespace Recombobulator.SR1Structures
 						f.face.v0.Value = (ushort)face.v0;
 						f.face.v1.Value = (ushort)face.v1;
 						f.face.v2.Value = (ushort)face.v2;
+						f.normal.Value = 0;
+						f.morph.Value = 0xFFFF;
 						f.textoff.Value = 0xFFFF;
 						f.Texture = t;
 						_faces.Add(f);
 					}
 
-					numFaces.Value = _faces.Count;
 					numNormals.Value = _normals.Count;
+					numFaces.Value = _faces.Count;
 
 					/*
 					// Create a leaf for the modded section. Only one is needed.
@@ -1520,7 +1538,6 @@ namespace Recombobulator.SR1Structures
 							bool removeSignal = false;
 
 							removeSignal |= sigFace.MultiSignal != null && sigFace.MultiSignal.OmitFromMigration;
-							removeSignal |= sigFace.MultiSignal != null && sigFace.MultiSignal.numSignals.Value <= 0;
 							removeSignal |= sigFace.Signal != null && sigFace.Signal.OmitFromMigration;
 							removeSignal |= sigFace.Portal != null && sigFace.Portal.OmitFromMigration;
 
@@ -1532,10 +1549,8 @@ namespace Recombobulator.SR1Structures
 								sigFace.Signal = null;
 								sigFace.Portal = null;
 							}
-							else
-							{
-								_sigFaces.Add(sigFace);
-							}
+
+							_sigFaces.Add(sigFace);
 
 							if (needTerrainSignal && _multiSignals != null)
 							{
@@ -1615,34 +1630,33 @@ namespace Recombobulator.SR1Structures
 
 				// Create a new array of morph colors with one per vertex.
 				SR1_StructureSeries<MorphColor> newMorphColors = new SR1_StructureSeries<MorphColor>();
-				newMorphColors.SetPadding(4);
+				newMorphColors.SetPadding(_morphColors.GetPadding());
+				newMorphColors.Align = _morphColors.Align;
 
 				// The morph colors originally applies to a subset of the vertices,
 				// but now they apply to every veretex, so copy the regular colors
 				// from the vertices, then overwrite any found in the old morph
 				// colors.
-				var vertices = (SR1_StructureSeries<TVertex>)file._Structures[vertexList.Offset];
-				foreach (TVertex vertex in vertices)
+				foreach (TVertex vertex in _vertices)
 				{
-					MorphColor morphColor = new MorphColor();
-					morphColor.morphColor15.Value = unchecked((short)vertex.rbg15.Value);
-					newMorphColors.Add(morphColor);
+					MorphColor newMorphColor = new MorphColor();
+					newMorphColor.morphColor15.Value = unchecked((short)vertex.rbg15.Value);
+					newMorphColors.Add(newMorphColor);
 				}
 
-				var oldMorphColors = (SR1_StructureSeries<MorphColor>)file._Structures[MorphColorList.Offset];
-				foreach (MorphColor oldMorphColor in oldMorphColors)
+				foreach (MorphColor morphColor in _morphColors)
 				{
-					int vindex = oldMorphColor.vindex.Value;
+					int vindex = morphColor.vindex.Value;
 					if (vindex >= 0)
 					{
-						MorphColor morphColor = (MorphColor)newMorphColors[vindex];
+						MorphColor newMorphColor = (MorphColor)newMorphColors[vindex];
 
 						// MigrateVersion happens in Terrain before the MorphColors,
 						// so those won't have been converted yet, and the new ones
 						// aren't even in the list, so copy them here and migrate
 						// them as well.
-						MorphColor.Copy(morphColor, oldMorphColor);
-						morphColor.MigrateVersion(file, targetVersion, migrateFlags);
+						MorphColor.Copy(newMorphColor, morphColor);
+						newMorphColor.MigrateVersion(file, targetVersion, migrateFlags);
 					}
 				}
 
@@ -1658,17 +1672,15 @@ namespace Recombobulator.SR1Structures
 				#region MorphNormals
 
 				// Create a new array of morph normals.
-				SR1_PrimativeArray<ushort> newMorphNormals = new SR1_PrimativeArray<ushort>(numFaces.Value);
-				newMorphNormals.SetPadding(4);
-				newMorphNormals.Align = 2;
+				SR1_PrimativeSeries<ushort> newMorphNormals = new SR1_PrimativeSeries<ushort>();
+				newMorphNormals.SetPadding(_morphNormals.GetPadding());
+				newMorphNormals.Align = _morphNormals.Align;
 
 				// There were no morph normals originally, but they would be stored in
 				// the same array, so just copy indices of regular ones from the faces.
-				int n = 0;
 				foreach (TFace face in _faces)
 				{
-					newMorphNormals[n] = face.normal.Value;
-					n++;
+					newMorphNormals.Add(face.normal.Value);
 				}
 
 				// Insert the array of morph normals after the regular normals.
@@ -1688,15 +1700,10 @@ namespace Recombobulator.SR1Structures
 					aniList.Offset != 0)
 				{
 					List<int> entryList = new List<int>();
-
-					SR1_StructureSeries<TextureFT3> textures =
-						(SR1_StructureSeries<TextureFT3>)file._Structures[StartTextureList.Offset];
-					DrMoveAniTex drMoveAniTex = (DrMoveAniTex)file._Structures[aniList.Offset];
-
-					if (textures != null && drMoveAniTex != null)
+					if (_textures != null && _drMoveAniTex != null)
 					{
-						int numAniTextures = drMoveAniTex.numAniTextures.Value;
-						int numTextures = textures.Count;
+						int numAniTextures = _drMoveAniTex.numAniTextures.Value;
+						int numTextures = _textures.Count;
 
 						for (int a = 0; a < numAniTextures; a++)
 						{
@@ -1704,7 +1711,7 @@ namespace Recombobulator.SR1Structures
 							int refCount = 0;
 							for (int t = 0; t < numTextures; t++)
 							{
-								TextureFT3 texture = (TextureFT3)textures[t];
+								TextureFT3 texture = (TextureFT3)_textures[t];
 								if (texture.AniTexIndex == a)
 								{
 									if (refCount == 0)
@@ -1790,7 +1797,7 @@ namespace Recombobulator.SR1Structures
 				writer.File._Version >= SR1_File.Version.Jan23)
 			{
 				uint endLeavesOffset = _bspLeaves.NewEnd;
-				
+
 				if (HasSignalTree)
 				{
 					endLeavesOffset = _sigLeaf.NewStart;
