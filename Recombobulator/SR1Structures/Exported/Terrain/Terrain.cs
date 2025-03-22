@@ -73,6 +73,7 @@ namespace Recombobulator.SR1Structures
 		// Added when converting cathy63 to fit cathy56.
 		BSPTree _moddedTree = null;
 		BSPLeaf _moddedLeaf = null;
+		List<TFace> _moddedFaces = null;
 
 		// The first signal referenced by the terrain.
 		MultiSignal _terrainSignal = null;
@@ -621,7 +622,7 @@ namespace Recombobulator.SR1Structures
 			Level level = (Level)file._Structures[0];
 
 			SR1_Structure lastStructure = file._Structures.Values[file._Structures.Count - 1];
-			uint position = lastStructure.End;
+			uint endPosition = lastStructure.End;
 
 			base.MigrateVersion(file, targetVersion, migrateFlags);
 
@@ -1249,8 +1250,8 @@ namespace Recombobulator.SR1Structures
 
 								TVertex v = new TVertex();
 								v.vertex.x.Value = (short)(1000f * float.Parse(parts[1]));
-								v.vertex.y.Value = (short)(1000f * float.Parse(parts[2]));
-								v.vertex.z.Value = (short)(1000f * float.Parse(parts[3]));
+								v.vertex.y.Value = (short)(-1000f * float.Parse(parts[3]));
+								v.vertex.z.Value = (short)(1000f * float.Parse(parts[2]));
 								v.r0.Value = 0x80;
 								v.g0.Value = 0x80;
 								v.b0.Value = 0x80;
@@ -1276,7 +1277,7 @@ namespace Recombobulator.SR1Structures
 								Console.WriteLine(string.Format("vt = {0}, {1}", parts[1], parts[2]));
 
 								byte u = (byte)(255f * float.Parse(parts[1]));
-								byte v = (byte)(255f * float.Parse(parts[1]));
+								byte v = (byte)(255f - (255f * float.Parse(parts[2])));
 								newUVs.Add((u, v));
 								continue;
 							}
@@ -1336,8 +1337,8 @@ namespace Recombobulator.SR1Structures
 					{
 						_morphColors.Add(mc);
 					}
-
-					numVertices.Value = _vertices.Count;
+					
+					_moddedFaces = new List<TFace>();
 
 					foreach (ObjFace face in newFaces)
 					{
@@ -1373,34 +1374,50 @@ namespace Recombobulator.SR1Structures
 						_textures.Add(t);
 
 						TFace f = new TFace();
-						f.face.v0.Value = (ushort)face.v0;
-						f.face.v1.Value = (ushort)face.v1;
-						f.face.v2.Value = (ushort)face.v2;
+						f.face.v0.Value = (ushort)(face.v0 + numVertices.Value);
+						f.face.v1.Value = (ushort)(face.v1 + numVertices.Value);
+						f.face.v2.Value = (ushort)(face.v2 + numVertices.Value);
 						f.normal.Value = 0;
-						f.morph.Value = 0xFFFF;
 						f.textoff.Value = 0xFFFF;
 						f.Texture = t;
+						_moddedFaces.Add(f);
 						_faces.Add(f);
 					}
 
+					numVertices.Value = _vertices.Count;
 					numNormals.Value = _normals.Count;
 					numFaces.Value = _faces.Count;
 
-					/*
 					// Create a leaf for the modded section. Only one is needed.
 					_moddedLeaf = new BSPLeaf();
 
 					// Leaves need flag 2!
 					_moddedLeaf.flags.Value = 2;
 
-					// Insert the BSPLeaf just before the signal leaf.
-					uint position = _sigLeaf.Start;
-					file._MigrationStructures.Add(position, _moddedLeaf);
+					_moddedLeaf.faceList.Offset = 0;
+					_moddedLeaf.faceList.Heuristic = PtrHeuristic.Explicit;
+					_moddedLeaf.numFaces.Value = (short)_moddedFaces.Count;
 
+					// Insert the BSPLeaf just before the signal leaf.
+					uint sigLeafPosition = _sigLeaf.Start;
+					file._MigrationStructures.Add(sigLeafPosition, _moddedLeaf);
+
+					// Create a tree for the modded section. Only one is needed.
 					_moddedTree = new BSPTree();
 
-					_bspTrees.InsertAt(_bspTrees.Count - 2, _moddedTree);
-					*/
+					// Set the modded BSPTree fields to the new modded leaves.
+					_moddedTree.bspRoot.Offset = 0;
+					_moddedTree.bspRoot.Heuristic = PtrHeuristic.Explicit;
+					_moddedTree.startLeaves.Offset = 0;
+					_moddedTree.startLeaves.Heuristic = PtrHeuristic.Explicit;
+					_moddedTree.endLeaves.Offset = 0;
+					_moddedTree.endLeaves.Heuristic = PtrHeuristic.Explicit;
+					_moddedTree.ID.Value = 1;
+
+					// Insert the new BSPTree just before the signal tree.
+					_bspTrees.InsertAt(1, _moddedTree);
+
+					numBSPTrees.Value = _bspTrees.Count;
 				}
 
 				#endregion
@@ -1729,8 +1746,8 @@ namespace Recombobulator.SR1Structures
 						}
 					}
 
-					file._MigrationStructures.Add(position, new TexAniAssocData(entryList));
-					texAniAssocData.Offset = position;
+					file._MigrationStructures.Add(endPosition, new TexAniAssocData(entryList));
+					texAniAssocData.Offset = endPosition;
 					texAniAssocData.Heuristic = PtrHeuristic.Migration;
 				}
 				else
@@ -1741,8 +1758,8 @@ namespace Recombobulator.SR1Structures
 						aniList.Offset = 0;
 					}
 
-					file._MigrationStructures.Add(position, new TexAniAssocData());
-					texAniAssocData.Offset = position;
+					file._MigrationStructures.Add(endPosition, new TexAniAssocData());
+					texAniAssocData.Offset = endPosition;
 					texAniAssocData.Heuristic = PtrHeuristic.Migration;
 				}
 
@@ -1753,6 +1770,8 @@ namespace Recombobulator.SR1Structures
 		public override void MigratePointers(SR1_Writer writer, SR1_File.Version sourceVersion, SR1_File.MigrateFlags migrateFlags)
 		{
 			base.MigratePointers(writer, sourceVersion, migrateFlags);
+
+			Level level = (Level)writer.File._Structures[0];
 
 			if (sourceVersion == SR1_File.Version.Retail_PC &&
 				writer.File._Version == SR1_File.Version.Retail_PC)
@@ -1844,6 +1863,25 @@ namespace Recombobulator.SR1Structures
 					{
 						_sigLeaf.faceList.Offset = _faces.NewEnd;
 					}
+				}
+			}
+
+			if (sourceVersion == SR1_File.Version.Feb16 &&
+				writer.File._Version == SR1_File.Version.Retail_PC &&
+				//(migrateFlags & SR1_File.MigrateFlags.FixCathy63) != 0 &&
+				level.Name == "cathy63")
+			{
+				_moddedTree.bspRoot.Offset = _moddedLeaf.NewStart;
+				_moddedTree.startLeaves.Offset = _moddedLeaf.NewStart;
+				_moddedTree.endLeaves.Offset = _moddedLeaf.NewEnd;
+
+				if (_moddedFaces.Count > 0)
+				{
+					_moddedLeaf.faceList.Offset = _moddedFaces[0].NewStart;
+				}
+				else
+				{
+					_moddedLeaf.faceList.Offset = _faces.NewEnd;
 				}
 			}
 		}
