@@ -1070,23 +1070,6 @@ namespace Recombobulator.SR1Structures
 					//(migrateFlags & SR1_File.MigrateFlags.FixCathy56) != 0 &&
 					level.Name == "cathy56")
 				{
-					// Leaves to remove. Make numPolys 0.
-					// 0x0000E7D8 (132) 0x0000CC1C // This one has top vert. tFace 1398, vert 734, 735, 726.
-					// 0x0000E808 (133) 0x0000CC4C
-					// 0x0000E838 (134) 0x0000CC7C
-					// 0x0000E868 (135) 0x0000CCAC
-					// 0x0000E898 (136) 0x0000CCDC
-					// 0x0000E8C8 (137) 0x0000CD0C
-					// 0x0000E958 (140) 0x0000CD9C // This one has top vert.
-					// 0x0000E988 (141) 0x0000CDCC // Useful, but not the very top.
-					// 0x0000EC28 (155) 0x0000D06C
-
-					// vertex 735
-					// vertex 736
-					// vertex 739 - Front
-					// vertex 760
-					// vertex 761
-
 					StreamUnitPortal newPortal = new StreamUnitPortal();
 					newPortal.tolevelname.SetReadMax(true);
 					newPortal.tolevelname.SetText("cathy63,103", 16);
@@ -1214,6 +1197,23 @@ namespace Recombobulator.SR1Structures
 					//(migrateFlags & SR1_File.MigrateFlags.FixCathy63) != 0 &&
 					level.Name == "cathy63")
 				{
+					// Leaves to remove. Make numPolys 0.
+					// 0x0000E7D8 (132) 0x0000CC1C // This one has top vert. tFace 1398, vert 734, 735, 726.
+					// 0x0000E808 (133) 0x0000CC4C
+					// 0x0000E838 (134) 0x0000CC7C
+					// 0x0000E868 (135) 0x0000CCAC
+					// 0x0000E898 (136) 0x0000CCDC
+					// 0x0000E8C8 (137) 0x0000CD0C
+					// 0x0000E958 (140) 0x0000CD9C // This one has top vert.
+					// 0x0000E988 (141) 0x0000CDCC // Useful, but not the very top.
+					// 0x0000EC28 (155) 0x0000D06C
+
+					// vertex 735
+					// vertex 736
+					// vertex 739 - Front
+					// vertex 760
+					// vertex 761
+
 					List<TVertex> newVertices = new List<TVertex>();
 					List<MorphColor> newMorphColors = new List<MorphColor>();
 					List<(byte, byte)> newUVs = new List<(byte, byte)>();
@@ -1418,6 +1418,24 @@ namespace Recombobulator.SR1Structures
 					_bspTrees.InsertAt(1, _moddedTree);
 
 					numBSPTrees.Value = _bspTrees.Count;
+
+					BSPTree envTree = (BSPTree)_bspTrees[0];
+					if (file._Structures.ContainsKey(envTree.startLeaves.Offset))
+					{
+						SR1_Structure structure = file._Structures[envTree.startLeaves.Offset];
+						SR1_StructureSeries<BSPLeaf> envLeaves = structure as SR1_StructureSeries<BSPLeaf>;
+						if (envLeaves != null)
+						{
+							int[] leavesToRemove = { 132, 133, 134, 135, 136, 137, 140, 141, 155 };
+							foreach (int leafToRemove in leavesToRemove)
+							{
+								BSPLeaf leaf = (BSPLeaf)envLeaves[leafToRemove];
+								leaf.numFaces.Value = 0;
+								leaf.faceList.Offset = _faces.End;
+								leaf.faceList.Heuristic = PtrHeuristic.End;
+							}
+						}
+					}
 				}
 
 				#endregion
