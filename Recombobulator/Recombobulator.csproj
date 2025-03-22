@@ -146,6 +146,7 @@
     </Compile>
     <Compile Include="ScriptParser.cs" />
     <Compile Include="SR1Structures\Collections\SR1_PointerSeries.cs" />
+    <Compile Include="SR1Structures\Collections\SR1_PrimativeSeries.cs" />
     <Compile Include="SR1Structures\Collections\SR1_StructureSeriesBase.cs" />
     <Compile Include="SR1Structures\Exported\Mirror.cs" />
     <Compile Include="SR1Structures\Exported\Geometry\Sphere.cs" />

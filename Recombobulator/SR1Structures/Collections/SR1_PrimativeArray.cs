@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 
 namespace Recombobulator.SR1Structures
 {
@@ -17,28 +17,12 @@ namespace Recombobulator.SR1Structures
 			return ((IEnumerable<T>)_array).GetEnumerator();
 		}
 
-		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return _array.GetEnumerator();
 		}
 
 		public override bool IsArray() { return true; }
-
-		protected override void AddToRead(SR1_Reader reader)
-		{
-			if (Start != End && !reader.File.IsReadingTempStruct)
-			{
-				reader.File._PrimsRead.Add(this);
-			}
-		}
-
-		protected override void AddToWritten(SR1_Writer writer)
-		{
-			if (Start != End && !writer.File.IsWritingMigStruct)
-			{
-				writer.File._PrimsWritten.Add(this);
-			}
-		}
 
 		public SR1_PrimativeArray(params int[] dimensions)
 		{

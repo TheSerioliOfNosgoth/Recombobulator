@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections;
+using System.Collections.Generic;
 
 namespace Recombobulator.SR1Structures
 {
@@ -15,7 +15,7 @@ namespace Recombobulator.SR1Structures
 			return _List.GetEnumerator();
 		}
 
-		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return GetEnumerator();
 		}
