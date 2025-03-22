@@ -43,6 +43,7 @@ namespace Recombobulator.ParticlePanels
 			valueTextBox.Name = structure.Name;
 			string valueText = structure.ToString();
 			if (structure is SR1_PrimativeBase &&
+				!((SR1_PrimativeBase)structure).IsArray() &&
 				((SR1_PrimativeBase)structure).IsShowAsHex())
 			{
 				valueText = valueText.Substring(2);

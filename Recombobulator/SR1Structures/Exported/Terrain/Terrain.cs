@@ -1520,6 +1520,7 @@ namespace Recombobulator.SR1Structures
 							bool removeSignal = false;
 
 							removeSignal |= sigFace.MultiSignal != null && sigFace.MultiSignal.OmitFromMigration;
+							removeSignal |= sigFace.MultiSignal != null && sigFace.MultiSignal.numSignals.Value <= 0;
 							removeSignal |= sigFace.Signal != null && sigFace.Signal.OmitFromMigration;
 							removeSignal |= sigFace.Portal != null && sigFace.Portal.OmitFromMigration;
 
@@ -1531,8 +1532,10 @@ namespace Recombobulator.SR1Structures
 								sigFace.Signal = null;
 								sigFace.Portal = null;
 							}
-
-							_sigFaces.Add(sigFace);
+							else
+							{
+								_sigFaces.Add(sigFace);
+							}
 
 							if (needTerrainSignal && _multiSignals != null)
 							{

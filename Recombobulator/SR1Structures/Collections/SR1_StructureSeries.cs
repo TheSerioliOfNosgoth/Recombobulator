@@ -37,8 +37,6 @@ namespace Recombobulator.SR1Structures
 			return this;
 		}
 
-
-
 		public SR1_Structure ReadFromPointer(SR1_Reader reader, SR1_PointerBase startPointer, int count)
 		{
 			if (startPointer != null && startPointer.Offset != 0 &&
