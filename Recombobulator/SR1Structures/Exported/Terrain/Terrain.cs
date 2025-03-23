@@ -617,6 +617,44 @@ namespace Recombobulator.SR1Structures
 			leaf.spectralBox.maxZ.Value = (short)(leaf.spectralSphere.position.z.Value + spectralRadius);
 		}
 
+		private Normal CalculateFaceFormal(TVertex v0, TVertex v1, TVertex v2)
+		{
+			Normal normal = new Normal();
+
+			int aX = v1.vertex.x.Value - v0.vertex.x.Value;
+			int aY = v1.vertex.y.Value - v0.vertex.y.Value;
+			int aZ = v1.vertex.z.Value - v0.vertex.z.Value;
+
+			int bX = v2.vertex.x.Value - v0.vertex.x.Value;
+			int bY = v2.vertex.y.Value - v0.vertex.y.Value;
+			int bZ = v2.vertex.z.Value - v0.vertex.z.Value;
+
+			int nX = (((aY * bZ) - (aZ * bY)) >> 12);
+			int nY = (((aX * bZ) - (aZ * bX)) >> 12);
+			int nZ = (((aX * bY) - (aY * bX)) >> 12);
+
+			int length = Math.Abs(-nZ);
+
+			if (length < Math.Abs(-nX))
+			{
+				length = Math.Abs(nX);
+			}
+
+			if (length < Math.Abs(-nZ))
+			{
+				length = Math.Abs(nZ);
+			}
+
+			if (length != 0)
+			{
+				normal.x.Value = (short)((nX << 12) / length);
+				normal.y.Value = (short)((nY << 12) / length);
+				normal.z.Value = (short)((nZ << 12) / length);
+			}
+
+			return normal;
+		}
+
 		public override void MigrateVersion(SR1_File file, SR1_File.Version targetVersion, SR1_File.MigrateFlags migrateFlags)
 		{
 			Level level = (Level)file._Structures[0];
@@ -1351,13 +1389,12 @@ namespace Recombobulator.SR1Structures
 
 					foreach (ObjFace face in newFaces)
 					{
-						Normal n = new Normal();
-						n.x.Value = 4096;
-						n.y.Value = 0;
-						n.z.Value = 0;
+						TVertex v0 = newVertices[face.v0];
+						TVertex v1 = newVertices[face.v1];
+						TVertex v2 = newVertices[face.v2];
+						Normal n = CalculateFaceFormal(v0, v1, v2);
 						_normals.Add(n);
-
-						_morphNormals.Add(0);
+						_morphNormals.Add(unchecked((ushort)(_normals.Count - 1)));
 
 						TextureFT3 t = new TextureFT3();
 						if (face.mtl > 0 &&
@@ -1386,7 +1423,7 @@ namespace Recombobulator.SR1Structures
 						f.face.v0.Value = (ushort)(face.v0 + numVertices.Value);
 						f.face.v1.Value = (ushort)(face.v1 + numVertices.Value);
 						f.face.v2.Value = (ushort)(face.v2 + numVertices.Value);
-						f.normal.Value = 0;
+						f.normal.Value = unchecked((ushort)(_normals.Count - 1));
 						f.textoff.Value = 0xFFFF;
 						f.Texture = t;
 						_moddedFaces.Add(f);
