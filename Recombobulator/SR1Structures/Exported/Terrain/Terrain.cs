@@ -1070,15 +1070,17 @@ namespace Recombobulator.SR1Structures
 					//(migrateFlags & SR1_File.MigrateFlags.FixCathy56) != 0 &&
 					level.Name == "cathy56")
 				{
+					short offsetX = 1400;
+					short offsetY = 0;
+					short offsetZ = 0;
+
+					#region Portals
+
 					StreamUnitPortal newPortal = new StreamUnitPortal();
 					newPortal.tolevelname.SetReadMax(true);
 					newPortal.tolevelname.SetText("cathy63,103", 16);
 					newPortal.streamID.Value = 413;
 					newPortal.MSignalID.Value = 104;
-
-					short offsetX = 1400;
-					short offsetY = 0;
-					short offsetZ = 0;
 
 					newPortal.minx.Value = (short)(6476 + offsetX);
 					newPortal.miny.Value = (short)(13025 + offsetY);
@@ -1113,6 +1115,10 @@ namespace Recombobulator.SR1Structures
 
 					portals.Add(newPortal);
 					newNumPortals++;
+
+					#endregion
+
+					#region Signals
 
 					MultiSignal multiSignal2 = (MultiSignal)_multiSignals[2];
 					multiSignal2.numSignals.Value = 1;
@@ -1161,6 +1167,10 @@ namespace Recombobulator.SR1Structures
 					vertex.y.Value = (short)(16022 + offsetY);
 					vertex.z.Value = (short)(17491 + offsetZ);
 
+					#endregion
+
+					#region Bounds
+
 					Position materialSpherePos = _sigLeaf.sphereNoSq.position;
 					materialSpherePos.x.Value = (short)(6476 + offsetX);
 					materialSpherePos.y.Value = (short)(14524 + offsetY);
@@ -1186,6 +1196,8 @@ namespace Recombobulator.SR1Structures
 					spectralBox.maxX.Value = (short)(6476 + offsetX);
 					spectralBox.maxY.Value = (short)(16022 + offsetY);
 					spectralBox.maxZ.Value = (short)(17492 + offsetZ);
+
+					#endregion
 				}
 
 				#endregion
@@ -1197,23 +1209,6 @@ namespace Recombobulator.SR1Structures
 					//(migrateFlags & SR1_File.MigrateFlags.FixCathy63) != 0 &&
 					level.Name == "cathy63")
 				{
-					// Leaves to remove. Make numPolys 0.
-					// 0x0000E7D8 (132) 0x0000CC1C // This one has top vert. tFace 1398, vert 734, 735, 726.
-					// 0x0000E808 (133) 0x0000CC4C
-					// 0x0000E838 (134) 0x0000CC7C
-					// 0x0000E868 (135) 0x0000CCAC
-					// 0x0000E898 (136) 0x0000CCDC
-					// 0x0000E8C8 (137) 0x0000CD0C
-					// 0x0000E958 (140) 0x0000CD9C // This one has top vert.
-					// 0x0000E988 (141) 0x0000CDCC // Useful, but not the very top.
-					// 0x0000EC28 (155) 0x0000D06C
-
-					// vertex 735
-					// vertex 736
-					// vertex 739 - Front
-					// vertex 760
-					// vertex 761
-
 					List<TVertex> newVertices = new List<TVertex>();
 					List<MorphColor> newMorphColors = new List<MorphColor>();
 					List<(byte, byte)> newUVs = new List<(byte, byte)>();
@@ -1328,8 +1323,22 @@ namespace Recombobulator.SR1Structures
 
 					#endregion
 
+					short minX = short.MaxValue;
+					short minY = short.MaxValue;
+					short minZ = short.MaxValue;
+					short maxX = short.MinValue;
+					short maxY = short.MinValue;
+					short maxZ = short.MinValue;
+
 					foreach (TVertex v in newVertices)
 					{
+						minX = Math.Min(minX, v.vertex.x.Value);
+						minY = Math.Min(minY, v.vertex.y.Value);
+						minZ = Math.Min(minZ, v.vertex.z.Value);
+						maxX = Math.Max(maxX, v.vertex.x.Value);
+						maxY = Math.Max(maxY, v.vertex.y.Value);
+						maxZ = Math.Max(maxZ, v.vertex.z.Value);
+
 						_vertices.Add(v);
 					}
 
@@ -1397,6 +1406,46 @@ namespace Recombobulator.SR1Structures
 					_moddedLeaf.faceList.Offset = 0;
 					_moddedLeaf.faceList.Heuristic = PtrHeuristic.Explicit;
 					_moddedLeaf.numFaces.Value = (short)_moddedFaces.Count;
+
+					#region Bounds
+
+					short centerX = (short)((minX + maxX) / 2);
+					short centerY = (short)((minY + maxY) / 2);
+					short centerZ = (short)((minZ + maxZ) / 2);
+					int dX = maxX - minX;
+					int dY = maxY - minY;
+					int dZ = maxZ - minZ;
+					ushort radius = (ushort)(Math.Sqrt((dX * dX) + (dY * dY) + (dZ * dZ)) / 2);
+
+					_moddedLeaf.sphereNoSq.radius.Value = radius;
+					Position materialSpherePos = _moddedLeaf.sphereNoSq.position;
+					materialSpherePos.x.Value = centerX;
+					materialSpherePos.y.Value = centerY;
+					materialSpherePos.z.Value = centerZ;
+
+					BoundingBox materialBox = _moddedLeaf.box;
+					materialBox.minX.Value = minX;
+					materialBox.minY.Value = minY;
+					materialBox.minZ.Value = minZ;
+					materialBox.maxX.Value = maxX;
+					materialBox.maxY.Value = maxY;
+					materialBox.maxZ.Value = maxZ;
+
+					_moddedLeaf.spectralSphereNoSq.radius.Value = radius;
+					Position spectralSpherePos = _moddedLeaf.spectralSphereNoSq.position;
+					spectralSpherePos.x.Value = centerX;
+					spectralSpherePos.y.Value = centerY;
+					spectralSpherePos.z.Value = centerZ;
+
+					BoundingBox spectralBox = _moddedLeaf.spectralBox;
+					spectralBox.minX.Value = minX;
+					spectralBox.minY.Value = minY;
+					spectralBox.minZ.Value = minZ;
+					spectralBox.maxX.Value = maxX;
+					spectralBox.maxY.Value = maxY;
+					spectralBox.maxZ.Value = maxZ;
+
+					#endregion
 
 					// Insert the BSPLeaf just before the signal leaf.
 					uint sigLeafPosition = _sigLeaf.Start;
