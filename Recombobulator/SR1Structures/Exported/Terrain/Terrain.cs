@@ -82,6 +82,21 @@ namespace Recombobulator.SR1Structures
 		// because of weird padding at the end of them.
 		uint NormalListEnd = 0;
 
+		struct ObjVector
+		{
+			public short x;
+			public short y;
+			public short z;
+		}
+
+		struct ObjVertex
+		{
+			public ObjVector pos;
+			public byte r;
+			public byte g;
+			public byte b;
+		}
+
 		struct ObjFace
 		{
 			public int v0, v1, v2;
@@ -617,40 +632,64 @@ namespace Recombobulator.SR1Structures
 			leaf.spectralBox.maxZ.Value = (short)(leaf.spectralSphere.position.z.Value + spectralRadius);
 		}
 
-		private Normal CalculateFaceFormal(TVertex v0, TVertex v1, TVertex v2)
+		private int DotProduct(ObjVector a, ObjVector b)
 		{
-			Normal normal = new Normal();
+			//int aX = a.x;
+			//int aY = a.y;
+			//int aZ = a.z;
+			//int bX = b.x;
+			//int bY = b.y;
+			//int bZ = b.z;
 
-			int aX = v1.vertex.x.Value - v0.vertex.x.Value;
-			int aY = v1.vertex.y.Value - v0.vertex.y.Value;
-			int aZ = v1.vertex.z.Value - v0.vertex.z.Value;
+			return (a.x * b.x + a.y * b.y + a.z * b.z);
+		}
 
-			int bX = v2.vertex.x.Value - v0.vertex.x.Value;
-			int bY = v2.vertex.y.Value - v0.vertex.y.Value;
-			int bZ = v2.vertex.z.Value - v0.vertex.z.Value;
+		private ObjVector CalculateFaceNormal(ObjVector v0, ObjVector v1, ObjVector v2)
+		{
+			ObjVector normal = new ObjVector();
+
+			int aX = v1.x - v0.x;
+			int aY = v1.y - v0.y;
+			int aZ = v1.z - v0.z;
+
+			int bX = v2.x - v0.x;
+			int bY = v2.y - v0.y;
+			int bZ = v2.z - v0.z;
 
 			int nX = (((aY * bZ) - (aZ * bY)) >> 12);
-			int nY = (((aX * bZ) - (aZ * bX)) >> 12);
+			int nY = (-((aX * bZ) - (aZ * bX)) >> 12);
 			int nZ = (((aX * bY) - (aY * bX)) >> 12);
 
-			int length = Math.Abs(-nZ);
+			int length = Math.Abs(nY);
 
-			if (length < Math.Abs(-nX))
+			if (length < Math.Abs(nX))
 			{
 				length = Math.Abs(nX);
 			}
 
-			if (length < Math.Abs(-nZ))
+			if (length < Math.Abs(nZ))
 			{
 				length = Math.Abs(nZ);
 			}
 
 			if (length != 0)
 			{
-				normal.x.Value = (short)((nX << 12) / length);
-				normal.y.Value = (short)((nY << 12) / length);
-				normal.z.Value = (short)((nZ << 12) / length);
+				normal.x = (short)((nX << 12) / length);
+				normal.y = (short)((nY << 12) / length);
+				normal.z = (short)((nZ << 12) / length);
 			}
+
+			/*long x = aY * bZ - aZ * bY;
+			long y = aZ * bX - aX * bZ;
+			long z = aX * bY - aY * bX;
+
+			long length = Math.Max(Math.Abs(x), Math.Max(Math.Abs(y), Math.Abs(z)));
+			if (length != 0)
+			{
+				normal.x = (short)((x * short.MaxValue) / length);
+				normal.y = (short)((y * short.MaxValue) / length);
+				normal.z = (short)((z * short.MaxValue) / length);
+			}*/
 
 			return normal;
 		}
@@ -1247,8 +1286,7 @@ namespace Recombobulator.SR1Structures
 					//(migrateFlags & SR1_File.MigrateFlags.FixCathy63) != 0 &&
 					level.Name == "cathy63")
 				{
-					List<TVertex> newVertices = new List<TVertex>();
-					List<MorphColor> newMorphColors = new List<MorphColor>();
+					List<ObjVertex> newVertices = new List<ObjVertex>();
 					List<(byte, byte)> newUVs = new List<(byte, byte)>();
 					List<ObjFace> newFaces = new List<ObjFace>();
 					ushort[] textureIDs = file._Overrides.NewTextureIDs.Values.ToArray();
@@ -1278,21 +1316,17 @@ namespace Recombobulator.SR1Structures
 
 							if (line.StartsWith("v "))
 							{
-								string[] parts = line.Split(new char[] { ' ' }, 4);
-								Console.WriteLine(string.Format("v = {0}, {1}, {2}", parts[1], parts[2], parts[3]));
+								string[] parts = line.Split(new char[] { ' ' }, 7);
+								Console.WriteLine(string.Format("v = {0}, {1}, {2}, {3}, {4}, {5}", parts[1], parts[2], parts[3], parts[4], parts[5], parts[6]));
 
-								TVertex v = new TVertex();
-								v.vertex.x.Value = (short)(1000f * float.Parse(parts[1]));
-								v.vertex.y.Value = (short)(-1000f * float.Parse(parts[3]));
-								v.vertex.z.Value = (short)(1000f * float.Parse(parts[2]));
-								v.r0.Value = 0x80;
-								v.g0.Value = 0x80;
-								v.b0.Value = 0x80;
-								v.code.Value = 0x34;
-								newVertices.Add(v);
-								MorphColor mc = new MorphColor();
-								mc.morphColor15.Value = 0;
-								newMorphColors.Add(mc);
+								ObjVertex ov = new ObjVertex();
+								ov.pos.x = (short)(1000f * float.Parse(parts[1]));
+								ov.pos.y = (short)(1000f * float.Parse(parts[2]));
+								ov.pos.z = (short)(1000f * float.Parse(parts[3]));
+								ov.r = (byte)(255f * float.Parse(parts[4]));
+								ov.g = (byte)(255f * float.Parse(parts[5]));
+								ov.b = (byte)(255f * float.Parse(parts[6]));
+								newVertices.Add(ov);
 								continue;
 							}
 
@@ -1368,8 +1402,23 @@ namespace Recombobulator.SR1Structures
 					short maxY = short.MinValue;
 					short maxZ = short.MinValue;
 
-					foreach (TVertex v in newVertices)
+					foreach (ObjVertex ov in newVertices)
 					{
+						TVertex v = new TVertex();
+						v.vertex.x.Value = (short)ov.pos.x;
+						v.vertex.y.Value = (short)-ov.pos.z;
+						v.vertex.z.Value = (short)ov.pos.y;
+						v.r0.Value = ov.r;
+						v.g0.Value = ov.g;
+						v.b0.Value = ov.b;
+						v.code.Value = 0x34;
+						int r = (v.r0.Value >> 3) << 0;
+						int g = (v.g0.Value >> 3) << 5;
+						int b = (v.b0.Value >> 3) << 10;
+						int color = r | g | b;
+						v.rbg15.Value = (ushort)color;
+						_vertices.Add(v);
+
 						minX = Math.Min(minX, v.vertex.x.Value);
 						minY = Math.Min(minY, v.vertex.y.Value);
 						minZ = Math.Min(minZ, v.vertex.z.Value);
@@ -1377,30 +1426,54 @@ namespace Recombobulator.SR1Structures
 						maxY = Math.Max(maxY, v.vertex.y.Value);
 						maxZ = Math.Max(maxZ, v.vertex.z.Value);
 
-						_vertices.Add(v);
-					}
-
-					foreach (MorphColor mc in newMorphColors)
-					{
+						MorphColor mc = new MorphColor();
+						mc.morphColor15.Value = 0;
 						_morphColors.Add(mc);
 					}
 					
 					_moddedFaces = new List<TFace>();
 
-					foreach (ObjFace face in newFaces)
+					foreach (ObjFace of in newFaces)
 					{
-						TVertex v0 = newVertices[face.v0];
-						TVertex v1 = newVertices[face.v1];
-						TVertex v2 = newVertices[face.v2];
-						Normal n = CalculateFaceFormal(v0, v1, v2);
+						ObjVector v00 = newVertices[of.v0].pos;
+						ObjVector v01 = newVertices[of.v1].pos;
+						ObjVector v02 = newVertices[of.v2].pos;
+						ObjVector on0 = CalculateFaceNormal(v00, v01, v02);
+						//short temp = on0.y;
+						//on0.y = (short)-on0.z;
+						//on0.z = temp;
+						//ObjVertex v10 = new ObjVertex { x = v00.x, y = (short)-v00.z, z = v00.y };
+						//ObjVertex v11 = new ObjVertex { x = v01.x, y = (short)-v01.z, z = v01.y };
+						//ObjVertex v12 = new ObjVertex { x = v02.x, y = (short)-v02.z, z = v02.y };
+						//ObjNormal on1 = CalculateFaceNormal(v10, v11, v12);
+						ObjVector on1 = new ObjVector { x = on0.x, y = (short)-on0.z, z = on0.y };
+						Normal n = new Normal();
+						n.x.Value = (short)on1.x;
+						n.y.Value = (short)on1.z;
+						n.z.Value = (short)on1.y;
+						int normalIndex = _normals.Count;
+						bool isFlipped = DotProduct(on0, on1) < 0;
+						Console.WriteLine("isFlipped = " + isFlipped.ToString());
+						//if (isFlipped)
+						//{
+						//	normalIndex = -normalIndex;
+						//}
+						if (v00.y == v01.y && v00.y == v02.y)
+						{
+							Console.WriteLine("isFlat = true");
+						}
+						else
+						{
+							Console.WriteLine("isFlat = false");
+						}
 						_normals.Add(n);
-						_morphNormals.Add(unchecked((ushort)(_normals.Count - 1)));
+						_morphNormals.Add(unchecked((ushort)normalIndex));
 
 						TextureFT3 t = new TextureFT3();
-						if (face.mtl > 0 &&
-							face.mtl < textureIDs.Length)
+						if (of.mtl > 0 &&
+							of.mtl < textureIDs.Length)
 						{
-							t.tpage.Value = textureIDs[face.mtl];
+							t.tpage.Value = textureIDs[of.mtl];
 						}
 						else
 						{
@@ -1408,9 +1481,9 @@ namespace Recombobulator.SR1Structures
 						}
 						t.tpage.Value |= 0x2000; // UseAlphaMask
 						t.attr2.Value = 0x0108;
-						var uv0 = newUVs[face.uv0];
-						var uv1 = newUVs[face.uv1];
-						var uv2 = newUVs[face.uv2];
+						var uv0 = newUVs[of.uv0];
+						var uv1 = newUVs[of.uv1];
+						var uv2 = newUVs[of.uv2];
 						t.u0.Value = uv0.Item1;
 						t.v0.Value = uv0.Item2;
 						t.u1.Value = uv1.Item1;
@@ -1420,10 +1493,14 @@ namespace Recombobulator.SR1Structures
 						_textures.Add(t);
 
 						TFace f = new TFace();
-						f.face.v0.Value = (ushort)(face.v0 + numVertices.Value);
-						f.face.v1.Value = (ushort)(face.v1 + numVertices.Value);
-						f.face.v2.Value = (ushort)(face.v2 + numVertices.Value);
-						f.normal.Value = unchecked((ushort)(_normals.Count - 1));
+						f.face.v0.Value = (ushort)(of.v0 + numVertices.Value);
+						f.face.v1.Value = (ushort)(of.v1 + numVertices.Value);
+						f.face.v2.Value = (ushort)(of.v2 + numVertices.Value);
+						f.normal.Value = unchecked((ushort)normalIndex);
+						//if (isFlipped)
+						//{
+						//	f.attr.Value = 0x20;
+						//}
 						f.textoff.Value = 0xFFFF;
 						f.Texture = t;
 						_moddedFaces.Add(f);
@@ -1516,6 +1593,20 @@ namespace Recombobulator.SR1Structures
 							foreach (int leafToRemove in leavesToRemove)
 							{
 								BSPLeaf leaf = (BSPLeaf)envLeaves[leafToRemove];
+								leaf.sphereNoSq.radius.Value = 0;
+								leaf.box.minX.Value = leaf.sphereNoSq.position.x.Value;
+								leaf.box.minY.Value = leaf.sphereNoSq.position.y.Value;
+								leaf.box.minZ.Value = leaf.sphereNoSq.position.z.Value;
+								leaf.box.maxX.Value = leaf.sphereNoSq.position.x.Value;
+								leaf.box.maxY.Value = leaf.sphereNoSq.position.y.Value;
+								leaf.box.maxZ.Value = leaf.sphereNoSq.position.z.Value;
+								leaf.spectralSphereNoSq.radius.Value = 0;
+								leaf.spectralBox.minX.Value = leaf.spectralSphereNoSq.position.x.Value;
+								leaf.spectralBox.minY.Value = leaf.spectralSphereNoSq.position.y.Value;
+								leaf.spectralBox.minZ.Value = leaf.spectralSphereNoSq.position.z.Value;
+								leaf.spectralBox.maxX.Value = leaf.spectralSphereNoSq.position.x.Value;
+								leaf.spectralBox.maxY.Value = leaf.spectralSphereNoSq.position.y.Value;
+								leaf.spectralBox.maxZ.Value = leaf.spectralSphereNoSq.position.z.Value;
 								leaf.numFaces.Value = 0;
 								leaf.faceList.Offset = _faces.End;
 								leaf.faceList.Heuristic = PtrHeuristic.End;
