@@ -1442,30 +1442,36 @@ namespace Recombobulator.SR1Structures
 						//short temp = on0.y;
 						//on0.y = (short)-on0.z;
 						//on0.z = temp;
-						//ObjVertex v10 = new ObjVertex { x = v00.x, y = (short)-v00.z, z = v00.y };
-						//ObjVertex v11 = new ObjVertex { x = v01.x, y = (short)-v01.z, z = v01.y };
-						//ObjVertex v12 = new ObjVertex { x = v02.x, y = (short)-v02.z, z = v02.y };
-						//ObjNormal on1 = CalculateFaceNormal(v10, v11, v12);
-						ObjVector on1 = new ObjVector { x = on0.x, y = (short)-on0.z, z = on0.y };
+						ObjVector v10 = new ObjVector { x = v00.x, y = (short)-v00.z, z = v00.y };
+						ObjVector v11 = new ObjVector { x = v01.x, y = (short)-v01.z, z = v01.y };
+						ObjVector v12 = new ObjVector { x = v02.x, y = (short)-v02.z, z = v02.y };
+						ObjVector on1 = CalculateFaceNormal(v10, v11, v12);
+						//ObjVector on1 = new ObjVector { x = on0.x, y = (short)-on0.z, z = on0.y };
 						Normal n = new Normal();
 						n.x.Value = (short)on1.x;
 						n.y.Value = (short)on1.z;
 						n.z.Value = (short)on1.y;
 						int normalIndex = _normals.Count;
 						bool isFlipped = DotProduct(on0, on1) < 0;
+						bool isFloor = (v00.y == v01.y && v00.y == v02.y);
 						Console.WriteLine("isFlipped = " + isFlipped.ToString());
 						//if (isFlipped)
 						//{
 						//	normalIndex = -normalIndex;
 						//}
-						if (v00.y == v01.y && v00.y == v02.y)
-						{
-							Console.WriteLine("isFlat = true");
-						}
-						else
-						{
-							Console.WriteLine("isFlat = false");
-						}
+						//if (isFloor)
+						//{
+							// These work for the floor!
+							n.x.Value = 0;
+							n.y.Value = 0;
+							n.z.Value = 16384;
+
+						//	Console.WriteLine("isFlat = true");
+						//}
+						//else
+						//{
+						//	Console.WriteLine("isFlat = false");
+						//}
 						_normals.Add(n);
 						_morphNormals.Add(unchecked((ushort)normalIndex));
 
@@ -1479,6 +1485,10 @@ namespace Recombobulator.SR1Structures
 						{
 							t.tpage.Value = 0;
 						}
+						//if (isFloor)
+						//{
+						//	t.tpage.Value = 0;
+						//}
 						t.tpage.Value |= 0x2000; // UseAlphaMask
 						t.attr2.Value = 0x0108;
 						var uv0 = newUVs[of.uv0];
@@ -1497,10 +1507,6 @@ namespace Recombobulator.SR1Structures
 						f.face.v1.Value = (ushort)(of.v1 + numVertices.Value);
 						f.face.v2.Value = (ushort)(of.v2 + numVertices.Value);
 						f.normal.Value = unchecked((ushort)normalIndex);
-						//if (isFlipped)
-						//{
-						//	f.attr.Value = 0x20;
-						//}
 						f.textoff.Value = 0xFFFF;
 						f.Texture = t;
 						_moddedFaces.Add(f);
