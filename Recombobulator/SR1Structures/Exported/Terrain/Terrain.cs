@@ -1433,6 +1433,15 @@ namespace Recombobulator.SR1Structures
 					
 					_moddedFaces = new List<TFace>();
 
+					ObjVector testVert00 = new ObjVector { x = -4472, y = -10880, z = -646 };
+					ObjVector testVert01 = new ObjVector { x = -2552, y = -10880, z = -646 };
+					ObjVector testVert02 = new ObjVector { x = -2547, y = -5120, z = -642 };
+					ObjVector testNormal0 = CalculateFaceNormal(testVert00, testVert01, testVert02);
+					ObjVector testVert10 = new ObjVector { x = 12829, y = -1921, z = 1267 };
+					ObjVector testVert11 = new ObjVector { x = 12829, y = -3841, z = -652 };
+					ObjVector testVert12 = new ObjVector { x = 12829, y = -3841, z = 1267 };
+					ObjVector testNormal1 = CalculateFaceNormal(testVert10, testVert11, testVert12);
+
 					foreach (ObjFace of in newFaces)
 					{
 						ObjVector v00 = newVertices[of.v0].pos;
@@ -1445,12 +1454,12 @@ namespace Recombobulator.SR1Structures
 						ObjVector v10 = new ObjVector { x = v00.x, y = (short)-v00.z, z = v00.y };
 						ObjVector v11 = new ObjVector { x = v01.x, y = (short)-v01.z, z = v01.y };
 						ObjVector v12 = new ObjVector { x = v02.x, y = (short)-v02.z, z = v02.y };
-						ObjVector on1 = CalculateFaceNormal(v10, v11, v12);
-						//ObjVector on1 = new ObjVector { x = on0.x, y = (short)-on0.z, z = on0.y };
+						//ObjVector on1 = CalculateFaceNormal(v10, v11, v12);
+						ObjVector on1 = new ObjVector { x = on0.x, y = on0.z, z = (short)-on0.y };
 						Normal n = new Normal();
 						n.x.Value = (short)on1.x;
-						n.y.Value = (short)on1.z;
-						n.z.Value = (short)on1.y;
+						n.y.Value = (short)on1.y;
+						n.z.Value = (short)on1.z;
 						int normalIndex = _normals.Count;
 						bool isFlipped = DotProduct(on0, on1) < 0;
 						bool isFloor = (v00.y == v01.y && v00.y == v02.y);
@@ -1459,19 +1468,24 @@ namespace Recombobulator.SR1Structures
 						//{
 						//	normalIndex = -normalIndex;
 						//}
-						//if (isFloor)
-						//{
+						if (isFloor)
+						{
 							// These work for the floor!
 							n.x.Value = 0;
 							n.y.Value = 0;
-							n.z.Value = 16384;
+							n.z.Value = 4096; // 16384;
 
-						//	Console.WriteLine("isFlat = true");
-						//}
-						//else
-						//{
-						//	Console.WriteLine("isFlat = false");
-						//}
+							Console.WriteLine("isFlat = true");
+						}
+						else
+						{
+							// These work for the floor!
+							n.x.Value = 0;
+							n.y.Value = 0;
+							n.z.Value = 4096; // 16384;
+
+							Console.WriteLine("isFlat = false");
+						}
 						_normals.Add(n);
 						_morphNormals.Add(unchecked((ushort)normalIndex));
 
