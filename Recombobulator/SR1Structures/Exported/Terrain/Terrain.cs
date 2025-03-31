@@ -87,6 +87,67 @@ namespace Recombobulator.SR1Structures
 			public short x;
 			public short y;
 			public short z;
+
+			public static ObjVector operator +(ObjVector v0, ObjVector v1)
+			{
+				ObjVector v = new ObjVector();
+				v.x = (short)(v0.x + v1.x);
+				v.y = (short)(v0.y + v1.y);
+				v.z = (short)(v0.z + v1.z);
+				return v;
+			}
+
+			public static ObjVector operator -(ObjVector v0, ObjVector v1)
+			{
+				ObjVector v = new ObjVector();
+				v.x = (short)(v0.x - v1.x);
+				v.y = (short)(v0.y - v1.y);
+				v.z = (short)(v0.z - v1.z);
+				return v;
+			}
+
+			public static ObjVector operator *(ObjVector v0, short scale)
+			{
+				ObjVector v = new ObjVector();
+				v.x = (short)(v0.x * scale);
+				v.y = (short)(v0.y * scale);
+				v.z = (short)(v0.z * scale);
+				return v;
+			}
+
+			public static ObjVector operator /(ObjVector v0, short scale)
+			{
+				if (scale == 0)
+				{
+					throw new ArgumentException("Error: Dividing by zero.");
+				}
+
+				ObjVector v = new ObjVector();
+				v.x = (short)(v0.x / scale);
+				v.y = (short)(v0.y / scale);
+				v.z = (short)(v0.z / scale);
+				return v;
+			}
+
+			public short MagnitudeSquared()
+			{
+				return (short)((x * x) + (y * y) + (z * z));
+			}
+
+			public short Magnitude()
+			{
+				return (short)Math.Sqrt((x * x) + (y * y) + (z * z));
+			}
+
+			public ObjVector Import()
+			{
+				return new ObjVector
+				{
+					x = (short)x,
+					y = (short)-z,
+					z = (short)y
+				};
+			}
 		}
 
 		struct ObjVertex
@@ -634,13 +695,6 @@ namespace Recombobulator.SR1Structures
 
 		private int DotProduct(ObjVector a, ObjVector b)
 		{
-			//int aX = a.x;
-			//int aY = a.y;
-			//int aZ = a.z;
-			//int bX = b.x;
-			//int bY = b.y;
-			//int bZ = b.z;
-
 			return (a.x * b.x + a.y * b.y + a.z * b.z);
 		}
 
@@ -1430,7 +1484,7 @@ namespace Recombobulator.SR1Structures
 						mc.morphColor15.Value = 0;
 						_morphColors.Add(mc);
 					}
-					
+
 					_moddedFaces = new List<TFace>();
 
 					ObjVector testVert00 = new ObjVector { x = -4472, y = -10880, z = -646 };
@@ -1448,9 +1502,6 @@ namespace Recombobulator.SR1Structures
 						ObjVector v01 = newVertices[of.v1].pos;
 						ObjVector v02 = newVertices[of.v2].pos;
 						ObjVector on0 = CalculateFaceNormal(v00, v01, v02);
-						//short temp = on0.y;
-						//on0.y = (short)-on0.z;
-						//on0.z = temp;
 						ObjVector v10 = new ObjVector { x = v00.x, y = (short)-v00.z, z = v00.y };
 						ObjVector v11 = new ObjVector { x = v01.x, y = (short)-v01.z, z = v01.y };
 						ObjVector v12 = new ObjVector { x = v02.x, y = (short)-v02.z, z = v02.y };
